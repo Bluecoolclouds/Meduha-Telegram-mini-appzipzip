@@ -1,0 +1,14 @@
+- [Meduha design direction](meduha-design-direction.md) — fullscreen «Глубина» media keeps the unchanged main menu; liked publications belong in Community; preserve Canvas.
+- [Generated video privacy](generated-video-privacy.md) — generated Genjutsu and Seedance videos stay private until the owner explicitly publishes them.
+- [Telegram startup](telegram-startup.md) — confirmed automatic Telegram login and personal-data loading; real account logic belongs in meduha, not a Canvas-only prototype.
+- [Community discovery](template-discovery.md) — «В тренде» is a mosaic of shared user photo/video work; clicking reveals its prompt; no starter references posed as user posts.
+- [AI provider channels](ai-providers.md) — APINet is the first gateway; keep models and provider adapters separate so more channels can be added.
+- [Genjutsu pricing](genjutsu-pricing.md) — an empty tariff schedule retains the existing admin-set fixed price; missing configured cells never get an invented fallback.
+- [Generation worker tests](generation-worker-tests.md) — pause the API workflow during queue-worker integration tests so its live worker cannot claim fixture jobs.
+- [Higgsfield model catalog](higgsfield-catalog.md) — official docs do not describe a read-only discovery API; import only verified documented endpoint IDs.
+- [Browser verification](browser-verification.md) — select a CDP page target; authenticated tests need Telegram context; playback fixtures must outlast automation.
+- [Playwright on Replit](playwright-replit-runtime.md) — use Replit's Nix-aware Chromium launcher for browser tests instead of the downloaded browser binary.
+- [Transaction response ordering](transaction-response-ordering.md) — acknowledge mutations only after commit so immediate reads cannot observe old publication access.
+- [Administrator designation](admin-security.md) — fail closed for missing/orphaned owners; never promote the first visitor or replace real admin rights for testing.
+- [Schema synchronization](schema-sync.md) — schema push may exit successfully without applying changes; inspect output and use column-level single-column primary keys.
+- [JSX instrumentation](jsx-instrumentation.md) — prefer inferred generic component types; explicit JSX type arguments can break the preview despite passing TypeScript.

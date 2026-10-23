@@ -1,0 +1,25 @@
+.meduha a.m-wordmark{font-family:'Manrope',sans-serif;font-size:25px;letter-spacing:-1.2px;font-weight:800;gap:7px}
+.meduha .m-screen-create{padding-top:14px}
+.meduha .m-screen-create .m-heading{margin-bottom:12px}
+.meduha .m-screen-create .m-heading h1{font-size:24px}
+.meduha .m-screen-create .m-heading p{font-size:10px;margin-top:4px}
+.meduha .m-screen-create .m-credit{font-size:11px;padding:6px 7px}
+.meduha .m-screen-create .m-segment{margin-bottom:13px;padding:3px}
+.meduha .m-screen-create .m-segment button{padding:7px 4px}
+.meduha .m-screen-create .m-label{margin-bottom:7px;font-size:11px}
+.meduha .m-screen-create .m-label>span{font-size:9px}
+.meduha .m-screen-create .m-prompt{margin-bottom:10px;border-radius:14px}
+.meduha .m-screen-create .m-prompt textarea{height:66px;font-size:11px;padding:9px 11px 2px;line-height:1.5;min-height:66px}
+.meduha .m-screen-create .m-prompt-bottom{padding:1px 11px 8px}
+.meduha .m-screen-create .m-upload{min-height:49px;padding:8px 11px;margin-bottom:13px}
+.meduha .m-screen-create .m-style-row{margin-bottom:12px;gap:7px}
+.meduha .m-screen-create .m-style{height:78px}
+.meduha .m-screen-create .m-model{padding:8px 11px;margin-bottom:12px}
+.meduha .m-screen-create .m-options{gap:7px;margin-bottom:12px}
+.meduha .m-screen-create .m-option{padding:7px 10px}
+.meduha .m-screen-create .m-generate{padding:12px}
+.meduha .m-screen-create .m-cost-note{margin:6px 0 11px!important;font-size:8px}
+.meduha .m-screen-create .m-progress-card{padding:8px 10px}
+.meduha .m-screen-create .m-progress-card img{width:56px;height:57px}
+.meduha .m-screen-create .m-progress-text strong{font-size:11px}
+.meduha .m-screen-create .m-progress-text p{font-size:8px;max-width:190px;line-height:1.5;margin:3px 0 7px}

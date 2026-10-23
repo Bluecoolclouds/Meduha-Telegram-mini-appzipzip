@@ -1,0 +1,53 @@
+.seedance-panel{border:1px solid #493329;border-radius:15px;background:linear-gradient(135deg,#241c18,#1c1b1d);padding:12px;margin:2px 0 13px}
+.seedance-panel-heading{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.seedance-icon{width:31px;height:31px;border-radius:10px;background:#ff6b181a;color:#ff8744;display:grid;place-items:center}
+.seedance-panel-heading>span:nth-child(2){min-width:0;flex:1}
+.seedance-panel-heading strong,.seedance-panel-heading small{display:block}
+.seedance-panel-heading strong{font-size:12px}
+.seedance-panel-heading small,.seedance-panel-heading b{font-size:9px;color:#a9a0a0;margin-top:3px}
+.seedance-panel-heading b{white-space:nowrap;color:#ffab79}
+.seedance-hint{font-size:9px!important;color:#a9a0a0!important;line-height:1.5;margin:7px 0 0!important;display:flex;align-items:center;gap:6px}
+.seedance-submit{padding:12px;margin-top:2px}
+.seedance-submit:disabled{opacity:.55;cursor:not-allowed}
+.seedance-job{border-top:1px solid #45352e;margin-top:10px;padding-top:10px}
+.seedance-job-line{display:flex;align-items:center;gap:6px;font-size:10px}
+.seedance-job-line strong{flex:1}
+.seedance-refresh{background:transparent;color:#c7b5aa;padding:3px}
+.seedance-job>p{font-size:9px;color:#a9a0a0;margin-top:5px}
+.seedance-warning{color:#ffc08c!important;line-height:1.45}
+.seedance-error{background:#4a241c;color:#ffd2bd;padding:9px;border-radius:9px;font-size:10px;line-height:1.45;margin-top:8px}
+.seedance-error small{display:block;margin-top:4px;color:#e8bda8}
+.seedance-request-id{display:block;color:#8b8483;font-size:8px;margin-top:5px;overflow-wrap:anywhere}
+.seedance-result{display:flex;align-items:center;gap:6px;padding:9px 10px;margin-top:8px;border-radius:9px;background:#ff6b1818;color:#ffac79!important;font-size:10px}
+.seedance-result svg:last-child{margin-left:auto}
+.seedance-spin{animation:seedance-spin .9s linear infinite}
+@keyframes seedance-spin{to{transform:rotate(360deg)}}
+.meduha .vs-head{position:relative;padding:2px 96px 6px 0;min-height:96px}
+.meduha .vs-head h1{margin-top:6px}
+.meduha .vs-mascot{position:absolute;right:-4px;top:-8px;width:100px;object-fit:contain;filter:drop-shadow(0 10px 18px #ff6b1826)}
+.meduha .vs-status{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:9px;font-weight:650;padding:3px 7px;border-radius:7px}
+.meduha .vs-status.documented{background:#e7f1e4;color:#3d6b34}
+.meduha .vs-status.workflow{background:#fde9cf;color:#93560f}
+.meduha .vs-status.mcp{background:#ece6f6;color:#5d4a86}
+.meduha .vs-sheet-img{width:100%;height:150px;object-fit:cover;border-radius:16px;margin-bottom:12px}
+.meduha .vs-sheet-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.meduha .vs-sheet-tags .vs-status{margin:0}
+.meduha .vs-provider{font-size:9px;font-weight:650;padding:3px 7px;border-radius:7px;background:var(--raised);color:var(--orange-ink)}
+.meduha .m-sheet p.vs-sub{margin:9px 0 4px;font-weight:600;color:var(--text)}
+.meduha .vs-h{display:flex;align-items:center;gap:6px;font-size:12px;margin:10px 0 4px;color:var(--orange-ink)}
+.meduha .vs-sheet p{margin-bottom:6px}
+.meduha .vs-endpoint{display:block;overflow-wrap:anywhere;font:500 10px var(--app-font-mono);padding:7px 9px;border-radius:9px;background:var(--raised);margin:4px 0 10px}
+.meduha .vs-disclose{font-size:10.5px;line-height:1.55;padding:10px 12px;border-radius:12px;background:#fff3e6;border:1px solid #f2d6bf;color:#7b5c4a;margin:8px 0 10px}
+.meduha .vs-carry{display:flex;gap:6px;align-items:flex-start;font-size:11px!important}
+.meduha .vs-carry svg{color:var(--orange-ink);margin-top:3px}
+.meduha .vs-sheet .m-generate{display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.meduha .vs-source{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:12px;font-size:11px;color:var(--orange-ink);text-decoration:underline!important;text-underline-offset:3px}
+.meduha .vs-banner{display:flex;flex-direction:column;gap:5px;padding:11px 13px;border-radius:14px;background:#fff3e6;border:1px solid #f2c8a6;margin:8px 0 13px;font-size:11px;line-height:1.5}
+.meduha .vs-banner strong{font-size:13px}
+.meduha .vs-banner small{color:#8d6b57}
+.meduha .vs-banner a{color:var(--orange-ink);font-weight:600;display:inline-flex;gap:4px;align-items:center}
+.meduha.light.dark .vs-status.documented{background:#1f2e1c;color:#a6d39a}
+.meduha.light.dark .vs-status.workflow{background:#35260f;color:#f2bd76}
+.meduha.light.dark .vs-status.mcp{background:#29233a;color:#c3b2ec}
+.meduha.light.dark .vs-disclose,.meduha.light.dark .vs-banner{background:#251e1b;border-color:#48352a;color:#c6b3a5}
+.meduha.light.dark .vs-banner small{color:#b39c8d}

@@ -1,0 +1,95 @@
+/* Video scenario catalogue — composition modelled on an explore feed. Scoped to .vs-page. */
+.meduha .vs-page{--vk-bg:var(--bg);--vk-card:#1a1a1b;--vk-line:#ffffff17;--vk-text:#f4f4f5;--vk-mut:#9b9ba1;--vk-accent:#ff7a2e;--vk-tag:#ffffff12;max-width:100%;overflow-x:clip}
+.meduha.light .vs-page{--vk-card:var(--surface);--vk-line:#2a181017;--vk-text:#24150e;--vk-mut:#7d6b60;--vk-accent:var(--orange-ink);--vk-tag:#2a18100d}
+.meduha.light.dark .vs-page{--vk-card:#1a1a1b;--vk-line:#ffffff17;--vk-text:#f4f4f5;--vk-mut:#9b9ba1;--vk-accent:#ff7a2e;--vk-tag:#ffffff12}
+
+/* Rounded hero with bounded text and a fade into the page. */
+.meduha .vs-hero{position:relative;margin:0 0 14px;border-radius:16px;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.meduha .vs-hero-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.meduha .vs-hero-track::-webkit-scrollbar{display:none}
+.meduha .vs-hero-slide{position:relative;flex:0 0 100%;scroll-snap-align:start;height:268px;overflow:hidden}
+.meduha .vs-hero-backdrop{position:absolute;inset:-16px;background-position:center;background-size:cover;filter:blur(16px) brightness(.72);opacity:.48;transform:scale(1.06)}
+.meduha .vs-hero-slide>img{position:absolute;inset:0 0 auto;width:100%;height:84%;object-fit:contain;object-position:center top;-webkit-mask-image:linear-gradient(180deg,#000 68%,#0000 100%);mask-image:linear-gradient(180deg,#000 68%,#0000 100%)}
+.meduha .vs-hero-slide::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 30%,color-mix(in srgb,var(--bg) 55%,transparent) 62%,var(--bg) 88%)}
+.meduha .vs-hero-copy{position:absolute;z-index:1;left:18px;right:18px;bottom:56px;min-width:0;color:var(--vk-text)}
+.meduha .vs-hero-brand{display:block;font-size:9px;line-height:1.4;font-weight:500;color:var(--vk-accent);letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meduha .vs-hero h2{font-size:22px;line-height:1.15;font-weight:700;letter-spacing:-.55px;text-transform:uppercase;margin:5px 0 5px;color:var(--vk-text);overflow-wrap:anywhere}
+.meduha .vs-hero p{font-size:11px;line-height:1.4;color:var(--vk-mut);margin:0 0 9px;max-width:280px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meduha .vs-hero-row{display:flex;align-items:center;gap:8px;font-size:10px;line-height:1.4;color:var(--vk-mut);min-width:0}
+.meduha .vs-hero-row>span{min-width:0;overflow-wrap:anywhere}
+.meduha .vs-hero-row button{flex:none;min-height:30px;font-size:11px;line-height:1.3;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--vk-text);color:var(--bg)}
+.meduha .vs-hero-thumbs{position:absolute;z-index:2;left:18px;right:18px;bottom:16px;display:flex;align-items:center;justify-content:flex-start;gap:6px}
+.meduha .vs-hero-thumbs button{flex:none;width:28px;height:28px;padding:0;border-radius:99px;background:transparent;border:1.5px solid transparent;opacity:.65;overflow:hidden;transition:width .45s cubic-bezier(.2,.8,.2,1),opacity .3s,border-color .3s}
+.meduha .vs-hero-thumbs button img{display:block;width:100%;height:100%;border-radius:99px;object-fit:cover}
+.meduha .vs-hero-thumbs button.on{width:48px;opacity:1;border-color:var(--vk-text);padding:2px}
+.meduha .vs-hero-bars{position:absolute;z-index:2;left:18px;right:18px;bottom:6px;display:flex;gap:4px}
+.meduha .vs-hero-bars span{flex:1;height:2px;border-radius:2px;background:var(--vk-line);overflow:hidden}
+.meduha .vs-hero-bars i{display:block;height:100%;background:var(--vk-text);transform-origin:left;transform:scaleX(0)}
+.meduha .vs-hero-bars span.done i{transform:scaleX(1);transition:transform .3s}
+.meduha .vs-hero-bars span.on i{animation:vs-bar linear forwards}
+@keyframes vs-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* Promo strip */
+.meduha .vs-promo{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;gap:9px;min-height:46px;padding:6px 8px 6px 10px;border-radius:12px;margin-bottom:14px;background:linear-gradient(110deg,#b83b18 0%,#c9491c 24%,#d05420 49%,#c24719 72%,#b83b18 100%);background-size:250% 100%;animation:vs-banner-drift 12s ease-in-out infinite alternate;color:#fff;box-shadow:0 4px 16px #ff773d30}
+.meduha .vs-promo::before{content:'';position:absolute;z-index:0;top:-60%;bottom:-60%;left:-42%;width:34%;pointer-events:none;background:linear-gradient(100deg,transparent,#fff9,transparent);transform:skewX(-18deg);animation:vs-banner-shine 5.5s ease-in-out infinite}
+.meduha .vs-promo>*{position:relative;z-index:1}
+.meduha .vs-promo-icon{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#fff6;border:1px solid #fff9;color:#63270f}
+.meduha .vs-promo-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.meduha .vs-promo-text strong{font-size:12px;font-weight:700;letter-spacing:-.2px;line-height:1.2}
+.meduha .vs-promo-text small{font-size:10px;line-height:1.3;color:#fff;opacity:.9}
+.meduha .vs-promo-cta{flex:none;font-size:11px;font-weight:650;padding:6px 10px;border-radius:7px;background:#fff8ef;color:#41210f}
+.meduha .vs-promo:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+@keyframes vs-banner-drift{from{background-position:0% 50%}to{background-position:100% 50%}}
+@keyframes vs-banner-shine{0%,18%{left:-42%;opacity:0}28%{opacity:.72}62%{opacity:.48}78%,100%{left:115%;opacity:0}}
+
+/* Toolbar + filter panel */
+.meduha .vs-toolbar{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.meduha .vs-toolrow{display:flex;gap:6px;align-items:center}
+.meduha .vs-search{flex:1;min-width:0;display:flex;align-items:center;gap:7px;height:36px;padding:0 4px 0 11px;border-radius:9px;border:1px solid var(--vk-line);background:var(--vk-card);color:var(--vk-mut);transition:border-color .2s}
+.meduha .vs-search:focus-within{border-color:var(--vk-accent)}
+.meduha .vs-search input{flex:1;min-width:0;border:0;background:none;outline:none;color:var(--vk-text);font-size:12.5px}
+.meduha .vs-search input::placeholder{color:var(--vk-mut)}
+.meduha .vs-clear{width:28px;height:28px;display:grid;place-items:center;border-radius:7px;background:var(--vk-tag);color:var(--vk-mut)}
+.meduha .vs-filter{flex:none;display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 11px;border-radius:9px;border:1px solid var(--vk-line)!important;background:var(--vk-card);font-size:12px;font-weight:600;color:var(--vk-text)}
+.meduha .vs-filter.on,.meduha .vs-filter[aria-expanded=true]{border-color:var(--vk-accent)!important}
+.meduha .vs-filter b{min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--orange);color:#21130b;font-size:10px;display:grid;place-items:center}
+.meduha .vs-panel{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:10px;border:1px solid var(--vk-line);background:var(--vk-card);animation:m-enter .25s both}
+.meduha .vs-panel-label{font-size:10px;font-weight:600;color:var(--vk-mut);text-transform:uppercase;letter-spacing:.4px}
+.meduha .vs-chips{display:flex;flex-wrap:wrap;gap:5px}
+.meduha .vs-chips button{font-size:11.5px;font-weight:550;padding:6px 10px;border-radius:7px;background:transparent;border:1px solid var(--vk-line);color:var(--vk-mut);transition:color .2s,border-color .2s,background .2s}
+.meduha .vs-chips button.on{color:var(--vk-text);border-color:var(--vk-accent);background:var(--vk-tag)}
+.meduha .vs-panel-reset{align-self:flex-start;background:none;padding:2px 0;font-size:11px;color:var(--vk-accent);text-decoration:underline;text-underline-offset:3px}
+.meduha .vs-section{font-size:17px;font-weight:750;letter-spacing:-.5px;color:var(--vk-text);margin:0 0 10px}
+.meduha .vs-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Cards */
+.meduha .vs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.meduha .vs-card{display:flex;flex-direction:column;min-width:0;padding:4px;text-align:left;background:var(--vk-card);border:1px solid var(--vk-line);border-radius:12px;animation:m-enter .35s both;transition:border-color .2s}
+.meduha .vs-card:hover{border-color:color-mix(in srgb,var(--vk-accent) 50%,transparent)}
+.meduha .vs-card.best{border-color:var(--vk-accent)}
+.meduha .vs-card:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.meduha .vs-card-img{position:relative;display:block;aspect-ratio:16/10;border-radius:8px;overflow:hidden;background:var(--vk-tag)}
+.meduha .vs-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.meduha .vs-card:hover .vs-card-img img{transform:scale(1.04)}
+.meduha .vs-best{position:absolute;left:5px;top:5px;font-size:9.5px;font-weight:700;padding:3px 6px;border-radius:5px;background:var(--orange);color:#21130b}
+.meduha .vs-card-body{display:flex;min-width:0;min-height:120px;flex:1;flex-direction:column;gap:6px;padding:12px 8px 8px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;box-sizing:border-box}
+.meduha .vs-card-body strong{font-size:13.5px;font-weight:700;letter-spacing:-.3px;line-height:1.2;color:var(--vk-text)}
+.meduha .vs-card-body em{font-style:normal;font-weight:500;color:var(--vk-mut);font-size:11px}
+.meduha .vs-card-body small{font-size:11px;line-height:1.35;color:var(--vk-mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meduha .vs-card-foot{margin-top:auto;padding-top:6px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;width:100%}
+.meduha .vs-prov{max-width:100%;font-size:10px;color:var(--vk-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.meduha .vs-price{display:inline-flex;align-items:center;font-size:11px;font-weight:650;line-height:1;padding:5px 7px;border-radius:5px;background:var(--vk-tag);color:var(--vk-text);border:1px solid var(--vk-line)}
+
+/* Empty + free entry */
+.meduha .vs-empty{text-align:center;padding:20px 12px;border:1px dashed var(--vk-line);border-radius:12px;color:var(--vk-text)}
+.meduha .vs-empty img{width:90px;margin:0 auto 6px}
+.meduha .vs-empty p{font-size:12px;color:var(--vk-mut);margin:6px 0 12px;line-height:1.5}
+.meduha .vs-empty-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.meduha .vs-empty-actions>*{font-size:12px;font-weight:600;padding:9px 13px;border-radius:9px;background:var(--vk-tag);color:var(--vk-text)}
+.meduha .vs-empty-actions a{background:var(--orange);color:#21130b}
+.meduha .vs-free{display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid var(--vk-line);background:var(--vk-card);color:var(--vk-text)}
+.meduha .vs-free span{flex:1;display:flex;flex-direction:column;gap:2px}
+.meduha .vs-free small{color:var(--vk-mut);font-size:11px}
+
+@media(max-width:340px){.meduha .vs-hero-slide{height:248px}.meduha .vs-hero h2{font-size:20px}.meduha .vs-filter{padding:0 9px}.meduha .vs-card-body strong{font-size:12.5px}.meduha .vs-promo-text small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.meduha .vs-card,.meduha .vs-card img,.meduha .vs-hero-slide>img,.meduha .vs-hero-thumbs button{animation:none!important;transition:none!important}.meduha .vs-promo,.meduha .vs-promo::before{animation:none}.meduha .vs-hero-bars span.on i{animation:none;transform:scaleX(1)}}

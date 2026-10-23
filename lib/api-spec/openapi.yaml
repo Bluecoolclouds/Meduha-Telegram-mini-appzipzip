@@ -1,0 +1,1694 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+paths:
+  /meduha/templates:
+    get:
+      operationId: listTemplates
+      parameters:
+        - { in: query, name: query, schema: { type: string, maxLength: 100 } }
+        - { in: query, name: tag, schema: { type: string, minLength: 1, maxLength: 100 }, description: "Exact publication tag, case-insensitive; an optional leading hash is ignored." }
+        - { in: query, name: kind, schema: { type: string, enum: [all, photo, video, audio], default: all } }
+        - { in: query, name: scope, schema: { type: string, enum: [public, mine, moderation, liked, saved], default: public } }
+        - { in: query, name: cursor, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 24, default: 12 } }
+      responses:
+        "200":
+          description: Stable descending keyset page
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TemplatePage" }
+    post:
+      operationId: createTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TemplateInput" }
+      responses:
+        "201":
+          description: Saved draft
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StudioTemplate" }
+  /meduha/catalog/prices:
+    get:
+      operationId: getModelCatalogPrices
+      tags: [meduha]
+      summary: Public configured credit prices for enabled Higgsfield video models
+      responses:
+        "200":
+          description: Public model prices only, without channel settings or credentials
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ModelCatalogPriceList" }
+  /meduha/genjutsu/models:
+    get:
+      operationId: listGenjutsuModels
+      responses:
+        "200":
+          description: Enabled and priced Genjutsu models with the spending switch
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenerationModelList" }
+        "401": { description: Telegram account required }
+  /meduha/genjutsu/styles:
+    get:
+      operationId: listGenjutsuStyles
+      parameters:
+        - { in: query, name: modelId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Currently available provider style presets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenjutsuStyleList" }
+        "401": { description: Telegram account required }
+        "503": { description: Styles temporarily unavailable }
+  /meduha/genjutsu/quote:
+    post:
+      operationId: createGenjutsuPriceQuote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GenjutsuPriceQuoteInput" }
+      responses:
+        "200":
+          description: Short-lived server-signed quote based on verified video metadata and current tariff
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenjutsuPriceQuote" }
+        "400": { description: Invalid media or parameters }
+        "401": { description: Telegram account required }
+        "409": { description: Model or tariff unavailable }
+        "503": { description: Quote service temporarily unavailable }
+  /meduha/genjutsu/generations:
+    post:
+      operationId: createGenjutsuGeneration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GenjutsuInput" }
+      responses:
+        "202":
+          description: Persisted job with a reserved credit price
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenerationSubmission" }
+        "400": { description: Invalid input media or parameters }
+        "401": { description: Telegram account required }
+        "409": { description: "Model, funds, or spending unavailable" }
+  /meduha/generations/models:
+    get:
+      operationId: listGenerationModels
+      responses:
+        "200":
+          description: Enabled Seedance models and spending switch
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenerationModelList" }
+        "401": { description: Telegram account required }
+  /meduha/generations:
+    get:
+      operationId: listMeduhaGenerations
+      responses:
+        "200":
+          description: Recent generation jobs owned by the signed-in account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenerationJobList" }
+        "401": { description: Telegram account required }
+    post:
+      operationId: createMeduhaGeneration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GenerationInput" }
+      responses:
+        "202":
+          description: Persisted job accepted for one-time provider submission
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenerationSubmission" }
+        "400": { description: Invalid generation parameters }
+        "401": { description: Telegram account required }
+        "409": { description: "Model unavailable, spending disabled, or insufficient budget" }
+  /meduha/generations/{id}/video:
+    get:
+      operationId: getMeduhaGenerationVideo
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Private video streamed to its owner, with byte-range support
+          content:
+            video/mp4: { schema: { type: string, format: binary } }
+            video/webm: { schema: { type: string, format: binary } }
+        "401": { description: Telegram account required }
+        "404": { description: Video not found or owned by another account }
+        "503": { description: Video is temporarily unavailable }
+  /meduha/templates/access:
+    get:
+      operationId: getTemplateAccess
+      responses:
+        "200":
+          description: Server verified role
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [isAdmin]
+                properties:
+                  isAdmin: { type: boolean }
+  /meduha/templates/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getTemplate
+      responses:
+        "200":
+          description: Publicly published work only
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StudioTemplate" }
+        "404":
+          description: Work is missing or is not publicly published
+    put:
+      operationId: updateTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TemplateInput" }
+      responses:
+        "200":
+          description: Saved draft, edits require republication
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StudioTemplate" }
+  /meduha/templates/{id}/publication:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: setTemplatePublication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TemplatePublicationInput"
+      responses:
+        "200":
+          description: Updated publication status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StudioTemplate" }
+  /meduha/templates/{id}/like:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    put:
+      operationId: setTemplateLike
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TemplateLikeInput" }
+      responses:
+        "200":
+          description: Persisted account like and current public count
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TemplateLikeState" }
+        "401": { description: Telegram account required }
+        "404": { description: Publication not available }
+  /meduha/templates/{id}/save:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    put:
+      operationId: setTemplateSave
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TemplateSaveInput" }
+      responses:
+        "200":
+          description: Persisted account save state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TemplateSaveState" }
+        "401": { description: Telegram account required }
+        "404": { description: Publication not available }
+  /meduha/uploads:
+    post:
+      operationId: requestTemplateUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TemplateUploadInput"
+      responses:
+        "200":
+          description: Direct upload URL, valid 15 minutes
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, uploadUrl]
+                properties:
+                  id: { type: string, format: uuid }
+                  uploadUrl: { type: string }
+  /meduha/uploads/{id}/complete:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: completeTemplateUpload
+      responses:
+        "200":
+          description: Verified immutable file
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [objectPath]
+                properties:
+                  objectPath: { type: string }
+  /meduha/media/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getTemplateMedia
+      description: Public only while referenced by a published template; otherwise author/admin only. Supports byte ranges. The app may request an attachment by appending download=true and an optional filename.
+      responses:
+        "200":
+          description: Media bytes; includes an attachment filename when download=true
+          headers:
+            Content-Disposition:
+              schema: { type: string }
+        "206": { description: Partial media bytes }
+        "404": { description: Not found or private }
+  /telegram/webhook:
+    post:
+      operationId: telegramWebhook
+      description: Telegram-only callback. Authenticated with X-Telegram-Bot-Api-Secret-Token; never called by the frontend.
+      security:
+        - TelegramWebhookSecret: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TelegramBotUpdate"
+      responses:
+        "200":
+          description: Update processed
+        "400":
+          description: Malformed update
+        "403":
+          description: Invalid Telegram webhook secret
+        "503":
+          description: Temporary failure; Telegram should retry
+  /meduha/session:
+    get:
+      operationId: getMeduhaSession
+      responses:
+        "200":
+          description: Session and server configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeduhaSession"
+    delete:
+      operationId: logoutMeduha
+      responses:
+        "204":
+          description: Session revoked
+  /meduha/auth/telegram:
+    post:
+      operationId: authenticateMeduhaTelegram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TelegramCredentials"
+      responses:
+        "200":
+          description: Authenticated session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeduhaSession"
+  /meduha/bootstrap:
+    get:
+      operationId: getMeduhaBootstrap
+      responses:
+        "200":
+          description: Private account data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeduhaBootstrap"
+  /meduha/drafts/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+    put:
+      operationId: saveMeduhaDraft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeduhaDraftInput"
+      responses:
+        "200":
+          description: Saved draft
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeduhaDraft"
+    delete:
+      operationId: deleteMeduhaDraft
+      responses:
+        "204":
+          description: Draft deleted
+  /meduha/drafts/import:
+    post:
+      operationId: importMeduhaDrafts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeduhaDraftImport"
+      responses:
+        "200":
+          description: All account drafts after non-destructive import
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MeduhaDraft"
+  /meduha/settings:
+    patch:
+      operationId: saveMeduhaSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeduhaPreferences"
+      responses:
+        "200":
+          description: Updated preferences
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeduhaPreferences"
+  /meduha/reports:
+    post:
+      operationId: submitMeduhaReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MeduhaReportInput" }
+      responses:
+        "201":
+          description: Report accepted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MeduhaReportReceipt" }
+        "200":
+          description: Duplicate report deduplicated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MeduhaReportReceipt" }
+        "401": { description: Authenticated account required }
+        "404": { description: Published template not found }
+  /meduha/wallet:
+    get:
+      operationId: getMeduhaWallet
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 2147483647, default: 0 } }
+      responses:
+        "200":
+          description: Current authenticated account wallet only
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceWallet" }
+        "401": { description: Authenticated account required }
+  /meduha/admin/login:
+    get:
+      operationId: getMeduhaAdminStatus
+      responses:
+        "200":
+          description: Admin session status, no account data for unauthorized users
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminStatus" }
+    post:
+      operationId: loginMeduhaAdminPairing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminPairingLoginInput" }
+      responses:
+        "200":
+          description: Admin session established using a one-time pairing code
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminSession" }
+        "401": { description: "Invalid, expired, or consumed pairing code" }
+  /meduha/admin/logout:
+    post:
+      operationId: logoutMeduhaAdmin
+      responses:
+        "204": { description: Admin session revoked }
+  /meduha/admin/pairing:
+    post:
+      operationId: issueMeduhaAdminPairing
+      responses:
+        "201":
+          description: Short-lived pairing code for authenticated designated admin in Telegram Mini App
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminPairingCode" }
+        "401": { description: Authenticated Telegram account required }
+        "403": { description: Designated administrator required }
+  /meduha/admin/channels:
+    get:
+      operationId: listAdminChannels
+      responses:
+        "200":
+          description: Configured channels; credentials are never returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminChannel" }
+    post:
+      operationId: createAdminChannel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminChannelInput" }
+      responses:
+        "201":
+          description: Disabled channel created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminChannel" }
+  /meduha/admin/channels/{channelId}:
+    parameters:
+      - { in: path, name: channelId, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getAdminChannel
+      responses:
+        "200":
+          description: "Channel configuration, no credentials"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminChannel" }
+    patch:
+      operationId: updateAdminChannel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminChannelUpdate" }
+      responses:
+        "200":
+          description: Updated channel configuration
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminChannel" }
+    delete:
+      operationId: deleteAdminChannel
+      responses:
+        "204": { description: Channel deleted }
+  /meduha/admin/models:
+    get:
+      operationId: listAdminModels
+      responses:
+        "200":
+          description: Configured models; no connectivity is implied
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminModel" }
+    post:
+      operationId: createAdminModel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminModelInput" }
+      responses:
+        "201":
+          description: Disabled model created; generation is not enabled or verified
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminModel" }
+  /meduha/admin/models/{modelId}:
+    parameters:
+      - { in: path, name: modelId, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getAdminModel
+      responses:
+        "200":
+          description: Configured model; no connectivity is implied
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminModel" }
+    patch:
+      operationId: updateAdminModel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminModelUpdate" }
+      responses:
+        "200":
+          description: Updated model configuration
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminModel" }
+    delete:
+      operationId: deleteAdminModel
+      responses:
+        "204": { description: Model deleted }
+  /meduha/admin/higgsfield/catalog:
+    get:
+      operationId: getHiggsfieldCatalog
+      responses:
+        "200":
+          description: Officially documented model workflows and input parameters; no generation is submitted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HiggsfieldCatalog" }
+        "403": { description: Designated administrator required }
+        "503": { description: Official documentation is unavailable and no cached catalog is available }
+  /meduha/admin/higgsfield/import:
+    post:
+      operationId: importHiggsfieldCatalogModels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HiggsfieldCatalogImportInput" }
+      responses:
+        "200":
+          description: Newly imported models are disabled; existing model settings are left unchanged
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HiggsfieldCatalogImportResult" }
+        "400": { description: Invalid request or non-Higgsfield channel }
+        "403": { description: Designated administrator required }
+        "404": { description: Channel not found }
+        "503": { description: A fresh official catalog is unavailable }
+  /meduha/admin/finance:
+    get:
+      operationId: getAdminFinanceSettings
+      responses:
+        "200":
+          description: Finance settings from the finance service
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceSettings" }
+    patch:
+      operationId: updateAdminFinanceSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminFinanceSettingsUpdate" }
+      responses:
+        "200":
+          description: Updated finance settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceSettings" }
+  /meduha/admin/users:
+    get:
+      operationId: listAdminUsers
+      parameters:
+        - { in: query, name: query, schema: { type: string, maxLength: 100 } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 2147483647, default: 0 } }
+      responses:
+        "200":
+          description: Real account page and matching total
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUserPage" }
+  /meduha/admin/users/{userId}:
+    parameters:
+      - { in: path, name: userId, required: true, schema: { type: string } }
+    get:
+      operationId: getAdminUser
+      responses:
+        "200":
+          description: "Account detail, works and real wallet summary"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUserDetail" }
+        "404": { description: Account not found }
+  /meduha/admin/wallet:
+    get:
+      operationId: getAdminWallet
+      parameters:
+        - { in: query, name: userId, required: true, schema: { type: string, minLength: 1 } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 2147483647, default: 0 } }
+      responses:
+        "200":
+          description: Admin-only paginated wallet for the requested account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceWallet" }
+        "403": { description: Designated admin required }
+        "404": { description: Account not found }
+  /meduha/admin/users/{userId}/block:
+    parameters:
+      - { in: path, name: userId, required: true, schema: { type: string } }
+    put:
+      operationId: setAdminUserBlocked
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminUserBlockInput" }
+      responses:
+        "200":
+          description: Block state updated; designated admin cannot be blocked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUserBlockState" }
+        "403": { description: Cannot block the designated administrator or current admin }
+  /meduha/admin/statistics:
+    get:
+      operationId: getAdminStatistics
+      responses:
+        "200":
+          description: "Aggregates computed from real accounts, templates, works, ledger and reservations"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminStatistics" }
+  /meduha/admin/templates:
+    get:
+      operationId: listAdminTemplates
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 2147483647, default: 0 } }
+      responses:
+        "200":
+          description: Existing community template page for moderation; response remains an array
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminTemplate" }
+  /meduha/admin/templates/{templateId}/publication:
+    parameters:
+      - { in: path, name: templateId, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: moderateAdminTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminTemplateModerationInput" }
+      responses:
+        "200":
+          description: Template publication status updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminTemplate" }
+        "404": { description: Template not found }
+  /meduha/admin/reports:
+    get:
+      operationId: listAdminReports
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 2147483647, default: 0 } }
+      responses:
+        "200":
+          description: Persistent report inbox page; response remains an array
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminReport" }
+  /meduha/admin/reports/{reportId}:
+    parameters:
+      - { in: path, name: reportId, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: resolveAdminReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminReportResolutionInput" }
+      responses:
+        "200":
+          description: Report resolved or dismissed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminReport" }
+  /meduha/admin/jobs:
+    get:
+      operationId: listAdminJobs
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 2147483647, default: 0 } }
+      responses:
+        "200":
+          description: Real meduha works page only; response remains an array
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MeduhaWork" }
+  /meduha/admin/audit:
+    get:
+      operationId: listAdminAudit
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: Persistent audit event page
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminAuditPage" }
+  /meduha/admin/ledger:
+    get:
+      operationId: listAdminLedger
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: Paginated finance ledger from finance service
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminLedgerPage" }
+  /meduha/admin/credits/adjust:
+    post:
+      operationId: adjustAdminCredits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreditAdjustmentInput" }
+      responses:
+        "200":
+          description: Finance service adjustment result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceMutationResult" }
+  /meduha/admin/credits/reserve:
+    post:
+      operationId: reserveAdminCredits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreditReservationInput" }
+      responses:
+        "200":
+          description: Finance service reservation result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceMutationResult" }
+  /meduha/admin/credits/{reservationId}/settle:
+    parameters:
+      - { in: path, name: reservationId, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: settleAdminCredits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreditTransitionInput" }
+      responses:
+        "200":
+          description: Finance service settlement result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceMutationResult" }
+  /meduha/admin/credits/{reservationId}/release:
+    parameters:
+      - { in: path, name: reservationId, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: releaseAdminCredits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreditTransitionInput" }
+      responses:
+        "200":
+          description: Finance service release result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceMutationResult" }
+  /meduha/admin/credits/{reservationId}/refund:
+    parameters:
+      - { in: path, name: reservationId, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: refundAdminCredits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreditTransitionInput" }
+      responses:
+        "200":
+          description: Finance service refund result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinanceMutationResult" }
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+components:
+  # Template errors use the existing JSON error envelope and standard 400/401/403/404/429/503 statuses.
+  securitySchemes:
+    TelegramWebhookSecret:
+      type: apiKey
+      in: header
+      name: X-Telegram-Bot-Api-Secret-Token
+  schemas:
+    TemplateLikeInput:
+      type: object
+      required: [liked]
+      properties:
+        liked: { type: boolean }
+    TemplateLikeState:
+      type: object
+      required: [likeCount, likedByMe]
+      properties:
+        likeCount: { type: integer, minimum: 0 }
+        likedByMe: { type: boolean }
+    TemplateSaveInput:
+      type: object
+      required: [saved]
+      properties:
+        saved: { type: boolean }
+    TemplateSaveState:
+      type: object
+      required: [savedByMe]
+      properties:
+        savedByMe: { type: boolean }
+    TemplatePublicationInput:
+      type: object
+      required: [action]
+      properties:
+        action: { type: string, enum: [submit, publish, withdraw] }
+    TemplateUploadInput:
+      type: object
+      required: [contentType, size]
+      properties:
+        contentType: { type: string, enum: [image/jpeg, image/png, image/webp, video/mp4, video/webm, audio/mpeg, audio/wav, audio/x-wav] }
+        size: { type: integer, minimum: 1, maximum: 104857600 }
+    TemplateInput:
+      type: object
+      required: [title, description, kind, poster, width, height, prompt, tags, parameters]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 100 }
+        description: { type: string, maxLength: 2000 }
+        kind: { type: string, enum: [photo, video, audio] }
+        poster: { type: string, pattern: '^(\/api\/meduha\/media\/[a-f0-9-]{36}|images\/[a-z0-9/_-]+\.(png|jpe?g|webp)|https:\/\/[^ ]+)$' }
+        videoUrl: { type: [string, "null"], pattern: '^(\/api\/meduha\/media\/[a-f0-9-]{36}|https:\/\/[^ ]+)$' }
+        audioUrl: { type: [string, "null"], pattern: '^(\/api\/meduha\/media\/[a-f0-9-]{36}|https:\/\/[^ ]+)$' }
+        width: { type: integer, minimum: 1, maximum: 8192 }
+        height: { type: integer, minimum: 1, maximum: 8192 }
+        prompt: { type: string, minLength: 1, maxLength: 10000 }
+        tags:
+          type: array
+          maxItems: 12
+          items: { type: string, maxLength: 50 }
+        sourceUrl: { type: [string, "null"], pattern: '^https://' }
+        credit: { type: [string, "null"] }
+        parameters:
+          type: object
+          required: [model, style, ratio, duration]
+          properties:
+            model: { type: string, maxLength: 100 }
+            style: { type: string, maxLength: 100 }
+            ratio: { type: string, maxLength: 30 }
+            duration: { type: string, maxLength: 30 }
+    StudioTemplate:
+      allOf:
+        - { $ref: "#/components/schemas/TemplateInput" }
+        - type: object
+          required: [id, status]
+          properties:
+            id: { type: string }
+            ownerId: { type: string }
+            status: { type: string, enum: [draft, pending, published] }
+            authorName: { type: string, maxLength: 80 }
+            likeCount: { type: integer, minimum: 0 }
+            likedByMe: { type: boolean }
+            savedByMe: { type: boolean }
+            authorAvatarUrl: { type: [string, "null"], maxLength: 2048, pattern: '^https://' }
+    TemplatePage:
+      type: object
+      required: [items, nextCursor, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/StudioTemplate" }
+        nextCursor: { type: [integer, "null"] }
+        total: { type: integer }
+    TelegramBotUpdate:
+      type: object
+      additionalProperties: true
+      required: [update_id]
+      properties:
+        update_id: { type: integer, minimum: 0, maximum: 9007199254740991 }
+        message:
+          type: object
+          additionalProperties: true
+          properties:
+            text: { type: string }
+            chat:
+              type: object
+              additionalProperties: true
+              required: [id, type]
+              properties:
+                id: { type: integer }
+                type: { type: string }
+    TelegramCredentials:
+      type: object
+      required: [initData]
+      properties:
+        initData: { type: string, minLength: 1, maxLength: 16384 }
+    MeduhaPreferences:
+      type: object
+      required: [notifications, quality]
+      properties:
+        notifications: { type: boolean }
+        quality: { type: boolean }
+    MeduhaAccount:
+      type: object
+      required: [id, firstName, lastName, username, photoUrl, languageCode, credits, subscription]
+      properties:
+        id: { type: string }
+        firstName: { type: string }
+        lastName: { type: [string, "null"] }
+        username: { type: [string, "null"] }
+        photoUrl: { type: [string, "null"] }
+        languageCode: { type: string }
+        credits: { type: integer, minimum: 0 }
+        subscription: { type: string, enum: [none, plus] }
+    MeduhaSession:
+      type: object
+      required: [account, telegramConfigured]
+      properties:
+        telegramBotUsername:
+          type: [string, "null"]
+          description: Public bot username verified by the server, for opening the bot outside Telegram.
+        account:
+          oneOf:
+            - $ref: "#/components/schemas/MeduhaAccount"
+            - { type: "null" }
+        telegramConfigured: { type: boolean }
+    MeduhaDraftInput:
+      type: object
+      required: [title, type, prompt, style, model, ratio, duration]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 100 }
+        type: { type: string, enum: [photo, video, music] }
+        prompt: { type: string, minLength: 1, maxLength: 2000 }
+        style: { type: string, maxLength: 100 }
+        model: { type: string, maxLength: 100 }
+        ratio: { type: string, maxLength: 30 }
+        duration: { type: string, maxLength: 30 }
+        referenceName: { type: string, maxLength: 255 }
+    MeduhaDraft:
+      allOf:
+        - $ref: "#/components/schemas/MeduhaDraftInput"
+        - type: object
+          required: [id, updatedAt]
+          properties:
+            id: { type: string, minLength: 1, maxLength: 128 }
+            updatedAt: { type: number }
+    MeduhaDraftImport:
+      type: object
+      required: [drafts]
+      properties:
+        drafts:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/MeduhaDraft"
+    MeduhaWork:
+      type: object
+      required: [id, title, type, status, createdAt]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        type: { type: string, enum: [photo, video, music] }
+        status: { type: string, enum: [queued, processing, completed, failed] }
+        createdAt: { type: number }
+    MeduhaBootstrap:
+      type: object
+      required: [account, drafts, works, settings]
+      properties:
+        account: { $ref: "#/components/schemas/MeduhaAccount" }
+        drafts:
+          type: array
+          items: { $ref: "#/components/schemas/MeduhaDraft" }
+        works:
+          type: array
+          items: { $ref: "#/components/schemas/MeduhaWork" }
+        settings: { $ref: "#/components/schemas/MeduhaPreferences" }
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    MeduhaReportInput:
+      type: object
+      required: [templateId, reason]
+      properties:
+        templateId: { type: string, format: uuid }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+    MeduhaReportReceipt:
+      type: object
+      required: [accepted]
+      properties:
+        accepted: { type: boolean }
+    MeduhaWallet:
+      type: object
+      required: [credits, subscription]
+      properties:
+        credits: { type: integer, minimum: 0 }
+        subscription: { type: string }
+    AdminStatus:
+      type: object
+      required: [authenticated, isAdmin, setupRequired]
+      properties:
+        authenticated: { type: boolean }
+        isAdmin: { type: boolean }
+        setupRequired: { type: boolean, description: No designated administrator account is currently available }
+        adminId: { type: string, description: Present only for an authenticated designated administrator }
+    AdminSession:
+      type: object
+      required: [authenticated, isAdmin, setupRequired, expiresAt]
+      properties:
+        authenticated: { type: boolean }
+        isAdmin: { type: boolean }
+        setupRequired: { type: boolean }
+        expiresAt: { type: string, format: date-time }
+    AdminPairingLoginInput:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, minLength: 64, maxLength: 64, pattern: '^[a-f0-9]{64}$' }
+    AdminPairingCode:
+      type: object
+      required: [code, expiresAt]
+      properties:
+        code: { type: string, minLength: 64, maxLength: 64 }
+        expiresAt: { type: string, format: date-time }
+    AdminChannelInput:
+      type: object
+      additionalProperties: false
+      required: [name, baseUrl, adapter, priority, concurrencyLimit, dailyCreditLimit]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        baseUrl: { type: string, format: uri, pattern: '^https://' }
+        adapter: { type: string, minLength: 1, maxLength: 80 }
+        secretRef:
+          type: [string, "null"]
+          maxLength: 137
+          pattern: '^secret://[A-Za-z][A-Za-z0-9_.-]{0,127}$'
+        enabled: { type: boolean, default: false }
+        priority: { type: integer, minimum: 0, maximum: 100000 }
+        concurrencyLimit: { type: integer, minimum: 1, maximum: 10000 }
+        dailyCreditLimit: { type: integer, minimum: 0 }
+    AdminChannelUpdate:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        baseUrl: { type: string, format: uri, pattern: '^https://' }
+        adapter: { type: string, minLength: 1, maxLength: 80 }
+        secretRef:
+          type: [string, "null"]
+          maxLength: 137
+          pattern: '^secret://[A-Za-z][A-Za-z0-9_.-]{0,127}$'
+        enabled: { type: boolean }
+        priority: { type: integer, minimum: 0, maximum: 100000 }
+        concurrencyLimit: { type: integer, minimum: 1, maximum: 10000 }
+        dailyCreditLimit: { type: integer, minimum: 0 }
+    AdminChannel:
+      allOf:
+        - { $ref: "#/components/schemas/AdminChannelInput" }
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string, format: uuid }
+    ModelCatalogPriceList:
+      type: object
+      required: [models]
+      properties:
+        models:
+          type: array
+          items:
+            type: object
+            required: [upstreamId, creditPrice]
+            properties:
+              upstreamId: { type: string }
+              creditPrice: { type: integer, minimum: 1 }
+    GenerationModel:
+      type: object
+      required: [id, name, creditPrice, limits]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        upstreamId: { type: string }
+        creditPrice: { type: integer, minimum: 0 }
+        limits: { type: object, additionalProperties: { type: number } }
+    GenerationModelList:
+      type: object
+      required: [spendingEnabled, models]
+      properties:
+        spendingEnabled: { type: boolean }
+        models:
+          type: array
+          items: { $ref: "#/components/schemas/GenerationModel" }
+    GenerationJob:
+      type: object
+      required: [id, idempotencyKey, modelId, modelName, prompt, duration, aspectRatio, status, requestId, resultUrl, error, createdAt, updatedAt, creditPrice]
+      properties:
+        id: { type: string, format: uuid }
+        idempotencyKey: { type: string, format: uuid }
+        modelId: { type: string, format: uuid }
+        modelName: { type: string }
+        scenario: { type: string }
+        prompt: { type: string }
+        duration: { type: integer }
+        aspectRatio: { type: string }
+        status: { type: string, enum: [awaiting_reservation, queued, submitting, unknown, in_progress, finalizing, completed, failed] }
+        requestId: { type: [string, "null"] }
+        resultUrl: { type: [string, "null"] }
+        error: { type: [string, "null"] }
+        createdAt: { type: integer }
+        updatedAt: { type: integer }
+        creditPrice: { type: integer }
+    GenerationJobList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/GenerationJob" }
+    GenerationInput:
+      type: object
+      additionalProperties: false
+      required: [idempotencyKey, modelId, prompt, duration, aspectRatio]
+      properties:
+        idempotencyKey: { type: string, format: uuid }
+        modelId: { type: string, format: uuid }
+        prompt: { type: string, minLength: 1, maxLength: 2000 }
+        duration: { type: integer, minimum: 4, maximum: 30 }
+        aspectRatio: { type: string, enum: ["1:1", "9:16", "16:9", "4:5"] }
+    GenjutsuStyle:
+      type: object
+      required: [id, name, previewUrl]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        previewUrl: { type: string, format: uri }
+    GenjutsuStyleList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/GenjutsuStyle" }
+    GenjutsuPriceQuoteInput:
+      type: object
+      additionalProperties: false
+      required: [modelId, scenario, videoId, resolution]
+      properties:
+        modelId: { type: string, format: uuid }
+        scenario: { type: string, enum: [genjutsu, object-swap, restyle] }
+        videoId: { type: string, format: uuid }
+        resolution: { type: string, enum: [480p, 720p, 1080p] }
+    GenjutsuPriceQuote:
+      type: object
+      required: [quoteToken, creditPrice, duration, expiresAt]
+      properties:
+        quoteToken: { type: string, minLength: 1, maxLength: 4096 }
+        creditPrice: { type: integer, minimum: 1 }
+        duration: { type: integer, minimum: 4, maximum: 30 }
+        expiresAt: { type: integer }
+    GenjutsuInput:
+      type: object
+      additionalProperties: false
+      required: [idempotencyKey, modelId, scenario, videoId, imageIds, prompt, resolution]
+      properties:
+        idempotencyKey: { type: string, format: uuid }
+        modelId: { type: string, format: uuid }
+        scenario: { type: string, enum: [genjutsu, object-swap, restyle] }
+        videoId: { type: string, format: uuid }
+        imageIds:
+          type: array
+          maxItems: 8
+          items: { type: string, format: uuid }
+        prompt: { type: string, maxLength: 10000 }
+        resolution: { type: string, enum: [480p, 720p, 1080p] }
+        presetId: { type: string, format: uuid }
+        quoteToken: { type: string, minLength: 1 }
+    GenerationSubmission:
+      type: object
+      required: [job]
+      properties:
+        job: { $ref: "#/components/schemas/GenerationJob" }
+    AdminModelInput:
+      type: object
+      additionalProperties: false
+      required: [channelId, upstreamId, displayName, kind, creditPrice]
+      properties:
+        channelId: { type: string, format: uuid }
+        upstreamId: { type: string, minLength: 1, maxLength: 200 }
+        displayName: { type: string, minLength: 1, maxLength: 120 }
+        kind: { type: string, enum: [photo, video, audio] }
+        enabled: { type: boolean, default: false }
+        creditPrice: { type: integer, minimum: 0 }
+        genjutsuPricing:
+          type: array
+          description: Optional explicit Genjutsu prices; an empty list uses the legacy fixed model price.
+          items: { $ref: "#/components/schemas/GenjutsuTariff" }
+        estimatedCost: { type: [integer, "null"], minimum: 0 }
+        limits: { type: object, additionalProperties: { type: number, minimum: 0 } }
+    AdminModelUpdate:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        channelId: { type: string, format: uuid }
+        upstreamId: { type: string, minLength: 1, maxLength: 200 }
+        displayName: { type: string, minLength: 1, maxLength: 120 }
+        kind: { type: string, enum: [photo, video, audio] }
+        enabled: { type: boolean }
+        creditPrice: { type: integer, minimum: 0 }
+        genjutsuPricing:
+          type: array
+          items: { $ref: "#/components/schemas/GenjutsuTariff" }
+        estimatedCost: { type: [integer, "null"], minimum: 0 }
+        limits: { type: object, additionalProperties: { type: number, minimum: 0 } }
+    AdminModel:
+      allOf:
+        - { $ref: "#/components/schemas/AdminModelInput" }
+        - type: object
+          required: [id, providerSchemaUrl, providerSchema, genjutsuPricing]
+          properties:
+            id: { type: string, format: uuid }
+            providerSchemaUrl: { type: ["string", "null"], format: uri }
+            providerSchema: { oneOf: [{ $ref: "#/components/schemas/HiggsfieldProviderSchema" }, { type: "null" }] }
+    GenjutsuTariff:
+      type: object
+      additionalProperties: false
+      required: [scenario, resolution, duration, creditPrice]
+      properties:
+        scenario: { type: string, enum: [genjutsu, object-swap, restyle] }
+        resolution: { type: string, enum: [480p, 720p, 1080p] }
+        duration: { type: integer, minimum: 4, maximum: 30 }
+        creditPrice: { type: integer, minimum: 1 }
+    HiggsfieldProviderSchema:
+      type: object
+      required: [schemaAvailable, parameters]
+      properties:
+        schemaAvailable: { type: boolean }
+        parameters:
+          type: array
+          items: { $ref: "#/components/schemas/HiggsfieldCatalogParameter" }
+    HiggsfieldCatalogParameter:
+      type: object
+      required: [name, type, required]
+      properties:
+        name: { type: string }
+        type: { type: string }
+        required: { type: boolean }
+        description: { type: string }
+        defaultValue: { type: [string, number, boolean] }
+        allowedValues:
+          type: array
+          items: { type: [string, number, boolean] }
+        minimum: { type: number }
+        maximum: { type: number }
+        minLength: { type: integer }
+        maxLength: { type: integer }
+        format: { type: string }
+    HiggsfieldCatalogEntry:
+      type: object
+      required: [endpointId, displayName, kind, category, endpointUrl, docsUrl, schemaAvailable, parameters]
+      properties:
+        endpointId: { type: string }
+        displayName: { type: string }
+        kind: { type: string, enum: [photo, video, audio] }
+        category: { type: string }
+        endpointUrl: { type: string, format: uri }
+        docsUrl: { type: string, format: uri }
+        schemaAvailable: { type: boolean }
+        parameters:
+          type: array
+          items: { $ref: "#/components/schemas/HiggsfieldCatalogParameter" }
+    HiggsfieldCatalog:
+      type: object
+      required: [status, discoveryApi, refreshedAt, sourceUrls, entries, warnings]
+      properties:
+        status: { type: string, enum: [live, partial, stale] }
+        discoveryApi: { type: string, enum: [not_documented] }
+        refreshedAt: { type: string, format: date-time }
+        sourceUrls:
+          type: array
+          items: { type: string, format: uri }
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/HiggsfieldCatalogEntry" }
+        warnings:
+          type: array
+          items: { type: string }
+    HiggsfieldCatalogImportInput:
+      type: object
+      additionalProperties: false
+      required: [channelId, endpointIds]
+      properties:
+        channelId: { type: string, format: uuid }
+        endpointIds:
+          type: array
+          minItems: 1
+          maxItems: 100
+          uniqueItems: true
+          items: { type: string, minLength: 1, maxLength: 200, pattern: '^[A-Za-z0-9][A-Za-z0-9._/-]*$' }
+    HiggsfieldCatalogImportResult:
+      type: object
+      required: [imported, skipped, updated]
+      properties:
+        imported:
+          type: array
+          items: { $ref: "#/components/schemas/AdminModel" }
+        skipped:
+          type: array
+          items: { type: string }
+        updated:
+          type: array
+          description: Existing models whose saved provider schema or source URL changed; local configuration is unchanged
+          items: { type: string }
+    AdminUser:
+      type: object
+      required: [id, firstName, lastName, username, photoUrl, credits, subscription, blocked, createdAt]
+      properties:
+        id: { type: string }
+        firstName: { type: string }
+        lastName: { type: [string, "null"] }
+        username: { type: [string, "null"] }
+        photoUrl: { type: [string, "null"] }
+        languageCode: { type: string }
+        credits: { type: integer, minimum: 0 }
+        subscription: { type: string }
+        blocked: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    AdminUserPage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/AdminUser" }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+    AdminUserBlockState:
+      type: object
+      required: [id, blocked]
+      properties:
+        id: { type: string }
+        blocked: { type: boolean }
+    AdminJob:
+      type: object
+      required: [id, userId, title, type, status, createdAt]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        title: { type: string }
+        type: { type: string, enum: [photo, video, music] }
+        status: { type: string, enum: [queued, processing, completed, failed] }
+        createdAt: { type: string, format: date-time }
+    AdminUserDetail:
+      allOf:
+        - { $ref: "#/components/schemas/AdminUser" }
+        - type: object
+          required: [wallet, works]
+          properties:
+            wallet: { $ref: "#/components/schemas/FinanceWallet" }
+            works:
+              type: array
+              items: { $ref: "#/components/schemas/AdminJob" }
+    AdminTemplate:
+      allOf:
+        - { $ref: "#/components/schemas/StudioTemplate" }
+        - type: object
+          required: [ownerId, createdAt, updatedAt]
+          properties:
+            ownerId: { type: string }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+    AdminReport:
+      type: object
+      required: [id, reporterId, templateId, reason, status, resolvedBy, createdAt, resolvedAt]
+      properties:
+        id: { type: string, format: uuid }
+        reporterId: { type: string }
+        templateId: { type: string, format: uuid }
+        reason: { type: string }
+        status: { type: string, enum: [pending, resolved, dismissed] }
+        resolvedBy: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+        resolvedAt: { type: [string, "null"], format: date-time }
+    AdminAuditEvent:
+      type: object
+      required: [id, actorId, action, entityType, entityId, details, createdAt]
+      properties:
+        id: { type: integer }
+        actorId: { type: string }
+        action: { type: string }
+        entityType: { type: string }
+        entityId: { type: [string, "null"] }
+        details: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+    AdminAuditPage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/AdminAuditEvent" }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+    AdminFinanceSettingsUpdate:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        spendingEnabled: { type: boolean }
+        dailyCreditLimit: { type: integer, minimum: 0 }
+        maxActiveReservations: { type: integer, minimum: 0 }
+    AdminUserBlockInput:
+      type: object
+      required: [blocked]
+      properties:
+        blocked: { type: boolean }
+    AdminTemplateModerationInput:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [pending, published, draft] }
+    AdminReportResolutionInput:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [resolved, dismissed] }
+    AdminCreditAdjustmentInput:
+      type: object
+      additionalProperties: false
+      required: [userId, delta, reason, idempotencyKey]
+      properties:
+        userId: { type: string }
+        delta: { type: integer }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+        idempotencyKey: { type: string, minLength: 8, maxLength: 128 }
+    AdminCreditReservationInput:
+      type: object
+      additionalProperties: false
+      required: [userId, amount, reason, idempotencyKey]
+      properties:
+        userId: { type: string }
+        amount: { type: integer, minimum: 1 }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+        idempotencyKey: { type: string, minLength: 8, maxLength: 128 }
+        modelId: { type: [string, "null"] }
+        channelId: { type: [string, "null"] }
+    AdminCreditTransitionInput:
+      type: object
+      additionalProperties: false
+      required: [reason, idempotencyKey]
+      properties:
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+        idempotencyKey: { type: string, minLength: 8, maxLength: 128 }
+    FinanceLedgerEntry:
+      type: object
+      required: [id, accountId, actorId, kind, delta, reservedDelta, budgetDelta, budgetDay, reservationId, reason, idempotencyKey, createdAt]
+      properties:
+        id: { type: string }
+        accountId: { type: string }
+        actorId: { type: string }
+        kind: { type: string, enum: [adjustment, reserve, settlement, release, refund] }
+        delta: { type: integer }
+        reservedDelta: { type: integer }
+        budgetDelta: { type: integer }
+        budgetDay: { type: [string, "null"] }
+        reservationId: { type: [string, "null"] }
+        reason: { type: string }
+        idempotencyKey: { type: string }
+        createdAt: { type: string, format: date-time }
+    FinanceReservation:
+      type: object
+      required: [id, accountId, actorId, amount, reason, status, modelId, channelId, idempotencyKey, createdAt, updatedAt, settledAt, releasedAt, refundedAt]
+      properties:
+        id: { type: string }
+        accountId: { type: string }
+        actorId: { type: string }
+        amount: { type: integer }
+        reason: { type: string }
+        status: { type: string, enum: [held, settled, released, refunded] }
+        modelId: { type: [string, "null"] }
+        channelId: { type: [string, "null"] }
+        idempotencyKey: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        settledAt: { type: [string, "null"], format: date-time }
+        releasedAt: { type: [string, "null"], format: date-time }
+        refundedAt: { type: [string, "null"], format: date-time }
+    FinanceWallet:
+      type: object
+      required: [accountId, balance, reserved, available, ledger, reservations, pagination]
+      properties:
+        accountId: { type: string }
+        balance: { type: integer }
+        reserved: { type: integer }
+        available: { type: integer }
+        ledger:
+          type: array
+          items: { $ref: "#/components/schemas/FinanceLedgerEntry" }
+        reservations:
+          type: array
+          items: { $ref: "#/components/schemas/FinanceReservation" }
+        pagination:
+          type: object
+          required: [limit, offset, totalLedger, totalReservations]
+          properties:
+            limit: { type: integer }
+            offset: { type: integer }
+            totalLedger: { type: integer }
+            totalReservations: { type: integer }
+    FinanceSettings:
+      type: object
+      required: [spendingEnabled, dailyCreditLimit, maxActiveReservations, updatedAt, updatedBy]
+      properties:
+        spendingEnabled: { type: boolean }
+        dailyCreditLimit: { type: integer }
+        maxActiveReservations: { type: integer }
+        updatedAt: { type: string, format: date-time }
+        updatedBy: { type: [string, "null"] }
+    FinanceStats:
+      type: object
+      required: [accounts, balance, reserved, available, activeReservations, settledToday, refundedToday, dailyBudgetUsed, dailyCreditLimit, spendingEnabled, utcDay]
+      properties:
+        accounts: { type: integer }
+        balance: { type: integer }
+        reserved: { type: integer }
+        available: { type: integer }
+        activeReservations: { type: integer }
+        settledToday: { type: integer }
+        refundedToday: { type: integer }
+        dailyBudgetUsed: { type: integer }
+        dailyCreditLimit: { type: integer }
+        spendingEnabled: { type: boolean }
+        utcDay: { type: string }
+    FinanceMutationResult:
+      type: object
+      required: [wallet, ledgerEntry, reservation, replayed]
+      properties:
+        wallet: { $ref: "#/components/schemas/FinanceWallet" }
+        ledgerEntry: { $ref: "#/components/schemas/FinanceLedgerEntry" }
+        reservation:
+          oneOf:
+            - { $ref: "#/components/schemas/FinanceReservation" }
+            - { type: "null" }
+        replayed: { type: boolean }
+    AdminStatistics:
+      allOf:
+        - { $ref: "#/components/schemas/FinanceStats" }
+        - type: object
+          required: [templates, publishedTemplates, works]
+          properties:
+            templates: { type: integer }
+            publishedTemplates: { type: integer }
+            works: { type: integer }
+    AdminLedgerPage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/FinanceLedgerEntry" }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }

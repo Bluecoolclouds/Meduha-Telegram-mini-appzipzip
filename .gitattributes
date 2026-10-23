@@ -1,0 +1,2 @@
+zipFile.zip filter=lfs diff=lfs merge=lfs -text
+attached_assets/Meduha-dizain-Telegram-mini-app_1792623334940.zip filter=lfs diff=lfs merge=lfs -text

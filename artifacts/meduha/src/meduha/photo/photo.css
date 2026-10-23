@@ -1,0 +1,16 @@
+.meduha .photo-page{padding-bottom:4px}
+.meduha .photo-heading{padding:2px 1px 12px}
+.meduha .photo-kicker{display:flex;align-items:center;gap:5px;color:var(--vk-accent);font-size:9px;font-weight:750;letter-spacing:.75px}
+.meduha .photo-heading h1{margin:7px 0 5px;color:var(--vk-text);font-size:29px;line-height:1.02;letter-spacing:-1px;font-weight:850}
+.meduha .photo-heading h1 span{color:var(--vk-accent)}
+.meduha .photo-heading p{margin:0;color:var(--vk-mut);font-size:11px;line-height:1.45}
+.meduha .photo-page .vs-hero{margin-top:0}
+.meduha .photo-grid .photo-card .vs-card-foot{flex-direction:row;flex-wrap:wrap;gap:5px}
+.meduha .photo-tag{display:inline-flex;align-items:center;padding:4px 7px;border-radius:5px;background:var(--vk-tag);border:1px solid var(--vk-line);font-size:9px;line-height:1.15;color:var(--vk-mut)}
+.meduha .photo-page .vs-free{margin-bottom:4px}
+.meduha .photo-editor-return{display:flex;align-items:center;gap:5px;width:max-content;margin:-4px 0 13px;color:var(--orange-ink);font-size:10px;font-weight:650;text-decoration:none}
+.meduha .photo-prompt-preview{padding:11px 12px!important;border-radius:10px;background:var(--vk-tag);border:1px solid var(--vk-line);color:var(--vk-text)!important;font-size:12px!important;line-height:1.55!important}
+.meduha .photo-sheet .vs-disclose{margin-top:12px}
+.meduha .photo-sheet .m-generate{margin-top:13px}
+.meduha .photo-page .vs-empty-actions button{cursor:pointer}
+@media(max-width:340px){.meduha .photo-heading h1{font-size:26px}}

@@ -1,0 +1,36 @@
+.meduha .tm-tabs{display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap}
+.meduha .tm-tabs button,.meduha .tm-btn{border:1px solid #f0dccb;background:#fffdfb;color:#a94f23;border-radius:999px;padding:8px 13px;font-size:11px;font-weight:650;display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer}
+.meduha .tm-tabs button.on,.meduha .tm-btn.primary{background:var(--orange);border-color:var(--orange);color:#21130b}
+.meduha .tm-btn.danger{color:#a53220}
+.meduha .tm-btn:disabled{opacity:.5;cursor:default}
+.meduha .tm-row{display:flex;gap:11px;padding:11px;border:1px solid #f0dccb;border-radius:16px;background:#fffdfb;margin-bottom:10px}
+.meduha .tm-thumb{width:64px;height:84px;border-radius:11px;object-fit:cover;background:#f5e9dd;flex:none}
+.meduha .tm-body{min-width:0;flex:1}
+.meduha .tm-body h3{margin:0 0 3px;font:800 14px/1.2 Manrope,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meduha .tm-body small{display:block;color:var(--muted);font-size:10px;margin-bottom:7px}
+.meduha .tm-acts{display:flex;gap:5px;flex-wrap:wrap}
+.meduha .tm-acts .tm-btn{padding:5px 9px;font-size:10px}
+.meduha .tm-st{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;background:#ffe1cb;color:#b24a14;margin-right:5px}
+.meduha .tm-st.published{background:#d9f0dc;color:#25652f}
+.meduha .tm-st.draft{background:#eee4dc;color:#7a6a5f}
+.meduha .tm-form{display:flex;flex-direction:column;gap:12px}
+.meduha .tm-form label,.meduha .tm-field{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:650}
+.meduha .tm-form input,.meduha .tm-form textarea,.meduha .tm-form select{border:1px solid #f0cdb0;background:#fffdfb;border-radius:11px;padding:10px;color:inherit;width:100%;box-sizing:border-box}
+.meduha .tm-form textarea{min-height:90px;resize:vertical}
+.meduha .tm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.meduha .tm-warn,.meduha .tm-err,.meduha .tm-guide{border-radius:12px;padding:10px 12px;font-size:11px;line-height:1.5;border:1px solid #f2d6bf;background:#fff3e6;color:#8d5a3a;margin:0 0 12px}
+.meduha .tm-err{border-color:#e9b3a6;background:#fde9e4;color:#a53220}
+.meduha .tm-up{border:1px dashed #e8b794;border-radius:14px;padding:10px;display:flex;gap:10px;align-items:center}
+.meduha .tm-up img,.meduha .tm-up video{width:56px;height:56px;border-radius:9px;object-fit:cover;flex:none;background:#f5e9dd}
+.meduha .tm-up:has(audio){flex-wrap:wrap}
+.meduha .tm-up audio{flex:1 1 100%;min-width:0;max-width:100%}
+.meduha .tm-skel{height:108px;border-radius:16px;background:linear-gradient(90deg,#f5e9dd,#fbf2ea,#f5e9dd);background-size:200% 100%;animation:tm-sh 1.2s infinite linear;margin-bottom:10px}
+@keyframes tm-sh{to{background-position:-200% 0}}
+.meduha .tm-empty{text-align:center;padding:30px 12px;color:var(--muted);font-size:12px}
+.meduha .tm-manage-link{margin-left:auto;font-size:10px}
+.meduha.light.dark .tm-tabs button,.meduha.light.dark .tm-btn,.meduha.light.dark .tm-row,.meduha.light.dark .tm-form input,.meduha.light.dark .tm-form textarea,.meduha.light.dark .tm-form select{background:var(--surface);border-color:var(--line);color:var(--text)}
+.meduha.light.dark .tm-tabs button.on,.meduha.light.dark .tm-btn.primary{background:var(--orange);color:#21130b}
+.meduha.light.dark .tm-warn,.meduha.light.dark .tm-guide{background:#251e1b;border-color:#48352a;color:#c6b3a5}
+.meduha.light.dark .tm-err{background:#3a1c17;border-color:#6b3329;color:#ffa48f}
+.meduha.light.dark .tm-thumb,.meduha.light.dark .tm-up img,.meduha.light.dark .tm-up video{background:#252427}
+.meduha.light.dark .tm-skel{background:#252427}

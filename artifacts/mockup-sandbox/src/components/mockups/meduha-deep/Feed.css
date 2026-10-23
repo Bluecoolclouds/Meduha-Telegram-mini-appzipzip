@@ -1,0 +1,567 @@
+.meduha .meduha-feed {
+  --feed-orange: #ff6b18;
+  --feed-muted: #a29da0;
+  width: 100%;
+  padding-bottom: 8px;
+}
+
+.meduha .meduha-feed button {
+  color: inherit;
+  font: inherit;
+}
+
+.meduha .meduha-feed :where(button, a):focus-visible {
+  outline: 2px solid var(--feed-orange);
+  outline-offset: 3px;
+}
+
+.meduha .meduha-feed-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 15px;
+}
+
+.meduha .meduha-feed-kicker {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+  color: #c18d72;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+}
+
+.meduha .meduha-feed-kicker svg {
+  color: var(--feed-orange);
+}
+
+.meduha .meduha-feed-heading h1 {
+  font-size: 26px;
+  line-height: 1.12;
+  letter-spacing: -1.1px;
+}
+
+.meduha .meduha-feed-heading h1 span {
+  color: var(--feed-orange);
+}
+
+.meduha .meduha-feed-heading p {
+  margin-top: 4px;
+  color: var(--feed-muted);
+  font-size: 10px;
+}
+
+.meduha .meduha-feed-heading .m-credit {
+  flex-shrink: 0;
+  font-size: 10px;
+}
+
+.meduha .meduha-feed-filters {
+  display: flex;
+  gap: 6px;
+  width: calc(100% + 18px);
+  margin: 0 -18px 12px;
+  padding: 0 18px 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.meduha .meduha-feed-filters::-webkit-scrollbar,
+.meduha .meduha-feed-shelf::-webkit-scrollbar {
+  display: none;
+}
+
+.meduha .meduha-feed-filters button {
+  display: inline-flex;
+  min-height: 31px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 0 12px;
+  color: #aaa4a4;
+  background: #1c1b1d;
+  border: 1px solid #343032;
+  border-radius: 18px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: transform .18s ease, background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.meduha .meduha-feed-filters button.selected {
+  color: #23140b;
+  background: var(--feed-orange);
+  border-color: var(--feed-orange);
+  font-weight: 650;
+}
+
+.meduha .meduha-feed-filters button:active,
+.meduha .meduha-feed-actions button:active,
+.meduha .meduha-feed-arrows button:active {
+  transform: scale(.94);
+}
+
+.meduha .meduha-feed-card {
+  overflow: hidden;
+  background: #1a191b;
+  border: 1px solid #ffffff0d;
+  border-radius: 19px;
+  box-shadow: 0 12px 30px #0000002c;
+  animation: med-feed-enter .4s ease both;
+}
+
+.meduha .meduha-feed-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(278px, 39dvh, 338px);
+  padding: 0;
+  overflow: hidden;
+  background: #292323;
+  text-align: left;
+  cursor: pointer;
+}
+
+.meduha .meduha-feed-art > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  animation: med-feed-image-in .55s ease both;
+}
+
+.meduha .meduha-feed-wash,
+.meduha .meduha-feed-thumb-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, #0f0d0b54 0%, transparent 25%, transparent 45%, #12100eed 100%),
+    linear-gradient(90deg, #100e0b15, transparent 70%);
+}
+
+.meduha .meduha-feed-art-top {
+  position: absolute;
+  inset: 11px 11px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.meduha .meduha-feed-tag,
+.meduha .meduha-feed-demo {
+  display: inline-flex;
+  min-height: 25px;
+  align-items: center;
+  gap: 5px;
+  padding: 0 9px;
+  color: #fff9f5;
+  background: #171311a8;
+  border: 1px solid #ffffff2a;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 8px;
+  font-weight: 650;
+  letter-spacing: .45px;
+}
+
+.meduha .meduha-feed-tag svg {
+  color: #ff9155;
+}
+
+.meduha .meduha-feed-demo {
+  min-height: 23px;
+  color: #fff0e5;
+  border-color: #ffb1794d;
+  font-size: 7px;
+  letter-spacing: .8px;
+}
+
+.meduha .meduha-feed-art-bottom {
+  position: absolute;
+  inset: auto 12px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meduha .meduha-feed-avatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #7967e8, #38468d);
+  border: 1px solid #ffffff55;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.meduha .meduha-feed-avatar.orange { background: linear-gradient(135deg, #fb9c4d, #af482b); }
+.meduha .meduha-feed-avatar.rose { background: linear-gradient(135deg, #d67c90, #673352); }
+.meduha .meduha-feed-avatar.blue { background: linear-gradient(135deg, #58a6c9, #31517f); }
+.meduha .meduha-feed-avatar.teal { background: linear-gradient(135deg, #45b5a2, #28506b); }
+
+.meduha .meduha-feed-author {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  color: #fffaf6;
+  text-shadow: 0 1px 6px #000;
+}
+
+.meduha .meduha-feed-author strong {
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meduha .meduha-feed-author small {
+  color: #e6d9d1;
+  font-size: 8px;
+}
+
+.meduha .meduha-feed-follow {
+  flex-shrink: 0;
+  padding: 7px 10px;
+  color: #fff9f5;
+  border: 1px solid #ffffff87;
+  border-radius: 18px;
+  font-size: 8px;
+  font-weight: 600;
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+.meduha .meduha-feed-prev {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  color: white;
+  background: #16131173;
+  border: 1px solid #ffffff3d;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.meduha .meduha-feed-card-body {
+  padding: 11px 12px 12px;
+}
+
+.meduha .meduha-feed-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+}
+
+.meduha .meduha-feed-title {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  color: #f7f3ef;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -.35px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.meduha .meduha-feed-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.meduha .meduha-feed-actions button {
+  display: inline-flex;
+  height: 27px;
+  min-width: 27px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 4px;
+  color: #a9a1a0;
+  background: transparent;
+  border-radius: 12px;
+  font-size: 9px;
+  cursor: pointer;
+  transition: transform .18s ease, color .18s ease, background-color .18s ease;
+}
+
+.meduha .meduha-feed-actions button.is-on {
+  color: #ff8550;
+  background: #ff6b1815;
+}
+
+.meduha .meduha-feed-copy {
+  display: -webkit-box;
+  margin: 5px 0 9px !important;
+  overflow: hidden;
+  color: #aaa3a3;
+  font-size: 9px !important;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.meduha .meduha-feed-meta {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.meduha .meduha-feed-meta::-webkit-scrollbar { display: none; }
+
+.meduha .meduha-feed-meta > span {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0 8px;
+  color: #bcb5b3;
+  background: #ffffff08;
+  border: 1px solid #ffffff11;
+  border-radius: 14px;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.meduha .meduha-feed-meta > span svg { color: #dd8254; }
+.meduha .meduha-feed-meta > span.accent { color: #f4ad83; background: #ff6b1810; border-color: #ff6b1830; }
+.meduha .meduha-feed-meta > span.accent svg { color: var(--feed-orange); }
+
+.meduha .meduha-feed-create {
+  display: flex;
+  min-height: 39px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 11px;
+  color: #24160e;
+  background: linear-gradient(100deg, #ff7e27, #ff5c0a);
+  border-radius: 12px;
+  box-shadow: 0 5px 16px #ff681820;
+  font-size: 10px;
+  font-weight: 750;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+.meduha .meduha-feed-create:active { transform: scale(.98); }
+.meduha .meduha-feed-create small { display: inline-flex; gap: 4px; align-items: center; font-size: 9px; font-weight: 550; opacity: .72; }
+.meduha .meduha-feed-create small span { font-size: 13px; }
+.meduha .meduha-feed-create > svg:last-child { margin-left: auto; }
+
+.meduha .meduha-feed-shelf-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 15px 0 8px;
+}
+
+.meduha .meduha-feed-shelf-heading > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.meduha .meduha-feed-shelf-heading h2 {
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -.35px;
+}
+
+.meduha .meduha-feed-shelf-heading span { color: #908a8b; font-size: 8px; }
+
+.meduha .meduha-feed-arrows {
+  display: flex;
+  gap: 5px;
+}
+
+.meduha .meduha-feed-arrows button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  color: #c7bdb9;
+  background: #211f20;
+  border: 1px solid #383334;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform .18s ease;
+}
+
+.meduha .meduha-feed-shelf {
+  display: flex;
+  gap: 8px;
+  width: calc(100% + 18px);
+  margin-right: -18px;
+  padding: 0 18px 4px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.meduha .meduha-feed-thumb {
+  position: relative;
+  width: 103px;
+  height: 80px;
+  flex: 0 0 103px;
+  padding: 0;
+  overflow: hidden;
+  background: #242020;
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.meduha .meduha-feed-thumb > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .28s ease;
+}
+
+.meduha .meduha-feed-thumb:active > img { transform: scale(1.04); }
+.meduha .meduha-feed-thumb-wash { background: linear-gradient(0deg, #0d0b0ad9, transparent 75%); }
+
+.meduha .meduha-feed-thumb-icon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  color: white;
+  background: #171413a3;
+  border: 1px solid #ffffff2b;
+  border-radius: 50%;
+  backdrop-filter: blur(6px);
+}
+
+.meduha .meduha-feed-thumb-title {
+  position: absolute;
+  inset: auto 7px 7px;
+  overflow: hidden;
+  color: white;
+  font-size: 8px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meduha .meduha-feed-note {
+  margin: 7px 0 0 !important;
+  color: #777172;
+  font-size: 8px !important;
+  text-align: center;
+}
+
+.meduha .meduha-feed-detail-art {
+  height: 190px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: #292323;
+  border-radius: 15px;
+}
+
+.meduha .meduha-feed-detail-art img { width: 100%; height: 100%; object-fit: cover; }
+
+.meduha .meduha-feed-detail-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  color: #ff9358;
+  font-size: 9px;
+}
+
+.meduha .meduha-feed-detail-title {
+  margin-bottom: 6px !important;
+  font-size: 17px !important;
+}
+
+.meduha .meduha-feed-detail-close {
+  display: flex;
+  width: 100%;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 5px;
+  color: #aaa1a0;
+  background: transparent;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.meduha .meduha-feed-toast {
+  position: absolute;
+  z-index: 55;
+  right: 20px;
+  bottom: 88px;
+  left: 20px;
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 13px;
+  color: #372318;
+  background: #f1e7df;
+  border: 1px solid #ffffff75;
+  border-radius: 13px;
+  box-shadow: 0 9px 28px #08060666;
+  font-size: 10px;
+  font-weight: 600;
+  animation: med-feed-enter .2s ease both;
+}
+
+.meduha .meduha-feed-toast svg { color: var(--feed-orange); }
+
+@keyframes med-feed-enter {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes med-feed-image-in {
+  from { opacity: .72; transform: scale(1.025); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 360px) {
+  .meduha .meduha-feed-art { height: 282px; }
+  .meduha .meduha-feed-title { font-size: 12px; }
+  .meduha .meduha-feed-actions { gap: 0; }
+  .meduha .meduha-feed-follow { padding-inline: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meduha .meduha-feed *,
+  .meduha .meduha-feed *::before,
+  .meduha .meduha-feed *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

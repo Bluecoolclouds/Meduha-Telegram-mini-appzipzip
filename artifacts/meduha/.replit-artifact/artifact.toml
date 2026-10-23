@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "meduha — светлая студия"
+description = "Светлая версия Telegram Mini App meduha: фото, видео и музыка, настройки создания, черновики, галерея и профиль с живым маскотом."
+version = "1.0.0"
+id = "artifacts/meduha"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20269
+
+[services.development]
+run = "pnpm --filter @workspace/meduha run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/meduha", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/meduha/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20269"
+BASE_PATH = "/"

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>meduha — светлая студия</title>
+    <meta name="description" content="Твоя творческая студия: подготовь идеи для фото, видео и музыки и сохрани черновики на устройстве." />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="meduha — светлая студия" />
+    <meta property="og:description" content="Фото, видео и музыка начинаются с твоей идеи. Светлая студия meduha." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="meduha — светлая студия" />
+    <meta name="twitter:description" content="Фото, видео и музыка начинаются с твоей идеи. Светлая студия meduha." />
+    <meta name="theme-color" content="#fffbf7" />
+    <script>
+      (() => {
+        let theme;
+        try { theme = localStorage.getItem('meduha.theme.v1'); } catch {}
+        if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+    <link rel="icon" type="image/png" href="%BASE_URL%images/brand/app-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="%BASE_URL%src/main.tsx"></script>
+  </body>
+</html>

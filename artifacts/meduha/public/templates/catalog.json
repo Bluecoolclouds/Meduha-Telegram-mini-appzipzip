@@ -1,0 +1,201 @@
+[
+  {
+    "id": "editorial-terracotta",
+    "title": "Редакционный портрет",
+    "kind": "photo",
+    "poster": "images/meduha/fashion.png",
+    "width": 3,
+    "height": 4,
+    "prompt": "Выразительный редакционный портрет для модного журнала: тёплый терракотовый фон, направленный студийный свет и мягкая тень, уверенный взгляд, лаконичный образ, высокая детализация фактуры и журнальная цветокоррекция.",
+    "tags": ["Портрет", "Мода", "Кино"]
+  },
+  {
+    "id": "sunset-portrait",
+    "title": "Портрет на закате",
+    "kind": "photo",
+    "poster": "images/meduha/portrait.png",
+    "width": 3,
+    "height": 4,
+    "prompt": "Кинематографичный портрет на закате: мягкий золотой свет, ветер в волосах, естественная кожа, тёплая плёночная палитра.",
+    "tags": ["Портрет", "Кино"]
+  },
+  {
+    "id": "flower-motion",
+    "title": "Цветок в деталях",
+    "kind": "video",
+    "poster": "images/meduha/flower.png",
+    "videoUrl": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    "width": 16,
+    "height": 10,
+    "prompt": "Макросъёмка цветка и пчелы, плавная камера, мягкий дневной свет, малая глубина резкости, спокойное движение.",
+    "tags": ["Макро", "Природа"],
+    "sourceUrl": "https://github.com/mdn/interactive-examples",
+    "credit": "Демонстрационный видеореференс MDN, CC0."
+  },
+  {
+    "id": "car-cinema",
+    "title": "Автомобиль как в кино",
+    "kind": "photo",
+    "poster": "images/meduha/car.png",
+    "width": 3,
+    "height": 5,
+    "prompt": "Рекламный кадр автомобиля на дороге: низкая точка съёмки, драматичный свет, выразительные блики на кузове, кинематографичная цветокоррекция.",
+    "tags": ["Авто", "Кино"]
+  },
+  {
+    "id": "sintel-story",
+    "title": "Фэнтези: история дракона",
+    "kind": "video",
+    "poster": "https://media.w3.org/2010/05/sintel/poster.png",
+    "videoUrl": "https://media.w3.org/2010/05/sintel/trailer.mp4",
+    "width": 16,
+    "height": 9,
+    "prompt": "Трейлер фэнтези-истории с драконом: выразительный персонаж, эпический пейзаж, смена крупных и общих планов, мягкий кинематографичный свет.",
+    "tags": ["Анимация", "Фэнтези"],
+    "sourceUrl": "https://durian.blender.org/",
+    "credit": "Sintel © Blender Foundation | durian.blender.org — CC BY 3.0. Видеореференс, не работа meduha."
+  },
+  {
+    "id": "fashion-editorial",
+    "title": "Обложка fashion-журнала",
+    "kind": "photo",
+    "poster": "images/meduha/fashion.png",
+    "width": 3,
+    "height": 4,
+    "prompt": "Fashion-editorial для обложки журнала: выразительная поза, акцент на фактуре одежды, профессиональный свет, чистая композиция.",
+    "tags": ["Мода", "Портрет"]
+  },
+  {
+    "id": "ocean-energy",
+    "title": "Сила океана",
+    "kind": "photo",
+    "poster": "images/meduha/wave.png",
+    "width": 4,
+    "height": 3,
+    "prompt": "Мощная океанская волна, бирюзовая вода, белая пена, ощущение движения, выразительный контраст и кинематографичный свет.",
+    "tags": ["Океан", "Природа"]
+  },
+  {
+    "id": "space-dream",
+    "title": "Другая вселенная",
+    "kind": "photo",
+    "poster": "images/meduha/astronaut.png",
+    "width": 3,
+    "height": 5,
+    "prompt": "Астронавт в фантастическом мире, необычная планета на горизонте, звёздное небо, реалистичные детали скафандра, ощущение масштаба.",
+    "tags": ["Космос", "Фантазия"]
+  },
+  {
+    "id": "perfume-light",
+    "title": "Тёплый свет: парфюм",
+    "kind": "photo",
+    "poster": "images/meduha/perfume.png",
+    "width": 4,
+    "height": 5,
+    "prompt": "Предметная съёмка флакона парфюма: тёплый направленный свет, выразительная тень, стекло и отражения, премиальная рекламная композиция.",
+    "tags": ["Предметы", "Реклама"]
+  },
+  {
+    "id": "night-city",
+    "title": "Ночной город",
+    "kind": "photo",
+    "poster": "images/meduha/city.png",
+    "width": 3,
+    "height": 4,
+    "prompt": "Ночной город после дождя, неоновые вывески и отражения в асфальте, атмосферная уличная фотография, глубина и выразительный цвет.",
+    "tags": ["Город", "Кино"]
+  },
+  {
+    "id": "bunny-animation",
+    "title": "Мультфильм: лесная история",
+    "kind": "video",
+    "poster": "https://media.w3.org/2010/05/bunny/poster.png",
+    "videoUrl": "https://media.w3.org/2010/05/bunny/trailer.mp4",
+    "width": 16,
+    "height": 10,
+    "prompt": "Добрая короткая 3D-анимация о лесном персонаже: живые эмоции, мягкие формы, солнечная поляна, яркие природные цвета.",
+    "tags": ["Анимация", "Персонажи"],
+    "sourceUrl": "https://peach.blender.org/",
+    "credit": "Big Buck Bunny © Blender Foundation | peach.blender.org — CC BY 3.0. Видеореференс, не работа meduha."
+  },
+  {
+    "id": "mountain-silence",
+    "title": "Тишина гор",
+    "kind": "photo",
+    "poster": "images/meduha/mountain.png",
+    "width": 4,
+    "height": 3,
+    "prompt": "Горный пейзаж с выразительным небом, холодные оттенки скал, тёплый свет на вершинах, спокойная масштабная композиция.",
+    "tags": ["Горы", "Природа"]
+  },
+  {
+    "id": "pet-portrait",
+    "title": "Хвостатый герой",
+    "kind": "photo",
+    "poster": "images/meduha/dog.png",
+    "width": 3,
+    "height": 4,
+    "prompt": "Эмоциональный портрет собаки, живая поза, мягкий естественный свет, акцент на глазах и фактуре шерсти.",
+    "tags": ["Питомцы", "Портрет"]
+  },
+  {
+    "id": "desert-minimal",
+    "title": "Пустыня без границ",
+    "kind": "photo",
+    "poster": "https://images.unsplash.com/photo-1455304923426-5f96de57d750?auto=format&fit=crop&w=700&q=80",
+    "width": 4,
+    "height": 5,
+    "prompt": "Минималистичный пейзаж пустыни, плавные линии дюн, песочная палитра, глубокие тени и спокойное пространство.",
+    "tags": ["Пустыня", "Пейзаж"],
+    "sourceUrl": "https://unsplash.com/license",
+    "credit": "Фотореференс Unsplash. Не результат генерации meduha."
+  },
+  {
+    "id": "city-lights",
+    "title": "Город с высоты",
+    "kind": "photo",
+    "poster": "https://images.unsplash.com/photo-1550990170-0f147bc739a8?auto=format&fit=crop&w=700&q=80",
+    "width": 3,
+    "height": 5,
+    "prompt": "Вид на освещённый город с высоты, линии улиц и огни окон, глубокие вечерние оттенки, ритм городской архитектуры.",
+    "tags": ["Город", "Архитектура"],
+    "sourceUrl": "https://unsplash.com/license",
+    "credit": "Фотореференс Unsplash. Не результат генерации meduha."
+  },
+  {
+    "id": "island-evening",
+    "title": "Остров на закате",
+    "kind": "photo",
+    "poster": "https://images.unsplash.com/photo-1498404781417-2b02e42ecd0d?auto=format&fit=crop&w=700&q=80",
+    "width": 4,
+    "height": 3,
+    "prompt": "Одинокое дерево на скалистом острове, вода и горы на дальнем плане, спокойный закатный свет, гармоничная композиция.",
+    "tags": ["Вода", "Пейзаж"],
+    "sourceUrl": "https://unsplash.com/license",
+    "credit": "Фотореференс Unsplash. Не результат генерации meduha."
+  },
+  {
+    "id": "sunray-landscape",
+    "title": "Первый луч",
+    "kind": "photo",
+    "poster": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=700&q=80",
+    "width": 3,
+    "height": 4,
+    "prompt": "Горный пейзаж в первых солнечных лучах, свет сквозь облака, зелёные долины и выразительная глубина пространства.",
+    "tags": ["Горы", "Рассвет"],
+    "sourceUrl": "https://unsplash.com/license",
+    "credit": "Фотореференс Unsplash. Не результат генерации meduha."
+  },
+  {
+    "id": "flower-field",
+    "title": "Цветочное поле",
+    "kind": "photo",
+    "poster": "https://images.unsplash.com/photo-1570682041723-c505aeb4883f?auto=format&fit=crop&w=700&q=80",
+    "width": 4,
+    "height": 3,
+    "prompt": "Широкое цветочное поле у подножия гор, естественный дневной свет, насыщенные природные оттенки и ощущение летнего воздуха.",
+    "tags": ["Цветы", "Пейзаж"],
+    "sourceUrl": "https://unsplash.com/license",
+    "credit": "Фотореференс Unsplash. Не результат генерации meduha."
+  }
+]

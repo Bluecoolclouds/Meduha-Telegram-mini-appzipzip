@@ -1,0 +1,147 @@
+/* meduha — light (daylight) theme. Overrides scoped under .meduha.light; relies on ../meduha/_group.css tokens. */
+.meduha.light{--bg:#fff6ec;--surface:#fffbf7;--raised:#fdeee0;--orange:#ff6b18;--orange-ink:#df4f12;--muted:#8d7b70;--line:#f0dccb;--text:#2a1810;--primary:22 100% 55%;--background:28 100% 96%;--foreground:18 45% 11%;--border:28 55% 87%;color:var(--text);background:var(--bg);color-scheme:light}
+.meduha.light .m-telegram{border-bottom:1px solid #2a181010}
+.meduha.light .m-telegram .close{color:#8d7b70}
+.meduha.light .m-nav{border-top:1px solid #f0dccb;background:#fffbf7}
+.meduha.light .m-nav a{color:#a08f84}
+.meduha.light .m-nav a.active{color:var(--orange-ink)}
+.meduha.light .m-nav .nav-create svg{color:#2a1810;box-shadow:0 6px 16px #ff6b1840}
+.meduha.light .m-credit{background:#fffdfb;border:1px solid #f1d6bf;box-shadow:0 2px 10px #c8743a14}
+.meduha.light .m-credit svg{color:var(--orange-ink)}
+.meduha.light .m-credit .plus{color:#2a1810}
+.meduha.light .m-muted{color:var(--muted)}
+.meduha.light .m-eyebrow{color:#b9643a}
+.meduha.light .m-hero:before{background:radial-gradient(ellipse,#ff8b3a3d,transparent 70%)}
+.meduha.light .m-hero p{color:#7c685c}
+.meduha.light .m-hero .m-mascot{filter:drop-shadow(0 16px 22px #c45a1a3a)}
+.meduha.light .m-entry{background:#f6e3d2;border:1px solid #2a181012;box-shadow:0 8px 22px #c8743a1f}
+.meduha.light .m-entry:after{background:linear-gradient(0deg,#1a110b 0%,#1a110b2b 95%)}
+.meduha.light .m-music-link{background:#fffdfb;border:1px solid #f1d6bf!important;box-shadow:0 2px 10px #c8743a12}
+.meduha.light .m-music-link .music-icon{background:#ff6b181a;color:var(--orange-ink)}
+.meduha.light .m-music-link small{color:var(--muted)}
+.meduha.light .m-section-title button{color:var(--orange-ink)}
+.meduha.light .m-tool{background:#fffdfb;border:1px solid #2a18100f!important;box-shadow:0 2px 10px #c8743a14}
+.meduha.light .m-tool svg{color:var(--orange-ink)}
+.meduha.light .m-tool .tiny-new{color:var(--orange-ink)}
+.meduha.light .m-inspo-card{background:#f6e3d2}
+.meduha.light .m-mini-grid button{background:#f6e3d2}
+.meduha.light .m-heading p{color:var(--muted)}
+.meduha.light .m-segment{background:#f7e6d6}
+.meduha.light .m-segment button{color:#7c685c}
+.meduha.light .m-segment button.selected{color:#2a1810;box-shadow:0 3px 10px #ff6b1838}
+.meduha.light .m-label>span{color:var(--muted)}
+.meduha.light .m-prompt{border:1px solid #f0cdb0;background:#fffdfb;box-shadow:0 2px 10px #c8743a10}
+.meduha.light .m-prompt textarea{color:var(--text)}
+.meduha.light .m-prompt textarea::placeholder{color:#b4a195}
+.meduha.light .m-prompt-bottom button{color:var(--orange-ink)}
+.meduha.light .m-upload{border:1px dashed #eab389!important;background:#ff6b180d}
+.meduha.light .m-upload>svg{color:var(--orange-ink)}
+.meduha.light .m-upload small{color:var(--muted)}
+.meduha.light .m-style{background:#f6e3d2}
+.meduha.light .m-style:after{background:linear-gradient(transparent,#1a110be8)}
+.meduha.light .m-model{background:#fffdfb;border:1px solid #2a181012!important;box-shadow:0 2px 10px #c8743a10}
+.meduha.light .m-model>svg:first-child{color:var(--orange-ink)}
+.meduha.light .m-model small,.meduha.light .m-model>svg:last-child{color:var(--muted)}
+.meduha.light .m-option{border:1px solid #ecd6c3!important;background:#fffdfb;color:#6f5c51!important}
+.meduha.light .m-option.selected{border-color:#ff6b1899!important;background:#ff6b1814;color:var(--orange-ink)!important}
+.meduha.light .m-generate{box-shadow:0 8px 24px #ff6b1838}
+.meduha.light .m-cost-note{color:#9c8a7e}
+.meduha.light .m-progress-card{background:radial-gradient(ellipse at 0% 100%,#ffb57a66,transparent 70%),#fff3e6;border:1px solid #f2cdad}
+.meduha.light .m-progress-text p{color:#8d7b70}
+.meduha.light .m-progress-track{background:#f6d8bf}
+.meduha.light .m-progress-percent{color:var(--orange-ink)}
+.meduha.light .m-tabs-small button{border:1px solid #ecd6c3;background:#fffdfb;color:#6f5c51}
+.meduha.light .m-tabs-small button.selected{color:#2a1810;border-color:var(--orange);box-shadow:0 3px 10px #ff6b1838}
+.meduha.light .m-date-line{color:var(--muted)}
+.meduha.light .m-work-image{background:#f6e3d2;box-shadow:0 6px 18px #c8743a1c}
+.meduha.light .m-work-meta{color:#9c8a7e}
+.meduha.light .m-work-meta button{color:#8d7b70}
+.meduha.light .m-work-meta .m-orange{color:var(--orange-ink)}
+.meduha.light .m-work-generating{background:radial-gradient(ellipse at center,#ffc39566,transparent 80%),#fff3e6;border:1px solid #f2bf98}
+.meduha.light .m-audio-art{background:radial-gradient(ellipse at 20% 0%,#ffa052,#ff5a08 70%);box-shadow:0 6px 18px #ff6b1838}
+.meduha.light .m-audio-art svg{color:#fff3e8}
+.meduha.light .m-waveform i{background:#fff3e8}
+.meduha.light .m-profile-user p{color:var(--muted)}
+.meduha.light .m-profile-user .m-verified{color:var(--orange-ink)}
+.meduha.light .m-balance-card{border:1px solid #f1c8a6;background:radial-gradient(ellipse at 100% 0%,#ffb37a8f,transparent 75%),#fff4e8;box-shadow:0 10px 30px #c8743a1c}
+.meduha.light .m-balance-card .m-eyebrow{color:#b9643a}
+.meduha.light .m-balance-number span{color:#8d7b70}
+.meduha.light .m-balance-card>img{filter:drop-shadow(0 10px 16px #c45a1a30)}
+.meduha.light .m-package{background:#fffdfb;border:1px solid #ecd6c3!important;box-shadow:0 2px 10px #c8743a10}
+.meduha.light .m-package.selected{border-color:var(--orange)!important;background:#ff6b1810}
+.meduha.light .m-package .best{color:#2a1810}
+.meduha.light .m-package small{color:var(--muted)}
+.meduha.light .m-stars{color:#d9531a}
+.meduha.light .m-plan{border:1px solid #f1c8a6;background:#fff4e8}
+.meduha.light .m-plan>svg:first-child{color:var(--orange-ink)}
+.meduha.light .m-plan p{color:#8d7b70}
+.meduha.light .m-plan button{background:#ff6b181c;color:var(--orange-ink)}
+.meduha.light .m-referral{background:#fffdfb;border:1px solid #f0dccb;box-shadow:0 2px 10px #c8743a10}
+.meduha.light .m-referral>svg,.meduha.light .m-referral button{color:var(--orange-ink)}
+.meduha.light .m-referral p{color:var(--muted)}
+.meduha.light .m-settings{border:1px solid #f0dccb;box-shadow:0 2px 10px #c8743a10}
+.meduha.light .m-settings button{background:#fffdfb}
+.meduha.light .m-settings button+button{border-top:1px solid #f5e6d8}
+.meduha.light .m-settings button>svg:first-child{color:#8d7b70}
+.meduha.light .m-settings button>svg:last-child{color:#b7a69a}
+.meduha.light .m-settings small{color:var(--muted)}
+.meduha.light .m-footer-note{color:#a89585}
+.meduha.light .m-overlay{background:#3a1d0c8c}
+.meduha.light .m-sheet{background:#fffaf5;border:1px solid #f0d5bf;box-shadow:0 -12px 60px #5a2a0e2e}
+.meduha.light .m-sheet-handle{background:#e6cfbb}
+.meduha.light .m-sheet p{color:#6f5c51}
+.meduha.light .m-sheet-actions button{background:#f7e6d6;color:var(--text)}
+.meduha.light .m-toast{background:#2a1810;color:#fff3e8;box-shadow:0 9px 35px #2a181055}
+.meduha.light .m-toast svg{color:#ffa061}
+.meduha.light .m-empty p{color:var(--muted)}
+.meduha.light .m-back-link{color:var(--orange-ink)!important}
+.meduha.light .m-switch{background:#e6cfbb}
+.meduha.light .m-switch.on{background:var(--orange)}
+.meduha.light .m-switch:after{background:#fffdfb;box-shadow:0 1px 3px #2a181030}
+.meduha.light .m-mini-grid button,.meduha.light .m-inspo-card{box-shadow:0 4px 14px #c8743a18}
+.meduha.light .m-work{overflow:visible}
+/* text that sits on top of dark photo gradients stays light */
+.meduha.light .m-entry-content,.meduha.light .m-entry h3{color:#fff6ec}
+.meduha.light .m-entry p{color:#eadfd6}
+.meduha.light .m-inspo-card span,.meduha.light .m-style span,.meduha.light .m-work-image .m-badge{color:#fff6ec}
+.meduha.light .m-inspo-card .m-mini-icon{background:#1a110b99}
+.meduha.light .m-work-image .m-work-open{background:#fff6ecea;color:#2a1810}
+/* ---- mascot emotion library (light) ---- */
+.meduha.light .ml-landscape{aspect-ratio:437/341;height:auto}
+.meduha.light .ml-live{position:relative}
+.meduha.light .ml-live img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease;will-change:opacity}
+.meduha.light .ml-live img.on{opacity:1}
+.meduha.light .m-hero{height:196px}
+.meduha.light .m-hero .ml-live{position:absolute;width:232px;height:181px;right:-26px;top:-2px;animation:m-float 5s ease-in-out infinite;filter:drop-shadow(0 16px 22px #c45a1a3a);pointer-events:none}
+.meduha.light .m-hero .spark{right:6px;top:128px;transform:rotate(-8deg)}
+.meduha.light .m-progress-card img{width:74px;height:58px;margin-left:-8px}
+.meduha.light .m-work-generating img{width:132px;height:96px;margin-bottom:-2px}
+.meduha.light .m-work-generating strong{white-space:nowrap;overflow:visible}
+.meduha.light .m-balance-card>img{width:124px;right:-8px;top:2px;transform:rotate(6deg)}
+.meduha.light .ml-sheet-mascot{display:block;margin:0 auto 12px}
+.meduha.light .ml-toast-face{width:46px;height:36px;object-fit:contain;margin:-8px -4px -8px -6px;flex:none}
+.meduha.light .ml-result-row{display:flex;align-items:center;gap:6px;margin:-4px 0 4px}
+.meduha.light .ml-result-row img{width:92px;height:72px;object-fit:contain;flex:none;margin-left:-10px}
+.meduha.light .ml-result-row p{margin-bottom:12px}
+.meduha.light .ml-hint{display:flex;align-items:center;gap:8px;margin:-2px 0 14px;padding:6px 12px 6px 6px;border-radius:14px;background:#fff3e6;border:1px solid #f2d6bf;font-size:10px;line-height:1.45;color:#7c685c}
+.meduha.light .ml-hint img{width:86px;height:66px;object-fit:contain;flex:none;margin:-8px -4px -8px -2px}
+.meduha.light .ml-hint strong{display:block;color:var(--text);font-size:11px;margin-bottom:1px}
+.meduha.light .ml-flight{display:flex;align-items:center;gap:10px;margin-top:12px;padding:8px 12px;border-radius:14px;background:#fffdfb;border:1px solid #f0dccb;box-shadow:0 2px 10px #c8743a10}
+.meduha.light .ml-flight img{width:84px;height:66px;object-fit:contain;flex:none;margin:-6px 0 -6px -6px}
+.meduha.light .ml-flight p{font-size:10px;color:var(--muted);margin:0 0 4px}
+.meduha.light .ml-flight a{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--orange-ink)}
+.meduha.light .ml-end{display:flex;align-items:center;gap:8px;margin-top:18px;padding:10px 14px 10px 8px;border-radius:18px;background:radial-gradient(ellipse at 0% 50%,#ffd4b266,transparent 70%),#fff3e6;border:1px solid #f2d6bf}
+.meduha.light .ml-end img{width:118px;height:92px;object-fit:contain;flex:none;animation:none}
+.meduha.light .ml-end strong{display:block;font-size:12px;margin-bottom:3px}
+.meduha.light .ml-end p{font-size:10px;color:var(--muted);line-height:1.45;margin:0 0 6px}
+.meduha.light .ml-end a{font-size:11px;font-weight:600;color:var(--orange-ink);display:inline-flex;align-items:center;gap:4px}
+.meduha.light .ml-peek{position:relative;text-align:center;margin-top:20px;height:118px;overflow:hidden}
+.meduha.light .ml-peek img{width:170px;height:132px;object-fit:contain;margin:auto;animation:ml-peek 6s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes ml-peek{0%,100%{transform:translateY(20px)}45%,60%{transform:translateY(2px)}}
+.meduha.light .m-referral{position:relative;overflow:hidden}
+.meduha.light .m-referral .ml-referral-mascot{position:absolute;right:-14px;top:-6px;width:118px;height:92px;object-fit:contain;transform:rotate(-6deg);pointer-events:none}
+.meduha.light .m-referral h3,.meduha.light .m-referral p{max-width:200px;position:relative}
+.meduha.light .ml-faq-row{display:flex;align-items:flex-end;gap:4px;margin-bottom:8px}
+.meduha.light .ml-faq-row img{width:96px;height:75px;object-fit:contain;flex:none;margin-left:-14px}
+.meduha.light .ml-faq-row p{margin-bottom:10px}
+@media (prefers-reduced-motion:reduce){.meduha.light .ml-live img{transition:none}.meduha.light .ml-peek img{transform:translateY(6px)}}

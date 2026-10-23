@@ -1,0 +1,35 @@
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { ArrowDownToLine, ArrowUpRight, BatteryFull, Check, ChevronDown, ChevronRight, Ellipsis, House, Images, Plus, Send, Signal, Sparkles, UserRound, Wifi, X, Zap } from "lucide-react";
+import "../../meduha/_group.css";
+import "../../meduha/_shared/refinements.css";
+import "../_light.css";
+
+export const asset = (name: string) => `/__mockup/images/meduha/${name}.png`;
+export type Mood = "glossy" | "hello" | "joy" | "curious" | "thinking" | "surprise" | "wink" | "sleep" | "tired" | "flight";
+export const mood = (name: Mood) => `/__mockup/images/brand/mascot-${name}.png`;
+export const mascot = mood("glossy");
+export const route = (name: string) => `/__mockup/preview/meduha-light/${name}`;
+export const ink = "#df4f12";
+const reducedMotion = () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** Hero mascot that gently cycles through moods with a crossfade. Static single mood when the user prefers reduced motion. */
+export function LiveMascot({ moods, alt = "", interval = 4000, className = "", style }: { moods: Mood[]; alt?: string; interval?: number; className?: string; style?: CSSProperties }) {
+ const [index, setIndex] = useState(0);
+ const [still] = useState(reducedMotion);
+ useEffect(() => { if (still || moods.length < 2) return; const timer = window.setInterval(() => setIndex(i => (i + 1) % moods.length), interval); return () => window.clearInterval(timer); }, [still, moods.length, interval]);
+ return <div className={`ml-live ${className}`} style={style} aria-label={alt} role="img">{(still ? [moods[0]] : moods).map((m, j) => <img key={m} src={mood(m)} alt="" draggable={false} className={j === index ? "on" : ""} />)}</div>;
+}
+export function Credit({ amount = "1 250" }: { amount?: string }) { return <a className="m-credit press" href={route("Profile")}><Zap size={13} fill="currentColor" />{amount}<Plus size={16} className="plus" /></a>; }
+export function SectionTitle({ children, action, onClick }: { children: ReactNode; action?: string; onClick?: () => void }) { return <div className="m-section-title"><h2>{children}</h2>{action && <button onClick={onClick}>{action}<ChevronRight size={12} /></button>}</div>; }
+export function Progress({ fresh = false }: { fresh?: boolean }) { return <div className="m-progress-card"><img className="m-mascot" src={mood("thinking")} alt="Медуха думает" /><div className="m-progress-text"><strong>{fresh ? "Уже создаю твою идею" : "Немного магии — и готово"}</strong><p>Собираю детали. Можно свернуть приложение.</p><div className="m-progress-track"><div /></div></div><span className="m-progress-percent">{fresh ? "12%" : "68%"}</span></div>; }
+export function Frame({ active, children }: { active: string; children: ReactNode }) {
+ const [menu, setMenu] = useState(false);
+ const [closed,setClosed] = useState(false);
+ return <div className="meduha light"><div className="m-status"><span>9:41</span><div className="flex items-center gap-1"><Signal size={13} fill="currentColor" /><Wifi size={14}/><BatteryFull size={20}/></div></div><header className="m-telegram"><button className="close" onClick={()=>setClosed(true)}>Закрыть</button><div className="bot">meduha<small>мини-приложение</small></div><div className="flex items-center gap-1"><button className="m-icon-button" aria-label="Свернуть" onClick={()=>setClosed(true)}><ChevronDown size={17}/></button><button className="m-icon-button" aria-label="Меню" onClick={()=>setMenu(true)}><Ellipsis size={19}/></button></div></header><main className={`m-scroll m-screen-${active.toLowerCase()}`}>{children}</main><nav className="m-nav">{[{name:"Home",label:"Главная",icon:House},{name:"Create",label:"Создать",icon:Plus},{name:"Works",label:"Мои работы",icon:Images},{name:"Profile",label:"Профиль",icon:UserRound}].map(({name,label,icon:Icon})=><a key={name} className={`${active===name?"active":""} ${name==="Create"?"nav-create":""}`} href={route(name)}><Icon size={name==="Create"?17:21}/><span>{label}</span></a>)}</nav>{menu&&<Sheet title="Твоя карманная студия" onClose={()=>setMenu(false)}><img src={mascot} alt="" className="m-mascot ml-sheet-mascot" style={{width:150}}/><p>meduha — фото, видео и музыка из твоих идей. Прямо в Telegram.</p><a className="m-generate" href="https://t.me/meduha" target="_blank" rel="noreferrer"><Send size={16}/>Открыть чат meduha</a></Sheet>}{closed&&<Sheet title="До скорой встречи!" onClose={()=>setClosed(false)}><img src={mood("flight")} alt="Медуха улетает" className="m-mascot ml-sheet-mascot ml-landscape" style={{width:190}}/><p>Твои работы сохранены. Создание продолжится, даже если свернуть приложение.</p><button className="m-generate" onClick={()=>setClosed(false)}>Остаться в студии</button></Sheet>}</div>;
+}
+export function Sheet({title, children,onClose}:{title:string;children:ReactNode;onClose:()=>void}){return <div className="m-overlay" onClick={onClose}><section className="m-sheet" role="dialog" aria-modal="true" aria-label={title} onClick={e=>e.stopPropagation()}><div className="m-sheet-handle"/><div className="m-sheet-header"><h2>{title}</h2><button className="m-icon-button" aria-label="Закрыть" onClick={onClose}><X size={18}/></button></div>{children}</section></div>}
+export function Toast({children,face}:{children:ReactNode;face?:Mood}){return <div className="m-toast">{face?<img className="ml-toast-face" src={mood(face)} alt=""/>:<Check size={16}/>}{children}</div>}
+export function Result({image,title,onClose}:{image:string;title:string;onClose:()=>void}){
+ const [notice,setNotice]=useState("");
+ const share=async()=>{try{if(navigator.share)await navigator.share({title,text:"Создано в meduha",url:window.location.href});else await navigator.clipboard.writeText(window.location.href);setNotice("Ссылка на работу скопирована");}catch{setNotice("Поделиться можно из чата meduha");}};
+ return <Sheet title={title} onClose={onClose}><img className="result-image" src={asset(image)} alt={title}/><div className="ml-result-row"><img className="m-mascot" src={mood("surprise")} alt="Медуха в восторге"/><p>Создано с meduha · Flux 1.1 Pro<br/>Твоя идея. Немного магии. Совсем новый взгляд.</p></div><button className="m-generate" onClick={share}><Send size={16}/>Поделиться в чате</button><div className="m-sheet-actions"><button onClick={()=>{const a=document.createElement("a");a.href=asset(image);a.download=`meduha-${image}.png`;a.click();setNotice("Работа сохранена");}}><ArrowDownToLine size={14}/>Скачать</button><button onClick={()=>window.location.assign(route("Create"))}><Sparkles size={14}/>Ещё вариант<ArrowUpRight size={12}/></button></div>{notice&&<p style={{color:ink,marginTop:12,marginBottom:0}}>{notice}</p>}</Sheet>;
+}

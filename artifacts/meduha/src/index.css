@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;450;500;550;600;650;700;750;800;850;900&family=Manrope:wght@600;700;800&display=swap');
+@import './meduha/_group.css';
+@import './meduha/shared/refinements.css';
+@import './meduha/_light.css';
+@import './meduha/theme.css';
+@import './meduha/session.css';
+@import './meduha/templates.css';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+@theme inline {
+  --color-background: hsl(var(--background)); --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border)); --color-input: hsl(var(--input)); --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card)); --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary)); --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary)); --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted)); --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent)); --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive)); --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans); --font-serif: var(--app-font-serif); --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px);
+}
+:root {
+  color-scheme: light;
+  --background: 28 100% 96%; --foreground: 18 45% 11%; --border: 28 55% 87%;
+  --card: 30 100% 99%; --card-foreground: 18 45% 11%; --input: 28 55% 87%; --ring: 22 100% 55%;
+  --primary: 22 100% 55%; --primary-foreground: 18 55% 8%; --secondary: 28 70% 92%; --secondary-foreground: 18 45% 11%;
+  --muted: 28 55% 92%; --muted-foreground: 22 12% 49%; --accent: 28 70% 92%; --accent-foreground: 18 45% 11%;
+  --destructive: 0 70% 48%; --destructive-foreground: 0 0% 100%; --app-font-sans: 'Golos Text', sans-serif; --app-font-serif: Georgia, serif; --app-font-mono: 'Spline Sans Mono', monospace; --radius: .75rem;
+  --button-outline: rgba(42,24,16,.1); --badge-outline: rgba(42,24,16,.06); --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(42,24,16,.03); --elevate-2: rgba(42,24,16,.08);
+  --card-border: 28 55% 87%; --popover: 30 100% 99%; --popover-foreground: 18 45% 11%; --popover-border: 28 55% 87%;
+  --sidebar: 28 100% 96%; --sidebar-foreground: 18 45% 11%; --sidebar-border: 28 55% 87%; --sidebar-primary: 22 100% 55%; --sidebar-primary-foreground: 18 55% 8%; --sidebar-accent: 28 70% 92%; --sidebar-accent-foreground: 18 45% 11%; --sidebar-ring: 22 100% 55%;
+  --chart-1: 22 100% 55%; --chart-2: 14 69% 48%; --chart-3: 38 80% 60%; --chart-4: 4 44% 66%; --chart-5: 28 40% 50%;
+  --shadow-2xs: 0 2px 0 0 rgba(200,116,58,.04); --shadow-xs: 0 2px 0 0 rgba(200,116,58,.04); --shadow-sm: 0 2px 9px rgba(200,116,58,.08); --shadow: 0 4px 14px rgba(200,116,58,.1); --shadow-md: 0 8px 22px rgba(200,116,58,.12); --shadow-lg: 0 12px 30px rgba(200,116,58,.14); --shadow-xl: 0 18px 40px rgba(200,116,58,.16); --shadow-2xl: 0 24px 60px rgba(200,116,58,.18); --tracking-normal: 0em; --spacing: .25rem;
+}
+@layer base { * { @apply border-border; } body { margin:0; font-family:var(--app-font-sans); background:#f4e8dc; color:#2a1810; } button,input,textarea,select {font:inherit} }
+.meduha-app{width:100%;min-width:0;min-height:100dvh;display:flex;align-items:flex-start;justify-content:center;padding:0;background:radial-gradient(ellipse at 50% 0%,#fffaf4 0,#f4e8dc 68%);color:#2a1810}
+.meduha.light{width:min(100%,480px);min-width:0;height:100dvh;min-height:560px;box-shadow:0 12px 60px #643b2018}
+.m-app-header{height:auto;min-height:56px;flex:none;background:#fffbf7;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:9px 18px;border-bottom:1px solid #f0dccb}
+.meduha .m-home-line{min-width:0;flex-wrap:wrap;gap:8px}
+.meduha .m-home-line .m-header-actions,.meduha .m-app-header .m-header-actions{margin-left:auto}
+.meduha .m-header-actions{min-width:0;max-width:100%;flex-wrap:wrap}
+.meduha .m-credit{min-width:0;max-width:100%;white-space:nowrap}
+.meduha .m-credit-value{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.meduha .m-credit>svg{flex-shrink:0}
+.m-app-header .brand{display:flex;align-items:center;gap:9px;font:800 18px Manrope,sans-serif;letter-spacing:-.7px}
+.m-app-header img{width:29px;height:29px;border-radius:9px}
+.m-app-header .m-credit{font-size:11px}
+.m-scroll{padding-top:17px}
+.meduha.light .m-home-line{margin-bottom:16px}
+.meduha.light .m-scroll:not(.m-screen-home){padding-top:28px}
+.meduha.light .m-scroll{
+  min-width:0;
+  overflow-x:hidden;
+  padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));
+  scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));
+}
+.meduha.light .m-nav{
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  height:68px;
+  padding:7px 9px;
+  border:1px solid rgba(255,255,255,.85);
+  border-radius:999px;
+  background:rgba(255,251,247,.72);
+  -webkit-backdrop-filter:blur(22px) saturate(150%);
+  backdrop-filter:blur(22px) saturate(150%);
+  box-shadow:0 8px 32px #643b201c,inset 0 1px 0 #ffffffd9;
+  align-items:center;
+}
+.meduha.light .m-nav a{
+  flex:1;
+  min-width:0;
+  width:auto;
+  min-height:50px;
+  padding:6px 2px;
+  justify-content:center;
+  gap:4px;
+  border-radius:999px;
+  color:#79685d;
+  transition:background .2s ease,color .2s ease;
+}
+.meduha.light .m-nav a.active{
+  background:rgba(255,107,24,.1);
+  color:var(--orange-ink);
+}
+.meduha.light .m-nav a.active:before{display:none}
+.meduha.light .m-nav .nav-create svg{margin-top:0;border-radius:50%}
+.meduha.light .m-toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.m-work-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:5px}
+.m-work-actions button{background:#fff3e6;border-radius:8px;padding:5px 7px;color:#9a4b24}
+.m-example-label{display:inline-block;background:#fff3e6;color:#a94f23;border:1px solid #f2d6bf;border-radius:99px;padding:4px 8px;font-size:9px;font-weight:650}
+.m-info-note{font-size:10px;line-height:1.5;color:#8d7b70;background:#fff3e6;border:1px solid #f2d6bf;border-radius:12px;padding:10px 12px;margin:8px 0 13px}
+.m-inline-form{display:flex;flex-direction:column;gap:12px}
+.m-inline-form label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600}
+.m-inline-form input,.m-inline-form select{border:1px solid #f0cdb0;background:#fffdfb;border-radius:10px;padding:10px;color:#2a1810}
+.m-dialog-actions{display:flex;gap:8px;margin-top:14px}
+.m-dialog-actions button{flex:1;padding:11px;border-radius:10px;background:#f7e6d6;font-size:11px;font-weight:600}
+.m-dialog-actions a{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:10px;background:#f7e6d6;font-size:11px;font-weight:600;color:#2a1810}
+.m-dialog-actions .danger{color:#a53220}
+.m-work-actions a,.m-work-actions button{background:#fff3e6;border-radius:8px;padding:5px 7px;color:#9a4b24;display:flex;align-items:center;gap:4px;font-size:9px}
+.draft-cover{height:100%;display:flex;align-items:center;justify-content:center;gap:4px;color:#b85a29;position:relative}
+.draft-cover img{width:105px;height:90px;object-fit:contain;filter:drop-shadow(0 5px 8px #ab5b2630)}
+.m-empty{padding:16px 8px}
+.m-empty .m-generate{margin:0 auto}
+.m-avatar-guest{width:57px;height:57px;border-radius:20px;background:#ffe5d0;color:#a84c20;display:grid;place-items:center;font-size:21px;font-weight:750;flex:none}
+.m-option:focus-visible,.m-tool:focus-visible,.m-style:focus-visible,.m-work button:focus-visible,.m-inspo-card:focus-visible,.m-entry:focus-visible{outline:2px solid #df4f12;outline-offset:2px}
+@media(min-width:600px){.meduha-app{padding:24px 0}.meduha.light{height:calc(100dvh - 48px);min-height:620px;border-radius:28px;overflow:hidden}.m-app-header{border-radius:28px 28px 0 0}}
+@media(max-width:350px){.meduha.light{font-size:12px}.m-scroll{padding-left:13px;padding-right:13px}.m-entry{height:145px;padding:9px}.m-entry h3{font-size:14px}.m-style-row{gap:5px}.m-style{height:70px}}
+@media(prefers-reduced-motion:reduce){.meduha *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
