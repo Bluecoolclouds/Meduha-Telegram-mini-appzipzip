@@ -8,9 +8,9 @@ const HIGGSFIELD_API = 'https://api.higgsfield.ai';
 // Existing Replit Secrets take priority; local credentials are never browser env vars.
 export function higgsfieldCredentials() {
   loadEnv({ path: resolve(process.cwd(), '.env.local'), quiet: true });
-  const credentials = process.env.HF_CREDENTIALS || process.env.higgs;
+  const credentials = process.env.HF_CREDENTIALS || process.env.higgs_api || process.env.higgs;
   if (!credentials || !/^[^:\s]+:[^:\s]+$/.test(credentials)) {
-    throw new Error('HF_CREDENTIALS (or Replit Secret higgs) must contain key-id:key-secret.');
+    throw new Error('HF_CREDENTIALS, higgs_api or higgs must contain key-id:key-secret.');
   }
   return credentials;
 }
@@ -33,7 +33,7 @@ export async function getHiggsfieldRequestStatus(requestId: string) {
   if (!result || typeof result !== 'object' || !('status' in result) || typeof result.status !== 'string') {
     throw new Error('Higgsfield returned an invalid request status.');
   }
-  return result as { status: string; video?: { url?: string } };
+  return result as { status: string; video?: { url?: string }; images?: { url: string }[] };
 }
 
 export function completedVideo(result: { status: string; video?: { url: string } }): string {

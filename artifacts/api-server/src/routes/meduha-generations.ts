@@ -12,18 +12,28 @@ const fail = (res: Response, status: number, code: string, error: string) => res
 type JobInput = { prompt: string; duration: number; aspect_ratio: string; resolution: string };
 
 export function publicJob(row: Record<string, any>) {
+  const isPhoto = !!row.input._photo;
+  let resultUrls: string[] = [];
+  if (isPhoto && row.status === 'completed') {
+    try {
+      const parsed = JSON.parse(row.result_url);
+      if (Array.isArray(parsed)) resultUrls = parsed.filter((url, index) => url === `/api/meduha/generations/${row.id}/images/${index}`);
+    } catch { /* Never expose provider URLs. */ }
+  }
   return {
     id: row.id as string,
     idempotencyKey: row.idempotency_key as string,
     modelId: row.model_id as string,
     modelName: row.display_name as string,
-    scenario: row.input._genjutsu?.scenario ?? 'text-to-video',
+    scenario: row.input._photo?.catalogId ?? row.input._genjutsu?.scenario ?? 'text-to-video',
+    mediaKind: isPhoto ? 'photo' : 'video',
+    resultUrls,
     prompt: row.input.prompt as string,
     duration: row.input.duration as number,
     aspectRatio: row.input.aspect_ratio as string,
     status: row.status as string,
     requestId: row.request_id as string | null,
-    resultUrl: row.status === 'completed' ? row.result_url as string | null : null,
+    resultUrl: row.status === 'completed' ? isPhoto ? resultUrls[0] ?? null : row.result_url as string | null : null,
     error: row.error_message as string | null,
     createdAt: new Date(row.created_at).getTime(),
     updatedAt: new Date(row.updated_at).getTime(),
@@ -80,7 +90,7 @@ export function createMeduhaGenerationsRouter() {
     const result = await pool.query(
       `SELECT j.*, m.display_name
        FROM meduha_generation_jobs j JOIN meduha_ai_models m ON m.id = j.model_id
-       WHERE j.account_id = $1 ORDER BY j.created_at DESC LIMIT 10`,
+       WHERE j.account_id = $1 ORDER BY j.created_at DESC LIMIT 50`,
       [account.id],
     );
     res.json({ items: result.rows.map(publicJob) });

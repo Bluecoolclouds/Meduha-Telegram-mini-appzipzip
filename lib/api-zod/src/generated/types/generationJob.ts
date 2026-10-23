@@ -5,9 +5,12 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { GenerationJobMediaKind } from './generationJobMediaKind';
 import type { GenerationJobStatus } from './generationJobStatus';
 
 export interface GenerationJob {
+  mediaKind?: GenerationJobMediaKind;
+  resultUrls?: string[];
   id: string;
   idempotencyKey: string;
   modelId: string;

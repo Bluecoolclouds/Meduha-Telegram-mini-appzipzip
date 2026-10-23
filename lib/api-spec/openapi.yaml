@@ -11,6 +11,32 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /meduha/photo/catalog:
+    get:
+      operationId: getPhotoCatalog
+      responses:
+        "200":
+          description: Verified photo models, input schemas and configured availability
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhotoCatalog" }
+  /meduha/photo/generations:
+    post:
+      operationId: createPhotoGeneration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhotoGenerationInput" }
+      responses:
+        "202":
+          description: Queued or existing private photo generation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenerationSubmission" }
+        "400": { description: Invalid model inputs }
+        "401": { description: Telegram account required }
+        "409": { description: "Model, price, balance or spending unavailable" }
   /meduha/templates:
     get:
       operationId: listTemplates
@@ -1202,6 +1228,44 @@ components:
             properties:
               upstreamId: { type: string }
               creditPrice: { type: integer, minimum: 1 }
+    PhotoCatalogModel:
+      type: object
+      required: [id, endpoint, name, source, schema, workflow, available, modelId, creditPrice]
+      properties:
+        id: { type: string }
+        endpoint: { type: string }
+        name: { type: string }
+        source: { type: string }
+        schema: { type: object, additionalProperties: true }
+        workflow: { type: boolean }
+        available: { type: boolean }
+        modelId: { type: [string, "null"] }
+        creditPrice: { type: [integer, "null"] }
+    PhotoCatalog:
+      type: object
+      required: [models, spendingEnabled, storageConfigured, providerConfigured]
+      properties:
+        models:
+          type: array
+          items: { $ref: "#/components/schemas/PhotoCatalogModel" }
+        spendingEnabled: { type: boolean }
+        storageConfigured: { type: boolean }
+        providerConfigured: { type: boolean }
+    PhotoGenerationInput:
+      type: object
+      required: [idempotencyKey, modelId, catalogId, expectedCreditPrice, parameters, references]
+      properties:
+        idempotencyKey: { type: string, format: uuid }
+        modelId: { type: string, format: uuid }
+        catalogId: { type: string, maxLength: 200 }
+        expectedCreditPrice: { type: integer, minimum: 1, maximum: 100000000 }
+        parameters: { type: object, additionalProperties: true }
+        references:
+          type: object
+          additionalProperties:
+            type: array
+            maxItems: 16
+            items: { type: string, format: uuid }
     GenerationModel:
       type: object
       required: [id, name, creditPrice, limits]
@@ -1223,6 +1287,10 @@ components:
       type: object
       required: [id, idempotencyKey, modelId, modelName, prompt, duration, aspectRatio, status, requestId, resultUrl, error, createdAt, updatedAt, creditPrice]
       properties:
+        mediaKind: { type: string, enum: [photo, video] }
+        resultUrls:
+          type: array
+          items: { type: string }
         id: { type: string, format: uuid }
         idempotencyKey: { type: string, format: uuid }
         modelId: { type: string, format: uuid }

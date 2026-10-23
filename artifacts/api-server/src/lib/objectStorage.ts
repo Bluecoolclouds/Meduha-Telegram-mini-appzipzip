@@ -259,7 +259,7 @@ export async function storeGenerationVideo(
 const resolvePublicHost: HostResolver = async (hostname, options) =>
   await lookup(hostname, options) as { address: string }[];
 
-async function validateProviderUrl(rawUrl: string, resolveHost: HostResolver = resolvePublicHost): Promise<URL> {
+export async function validateProviderUrl(rawUrl: string, resolveHost: HostResolver = resolvePublicHost): Promise<URL> {
   let url: URL;
   try { url = new URL(rawUrl); } catch { throw new GenerationVideoValidationError('Provider returned an invalid video URL'); }
   if (url.protocol !== 'https:' || url.username || url.password || (url.port && url.port !== '443')) {

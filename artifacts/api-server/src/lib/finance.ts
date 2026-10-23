@@ -105,6 +105,7 @@ export type ReserveCreditsInput = {
   modelId?: string;
   channelId?: string;
   genjutsuQuote?: Pick<GenjutsuQuoteClaims, 'scenario' | 'resolution' | 'duration' | 'creditPrice' | 'pricingFingerprint'>;
+  photoBatch?: number;
 };
 
 export type UpdateFinanceSettingsInput = {
@@ -446,6 +447,7 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
     accountId: input.accountId, actorId: input.actorId, amount: input.amount, reason: input.reason,
     modelId: input.modelId ?? null, channelId: input.channelId ?? null,
     ...(input.genjutsuQuote ? { genjutsuQuote: input.genjutsuQuote } : {}),
+    ...(input.photoBatch !== undefined ? { photoBatch: input.photoBatch } : {}),
   };
   return runMutation('reserveCredits', payload, input.accountId, input.idempotencyKey, async client => {
     const balance = await lockAccount(client, input.accountId);
@@ -455,7 +457,7 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
     let modelLimits: unknown = null;
     if (input.modelId) {
       const { rows: modelRows } = await client.query(
-        `SELECT id, channel_id, upstream_id, enabled, credit_price, limits, genjutsu_pricing
+        `SELECT id, channel_id, upstream_id, kind, enabled, credit_price, limits, genjutsu_pricing
          FROM meduha_ai_models WHERE id = $1 FOR SHARE`,
         [input.modelId],
       );
@@ -474,6 +476,11 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
           || input.amount !== input.genjutsuQuote.creditPrice
           || genjutsuPricingFingerprint(creditPrice, model.genjutsu_pricing) !== input.genjutsuQuote.pricingFingerprint) {
           fail('STALE_PRICE_QUOTE', 'Цена или настройки модели изменились. Запроси новую котировку.');
+        }
+      } else if (input.photoBatch !== undefined) {
+        integer(input.photoBatch, 'photoBatch', 1, 8);
+        if (model.kind !== 'photo' || input.amount !== creditPrice * input.photoBatch) {
+          fail('INVALID_INPUT', 'Photo reservation must equal the configured model price times batch size');
         }
       } else if (input.amount !== creditPrice) {
         fail('INVALID_INPUT', 'Reservation amount must equal the configured model credit price');

@@ -23,6 +23,7 @@ await build({
     path.join(root,'src/routes/meduha-admin.integration.test.ts'),
     path.join(root,'src/routes/meduha-generations.integration.test.ts'),
     path.join(root,'src/routes/meduha-genjutsu.integration.test.ts'),
+    path.join(root,'src/routes/meduha-photo.integration.test.ts'),
   ],
   bundle:true,platform:'node',format:'cjs',outdir:out,entryNames:'[name]',
   outExtension:{'.js':'.cjs'},external:['pg-native'],logLevel:'warning',
@@ -36,5 +37,6 @@ if(result.status!==0)process.exit(result.status??1);
 const generationResult=spawnSync(process.execPath,[
   '--test','--test-concurrency=1',path.join(out,'meduha-generations.integration.test.cjs'),
   path.join(out,'meduha-genjutsu.integration.test.cjs'),
+  path.join(out,'meduha-photo.integration.test.cjs'),
 ],{stdio:'inherit',env:{...process.env,NODE_ENV:'production'}});
 process.exit(generationResult.status??1);

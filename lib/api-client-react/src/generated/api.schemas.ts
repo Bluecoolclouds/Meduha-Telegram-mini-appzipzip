@@ -452,6 +452,47 @@ export interface ModelCatalogPriceList {
   models: ModelCatalogPriceListModelsItem[];
 }
 
+export type PhotoCatalogModelSchema = { [key: string]: unknown };
+
+export interface PhotoCatalogModel {
+  id: string;
+  endpoint: string;
+  name: string;
+  source: string;
+  schema: PhotoCatalogModelSchema;
+  workflow: boolean;
+  available: boolean;
+  /** @nullable */
+  modelId: string | null;
+  /** @nullable */
+  creditPrice: number | null;
+}
+
+export interface PhotoCatalog {
+  models: PhotoCatalogModel[];
+  spendingEnabled: boolean;
+  storageConfigured: boolean;
+  providerConfigured: boolean;
+}
+
+export type PhotoGenerationInputParameters = { [key: string]: unknown };
+
+export type PhotoGenerationInputReferences = {[key: string]: string[]};
+
+export interface PhotoGenerationInput {
+  idempotencyKey: string;
+  modelId: string;
+  /** @maxLength 200 */
+  catalogId: string;
+  /**
+     * @minimum 1
+     * @maximum 100000000
+     */
+  expectedCreditPrice: number;
+  parameters: PhotoGenerationInputParameters;
+  references: PhotoGenerationInputReferences;
+}
+
 export type GenerationModelLimits = {[key: string]: number};
 
 export interface GenerationModel {
@@ -468,6 +509,14 @@ export interface GenerationModelList {
   models: GenerationModel[];
 }
 
+export type GenerationJobMediaKind = typeof GenerationJobMediaKind[keyof typeof GenerationJobMediaKind];
+
+
+export const GenerationJobMediaKind = {
+  photo: 'photo',
+  video: 'video',
+} as const;
+
 export type GenerationJobStatus = typeof GenerationJobStatus[keyof typeof GenerationJobStatus];
 
 
@@ -483,6 +532,8 @@ export const GenerationJobStatus = {
 } as const;
 
 export interface GenerationJob {
+  mediaKind?: GenerationJobMediaKind;
+  resultUrls?: string[];
   id: string;
   idempotencyKey: string;
   modelId: string;

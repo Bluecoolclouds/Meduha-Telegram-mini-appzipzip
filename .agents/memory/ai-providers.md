@@ -32,3 +32,9 @@ The user approved connecting the three Genjutsu scenarios: motion transfer, obje
 **Why:** the user explicitly selected the three-scenario implementation scope, while no new price or paid-test budget was specified.
 
 **How to apply:** expose only documented fields and real configured availability. Register missing models disabled and unpriced; keep subsequent activation and tariff decisions explicit. Source media uploads are private generation inputs, not permission to publish them in Community.
+
+The user also approved «Каталог, настройки и реальная генерация» for the photo models shown in Higgsfield, using the official SOUL Standard and both SOUL 2 Playground pages as references.
+
+**Why:** the user explicitly chose real photo-generation implementation, not a catalogue-only prototype.
+
+**How to apply:** implement real provider submission for documented photo modes, but do not infer approval for invented credit tariffs, enabling global spending, or billable smoke tests. Keep uploaded references and generated photos private.

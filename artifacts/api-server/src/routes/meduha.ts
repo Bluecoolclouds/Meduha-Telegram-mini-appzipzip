@@ -16,6 +16,7 @@ import { createMeduhaAdminRouter } from './meduha-admin';
 import { getWallet } from '../lib/finance';
 import { isTemplateAdmin } from '../lib/template-admin';
 import { createMeduhaGenerationsRouter } from './meduha-generations';
+import { createPhotoRouter } from './meduha-photo';
 import { createGenjutsuRouter, type GenjutsuDependencies } from './meduha-genjutsu';
 import { getHiggsfieldRequestStatus } from '../lib/higgsfield';
 import type { GenerationVideoStore } from '../lib/generation-worker';
@@ -200,6 +201,7 @@ router.post('/reports',async(req,res)=>{
 });
 router.use(templatesRouter);
 router.use(createMeduhaGenerationsRouter());
+router.use(createPhotoRouter());
 router.use(createGenjutsuRouter(genjutsuDependencies));
 router.use(createMeduhaAdminRouter(isAdminForTest,setupRequiredForTest,catalogFetcher,providerStatusFetcher,storeGenerationVideoForTest));
 router.use((error:unknown,req:Request,res:Response,_next:NextFunction)=>{

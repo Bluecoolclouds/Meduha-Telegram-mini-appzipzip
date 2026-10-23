@@ -5,6 +5,7 @@ import { startTemplateUploadCleanupWorker } from './lib/template-upload-cleanup-
 import { startMeduhaAdminCleanupWorker } from './lib/meduha-admin-cleanup-worker';
 import { startGenerationWorker } from './lib/generation-worker';
 import { pool } from '@workspace/db';
+import { registerPhotoModels } from './routes/meduha-photo';
 
 const rawPort = process.env["PORT"];
 
@@ -20,6 +21,7 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
+await registerPhotoModels();
 const server=app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");

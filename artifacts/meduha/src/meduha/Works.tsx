@@ -5,6 +5,7 @@ import { Frame, Sheet, Toast, mood, useToast } from './shared';
 import { loadDrafts, saveDrafts, useDraftList, type Draft, type StudioType } from './studio';
 import { useMeduhaSession } from './session';
 import { videoScenarios } from './video/scenarios';
+import { PhotoJobs } from './photo/PhotoStudio';
 
 const draftEditHref = (draft: Draft) => {
   const scenario = draft.type === 'video' ? videoScenarios.find(item => item.providerLabel === draft.model) : undefined;
@@ -20,6 +21,7 @@ export default function Works(){
  const formatDate=(time:number)=>new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(time));
  return <Frame active="Works"><div className="m-heading"><div><h1>Мои работы<span className="m-orange">.</span></h1><p>Сохранённые идеи и черновики</p></div><Link href="/create" className="m-icon-button" aria-label="Создать черновик" style={{background:'#ff6b18',color:'#25150a',width:35,height:35,borderRadius:12,boxShadow:'0 6px 16px #ff6b1840'}}><Plus size={20}/></Link></div>
   <div className="m-info-note">{meduha.phase==='authenticated'?'Черновики синхронизируются с аккаунтом. Готовые работы появятся после подключения генерации.':'Здесь только черновики с этого устройства. Открой студию из Telegram, чтобы войти в аккаунт.'}</div>
+  {meduha.phase==='authenticated'&&<PhotoJobs compact/>}
   {meduha.phase==='authenticated'&&<section className="m-server-works"><div className="m-section-title"><h2>Работы аккаунта</h2><span>{meduha.bootstrap?.works.length??'—'}</span></div>{!meduha.bootstrap?<div className="m-server-loading"><i/><i/></div>:meduha.bootstrap.works.length===0?<p className="m-info-note">Здесь появятся только реальные работы, созданные сервисом.</p>:meduha.bootstrap.works.map(work=><article className="m-server-work" key={work.id}><div><strong>{work.title}</strong><small>{typeName[work.type]} · {new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(work.createdAt))}</small></div><span className={`m-work-status status-${work.status}`}>{({queued:'В очереди',processing:'В процессе',completed:'Готово',failed:'Не удалось'} as const)[work.status]}</span></article>)}</section>}
   {meduha.phase==='authenticated'&&localDrafts.length>0&&<button className="m-model m-import-button" onClick={()=>setSelected({id:'__import__',title:'Импорт черновиков',type:'photo',prompt:'',style:'',model:'',ratio:'',duration:'',updatedAt:0})}><FileText size={16}/><span><strong>Импортировать с устройства</strong><small>{localDrafts.length} локальных черновиков · импорт только по подтверждению</small></span><ArrowUpRight size={15}/></button>}
   <div className="m-tabs-small">{filters.map(item=><button key={item.id} className={filter===item.id?'selected':''} onClick={()=>setFilter(item.id)}>{item.label} <span style={{opacity:.6,fontSize:9,marginLeft:3}}>{item.id==='all'?drafts.length:drafts.filter(d=>d.type===item.id).length}</span></button>)}</div>

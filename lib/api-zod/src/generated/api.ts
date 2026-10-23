@@ -8,6 +8,64 @@
 import * as zod from 'zod';
 
 
+export const GetPhotoCatalogResponse = zod.object({
+  "models": zod.array(zod.object({
+  "id": zod.string(),
+  "endpoint": zod.string(),
+  "name": zod.string(),
+  "source": zod.string(),
+  "schema": zod.record(zod.string(), zod.unknown()),
+  "workflow": zod.boolean(),
+  "available": zod.boolean(),
+  "modelId": zod.string().nullable(),
+  "creditPrice": zod.number().int().nullable()
+})),
+  "spendingEnabled": zod.boolean(),
+  "storageConfigured": zod.boolean(),
+  "providerConfigured": zod.boolean()
+})
+
+
+export const createPhotoGenerationBodyCatalogIdMax = 200;
+
+export const createPhotoGenerationBodyExpectedCreditPriceMax = 100000000;
+
+export const createPhotoGenerationBodyReferencesMaxOne = 16;
+
+
+
+export const CreatePhotoGenerationBody = zod.object({
+  "idempotencyKey": zod.string().uuid(),
+  "modelId": zod.string().uuid(),
+  "catalogId": zod.string().max(createPhotoGenerationBodyCatalogIdMax),
+  "expectedCreditPrice": zod.number().int().min(1).max(createPhotoGenerationBodyExpectedCreditPriceMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createPhotoGenerationBodyReferencesMaxOne))
+})
+
+export const CreatePhotoGenerationResponse = zod.object({
+  "job": zod.object({
+  "mediaKind": zod.enum(['photo', 'video']).optional(),
+  "resultUrls": zod.array(zod.string()).optional(),
+  "id": zod.string().uuid(),
+  "idempotencyKey": zod.string().uuid(),
+  "modelId": zod.string().uuid(),
+  "modelName": zod.string(),
+  "scenario": zod.string().optional(),
+  "prompt": zod.string(),
+  "duration": zod.number().int(),
+  "aspectRatio": zod.string(),
+  "status": zod.enum(['awaiting_reservation', 'queued', 'submitting', 'unknown', 'in_progress', 'finalizing', 'completed', 'failed']),
+  "requestId": zod.string().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "createdAt": zod.number().int(),
+  "updatedAt": zod.number().int(),
+  "creditPrice": zod.number().int()
+})
+})
+
+
 export const listTemplatesQueryQueryMax = 100;
 
 export const listTemplatesQueryTagMax = 100;
@@ -302,6 +360,8 @@ export const CreateGenjutsuGenerationBody = zod.object({
 
 export const CreateGenjutsuGenerationResponse = zod.object({
   "job": zod.object({
+  "mediaKind": zod.enum(['photo', 'video']).optional(),
+  "resultUrls": zod.array(zod.string()).optional(),
   "id": zod.string().uuid(),
   "idempotencyKey": zod.string().uuid(),
   "modelId": zod.string().uuid(),
@@ -339,6 +399,8 @@ export const ListGenerationModelsResponse = zod.object({
 
 export const ListMeduhaGenerationsResponse = zod.object({
   "items": zod.array(zod.object({
+  "mediaKind": zod.enum(['photo', 'video']).optional(),
+  "resultUrls": zod.array(zod.string()).optional(),
   "id": zod.string().uuid(),
   "idempotencyKey": zod.string().uuid(),
   "modelId": zod.string().uuid(),
@@ -375,6 +437,8 @@ export const CreateMeduhaGenerationBody = zod.object({
 
 export const CreateMeduhaGenerationResponse = zod.object({
   "job": zod.object({
+  "mediaKind": zod.enum(['photo', 'video']).optional(),
+  "resultUrls": zod.array(zod.string()).optional(),
   "id": zod.string().uuid(),
   "idempotencyKey": zod.string().uuid(),
   "modelId": zod.string().uuid(),

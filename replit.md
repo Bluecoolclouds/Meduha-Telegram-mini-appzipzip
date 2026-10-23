@@ -9,7 +9,7 @@ Meduha is a Russian-language creative Telegram Mini App for photo / video / musi
 - Guest drafts/settings remain local. Verified Telegram accounts store drafts/settings in PostgreSQL. Local-to-account draft import requires confirmation, preserves local originals and does not overwrite an existing account draft with the same ID. Reference images are previews only and are not retained.
 - Automatic Telegram authentication is implemented via server validation of signed `initData`, account creation/restoration, and opaque HttpOnly sessions. The server needs `TELEGRAM_BOT_TOKEN` in Secrets; when absent, login fails explicitly with a configuration notice, never a simulated account. `initDataUnsafe` is not proof of identity.
 - Bot commands `/start` and `/help` use the same command handler in development long polling and the production webhook. Development polling runs with the API workflow; it never deletes an existing webhook. Command replies expose a launch button only when the bot has a configured HTTPS Mini App menu.
-- Bootstrap loads the verified profile, stored balance, settings, drafts and work metadata. New accounts have zero credits. AI providers, generation workers, credit purchasing/accounting, Telegram Stars payments, referrals and support are not connected. Do not call drafts/examples generated results or add simulated purchases.
+- Bootstrap loads the verified profile, stored balance, settings, drafts and work metadata. New accounts have zero credits. Photo, Seedance and Genjutsu generation use the configured Higgsfield adapter and guarded credit reservations. Live use still requires valid provider credentials, Telegram login, administrator-set prices/limits and enabled spending. Telegram Stars payments, referrals and support are not connected. Do not call drafts/examples generated results or add simulated purchases.
 
 ## Run & Operate
 
@@ -49,6 +49,17 @@ Meduha is a Russian-language creative Telegram Mini App for photo / video / musi
 
 - Guest drafts must not be silently assigned to a Telegram user: a device can be shared. Keep explicit import confirmation and local originals.
 - Balances and account data are server-owned. Errors must not become a false zero balance, a successful save, or a silently authenticated guest.
+
+## Photo studio
+
+- `/create?type=photo` lists verified Higgsfield photo modes; `&photoModel=<catalog-id>` opens model-specific settings. The earlier photo ideas remain at `&ideas=1`.
+- Source schemas are saved in `artifacts/api-server/src/lib/photo-catalog.json`. Refresh them with `node scripts/sync-photo-catalog.mjs` (public documentation requests only, no generation). SOUL Standard, SOUL 2 text-to-image and SOUL 2 image-to-image are distinct modes.
+- Startup registers missing upstream photo models **disabled and unpriced** in the existing Higgsfield channel, or creates a disabled channel if none exists. It never overwrites administrator prices or switches. Workflows using Marketing Studio share that upstream model's settings and use the official scenario preset.
+- Server-only credentials: `HF_CREDENTIALS`, `higgs_api`, or the legacy `higgs` secret, containing the provider's `key-id:key-secret`. Presence/format checks are not proof of successful provider authentication.
+- Price is the configured fixed credit price per image multiplied by the requested batch size. The submitted total must match the current price; otherwise generation is rejected for reconfirmation. These are internal credits, not a currency conversion or a promise of provider cost.
+- Input images use the existing private upload flow. The server validates ownership and the complete official input schema, including conditional rules, before reserving credits. Source URLs are signed only when the worker submits.
+- Photo jobs use the existing durable queue. Ambiguous paid submissions are never automatically retried. Completed files are validated and copied to private App Storage before credits settle. History and download routes require the owner's session; completion never publishes to Community.
+- Photo-specific non-billable regression coverage is in `artifacts/api-server/src/routes/meduha-photo.integration.test.ts`. Stop the API workflow before queue integration tests so the live worker cannot claim fixtures.
 
 ## Product
 

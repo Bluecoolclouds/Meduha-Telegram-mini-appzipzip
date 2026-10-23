@@ -4,6 +4,8 @@ import { completedVideo, getHiggsfieldRequestStatus, higgsfieldClient, SEEDANCE_
 import { releaseReservation, settleReservation } from './finance';
 import { genjutsuProviderInput, type GenjutsuMetadata } from './genjutsu';
 import { GenerationVideoValidationError, storeGenerationVideo } from './objectStorage';
+import { photoProviderInput, type PhotoMetadata } from './photo';
+import { storeGenerationImages, PhotoResultValidationError } from './photo-storage';
 
 type GenerationJob = {
   id: string;
@@ -13,23 +15,24 @@ type GenerationJob = {
   reservation_id: string;
   request_id: string | null;
   status: string;
-  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata };
+  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata; _photo?: PhotoMetadata };
   provider_status: string | null;
   result_url: string | null;
   resolution_outcome?: 'completed' | 'failed' | null;
   resolution_by?: string | null;
   resolution_reason?: string | null;
 };
-type ProviderSubmission = { status: string; request_id?: string; video?: { url?: string } };
-type ProviderStatus = { status: string; video?: { url?: string } };
+type ProviderSubmission = { status: string; request_id?: string; video?: { url?: string }; images?: { url: string }[] };
+type ProviderStatus = { status: string; video?: { url?: string }; images?: { url: string }[] };
 type WorkerDependencies = {
   submit?: (input: GenerationJob['input']) => Promise<ProviderSubmission>;
   getStatus?: (requestId: string) => Promise<ProviderStatus>;
   storeVideo?: typeof storeGenerationVideo;
+  storeImages?: typeof storeGenerationImages;
 };
 export type GenerationVideoStore = typeof storeGenerationVideo;
 class ProviderPreparationError extends Error {}
-const jobLabel = (job: GenerationJob) => job.input._genjutsu ? 'Genjutsu' : 'Seedance';
+const jobLabel = (job: GenerationJob) => job.input._photo ? 'Photo' : job.input._genjutsu ? 'Genjutsu' : 'Seedance';
 const actorFor = (job: GenerationJob) => `generation:${job.id}`;
 const transitionKey = (job: GenerationJob, operation: string) => `generation:${job.id}:${operation}`;
 
@@ -71,6 +74,7 @@ async function closeReservation(
   providerStatus: string,
   storeVideo: GenerationVideoStore = storeGenerationVideo,
   failureMessage?: string,
+  storeImages: typeof storeGenerationImages = storeGenerationImages,
 ): Promise<boolean | void> {
   const updated = await pool.query(
     `UPDATE meduha_generation_jobs
@@ -86,7 +90,7 @@ async function closeReservation(
       status: 'finalizing',
       provider_status: providerStatus,
       result_url: resultUrl,
-    }, storeVideo);
+    }, storeVideo, storeImages);
   }
   const financeInput = {
     reservationId: job.reservation_id,
@@ -101,7 +105,8 @@ async function closeReservation(
   );
 }
 
-async function finalizeCompletedGeneration(job: GenerationJob, storeVideo: GenerationVideoStore = storeGenerationVideo) {
+async function finalizeCompletedGeneration(job: GenerationJob, storeVideo: GenerationVideoStore = storeGenerationVideo, storeImages = storeGenerationImages) {
+  if (job.input._photo) return finalizeCompletedPhoto(job, storeImages);
   const resultUrl = `/api/meduha/generations/${encodeURIComponent(job.id)}/video`;
   if (job.result_url !== resultUrl) {
     const providerUrl = job.result_url;
@@ -149,7 +154,31 @@ async function finalizeCompletedGeneration(job: GenerationJob, storeVideo: Gener
   return true;
 }
 
-async function recoverFinalizingJobs(storeVideo: GenerationVideoStore = storeGenerationVideo) {
+async function finalizeCompletedPhoto(job: GenerationJob, storeImages = storeGenerationImages) {
+  let urls: string[];
+  try {
+    urls = JSON.parse(job.result_url ?? 'null');
+    if (!Array.isArray(urls) || !urls.length || urls.length > 8 || urls.some(url => typeof url !== 'string')) throw new PhotoResultValidationError('Invalid photo result');
+    const isPrivate = urls.every((url, index) => url === `/api/meduha/generations/${job.id}/images/${index}`);
+    if (!isPrivate) {
+      urls = await storeImages(job.id, urls);
+      await pool.query(`UPDATE meduha_generation_jobs SET result_url=$2,error_message=NULL,updated_at=now() WHERE id=$1 AND status='finalizing' AND provider_status='completed'`, [job.id, JSON.stringify(urls)]);
+    }
+  } catch (error) {
+    if (error instanceof GenerationVideoValidationError) {
+      await closeReservation(job, 'failed', null, 'invalid_image', storeGenerationVideo, 'Поставщик вернул недопустимое изображение. Резерв снят.');
+    } else {
+      await pool.query(`UPDATE meduha_generation_jobs SET error_message='Не удалось сохранить фото. Повторяем сохранение автоматически.',updated_at=now() WHERE id=$1 AND status='finalizing'`, [job.id]);
+      logger.warn({ jobId: job.id, errorName: error instanceof Error ? error.name : 'UnknownError' }, 'Photo result storage failed');
+    }
+    return false;
+  }
+  await settleReservation({ reservationId: job.reservation_id, actorId: actorFor(job), idempotencyKey: transitionKey(job, 'settle'), reason: 'Photo generation completed' });
+  await pool.query(`UPDATE meduha_generation_jobs SET status='completed',updated_at=now() WHERE id=$1 AND status='finalizing' AND provider_status='completed' AND resolution_outcome IS NULL`, [job.id]);
+  return true;
+}
+
+async function recoverFinalizingJobs(storeVideo: GenerationVideoStore = storeGenerationVideo, storeImages = storeGenerationImages) {
   const { rows } = await pool.query(
     `SELECT * FROM meduha_generation_jobs WHERE status = 'finalizing' ORDER BY updated_at LIMIT 10`,
   );
@@ -157,7 +186,7 @@ async function recoverFinalizingJobs(storeVideo: GenerationVideoStore = storeGen
     try {
       const outcome = job.resolution_outcome ?? (job.provider_status === 'completed' ? 'completed' : 'failed');
       if (outcome === 'completed' && !job.resolution_outcome) {
-        await finalizeCompletedGeneration(job, storeVideo);
+        await finalizeCompletedGeneration(job, storeVideo, storeImages);
         continue;
       }
       const financeInput = {
@@ -204,7 +233,18 @@ export async function finalizeResolvedGeneration(jobId: string) {
   return true;
 }
 
-async function applyCompletedProviderResult(job: GenerationJob, sourceUrl: string | undefined, storeVideo: GenerationVideoStore) {
+async function applyCompletedProviderResult(job: GenerationJob, result: ProviderStatus, storeVideo: GenerationVideoStore, storeImages = storeGenerationImages) {
+  if (job.input._photo) {
+    const urls = result.images?.map(image => image.url);
+    const expected = Number(job.input._photo.parameters.batch_size ?? 1);
+    if (!urls?.length || urls.length !== expected || urls.length > 8 || urls.some(url => typeof url !== 'string' || !url.startsWith('https://'))) {
+      await closeReservation(job, 'failed', null, 'invalid_image', storeVideo, 'Поставщик не вернул ожидаемые изображения. Резерв снят.');
+      return false;
+    }
+    await closeReservation(job, 'completed', JSON.stringify(urls), 'completed', storeVideo, undefined, storeImages);
+    return true;
+  }
+  const sourceUrl = result.video?.url;
   let resultUrl: string;
   try {
     resultUrl = completedVideo({ status: 'completed', video: { url: sourceUrl ?? '' } });
@@ -223,6 +263,7 @@ export async function applyGenerationProviderStatus(
   jobId: string,
   result: ProviderStatus,
   storeVideo: GenerationVideoStore = storeGenerationVideo,
+  storeImages = storeGenerationImages,
 ) {
   const { rows } = await pool.query(
     `SELECT * FROM meduha_generation_jobs
@@ -232,7 +273,7 @@ export async function applyGenerationProviderStatus(
   const job = rows[0] as GenerationJob | undefined;
   if (!job) return false;
   if (result.status === 'completed') {
-    await applyCompletedProviderResult(job, result.video?.url, storeVideo);
+    await applyCompletedProviderResult(job, result, storeVideo, storeImages);
   } else if (result.status === 'failed' || result.status === 'nsfw' || result.status === 'canceled') {
     await closeReservation(job, 'failed', null, result.status, storeVideo);
   } else {
@@ -246,13 +287,20 @@ export async function applyGenerationProviderStatus(
   return true;
 }
 
-async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: GenerationVideoStore) {
+async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: GenerationVideoStore, storeImages = storeGenerationImages) {
   const job = await claimQueuedJob();
   if (!job) return;
   let responseRequestId: string | null = null;
   try {
     // SDK retries are disabled: this POST is billable and a lost response is ambiguous.
     const send = submit ?? (async (input: GenerationJob['input']) => {
+      if (input._photo) {
+        let providerInput: Record<string, unknown>;
+        try { providerInput = await photoProviderInput(job.account_id, input._photo); }
+        catch { throw new ProviderPreparationError('Photo inputs unavailable'); }
+        // Only allowlisted endpoint and validated inputs reach this billable POST.
+        return higgsfieldClient().subscribe(input._photo.endpoint, { input: providerInput, withPolling: false });
+      }
       if (input._genjutsu) {
         let providerInput: Awaited<ReturnType<typeof genjutsuProviderInput>>;
         try {
@@ -274,7 +322,8 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
       return;
     }
     if (response.status === 'completed') {
-      await applyCompletedProviderResult({ ...job, request_id: response.request_id }, response.video?.url, storeVideo);
+      await pool.query(`UPDATE meduha_generation_jobs SET request_id=$2 WHERE id=$1 AND status='submitting'`, [job.id, response.request_id]);
+      await applyCompletedProviderResult({ ...job, request_id: response.request_id }, response, storeVideo, storeImages);
       return;
     }
     if (response.status === 'failed' || response.status === 'nsfw' || response.status === 'canceled') {
@@ -311,7 +360,7 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
   }
 }
 
-async function pollJobs(getStatus: WorkerDependencies['getStatus'], storeVideo: GenerationVideoStore) {
+async function pollJobs(getStatus: WorkerDependencies['getStatus'], storeVideo: GenerationVideoStore, storeImages = storeGenerationImages) {
   await pool.query(
     `UPDATE meduha_generation_jobs
      SET status = 'unknown',
@@ -329,7 +378,7 @@ async function pollJobs(getStatus: WorkerDependencies['getStatus'], storeVideo: 
       const readStatus = getStatus ?? getHiggsfieldRequestStatus;
       const result = await readStatus(job.request_id!);
       if (result.status === 'completed') {
-        await applyCompletedProviderResult(job, result.video?.url, storeVideo);
+        await applyCompletedProviderResult(job, result, storeVideo, storeImages);
       } else if (result.status === 'failed' || result.status === 'nsfw' || result.status === 'canceled') {
         await closeReservation(job, 'failed', null, result.status, storeVideo);
       } else if (result.status !== job.provider_status) {
@@ -349,9 +398,10 @@ async function pollJobs(getStatus: WorkerDependencies['getStatus'], storeVideo: 
 let active = false;
 export async function runGenerationWorkerOnce(dependencies: WorkerDependencies = {}) {
   const storeVideo = dependencies.storeVideo ?? storeGenerationVideo;
-  await recoverFinalizingJobs(storeVideo);
-  await submitNextJob(dependencies.submit, storeVideo);
-  await pollJobs(dependencies.getStatus, storeVideo);
+  const storeImages = dependencies.storeImages ?? storeGenerationImages;
+  await recoverFinalizingJobs(storeVideo, storeImages);
+  await submitNextJob(dependencies.submit, storeVideo, storeImages);
+  await pollJobs(dependencies.getStatus, storeVideo, storeImages);
 }
 
 export function startGenerationWorker(): () => void {
