@@ -13,6 +13,7 @@ Meduha is a Russian-language creative Telegram Mini App for photo / video / musi
 
 ## Run & Operate
 
+- Import setup verified: dependencies install with the existing lockfile, the development database schema initializes successfully, and all three managed workflows start. The studio renders in guest mode and `/api/healthz` returns HTTP 200. Account-only screens were not verified without Telegram credentials; no imported user records were present in the new development database.
 - After importing: run `pnpm install --frozen-lockfile`, then `pnpm --filter @workspace/db run push` to initialize the development database before starting the app. Do not use the schema-push command against production.
 - Start the existing managed workflows below; they provide `PORT` and `BASE_PATH`. Do not run a root-level `pnpm dev` or create replacement workflows.
 - `pnpm --filter @workspace/api-server run dev` — run through `artifacts/api-server: API Server` (managed port 8080)
