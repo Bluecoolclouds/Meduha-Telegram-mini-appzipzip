@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, FileImage, Film, ImagePlus, Save, X } from 'lucide-react';
 import { Link, useSearch } from 'wouter';
 import { Frame, useToast } from '../shared';
-import { loadDrafts, saveDrafts, useDraftList, type Draft } from '../studio';
+import { loadDrafts, packContentPlanPrompt, saveDrafts, unpackContentPlanPrompt, useDraftList, type ContentPlanSettings, type Draft } from '../studio';
 import { useMeduhaSession } from '../session';
 import type { VideoScenario } from './scenarios';
 import { isScenarioImage, isScenarioVideo, missingRequiredScenarioMedia, scenarioInputSpecs, scenarioMediaError, scenarioReferenceMetadata } from './scenarioMedia';
@@ -11,9 +11,7 @@ import ExamplePreview from './genjutsu/ExamplePreview';
 import './genjutsu/genjutsu.css';
 import './scenario-workspace.css';
 
-type ContentPlan = { platform: string; count: string; format: string };
 type ScenarioGuide = { requirements: string; explanation: string };
-const planMarker = /\n\nПараметры контент-плана Meduha:\nПлощадка: (.*)\nИдей: (\d+)\nФормат: (.*)$/;
 const examples = new Set(['ai-blogger', 'text-to-video', 'cinema']);
 const publicGuides: Record<string, ScenarioGuide> = {
   'ai-blogger': {
@@ -42,18 +40,6 @@ const publicGuides: Record<string, ScenarioGuide> = {
   },
 };
 
-function unpackPrompt(value: string): { prompt: string; plan: ContentPlan } {
-  const match = planMarker.exec(value);
-  return match
-    ? { prompt: value.slice(0, match.index), plan: { platform: match[1], count: match[2], format: match[3] } }
-    : { prompt: value, plan: { platform: 'Instagram', count: '3', format: 'Короткое видео' } };
-}
-
-function packPrompt(prompt: string, scenario: VideoScenario, plan: ContentPlan) {
-  if (scenario.id !== 'content-factory') return prompt.trim();
-  return `${prompt.trim()}\n\nПараметры контент-плана Meduha:\nПлощадка: ${plan.platform}\nИдей: ${plan.count}\nФормат: ${plan.format}`;
-}
-
 export default function ScenarioWorkspace({ scenario, draftId }: { scenario: VideoScenario; draftId: string }) {
   const meduha = useMeduhaSession();
   const localDrafts = useDraftList();
@@ -61,8 +47,8 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
   const existing = draftId ? rows.find(row => row.id === draftId) : undefined;
   const search = useSearch();
   const query = new URLSearchParams(search);
-  const [prompt, setPrompt] = useState(() => unpackPrompt(query.get('prompt') ?? scenario.prompt).prompt);
-  const [plan, setPlan] = useState<ContentPlan>(() => unpackPrompt(query.get('prompt') ?? '').plan);
+  const [prompt, setPrompt] = useState(() => unpackContentPlanPrompt(query.get('prompt') ?? scenario.prompt).prompt);
+  const [plan, setPlan] = useState<ContentPlanSettings>(() => unpackContentPlanPrompt(query.get('prompt') ?? '').plan);
   const [currentDraftId, setCurrentDraftId] = useState(draftId);
   const [ratio, setRatio] = useState('16:9');
   const [duration, setDuration] = useState('5 сек');
@@ -83,7 +69,7 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
 
   useEffect(() => {
     if (!existing || existing.id === loadedId) return;
-    const restored = unpackPrompt(existing.prompt);
+    const restored = unpackContentPlanPrompt(existing.prompt);
     setPrompt(restored.prompt);
     setPlan(restored.plan);
     setRatio(existing.ratio);
@@ -118,7 +104,7 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
       return;
     }
     const now = Date.now();
-    const savedPrompt = packPrompt(prompt, scenario, plan);
+    const savedPrompt = scenario.id === 'content-factory' ? packContentPlanPrompt(prompt, plan) : prompt.trim();
     const draft: Draft = {
       id: currentDraftId || `draft-${now}-${Math.random().toString(36).slice(2, 8)}`,
       title: prompt.trim().split(/[.!?]/)[0].slice(0, 52) || scenario.title,

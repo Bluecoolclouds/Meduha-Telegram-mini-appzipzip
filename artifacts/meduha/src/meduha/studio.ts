@@ -3,6 +3,18 @@ import { z } from 'zod';
 export type Mood='glossy'|'hello'|'joy'|'curious'|'thinking'|'surprise'|'wink'|'sleep'|'tired'|'flight';
 export type StudioType='photo'|'video'|'music';
 export type Draft={id:string;title:string;type:StudioType;prompt:string;style:string;model:string;ratio:string;duration:string;updatedAt:number;referenceName?:string};
+export type ContentPlanSettings={platform:string;count:string;format:string};
+const contentPlanDefaults:ContentPlanSettings={platform:'Instagram',count:'3',format:'Короткое видео'};
+const contentPlanMarker=/\n\nПараметры контент-плана Meduha:\nПлощадка: (.*)\nИдей: (\d+)\nФормат: (.*)$/;
+export function unpackContentPlanPrompt(value:string):{prompt:string;plan:ContentPlanSettings}{
+  const match=contentPlanMarker.exec(value);
+  return match
+    ? {prompt:value.slice(0,match.index),plan:{platform:match[1],count:match[2],format:match[3]}}
+    : {prompt:value,plan:{...contentPlanDefaults}};
+}
+export function packContentPlanPrompt(prompt:string,plan:ContentPlanSettings){
+  return `${prompt.trim()}\n\nПараметры контент-плана Meduha:\nПлощадка: ${plan.platform}\nИдей: ${plan.count}\nФормат: ${plan.format}`;
+}
 export const mood=(name:Mood)=>`${import.meta.env.BASE_URL}images/brand/mascot-${name}.png`;
 export const DRAFTS_KEY='meduha.drafts.v1', SETTINGS_KEY='meduha.settings.v1';
 export type Settings={notifications:boolean;quality:boolean};
