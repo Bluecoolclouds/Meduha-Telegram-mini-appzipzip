@@ -4,9 +4,7 @@
 .vst-card { display: flex; flex-direction: column; padding: 0; }
 .vst-open { all: unset; cursor: pointer; display: flex; flex-direction: column; flex: 1; }
 .vst-open:focus-visible { outline: 2px solid #ff6b18; outline-offset: 2px; border-radius: inherit; }
-.vst-modes { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 10px 6px; }
-.vst-modes button { border: 1px solid rgba(255, 107, 24, .28); background: rgba(255, 107, 24, .07); color: #b9470a; border-radius: 999px; padding: 3px 8px; font-size: 10.5px; font-weight: 600; cursor: pointer; transition: transform .15s; }
-.vst-modes button:active { transform: scale(.95); }
+.meduha .vst-card .vs-card-body small { display: block; -webkit-line-clamp: unset; overflow: visible; }
 .vst-foot { padding: 0 10px 10px; }
 .ps-note { display: flex; flex-direction: column; gap: 3px; }
 .ps-note span { font-size: 12px; }

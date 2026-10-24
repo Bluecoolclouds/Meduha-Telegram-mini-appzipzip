@@ -33,7 +33,10 @@ export function videoReadiness(c: VideoCatalog | undefined, m: VideoModel): Read
   if (m.creditPrice == null) return { ok: false, reason: 'Цена модели ещё не назначена' };
   return { ok: true, reason: '' };
 }
-const blurb = (f: VideoFamily, ms: VideoModel[]) => f.description || `${ms.map(m => modeLabel(m.mode)).filter((x, i, a) => a.indexOf(x) === i).join(', ')}.`;
+const blurb = (f: VideoFamily, ms: VideoModel[]) => {
+  const modes = ms.map(m => modeLabel(m.mode)).filter((x, i, a) => a.indexOf(x) === i).join(', ');
+  return f.description ? `${f.description.trim()} Режимы: ${modes}.` : `${modes}.`;
+};
 type Group = { family: VideoFamily; members: VideoModel[] };
 function groups(c: VideoCatalog | undefined): Group[] {
   if (!c) return [];
@@ -93,7 +96,6 @@ export function VideoCatalogue() {
           <span className="vs-card-img"><img src={asset(familyArt(g.family.id))} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
           <span className="vs-card-body"><strong>{g.family.name}<em> · {g.members.length > 1 ? `${g.members.length} режимов` : modeLabel(g.members[0].mode)}</em></strong><small>{blurb(g.family, g.members)}</small></span>
         </button>
-        {g.members.length > 1 && <div className="vst-modes" role="group" aria-label={`Режимы ${g.family.name}`}>{g.members.map(m => <button key={m.id} type="button" data-testid={`button-video-family-mode-${m.id}`} onClick={() => open(m.id)}>{modeLabel(m.mode)}</button>)}</div>}
         <span className="vs-card-foot vst-foot"><span className="vs-prov">{providerLabel(providerOf(g.members[0]))}</span><span className="vs-price" data-testid={`text-video-price-${g.family.id}`}>{priceLabel(g.members)}</span></span>
       </article>)}</div>
       : <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Такой модели пока нет</strong><p>Попробуй проще: «Seedance», «Kling», «продление». Или сбрось фильтры.</p>
