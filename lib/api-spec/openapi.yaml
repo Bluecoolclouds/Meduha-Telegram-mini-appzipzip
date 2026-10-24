@@ -613,6 +613,38 @@ paths:
       operationId: logoutMeduhaAdmin
       responses:
         "204": { description: Admin session revoked }
+  /meduha/admin/sessions:
+    get:
+      operationId: listAdminSessions
+      responses:
+        "200":
+          description: Active administrator sessions without credentials or configuration fingerprints
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminSessionInfo" }
+        "403": { description: An active administrator session is required }
+    delete:
+      operationId: revokeOtherAdminSessions
+      description: Revoke all active administrator sessions except the session making this request. Requires X-Meduha-Request.
+      responses:
+        "200":
+          description: Other active administrator sessions revoked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminSessionsRevoked" }
+        "403": { description: An active administrator session and CSRF header are required }
+  /meduha/admin/sessions/{sessionId}:
+    delete:
+      operationId: revokeAdminSession
+      description: Revoke one active administrator session other than the current session. Requires X-Meduha-Request.
+      parameters:
+        - { in: path, name: sessionId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Administrator session revoked }
+        "403": { description: An active administrator session and CSRF header are required }
+        "404": { description: "Session is inactive, missing, or is the current session" }
   /meduha/admin/pairing:
     post:
       operationId: issueMeduhaAdminPairing
@@ -1379,6 +1411,22 @@ components:
         isAdmin: { type: boolean }
         setupRequired: { type: boolean }
         expiresAt: { type: string, format: date-time }
+    AdminSessionInfo:
+      type: object
+      additionalProperties: false
+      required: [id, authMethod, createdAt, expiresAt, current]
+      properties:
+        id: { type: string, format: uuid }
+        authMethod: { type: string, enum: [telegram, temporary] }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        current: { type: boolean }
+    AdminSessionsRevoked:
+      type: object
+      additionalProperties: false
+      required: [revokedCount]
+      properties:
+        revokedCount: { type: integer, minimum: 0 }
     AdminPairingLoginInput:
       type: object
       required: [code]

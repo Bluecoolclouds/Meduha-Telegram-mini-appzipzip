@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 
 export const meduhaAdminPairings = pgTable('meduha_admin_pairings', {
   codeHash: text('code_hash').primaryKey(),
@@ -13,12 +13,16 @@ export const meduhaAdminPairings = pgTable('meduha_admin_pairings', {
 
 export const meduhaAdminSessions = pgTable('meduha_admin_sessions', {
   tokenHash: text('token_hash').primaryKey(),
+  id: uuid('id').notNull().defaultRandom(),
   adminId: text('admin_id').notNull(),
   authMethod: text('auth_method', { enum: ['telegram', 'temporary'] }).notNull().default('telegram'),
   configFingerprint: text('config_fingerprint'),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, table => [index('meduha_admin_sessions_expiry').on(table.expiresAt)]);
+}, table => [
+  uniqueIndex('meduha_admin_sessions_id').on(table.id),
+  index('meduha_admin_sessions_expiry').on(table.expiresAt),
+]);
 
 // Shared across API processes/restarts; no credentials or raw client IPs.
 export const meduhaAdminLoginAttempts = pgTable('meduha_admin_login_attempts', {

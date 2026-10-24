@@ -1513,6 +1513,38 @@ export const LoginMeduhaAdminPasswordResponse = zod.object({
 export const LogoutMeduhaAdminResponse = zod.void()
 
 
+export const ListAdminSessionsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "authMethod": zod.enum(['telegram', 'temporary']),
+  "createdAt": zod.coerce.date(),
+  "expiresAt": zod.coerce.date(),
+  "current": zod.boolean()
+})
+export const ListAdminSessionsResponse = zod.array(ListAdminSessionsResponseItem)
+
+
+/**
+ * Revoke all active administrator sessions except the session making this request. Requires X-Meduha-Request.
+ */
+export const revokeOtherAdminSessionsResponseRevokedCountMin = 0;
+
+
+
+export const RevokeOtherAdminSessionsResponse = zod.object({
+  "revokedCount": zod.number().int().min(revokeOtherAdminSessionsResponseRevokedCountMin)
+})
+
+
+/**
+ * Revoke one active administrator session other than the current session. Requires X-Meduha-Request.
+ */
+export const RevokeAdminSessionParams = zod.object({
+  "sessionId": zod.coerce.string().uuid()
+})
+
+export const RevokeAdminSessionResponse = zod.void()
+
+
 export const issueMeduhaAdminPairingResponseCodeMin = 64;
 export const issueMeduhaAdminPairingResponseCodeMax = 64;
 

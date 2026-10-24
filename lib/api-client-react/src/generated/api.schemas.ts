@@ -524,6 +524,27 @@ export interface AdminSession {
   expiresAt: string;
 }
 
+export type AdminSessionInfoAuthMethod = typeof AdminSessionInfoAuthMethod[keyof typeof AdminSessionInfoAuthMethod];
+
+
+export const AdminSessionInfoAuthMethod = {
+  telegram: 'telegram',
+  temporary: 'temporary',
+} as const;
+
+export interface AdminSessionInfo {
+  id: string;
+  authMethod: AdminSessionInfoAuthMethod;
+  createdAt: string;
+  expiresAt: string;
+  current: boolean;
+}
+
+export interface AdminSessionsRevoked {
+  /** @minimum 0 */
+  revokedCount: number;
+}
+
 export interface AdminPairingLoginInput {
   /**
      * @minLength 64

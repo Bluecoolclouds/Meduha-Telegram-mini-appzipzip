@@ -37,6 +37,9 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
   let telegramAdminEnabled = false;
   const adjustmentKey = `password-test-${randomUUID()}`;
   const sessionHashes: string[] = [];
+  const sessionIds: string[] = [];
+  const auditIds: number[] = [];
+  const userSessionHash = hash(randomBytes(32).toString('hex'));
   const { rows: ownerBefore } = await pool.query('SELECT * FROM meduha_template_admin WHERE slot = 1');
   const { rows: financeBefore } = await pool.query('SELECT * FROM meduha_finance_settings WHERE id = 1');
   const app = express();
@@ -79,6 +82,10 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
   };
   try {
     await pool.query('INSERT INTO meduha_accounts (id, first_name) VALUES ($1, $2)', [userId, 'Password fixture']);
+    await pool.query(
+      'INSERT INTO meduha_sessions (token_hash, user_id, expires_at) VALUES ($1, $2, clock_timestamp() + interval \'1 hour\')',
+      [userSessionHash, userId],
+    );
     assert.equal((await call('/admin/login/password', 'POST', credentials, undefined, false)).status, 403);
     assert.equal((await call('/admin/login/password', 'POST', credentials, undefined, true, true)).status, 403);
     assert.equal((await call('/admin/channels')).status, 403);
@@ -88,7 +95,59 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
     assert.deepEqual(await wrong.json(), await unknown.json(), 'unknown login and wrong password use the same error');
 
     const cookie = await login();
+    const otherCookie = await login();
+    const sessionListResponse = await call('/admin/sessions', 'GET', undefined, cookie);
+    assert.equal(sessionListResponse.status, 200);
+    const listedSessions = await sessionListResponse.json() as Array<Record<string, unknown>>;
+    assert(listedSessions.length >= 2);
+    const own = listedSessions.find(session => session.current);
+    const other = listedSessions.find(session => !session.current);
+    assert(own && other);
+    assert.equal(own.authMethod, 'temporary');
+    assert.equal(typeof own.createdAt, 'string');
+    assert.equal(typeof own.expiresAt, 'string');
+    assert.deepEqual(Object.keys(own).sort(), ['authMethod', 'createdAt', 'current', 'expiresAt', 'id']);
+    assert(!JSON.stringify(listedSessions).includes(sessionHashes.at(-1)!), 'the session response does not expose token hashes');
+    assert.equal((await call('/admin/sessions', 'DELETE', undefined, cookie, false)).status, 403, 'bulk revocation requires CSRF protection');
+    assert.equal((await call(`/admin/sessions/${own.id}`, 'DELETE', undefined, cookie)).status, 404, 'the current admin session cannot revoke itself');
+    assert.equal((await call(`/admin/sessions/${other.id}`, 'DELETE', undefined, cookie)).status, 204);
+    sessionIds.push(String(other.id));
+    assert.equal((await call('/admin/channels', 'GET', undefined, otherCookie)).status, 403, 'revoking an admin session immediately blocks it');
+    const { rows: selectedAudit } = await pool.query(
+      `SELECT id, actor_id, action, entity_type, entity_id, details FROM meduha_admin_audit WHERE entity_id = $1`,
+      [other.id],
+    );
+    auditIds.push(selectedAudit[0].id);
+    assert.equal(selectedAudit[0]?.actor_id, TEMPORARY_ADMIN_ACTOR);
+    assert.equal(selectedAudit[0]?.action, 'auth.session.revoke');
+    assert.equal(selectedAudit[0]?.entity_type, 'admin-session');
+    assert.deepEqual(selectedAudit[0]?.details, { authMethod: 'temporary' });
+
+    const bulkOne = await login();
+    const bulkTwo = await login();
+    const bulkResult = await call('/admin/sessions', 'DELETE', undefined, cookie);
+    assert.equal(bulkResult.status, 200);
+    const bulkPayload = await bulkResult.json() as { revokedCount: number };
+    assert(bulkPayload.revokedCount >= 2);
+    assert.equal((await call('/admin/channels', 'GET', undefined, cookie)).status, 200, 'bulk revocation preserves the current session');
+    assert.equal((await call('/admin/channels', 'GET', undefined, bulkOne)).status, 403);
+    assert.equal((await call('/admin/channels', 'GET', undefined, bulkTwo)).status, 403);
+    const remainingSessions = await (await call('/admin/sessions', 'GET', undefined, cookie)).json() as Array<Record<string, unknown>>;
+    assert.equal(remainingSessions.length, 1);
+    assert.equal(remainingSessions[0]?.current, true);
+    const { rows: bulkAudit } = await pool.query(
+      `SELECT id, actor_id, action, details FROM meduha_admin_audit
+       WHERE actor_id = $1 AND action = 'auth.sessions.revoke_others' ORDER BY created_at DESC LIMIT 1`,
+      [TEMPORARY_ADMIN_ACTOR],
+    );
+    assert(bulkAudit[0]);
+    auditIds.push(bulkAudit[0].id);
+    assert.equal(bulkAudit[0].details.revokedCount, bulkPayload.revokedCount);
+    const { rows: userSession } = await pool.query('SELECT token_hash FROM meduha_sessions WHERE token_hash = $1', [userSessionHash]);
+    assert.equal(userSession.length, 1, 'administrator session revocation leaves the user login session untouched');
+
     for (const path of ['/admin/channels', '/admin/models', '/admin/users', '/admin/finance', '/admin/ledger',
+      '/admin/sessions',
       '/admin/statistics', '/admin/templates', '/admin/reports', '/admin/jobs', '/admin/audit', '/admin/generations/seedance']) {
       assert.equal((await call(path, 'GET', undefined, cookie)).status, 200, `${path} accepts temporary admin`);
     }
@@ -162,6 +221,24 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
     const pairedStatus = await (await call('/admin/login', 'GET', undefined, pairedCookie)).json() as Record<string, unknown>;
     assert.equal(pairedStatus.authMethod, 'telegram');
     assert.equal((await call('/admin/channels', 'GET', undefined, pairedCookie)).status, 200);
+    const remoteTelegramToken = randomBytes(32).toString('hex');
+    const remoteTelegramHash = hash(remoteTelegramToken);
+    sessionHashes.push(remoteTelegramHash);
+    await pool.query(
+      `INSERT INTO meduha_admin_sessions (token_hash, admin_id, auth_method, expires_at)
+       VALUES ($1, $2, 'telegram', clock_timestamp() + interval '1 hour')`,
+      [remoteTelegramHash, telegramId],
+    );
+    const telegramSessions = await (await call('/admin/sessions', 'GET', undefined, pairedCookie)).json() as Array<Record<string, unknown>>;
+    const remoteTelegram = telegramSessions.find(session => session.authMethod === 'telegram' && !session.current);
+    assert(remoteTelegram);
+    assert.equal((await call(`/admin/sessions/${remoteTelegram.id}`, 'DELETE', undefined, pairedCookie)).status, 204,
+      'a Telegram owner session can be revoked without changing the current Telegram admin identity');
+    sessionIds.push(String(remoteTelegram.id));
+    assert.equal((await call('/admin/channels', 'GET', undefined, `meduha_admin_session=${remoteTelegramToken}`)).status, 403);
+    assert.equal((await call('/admin/channels', 'GET', undefined, pairedCookie)).status, 200);
+    assert.deepEqual((await pool.query('SELECT * FROM meduha_template_admin WHERE slot = 1')).rows, ownerBefore,
+      'revoking a Telegram session does not reassign the designated owner');
     telegramAdminEnabled = false;
     assert.equal((await call('/admin/channels', 'GET', undefined, pairedCookie)).status, 403);
     const { rows: account } = await pool.query('SELECT id FROM meduha_accounts WHERE id = $1', [TEMPORARY_ADMIN_ACTOR]);
@@ -170,8 +247,9 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
     assert.deepEqual((await pool.query('SELECT * FROM meduha_finance_settings WHERE id = 1')).rows, financeBefore);
   } finally {
     server.close(); await once(server, 'close');
-    await pool.query('DELETE FROM meduha_admin_audit WHERE entity_id = $1 OR entity_id = ANY($2::text[])', [userId, sessionHashes]);
+    await pool.query('DELETE FROM meduha_admin_audit WHERE entity_id = $1 OR entity_id = ANY($2::text[]) OR entity_id = ANY($3::text[]) OR id = ANY($4::int[])', [userId, sessionHashes, sessionIds, auditIds]);
     await pool.query('DELETE FROM meduha_admin_sessions WHERE token_hash = ANY($1::text[])', [sessionHashes]);
+    await pool.query('DELETE FROM meduha_sessions WHERE token_hash = $1', [userSessionHash]);
     await pool.query('DELETE FROM meduha_admin_login_attempts WHERE key = $1', [rateKey]);
     await pool.query('DELETE FROM meduha_admin_pairings WHERE admin_id = $1', [telegramId]);
     await pool.query('DELETE FROM meduha_finance_idempotency WHERE idempotency_key = $1', [adjustmentKey]);

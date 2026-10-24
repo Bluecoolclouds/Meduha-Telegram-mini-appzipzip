@@ -38,6 +38,8 @@ import type {
   AdminReport,
   AdminReportResolutionInput,
   AdminSession,
+  AdminSessionInfo,
+  AdminSessionsRevoked,
   AdminStatistics,
   AdminStatus,
   AdminTemplate,
@@ -3443,6 +3445,219 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getLogoutMeduhaAdminMutationOptions(options));
+    }
+
+export const getListAdminSessionsUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/sessions`
+}
+
+export const listAdminSessions = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminSessionInfo[]> => {
+
+  return customFetch<AdminSessionInfo[]>(getListAdminSessionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminSessionsQueryKey = () => {
+    return [
+    `/api/meduha/admin/sessions`
+    ] as const;
+    }
+
+
+export const getListAdminSessionsQueryOptions = <TData = Awaited<ReturnType<typeof listAdminSessions>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminSessionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminSessions>>> = ({ signal }) => listAdminSessions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminSessions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminSessions>>>
+export type ListAdminSessionsQueryError = ErrorType<void>
+
+
+
+export function useListAdminSessions<TData = Awaited<ReturnType<typeof listAdminSessions>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminSessionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRevokeOtherAdminSessionsUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/sessions`
+}
+
+/**
+ * Revoke all active administrator sessions except the session making this request. Requires X-Meduha-Request.
+ */
+export const revokeOtherAdminSessions = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminSessionsRevoked> => {
+
+  return customFetch<AdminSessionsRevoked>(getRevokeOtherAdminSessionsUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeOtherAdminSessionsMutationKey = () => ['revokeOtherAdminSessions'] as const;
+
+export const getRevokeOtherAdminSessionsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeOtherAdminSessions>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeOtherAdminSessions>>, TError,void, TContext> => {
+
+const mutationKey = getRevokeOtherAdminSessionsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeOtherAdminSessions>>, void> = () => {
+
+
+          return  revokeOtherAdminSessions(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeOtherAdminSessionsMutationResult = NonNullable<Awaited<ReturnType<typeof revokeOtherAdminSessions>>>
+
+    export type RevokeOtherAdminSessionsMutationError = ErrorType<void>
+
+
+    export const useRevokeOtherAdminSessions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeOtherAdminSessions>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeOtherAdminSessions>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRevokeOtherAdminSessionsMutationOptions(options));
+    }
+
+export const getRevokeAdminSessionUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/meduha/admin/sessions/${sessionId}`
+}
+
+/**
+ * Revoke one active administrator session other than the current session. Requires X-Meduha-Request.
+ */
+export const revokeAdminSession = async (sessionId: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getRevokeAdminSessionUrl(sessionId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeAdminSessionMutationKey = () => ['revokeAdminSession'] as const;
+
+export const getRevokeAdminSessionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeAdminSession>>, TError,RevokeAdminSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeAdminSession>>, TError,RevokeAdminSessionMutationVariables, TContext> => {
+
+const mutationKey = getRevokeAdminSessionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeAdminSession>>, RevokeAdminSessionMutationVariables> = (props) => {
+          const {sessionId} = props ?? {};
+
+          return  revokeAdminSession(sessionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeAdminSessionMutationResult = NonNullable<Awaited<ReturnType<typeof revokeAdminSession>>>
+
+    export type RevokeAdminSessionMutationError = ErrorType<void>
+    export type RevokeAdminSessionMutationVariables = {sessionId: string}
+
+    export const useRevokeAdminSession = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeAdminSession>>, TError,RevokeAdminSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeAdminSession>>,
+        TError,
+        RevokeAdminSessionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRevokeAdminSessionMutationOptions(options));
     }
 
 export const getIssueMeduhaAdminPairingUrl = () => {

@@ -27,6 +27,7 @@ import {
   UpdateAdminModelResponse, AdjustAdminCreditsResponse, ReserveAdminCreditsResponse,
   SettleAdminCreditsResponse, ReleaseAdminCreditsResponse, RefundAdminCreditsResponse,
   GetHiggsfieldCatalogResponse, ImportHiggsfieldCatalogModelsBody, ImportHiggsfieldCatalogModelsResponse,
+  ListAdminSessionsResponse, RevokeAdminSessionParams, RevokeOtherAdminSessionsResponse,
 } from '@workspace/api-zod';
 import { currentAccount } from './meduha';
 import { designatedAdminId, isAdminSetupRequired, isTemplateAdmin } from '../lib/template-admin';
@@ -263,6 +264,63 @@ router.post('/admin/logout', async (req, res): Promise<void> => {
   if (raw) await db.delete(meduhaAdminSessions).where(eq(meduhaAdminSessions.tokenHash, hash(raw)));
   res.clearCookie(COOKIE, cookieOptions(req));
   res.sendStatus(204);
+});
+
+router.get('/admin/sessions', async (req, res): Promise<void> => {
+  if (!await requiredAdmin(req, res)) return;
+  const raw = token(req);
+  const sessions = await db.select({
+    id: meduhaAdminSessions.id,
+    authMethod: meduhaAdminSessions.authMethod,
+    createdAt: meduhaAdminSessions.createdAt,
+    expiresAt: meduhaAdminSessions.expiresAt,
+    current: raw ? sql<boolean>`${meduhaAdminSessions.tokenHash} = ${hash(raw)}` : sql<boolean>`false`,
+  }).from(meduhaAdminSessions)
+    .where(gt(meduhaAdminSessions.expiresAt, sql<Date>`clock_timestamp()`))
+    .orderBy(desc(meduhaAdminSessions.createdAt));
+  res.json(ListAdminSessionsResponse.parse(sessions));
+});
+
+router.delete('/admin/sessions/:sessionId', async (req, res): Promise<void> => {
+  const actor = await requiredAdmin(req, res); if (!actor) return;
+  const params = RevokeAdminSessionParams.safeParse(req.params);
+  if (!params.success) { error(res, 400, 'INVALID_INPUT', 'Некорректный идентификатор сеанса.'); return; }
+  const raw = token(req);
+  const revoked = await db.transaction(async tx => {
+    const [session] = await tx.delete(meduhaAdminSessions).where(and(
+      eq(meduhaAdminSessions.id, params.data.sessionId),
+      gt(meduhaAdminSessions.expiresAt, sql<Date>`clock_timestamp()`),
+      raw ? sql<boolean>`${meduhaAdminSessions.tokenHash} <> ${hash(raw)}` : sql<boolean>`true`,
+    )).returning({ id: meduhaAdminSessions.id, authMethod: meduhaAdminSessions.authMethod });
+    if (session) {
+      await tx.insert(meduhaAdminAudit).values({
+        actorId: actor, action: 'auth.session.revoke', entityType: 'admin-session', entityId: session.id,
+        details: { authMethod: session.authMethod },
+      });
+    }
+    return session;
+  });
+  if (!revoked) { error(res, 404, 'ADMIN_SESSION_NOT_FOUND', 'Сеанс не найден, уже завершён или является текущим.'); return; }
+  res.sendStatus(204);
+});
+
+router.delete('/admin/sessions', async (req, res): Promise<void> => {
+  const actor = await requiredAdmin(req, res); if (!actor) return;
+  const raw = token(req);
+  const revokedCount = await db.transaction(async tx => {
+    const deleted = await tx.delete(meduhaAdminSessions).where(and(
+      gt(meduhaAdminSessions.expiresAt, sql<Date>`clock_timestamp()`),
+      raw ? sql<boolean>`${meduhaAdminSessions.tokenHash} <> ${hash(raw)}` : sql<boolean>`true`,
+    )).returning({ id: meduhaAdminSessions.id });
+    if (deleted.length) {
+      await tx.insert(meduhaAdminAudit).values({
+        actorId: actor, action: 'auth.sessions.revoke_others', entityType: 'admin-session',
+        details: { revokedCount: deleted.length },
+      });
+    }
+    return deleted.length;
+  });
+  res.json(RevokeOtherAdminSessionsResponse.parse({ revokedCount }));
 });
 
 router.get('/admin/channels', async (req, res): Promise<void> => {

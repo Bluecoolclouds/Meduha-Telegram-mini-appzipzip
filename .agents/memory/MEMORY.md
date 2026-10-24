@@ -10,6 +10,7 @@
 - [Playwright on Replit](playwright-replit-runtime.md) — use Replit's Nix-aware Chromium launcher for browser tests instead of the downloaded browser binary.
 - [Transaction response ordering](transaction-response-ordering.md) — acknowledge mutations only after commit so immediate reads cannot observe old publication access.
 - [Administrator designation](admin-security.md) — fail closed for missing/orphaned owners; never promote the first visitor or replace real admin rights for testing.
+- [Administrator session identifiers](admin-session-identifiers.md) — session listings use separate random IDs; never expose token hashes or config fingerprints as identifiers.
 - [Schema synchronization](schema-sync.md) — schema push may exit successfully without applying changes; inspect output and use column-level single-column primary keys.
 - [JSX instrumentation](jsx-instrumentation.md) — prefer inferred generic component types; explicit JSX type arguments can break the preview despite passing TypeScript.
 - [Feature CSS isolation](css-isolation.md) — scope styles by feature; shared short namespaces can silently alter unrelated routed pages and sheets.
