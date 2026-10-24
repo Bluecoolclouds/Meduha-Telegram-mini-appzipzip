@@ -1,0 +1,89 @@
+import assert from 'node:assert/strict';
+import { Readable } from 'node:stream';
+import test from 'node:test';
+import express from 'express';
+import { objectStorageClient } from '../lib/objectStorage';
+import { motionAssets } from '../lib/motion-example';
+import exampleMediaRouter from './example-media';
+
+const approvedVideos = ['motion-result.mp4', 'motion-reference.mp4'] as const;
+
+test('approved example videos support byte ranges, reject invalid ranges, and answer HEAD without a body', async t => {
+  const previousObjectDir = process.env.PRIVATE_OBJECT_DIR;
+  process.env.PRIVATE_OBJECT_DIR = 'test-bucket/example-media';
+  t.after(() => {
+    if (previousObjectDir === undefined) delete process.env.PRIVATE_OBJECT_DIR;
+    else process.env.PRIVATE_OBJECT_DIR = previousObjectDir;
+  });
+
+  const stored = new Map<string, Buffer>();
+  for (const name of approvedVideos) {
+    const asset = motionAssets[name];
+    stored.set(asset.id, Buffer.from(`fixture:${name}:video-bytes`));
+  }
+  t.mock.method(objectStorageClient, 'bucket', (bucketName: string) => ({
+    file(objectName: string) {
+      const id = objectName.split('/').at(-1)!;
+      const bytes = stored.get(id);
+      assert(bytes, `unexpected storage object ${bucketName}/${objectName}`);
+      return {
+        getMetadata: async () => [{ size: String(bytes.length) }],
+        createReadStream: ({ start, end }: { start: number; end: number }) =>
+          Readable.from([bytes.subarray(start, end + 1)]),
+      };
+    },
+  }) as unknown as ReturnType<typeof objectStorageClient.bucket>);
+
+  const app = express();
+  app.use((req, _res, next) => {
+    req.log = { warn() {} } as any;
+    next();
+  });
+  app.use('/example-media', exampleMediaRouter);
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise<void>(resolve => server.once('listening', resolve));
+  const address = server.address();
+  assert(address && typeof address !== 'string');
+  const baseUrl = `http://127.0.0.1:${address.port}/example-media`;
+  t.after(() => new Promise<void>(resolve => server.close(() => resolve())));
+
+  for (const name of approvedVideos) {
+    const asset = motionAssets[name];
+    const bytes = stored.get(asset.id)!;
+
+    const partial = await fetch(`${baseUrl}/${name}`, { headers: { Range: 'bytes=2-7' } });
+    assert.equal(partial.status, 206, `${name} should return a partial response`);
+    assert.equal(partial.headers.get('content-range'), `bytes 2-7/${bytes.length}`);
+    assert.equal(partial.headers.get('content-type'), asset.contentType);
+    assert.equal(partial.headers.get('accept-ranges'), 'bytes');
+    assert.equal(partial.headers.get('content-length'), '6');
+    assert.deepEqual(Buffer.from(await partial.arrayBuffer()), bytes.subarray(2, 8));
+
+    for (const { range, start, end } of [
+      { range: 'bytes=8-', start: 8, end: bytes.length - 1 },
+      { range: 'bytes=-5', start: bytes.length - 5, end: bytes.length - 1 },
+    ]) {
+      const ranged = await fetch(`${baseUrl}/${name}`, { headers: { Range: range } });
+      assert.equal(ranged.status, 206, `${name} should support ${range}`);
+      assert.equal(ranged.headers.get('content-range'), `bytes ${start}-${end}/${bytes.length}`);
+      assert.deepEqual(Buffer.from(await ranged.arrayBuffer()), bytes.subarray(start, end + 1));
+    }
+
+    for (const range of ['items=2-7', `bytes=${bytes.length}-`]) {
+      const rejected = await fetch(`${baseUrl}/${name}`, { headers: { Range: range } });
+      assert.equal(rejected.status, 416, `${name} should reject range ${range}`);
+      assert.equal(rejected.headers.get('content-range'), `bytes */${bytes.length}`);
+      assert.equal((await rejected.arrayBuffer()).byteLength, 0);
+    }
+
+    const head = await fetch(`${baseUrl}/${name}`, {
+      method: 'HEAD',
+      headers: { Range: 'bytes=2-7' },
+    });
+    assert.equal(head.status, 206);
+    assert.equal(head.headers.get('content-range'), `bytes 2-7/${bytes.length}`);
+    assert.equal(head.headers.get('content-type'), asset.contentType);
+    assert.equal(head.headers.get('content-length'), '6');
+    assert.equal((await head.arrayBuffer()).byteLength, 0);
+  }
+});

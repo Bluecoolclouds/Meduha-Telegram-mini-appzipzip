@@ -30,6 +30,7 @@ await build({
     path.join(root,'src/routes/meduha-photo.integration.test.ts'),
     path.join(root,'src/routes/meduha-video.integration.test.ts'),
     path.join(root,'src/routes/template-recipes.integration.test.ts'),
+    path.join(root,'src/routes/example-media.test.ts'),
   ],
   bundle:true,platform:'node',format:'cjs',outdir:out,entryNames:'[name]',
   outExtension:{'.js':'.cjs'},external:['pg-native'],logLevel:'warning',
@@ -47,7 +48,7 @@ if (process.argv.includes('--admin-access')) {
   process.exit(adminResult.status ?? 1);
 }
 const result=spawnSync(process.execPath,[
-  '--test','--test-concurrency=1',path.join(out,'feed-media.test.cjs'),path.join(out,'feed-media-route.test.cjs'),path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'higgsfield.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),
+  '--test','--test-concurrency=1',path.join(out,'feed-media.test.cjs'),path.join(out,'feed-media-route.test.cjs'),path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'higgsfield.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),path.join(out,'example-media.test.cjs'),
   path.join(out,'meduha-admin-password.integration.test.cjs'),
 ],{stdio:'inherit',env:{...process.env,NODE_ENV:'production'}});
 if(result.status!==0)process.exit(result.status??1);
