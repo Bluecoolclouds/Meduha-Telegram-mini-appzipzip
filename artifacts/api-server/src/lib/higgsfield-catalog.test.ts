@@ -193,6 +193,33 @@ test('catalog pages with no verified endpoint are unavailable rather than an emp
   await assert.rejects(() => discoverHiggsfieldCatalog(fetcher), /проверяемых endpoint ID/);
 });
 
+test('discovers absolute official documentation links without following other origins', async () => {
+  const absoluteLinks = (text: string) => text.replace(/\]\((\/docs\/models\/[^)]+)\)/g, '](' + 'https://docs.higgsfield.ai$1)');
+  const fixture = new Map([
+    ['/docs/models/video-generation.md', absoluteLinks(videoListing)],
+    ['/docs/models/image-generation.md', absoluteLinks(imageListing)
+      + '\n[Injected · 1 workflow](https://docs.higgsfield.ai.evil.test/docs/models/injected.md)\n'],
+    ['/docs/models/seedance-2-5.md', absoluteLinks(seedanceFamily)],
+    ['/docs/models/seedance-2-5/text-to-video.md', seedanceWorkflow],
+    ['/docs/models/recraft-v4-1.md', recraftWorkflow],
+    ['/docs/models/soul-id.md', absoluteLinks(soulIdFamily)],
+    ['/docs/models/soul-id/create-character.md', soulIdWorkflow],
+  ]);
+  const requested: string[] = [];
+  const fetcher: typeof fetch = async input => {
+    const url = new URL(String(input));
+    assert.equal(url.origin, 'https://docs.higgsfield.ai');
+    requested.push(url.pathname);
+    const body = fixture.get(url.pathname);
+    return new Response(body ?? '', { status: body ? 200 : 404 });
+  };
+  const catalog = await discoverHiggsfieldCatalog(fetcher);
+  assert.deepEqual(catalog.entries.map(entry => entry.endpointId).sort(),
+    ['bytedance/seedance-2.5/text-to-video', 'recraft/v4.1/text-to-image']);
+  assert(requested.includes('/docs/models/seedance-2-5/text-to-video.md'));
+  assert(!requested.includes('/docs/models/injected.md'));
+});
+
 test('a mismatch between published catalog totals and visible model links is partial', async () => {
   const fixture = new Map([
     ['/docs/models/video-generation.md', `# Video Generation API

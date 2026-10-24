@@ -1,0 +1,1192 @@
+{
+  "status": "partial",
+  "discoveryApi": "not_documented",
+  "refreshedAt": "2026-10-24T03:19:49.736Z",
+  "sourceUrls": [
+    "https://docs.higgsfield.ai/docs/models/video-generation.md",
+    "https://docs.higgsfield.ai/docs/models/image-generation.md"
+  ],
+  "entries": [
+    {
+      "endpointId": "higgsfield/ads-studio/v1.0",
+      "displayName": "Ads Studio — Generate ads",
+      "kind": "photo",
+      "category": "Ads Studio",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield/ads-studio/v1.0",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/ads-studio/generate.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "higgsfield/cinema-studio/4.0",
+      "displayName": "Cinema Studio 4.0 — Generate",
+      "kind": "video",
+      "category": "Cinema Studio 4.0",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield/cinema-studio/4.0",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/cinema-studio-4/generate.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "higgsfield/genjutsu/motion-transfer/v1.0",
+      "displayName": "Genjutsu — Motion transfer",
+      "kind": "video",
+      "category": "Genjutsu",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield/genjutsu/motion-transfer/v1.0",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/genjutsu/motion-transfer.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "higgsfield/genjutsu/object-swap/v1.0",
+      "displayName": "Genjutsu — Object swap",
+      "kind": "video",
+      "category": "Genjutsu",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield/genjutsu/object-swap/v1.0",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/genjutsu/object-swap.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "higgsfield/genjutsu/restyle/v1.0",
+      "displayName": "Genjutsu — Restyle",
+      "kind": "video",
+      "category": "Genjutsu",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield/genjutsu/restyle/v1.0",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/genjutsu/restyle.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "xai/grok-imagine-image-2.0",
+      "displayName": "Grok Image 2.0 — Generate and edit",
+      "kind": "photo",
+      "category": "Grok Image 2.0",
+      "endpointUrl": "https://api.higgsfield.ai/xai/grok-imagine-image-2.0",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/grok-image-2/generate-and-edit.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "xai/grok-imagine-video/v1.5/reference-to-video",
+      "displayName": "Grok Imagine Video 1.5 — Reference to video",
+      "kind": "video",
+      "category": "Grok Imagine Video 1.5",
+      "endpointUrl": "https://api.higgsfield.ai/xai/grok-imagine-video/v1.5/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/grok-video-1-5/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "minimax/hailuo-2.3/standard/image-to-video",
+      "displayName": "Hailuo 2.3 — Standard image to video",
+      "kind": "video",
+      "category": "Hailuo 2.3",
+      "endpointUrl": "https://api.higgsfield.ai/minimax/hailuo-2.3/standard/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "minimax/hailuo-2.3/standard/text-to-video",
+      "displayName": "Hailuo 2.3 — Standard text to video",
+      "kind": "video",
+      "category": "Hailuo 2.3",
+      "endpointUrl": "https://api.higgsfield.ai/minimax/hailuo-2.3/standard/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/happy-horse/image-to-video",
+      "displayName": "Happy Horse 1.0 — Image to video",
+      "kind": "video",
+      "category": "Happy Horse 1.0",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/happy-horse/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/happy-horse/reference-to-video",
+      "displayName": "Happy Horse 1.0 — Reference to video",
+      "kind": "video",
+      "category": "Happy Horse 1.0",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/happy-horse/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/happy-horse/text-to-video",
+      "displayName": "Happy Horse 1.0 — Text to video",
+      "kind": "video",
+      "category": "Happy Horse 1.0",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/happy-horse/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/happy-horse/v1.1/image-to-video",
+      "displayName": "HappyHorse 1.1 — Image to video",
+      "kind": "video",
+      "category": "HappyHorse 1.1",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/happy-horse/v1.1/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/happy-horse/v1.1/reference-to-video",
+      "displayName": "HappyHorse 1.1 — Reference to video",
+      "kind": "video",
+      "category": "HappyHorse 1.1",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/happy-horse/v1.1/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/happy-horse/v1.1/text-to-video",
+      "displayName": "HappyHorse 1.1 — Text to video",
+      "kind": "video",
+      "category": "HappyHorse 1.1",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/happy-horse/v1.1/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "ideogram/v4.0",
+      "displayName": "Ideogram 4.0 — Generate",
+      "kind": "photo",
+      "category": "Ideogram 4.0",
+      "endpointUrl": "https://api.higgsfield.ai/ideogram/v4.0",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/ideogram-4/generate.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v2.5-turbo/pro/image-to-video",
+      "displayName": "Kling 2.5 Turbo — Pro image to video",
+      "kind": "video",
+      "category": "Kling 2.5 Turbo",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v2.5-turbo/pro/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v2.5-turbo/pro/text-to-video",
+      "displayName": "Kling 2.5 Turbo — Pro text to video",
+      "kind": "video",
+      "category": "Kling 2.5 Turbo",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v2.5-turbo/pro/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v2.5-turbo/standard/image-to-video",
+      "displayName": "Kling 2.5 Turbo — Standard image to video",
+      "kind": "video",
+      "category": "Kling 2.5 Turbo",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v2.5-turbo/standard/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/standard-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v2.6/pro/image-to-video",
+      "displayName": "Kling 2.6 — Pro image to video",
+      "kind": "video",
+      "category": "Kling 2.6",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v2.6/pro/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v2.6/pro/text-to-video",
+      "displayName": "Kling 2.6 — Pro text to video",
+      "kind": "video",
+      "category": "Kling 2.6",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v2.6/pro/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/motion-control/pro",
+      "displayName": "Kling 2.6 Motion Control — Pro",
+      "kind": "video",
+      "category": "Kling 2.6 Motion Control",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/motion-control/pro",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/pro.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/motion-control/std",
+      "displayName": "Kling 2.6 Motion Control — Standard",
+      "kind": "video",
+      "category": "Kling 2.6 Motion Control",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/motion-control/std",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/std.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0/4k/image-to-video",
+      "displayName": "Kling 3.0 — 4K · Image to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0/4k/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/4k-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0/4k/text-to-video",
+      "displayName": "Kling 3.0 — 4K · Text to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0/4k/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/4k-text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0/pro/image-to-video",
+      "displayName": "Kling 3.0 — Pro · Image to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0/pro/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/pro-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0/pro/text-to-video",
+      "displayName": "Kling 3.0 — Pro · Text to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0/pro/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/pro-text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0/std/image-to-video",
+      "displayName": "Kling 3.0 — Standard · Image to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0/std/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/standard-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0/std/text-to-video",
+      "displayName": "Kling 3.0 — Standard · Text to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0/std/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/standard-text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0-turbo/image-to-video",
+      "displayName": "Kling 3.0 — Turbo · Image to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0-turbo/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/turbo-image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3.0-turbo/text-to-video",
+      "displayName": "Kling 3.0 — Turbo · Text to video",
+      "kind": "video",
+      "category": "Kling 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3.0-turbo/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3/turbo-text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3/motion-control/pro",
+      "displayName": "Kling 3.0 Motion Control — Pro",
+      "kind": "video",
+      "category": "Kling 3.0 Motion Control",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3/motion-control/pro",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/pro.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/v3/motion-control/std",
+      "displayName": "Kling 3.0 Motion Control — Standard",
+      "kind": "video",
+      "category": "Kling 3.0 Motion Control",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/v3/motion-control/std",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/std.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/o3/first-last-frame",
+      "displayName": "Kling O3 — First last frame",
+      "kind": "video",
+      "category": "Kling O3",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/o3/first-last-frame",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/o3/image-reference",
+      "displayName": "Kling O3 — Image reference",
+      "kind": "video",
+      "category": "Kling O3",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/o3/image-reference",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/image-reference.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/o3/video-edit",
+      "displayName": "Kling O3 — Video edit",
+      "kind": "video",
+      "category": "Kling O3",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/o3/video-edit",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/video-edit.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/o3/video-reference",
+      "displayName": "Kling O3 — Video reference",
+      "kind": "video",
+      "category": "Kling O3",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/o3/video-reference",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/video-reference.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/omni/first-last-frame",
+      "displayName": "Kling Omni — First last frame",
+      "kind": "video",
+      "category": "Kling Omni",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/omni/first-last-frame",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/omni/image-reference",
+      "displayName": "Kling Omni — Image reference",
+      "kind": "video",
+      "category": "Kling Omni",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/omni/image-reference",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/image-reference.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/omni/video-edit",
+      "displayName": "Kling Omni — Video edit",
+      "kind": "video",
+      "category": "Kling Omni",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/omni/video-edit",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/video-edit.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "kling-video/omni/video-reference",
+      "displayName": "Kling Omni — Video reference",
+      "kind": "video",
+      "category": "Kling Omni",
+      "endpointUrl": "https://api.higgsfield.ai/kling-video/omni/video-reference",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/video-reference.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "lightricks/ltx-2.5/image-to-video/fast",
+      "displayName": "LTX-2.5 — Image to video fast",
+      "kind": "video",
+      "category": "LTX-2.5",
+      "endpointUrl": "https://api.higgsfield.ai/lightricks/ltx-2.5/image-to-video/fast",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-fast.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "lightricks/ltx-2.5/image-to-video/pro",
+      "displayName": "LTX-2.5 — Image to video pro",
+      "kind": "video",
+      "category": "LTX-2.5",
+      "endpointUrl": "https://api.higgsfield.ai/lightricks/ltx-2.5/image-to-video/pro",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-pro.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "lightricks/ltx-2.5/text-to-video/fast",
+      "displayName": "LTX-2.5 — Text to video fast",
+      "kind": "video",
+      "category": "LTX-2.5",
+      "endpointUrl": "https://api.higgsfield.ai/lightricks/ltx-2.5/text-to-video/fast",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-fast.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "lightricks/ltx-2.5/text-to-video/pro",
+      "displayName": "LTX-2.5 — Text to video pro",
+      "kind": "video",
+      "category": "LTX-2.5",
+      "endpointUrl": "https://api.higgsfield.ai/lightricks/ltx-2.5/text-to-video/pro",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-pro.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "marketing-studio/image",
+      "displayName": "Marketing Studio Image — 2.0 Alpha",
+      "kind": "photo",
+      "category": "Marketing Studio Image",
+      "endpointUrl": "https://api.higgsfield.ai/marketing-studio/image",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/generate-and-edit.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "marketing-studio/image/flare",
+      "displayName": "Marketing Studio Image — 2.5 Flare",
+      "kind": "photo",
+      "category": "Marketing Studio Image",
+      "endpointUrl": "https://api.higgsfield.ai/marketing-studio/image/flare",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/flare.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "marketing-studio/image/sunburst",
+      "displayName": "Marketing Studio Image — 2.5 Sunburst",
+      "kind": "photo",
+      "category": "Marketing Studio Image",
+      "endpointUrl": "https://api.higgsfield.ai/marketing-studio/image/sunburst",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/sunburst.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "minimax/h3/image-to-video",
+      "displayName": "MiniMax H3 — Image to video",
+      "kind": "video",
+      "category": "MiniMax H3",
+      "endpointUrl": "https://api.higgsfield.ai/minimax/h3/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/minimax-h3/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "minimax/h3/reference-to-video",
+      "displayName": "MiniMax H3 — Reference to video",
+      "kind": "video",
+      "category": "MiniMax H3",
+      "endpointUrl": "https://api.higgsfield.ai/minimax/h3/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/minimax-h3/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "minimax/h3/text-to-video",
+      "displayName": "MiniMax H3 — Text to video",
+      "kind": "video",
+      "category": "MiniMax H3",
+      "endpointUrl": "https://api.higgsfield.ai/minimax/h3/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/minimax-h3/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "pixverse/v6/image-to-video",
+      "displayName": "PixVerse V6 — Image to video",
+      "kind": "video",
+      "category": "PixVerse V6",
+      "endpointUrl": "https://api.higgsfield.ai/pixverse/v6/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/pixverse-v6/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "pixverse/v6/text-to-video",
+      "displayName": "PixVerse V6 — Text to video",
+      "kind": "video",
+      "category": "PixVerse V6",
+      "endpointUrl": "https://api.higgsfield.ai/pixverse/v6/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/pixverse-v6/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/qwen-image-3/edit",
+      "displayName": "Qwen Image 3 — Edit images",
+      "kind": "photo",
+      "category": "Qwen Image 3",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/qwen-image-3/edit",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/qwen-image-3/edit.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/qwen-image-3/text-to-image",
+      "displayName": "Qwen Image 3 — Text to image",
+      "kind": "photo",
+      "category": "Qwen Image 3",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/qwen-image-3/text-to-image",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/qwen-image-3/text-to-image.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "recraft/v4.1/text-to-image",
+      "displayName": "Recraft V4.1 — Text to image",
+      "kind": "photo",
+      "category": "Recraft V4.1",
+      "endpointUrl": "https://api.higgsfield.ai/recraft/v4.1/text-to-image",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1/text-to-image.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "recraft/v4.1/pro/text-to-image",
+      "displayName": "Recraft V4.1 Pro — Text to image",
+      "kind": "photo",
+      "category": "Recraft V4.1 Pro",
+      "endpointUrl": "https://api.higgsfield.ai/recraft/v4.1/pro/text-to-image",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-pro/generate.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "recraft/v4.1/utility/text-to-image",
+      "displayName": "Recraft V4.1 Utility — Text to image",
+      "kind": "photo",
+      "category": "Recraft V4.1 Utility",
+      "endpointUrl": "https://api.higgsfield.ai/recraft/v4.1/utility/text-to-image",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility/text-to-image.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "recraft/v4.1/utility/pro/text-to-image",
+      "displayName": "Recraft V4.1 Utility Pro — Text to image",
+      "kind": "photo",
+      "category": "Recraft V4.1 Utility Pro",
+      "endpointUrl": "https://api.higgsfield.ai/recraft/v4.1/utility/pro/text-to-image",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility-pro/text-to-image.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "bytedance/seedance-2.0/image-to-video",
+      "displayName": "Seedance 2.0 — Image to video",
+      "kind": "video",
+      "category": "Seedance 2.0",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.0/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2/image-to-video.md",
+      "schemaAvailable": true,
+      "parameters": [
+        {
+          "name": "prompt",
+          "type": "string",
+          "required": false,
+          "description": "Write your prompt here",
+          "minLength": 1
+        },
+        {
+          "name": "duration",
+          "type": "integer",
+          "required": false,
+          "defaultValue": 5,
+          "minimum": 4,
+          "maximum": 15
+        },
+        {
+          "name": "image_url",
+          "type": "string",
+          "required": true,
+          "format": "uri"
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "required": false,
+          "defaultValue": "720p",
+          "allowedValues": [
+            "480p",
+            "720p",
+            "1080p",
+            "4k"
+          ]
+        },
+        {
+          "name": "end_image_url",
+          "type": "string",
+          "required": false,
+          "format": "uri"
+        },
+        {
+          "name": "generate_audio",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "endpointId": "bytedance/seedance-2.0/reference-to-video",
+      "displayName": "Seedance 2.0 — Reference to video",
+      "kind": "video",
+      "category": "Seedance 2.0",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.0/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "bytedance/seedance-2.0/text-to-video",
+      "displayName": "Seedance 2.0 — Text to video",
+      "kind": "video",
+      "category": "Seedance 2.0",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.0/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2/text-to-video.md",
+      "schemaAvailable": true,
+      "parameters": [
+        {
+          "name": "prompt",
+          "type": "string",
+          "required": true,
+          "description": "Write your prompt here",
+          "minLength": 1
+        },
+        {
+          "name": "duration",
+          "type": "integer",
+          "required": false,
+          "defaultValue": 5,
+          "minimum": 4,
+          "maximum": 15
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "required": false,
+          "defaultValue": "720p",
+          "allowedValues": [
+            "480p",
+            "720p",
+            "1080p",
+            "4k"
+          ]
+        },
+        {
+          "name": "aspect_ratio",
+          "type": "string",
+          "required": false,
+          "defaultValue": "16:9",
+          "allowedValues": [
+            "16:9",
+            "4:3",
+            "1:1",
+            "3:4",
+            "9:16",
+            "21:9"
+          ]
+        },
+        {
+          "name": "generate_audio",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "endpointId": "bytedance/seedance-2.5/image-to-video",
+      "displayName": "Seedance 2.5 — Image to video",
+      "kind": "video",
+      "category": "Seedance 2.5",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.5/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/image-to-video.md",
+      "schemaAvailable": true,
+      "parameters": [
+        {
+          "name": "prompt",
+          "type": "string",
+          "required": false,
+          "description": "Write your prompt here",
+          "minLength": 1
+        },
+        {
+          "name": "duration",
+          "type": "integer",
+          "required": false,
+          "defaultValue": 5,
+          "minimum": 4,
+          "maximum": 30
+        },
+        {
+          "name": "image_url",
+          "type": "string",
+          "required": true,
+          "format": "uri"
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "required": false,
+          "defaultValue": "720p",
+          "allowedValues": [
+            "480p",
+            "720p",
+            "1080p"
+          ]
+        },
+        {
+          "name": "bitrate_mode",
+          "type": "string",
+          "required": false,
+          "defaultValue": "high",
+          "allowedValues": [
+            "standard",
+            "high"
+          ]
+        },
+        {
+          "name": "end_image_url",
+          "type": "string",
+          "required": false,
+          "format": "uri"
+        },
+        {
+          "name": "generate_audio",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "endpointId": "bytedance/seedance-2.5/reference-to-video",
+      "displayName": "Seedance 2.5 — Reference to video",
+      "kind": "video",
+      "category": "Seedance 2.5",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.5/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "bytedance/seedance-2.5/text-to-video",
+      "displayName": "Seedance 2.5 — Text to video",
+      "kind": "video",
+      "category": "Seedance 2.5",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.5/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/text-to-video.md",
+      "schemaAvailable": true,
+      "parameters": [
+        {
+          "name": "prompt",
+          "type": "string",
+          "required": true,
+          "description": "Write your prompt here",
+          "minLength": 1
+        },
+        {
+          "name": "duration",
+          "type": "integer",
+          "required": false,
+          "defaultValue": 5,
+          "minimum": 4,
+          "maximum": 30
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "required": false,
+          "defaultValue": "720p",
+          "allowedValues": [
+            "480p",
+            "720p",
+            "1080p"
+          ]
+        },
+        {
+          "name": "aspect_ratio",
+          "type": "string",
+          "required": false,
+          "defaultValue": "16:9",
+          "allowedValues": [
+            "16:9",
+            "4:3",
+            "1:1",
+            "3:4",
+            "9:16",
+            "21:9"
+          ]
+        },
+        {
+          "name": "bitrate_mode",
+          "type": "string",
+          "required": false,
+          "defaultValue": "high",
+          "allowedValues": [
+            "standard",
+            "high"
+          ]
+        },
+        {
+          "name": "output_format",
+          "type": "string",
+          "required": false,
+          "defaultValue": "mp4",
+          "allowedValues": [
+            "mp4",
+            "mov"
+          ]
+        },
+        {
+          "name": "generate_audio",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "endpointId": "bytedance/seedance-2.5/video-edit",
+      "displayName": "Seedance 2.5 — Video edit",
+      "kind": "video",
+      "category": "Seedance 2.5",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.5/video-edit",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-edit.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "bytedance/seedance-2.5/video-extend",
+      "displayName": "Seedance 2.5 — Video extend",
+      "kind": "video",
+      "category": "Seedance 2.5",
+      "endpointUrl": "https://api.higgsfield.ai/bytedance/seedance-2.5/video-extend",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-extend.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "higgsfield-ai/soul/standard",
+      "displayName": "SOUL — Text to image",
+      "kind": "photo",
+      "category": "SOUL",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield-ai/soul/standard",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/soul-standard/generate.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "higgsfield-ai/soul/cinema",
+      "displayName": "SOUL Cinema — Text to image",
+      "kind": "photo",
+      "category": "SOUL Cinema",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield-ai/soul/cinema",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/soul-cinema/generate.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "higgsfield-ai/soul/v2/standard",
+      "displayName": "SOUL V2 — Text to image",
+      "kind": "photo",
+      "category": "SOUL V2",
+      "endpointUrl": "https://api.higgsfield.ai/higgsfield-ai/soul/v2/standard",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/soul-2/generate.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "wan/v2.6/image-to-video",
+      "displayName": "Wan 2.6 — Image to video",
+      "kind": "video",
+      "category": "Wan 2.6",
+      "endpointUrl": "https://api.higgsfield.ai/wan/v2.6/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-2-6/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "wan/v2.6/reference-to-video",
+      "displayName": "Wan 2.6 — Reference to video",
+      "kind": "video",
+      "category": "Wan 2.6",
+      "endpointUrl": "https://api.higgsfield.ai/wan/v2.6/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-2-6/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "wan/v2.6/text-to-video",
+      "displayName": "Wan 2.6 — Text to video",
+      "kind": "video",
+      "category": "Wan 2.6",
+      "endpointUrl": "https://api.higgsfield.ai/wan/v2.6/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-2-6/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "wan/v2.7/image-to-video",
+      "displayName": "Wan 2.7 — Image to video",
+      "kind": "video",
+      "category": "Wan 2.7",
+      "endpointUrl": "https://api.higgsfield.ai/wan/v2.7/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-2-7/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "wan/v2.7/reference-to-video",
+      "displayName": "Wan 2.7 — Reference to video",
+      "kind": "video",
+      "category": "Wan 2.7",
+      "endpointUrl": "https://api.higgsfield.ai/wan/v2.7/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-2-7/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "wan/v2.7/text-to-video",
+      "displayName": "Wan 2.7 — Text to video",
+      "kind": "video",
+      "category": "Wan 2.7",
+      "endpointUrl": "https://api.higgsfield.ai/wan/v2.7/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-2-7/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/wan-3.0/image-to-video",
+      "displayName": "Wan 3.0 — Image to video",
+      "kind": "video",
+      "category": "Wan 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/wan-3.0/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-3/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/wan-3.0/reference-to-video",
+      "displayName": "Wan 3.0 — Reference to video",
+      "kind": "video",
+      "category": "Wan 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/wan-3.0/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/wan-3.0/text-to-video",
+      "displayName": "Wan 3.0 — Text to video",
+      "kind": "video",
+      "category": "Wan 3.0",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/wan-3.0/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-3/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/wan-3.0-prime/image-to-video",
+      "displayName": "Wan 3.0 Prime — Image to video",
+      "kind": "video",
+      "category": "Wan 3.0 Prime",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/wan-3.0-prime/image-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-3-prime/image-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/wan-3.0-prime/reference-to-video",
+      "displayName": "Wan 3.0 Prime — Reference to video",
+      "kind": "video",
+      "category": "Wan 3.0 Prime",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/wan-3.0-prime/reference-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-3-prime/reference-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "alibaba/wan-3.0-prime/text-to-video",
+      "displayName": "Wan 3.0 Prime — Text to video",
+      "kind": "video",
+      "category": "Wan 3.0 Prime",
+      "endpointUrl": "https://api.higgsfield.ai/alibaba/wan-3.0-prime/text-to-video",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video.md",
+      "schemaAvailable": false,
+      "parameters": []
+    },
+    {
+      "endpointId": "z-image/turbo",
+      "displayName": "Z-Image Turbo — Generate",
+      "kind": "photo",
+      "category": "Z-Image Turbo",
+      "endpointUrl": "https://api.higgsfield.ai/z-image/turbo",
+      "docsUrl": "https://docs.higgsfield.ai/docs/models/z-image-turbo/generate.md",
+      "schemaAvailable": true,
+      "parameters": [
+        {
+          "name": "seed",
+          "type": "integer",
+          "required": false,
+          "description": "Optional random seed for similar, reproducible results.",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "required": true,
+          "description": "Positive prompt describing the desired content, style, and composition.",
+          "minLength": 1,
+          "maxLength": 800
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "required": false,
+          "description": "Output resolution tier. Both tiers produce PNG images.",
+          "defaultValue": "1k",
+          "allowedValues": [
+            "1k",
+            "2k"
+          ]
+        },
+        {
+          "name": "aspect_ratio",
+          "type": "string",
+          "required": false,
+          "description": "Output aspect ratio. Exact provider-recommended dimensions are selected automatically.",
+          "defaultValue": "1:1",
+          "allowedValues": [
+            "1:1",
+            "2:3",
+            "3:2",
+            "3:4",
+            "4:3",
+            "7:9",
+            "9:7",
+            "9:16",
+            "16:9",
+            "21:9"
+          ]
+        },
+        {
+          "name": "prompt_extend",
+          "type": "boolean",
+          "required": false,
+          "description": "Rewrite and reason over the prompt before generation; this uses the enhanced price tier.",
+          "defaultValue": false
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/genjutsu/motion-transfer.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/genjutsu/object-swap.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/genjutsu/restyle.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/seedance-2/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/seedance-2-5/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/seedance-2-5/video-edit.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/seedance-2-5/video-extend.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/standard-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-2-6/pro-text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-2-6/pro-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/pro.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/std.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/4k-text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/pro-text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/standard-text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/turbo-text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/4k-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/pro-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/standard-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3/turbo-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3-motion-control/pro.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-3-motion-control/std.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-o3/image-reference.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-o3/video-edit.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-o3/video-reference.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-omni/image-reference.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-omni/video-edit.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/kling-omni/video-reference.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/happy-horse-1/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/happy-horse-1/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/happy-horse-1/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/happy-horse-1-1/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/happy-horse-1-1/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/happy-horse-1-1/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-3/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-3/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-3-prime/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-3-prime/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/cinema-studio-4/generate.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-fast.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-pro.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-fast.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-pro.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/minimax-h3/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/minimax-h3/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/minimax-h3/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/pixverse-v6/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/pixverse-v6/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-2-6/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-2-6/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-2-6/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-2-7/text-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-2-7/image-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/wan-2-7/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/grok-video-1-5/reference-to-video.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/soul-standard/generate.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/soul-2/generate.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/soul-cinema/generate.md",
+    "Одна официальная workflow-страница не содержит проверяемого endpoint ID и исключена из импорта: https://docs.higgsfield.ai/docs/models/soul-id/create-character.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/marketing-studio-image/generate-and-edit.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/marketing-studio-image/flare.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/marketing-studio-image/sunburst.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/ads-studio/generate.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/grok-image-2/generate-and-edit.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/recraft-v4-1/text-to-image.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/recraft-v4-1-pro/generate.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility/text-to-image.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility-pro/text-to-image.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/qwen-image-3/text-to-image.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/qwen-image-3/edit.md",
+    "У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: https://docs.higgsfield.ai/docs/models/ideogram-4/generate.md"
+  ]
+}

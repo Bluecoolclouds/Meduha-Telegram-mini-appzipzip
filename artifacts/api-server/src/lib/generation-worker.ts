@@ -1,6 +1,6 @@
 import { pool } from '@workspace/db';
 import { logger } from './logger';
-import { completedVideo, getHiggsfieldRequestStatus, higgsfieldClient, SEEDANCE_MODEL } from './higgsfield';
+import { completedVideo, getHiggsfieldRequestStatus, submitHiggsfieldGeneration, SEEDANCE_MODEL } from './higgsfield';
 import { releaseReservation, settleReservation } from './finance';
 import { genjutsuProviderInput, type GenjutsuMetadata } from './genjutsu';
 import { GenerationVideoValidationError, storeGenerationVideo } from './objectStorage';
@@ -293,14 +293,14 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
   if (!job) return;
   let responseRequestId: string | null = null;
   try {
-    // SDK retries are disabled: this POST is billable and a lost response is ambiguous.
+    // REST submission has no retries: this POST is billable and a lost response is ambiguous.
     const send = submit ?? (async (input: GenerationJob['input']) => {
       if (input._photo) {
         let providerInput: Record<string, unknown>;
         try { providerInput = await photoProviderInput(job.account_id, input._photo); }
         catch { throw new ProviderPreparationError('Photo inputs unavailable'); }
         // Only allowlisted endpoint and validated inputs reach this billable POST.
-        return higgsfieldClient().subscribe(input._photo.endpoint, { input: providerInput, withPolling: false });
+        return submitHiggsfieldGeneration(input._photo.endpoint, providerInput);
       }
       if (input._video) {
         let providerInput;
@@ -315,9 +315,9 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
         } catch {
           throw new ProviderPreparationError('Generation inputs unavailable');
         }
-        return higgsfieldClient().subscribe(input._genjutsu.endpoint, { input: providerInput, withPolling: false });
+        return submitHiggsfieldGeneration(input._genjutsu.endpoint, providerInput);
       }
-      return higgsfieldClient().subscribe(SEEDANCE_MODEL, { input, withPolling: false });
+      return submitHiggsfieldGeneration(SEEDANCE_MODEL, input);
     });
     const response = await send(job.input);
     responseRequestId = response.request_id ?? null;

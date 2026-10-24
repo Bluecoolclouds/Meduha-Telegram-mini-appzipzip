@@ -16,3 +16,9 @@ For photo and video scenarios, the user designated the `open.higgsfield.ai` Play
 **Why:** the official Playground embeds both the input schema and the SDK example, and those workflows share a model endpoint while applying conditional preset/enhancement requirements.
 
 **How to apply:** verify the SDK submission endpoint as well as the input schema; preserve the official workflow preset and conditional reference limits instead of submitting the catalogue slug or silently reducing a workflow to a bare model request.
+
+Documentation links can switch between relative paths and same-origin absolute URLs without any change in model availability. Empty discovery after a documentation layout change is not evidence that models disappeared.
+
+**Why:** Official listings switched to absolute URLs while a relative-only reader still fetched the pages successfully but found no endpoints.
+
+**How to apply:** Normalize both link forms, retain strict official-origin checks, and report specific missing-schema or endpoint source pages instead of replacing the catalog with a smaller guessed list.

@@ -45,10 +45,13 @@ const MAX_DOCUMENT_BYTES = 2_000_000;
 const cache = { value: null as HiggsfieldCatalogResult | null };
 
 function docUrl(path: string): string | null {
-  const normalized = path.startsWith('/') ? path : `/${path}`;
-  if (!normalized.startsWith('/docs/models/')) return null;
-  const url = new URL(normalized.endsWith('.md') ? normalized : `${normalized}.md`, DOCS_ORIGIN);
-  return url.origin === DOCS_ORIGIN ? url.toString() : null;
+  let url: URL;
+  try { url = new URL(path, DOCS_ORIGIN); } catch { return null; }
+  if (url.origin !== DOCS_ORIGIN || url.username || url.password || !url.pathname.startsWith('/docs/models/')) return null;
+  if (!url.pathname.endsWith('.md')) url.pathname += '.md';
+  url.hash = '';
+  url.search = '';
+  return url.toString();
 }
 
 async function fetchMarkdown(url: string, fetcher: typeof fetch): Promise<string> {
@@ -65,9 +68,10 @@ async function fetchMarkdown(url: string, fetcher: typeof fetch): Promise<string
 }
 
 function linksIn(text: string): string[] {
-  return [...text.matchAll(/\]\((\/docs\/models\/[^)\s]+)\)/g)]
-    .map(match => match[1].replace(/#.*$/, ''))
-    .filter(path => !path.endsWith('/docs/models.md') && !path.endsWith('/video-generation.md') && !path.endsWith('/image-generation.md'));
+  return [...text.matchAll(/\]\(([^)\s]+)\)/g)]
+    .map(match => docUrl(match[1]))
+    .filter((url): url is string => url !== null
+      && !url.endsWith('/video-generation.md') && !url.endsWith('/image-generation.md'));
 }
 
 function workflowLinks(familyPage: string): string[] {
@@ -89,7 +93,8 @@ function modelListingLinks(listing: string): {
   const tail = listing.slice(heading.index + heading[0].length);
   const nextHeading = /^#{1,3}\s+/m.exec(tail);
   const section = nextHeading ? tail.slice(0, nextHeading.index) : tail;
-  const modelLinks = [...section.matchAll(/\[([^\]]+)\]\((\/docs\/models\/[^)\s]+)\)/g)];
+  const modelLinks = [...section.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)]
+    .filter(match => docUrl(match[2]) !== null);
   const summary = /Choose from \*\*(\d+)\s+model famil(?:y|ies)\*\* and \*\*(\d+)\s+catalog entr(?:y|ies)\*\*/i.exec(listing);
   const workflowCounts = modelLinks.map(match => /·\s*(\d+)\s+workflows?\b/i.exec(match[1])?.[1]);
   return {
@@ -251,12 +256,12 @@ export async function discoverHiggsfieldCatalog(fetcher: typeof fetch = fetch): 
     const direct = parseWorkflow(family.text, family.url, category, family.kind);
     if (direct) {
       directEntries.push(direct);
-      if (!direct.schemaAvailable) warnings.push('У одной официальной модели опубликован endpoint ID, но схема параметров недоступна.');
+      if (!direct.schemaAvailable) warnings.push(`У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: ${direct.docsUrl}`);
       continue;
     }
     const documentedWorkflows = workflowLinks(family.text);
     if (!documentedWorkflows.length) {
-      warnings.push('Одна официальная страница семейства не содержит проверяемых generation endpoint ID и исключена из импорта.');
+      warnings.push(`Одна официальная страница семейства не содержит проверяемых generation endpoint ID и исключена из импорта: ${family.url}`);
     }
     for (const path of documentedWorkflows) {
       const url = docUrl(path);
@@ -276,9 +281,9 @@ export async function discoverHiggsfieldCatalog(fetcher: typeof fetch = fetch): 
     }
     if (result.value.entry) {
       entries.push(result.value.entry);
-      if (!result.value.entry.schemaAvailable) warnings.push('У одной официальной модели опубликован endpoint ID, но схема параметров недоступна.');
+      if (!result.value.entry.schemaAvailable) warnings.push(`У одной официальной модели опубликован endpoint ID, но схема параметров недоступна: ${result.value.url}`);
     } else {
-      warnings.push('Одна официальная workflow-страница не содержит проверяемого endpoint ID и исключена из импорта.');
+      warnings.push(`Одна официальная workflow-страница не содержит проверяемого endpoint ID и исключена из импорта: ${result.value.url}`);
     }
   }
   const unique = [...new Map(entries.map(entry => [entry.endpointId, entry])).values()]

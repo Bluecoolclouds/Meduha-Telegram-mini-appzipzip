@@ -15,6 +15,7 @@ await build({
     path.join(root,'src/lib/telegram-commands.test.ts'),
     path.join(root,'src/lib/template-files.test.ts'),
     path.join(root,'src/lib/higgsfield-catalog.test.ts'),
+    path.join(root,'src/lib/higgsfield.test.ts'),
     path.join(root,'src/lib/template-upload-cleanup.test.ts'),
     path.join(root,'src/lib/objectStorage-generation.test.ts'),
     path.join(root,'src/routes/meduha.integration.test.ts'),
@@ -30,7 +31,7 @@ await build({
   outExtension:{'.js':'.cjs'},external:['pg-native'],logLevel:'warning',
 });
 const result=spawnSync(process.execPath,[
-  '--test','--test-concurrency=1',path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),
+  '--test','--test-concurrency=1',path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'higgsfield.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),
 ],{stdio:'inherit',env:{...process.env,NODE_ENV:'production'}});
 if(result.status!==0)process.exit(result.status??1);
 // The bundled test runner cannot resolve pino-pretty's worker entry under its

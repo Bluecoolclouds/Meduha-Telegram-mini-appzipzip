@@ -1,5 +1,4 @@
 import { config as loadEnv } from 'dotenv';
-import { createHiggsfieldClient } from '@higgsfield/client/v2';
 import { resolve } from 'node:path';
 
 export const SEEDANCE_MODEL = 'bytedance/seedance-2.5/text-to-video';
@@ -7,17 +6,47 @@ const HIGGSFIELD_API = 'https://api.higgsfield.ai';
 
 // Existing Replit Secrets take priority; local credentials are never browser env vars.
 export function higgsfieldCredentials() {
-  loadEnv({ path: resolve(process.cwd(), '.env.local'), quiet: true });
-  const credentials = process.env.HF_CREDENTIALS || process.env.higgs_api || process.env.higgs;
-  if (!credentials || !/^[^:\s]+:[^:\s]+$/.test(credentials)) {
-    throw new Error('HF_CREDENTIALS, higgs_api or higgs must contain key-id:key-secret.');
+  if (!process.env.HF_API_KEY && !process.env.HF_CREDENTIALS && !process.env.higgs && !process.env.higgs_api) {
+    loadEnv({ path: resolve(process.cwd(), '.env.local'), quiet: true });
+  }
+  const credentials = process.env.HF_API_KEY || process.env.HF_CREDENTIALS || process.env.higgs_api || process.env.higgs;
+  if (!credentials || !/^\S+$/.test(credentials)) {
+    throw new Error('Save the complete copied Higgsfield API key in HF_API_KEY, HF_CREDENTIALS, higgs or higgs_api.');
   }
   return credentials;
 }
 
-export function higgsfieldClient() {
-  // A lost submission response must not silently trigger a second paid POST.
-  return createHiggsfieldClient({ credentials: higgsfieldCredentials(), maxRetries: 0 });
+export type HiggsfieldSubmission = {
+  status: string;
+  request_id?: string;
+  video?: { url?: string };
+  images?: { url: string }[];
+};
+
+export async function submitHiggsfieldGeneration(
+  endpoint: string,
+  input: unknown,
+  fetcher: typeof fetch = fetch,
+): Promise<HiggsfieldSubmission> {
+  if (!/^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$/.test(endpoint)
+    || endpoint.split('/').some(part => !part || part === '.' || part === '..')) {
+    throw new Error('Invalid Higgsfield model endpoint.');
+  }
+  // Send the complete copied credential unchanged. Never retry a billable POST:
+  // a lost response does not prove that the upstream request was not accepted.
+  const response = await fetcher(`${HIGGSFIELD_API}/${endpoint}`, {
+    method: 'POST',
+    headers: { Authorization: `Key ${higgsfieldCredentials()}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(input),
+    redirect: 'error',
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!response.ok) throw new Error(`Higgsfield submission returned HTTP ${response.status}.`);
+  const result: unknown = await response.json();
+  if (!result || typeof result !== 'object' || !('status' in result) || typeof result.status !== 'string') {
+    throw new Error('Higgsfield returned an invalid submission response.');
+  }
+  return result as HiggsfieldSubmission;
 }
 
 export async function getHiggsfieldRequestStatus(requestId: string) {
@@ -25,6 +54,7 @@ export async function getHiggsfieldRequestStatus(requestId: string) {
   const response = await fetch(`${HIGGSFIELD_API}/requests/${encodeURIComponent(requestId)}/status`, {
     method: 'GET',
     headers: { Authorization: `Key ${higgsfieldCredentials()}`, Accept: 'application/json' },
+    redirect: 'error',
     signal: AbortSignal.timeout(12_000),
     cache: 'no-store',
   });
