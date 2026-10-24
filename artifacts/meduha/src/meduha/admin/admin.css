@@ -208,6 +208,8 @@
 .adm-login-art li::before { content: counter(s, decimal-leading-zero); font-family: 'IBM Plex Mono', monospace; color: var(--signal); }
 .adm-login-form { padding: clamp(28px, 5vw, 64px); display: flex; flex-direction: column; justify-content: center; max-width: 560px; }
 .adm-login-form h2 { font-size: 24px; margin: 0 0 6px; letter-spacing: -.02em; }
+.adm-login-methods { margin-bottom: 24px; }
+.adm-login-help { margin: 0; color: var(--ink-2); }
 .adm-login-form > p { color: var(--ink-2); margin: 0 0 22px; }
 @media (max-width: 860px) { .adm-login { grid-template-columns: 1fr; } .adm-login-art { min-height: auto; gap: 26px; } }
 

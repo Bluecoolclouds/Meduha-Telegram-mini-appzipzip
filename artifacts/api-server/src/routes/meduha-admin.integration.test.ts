@@ -144,7 +144,7 @@ test('admin API auth, pairing, configuration, moderation, audit and finance inte
     assert.equal((await call('/admin/pairing', 'POST', {}, ordinaryCookie)).status, 403,
       'ordinary Telegram account cannot issue pairing codes');
     const status = await (await call('/admin/login', 'GET', undefined, ordinaryCookie)).json() as Record<string, unknown>;
-    assert.deepEqual(Object.keys(status).sort(), ['authenticated', 'isAdmin', 'setupRequired']);
+    assert.deepEqual(Object.keys(status).sort(), ['authenticated', 'isAdmin', 'pairingLoginAvailable', 'passwordLoginAvailable', 'setupRequired']);
     assert.equal(status.authenticated, false);
     assert.equal(status.isAdmin, false);
     assert.equal(Object.hasOwn(status, 'accountId'), false, 'setup response must not expose IDs');

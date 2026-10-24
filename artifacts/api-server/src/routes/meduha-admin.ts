@@ -18,6 +18,7 @@ import {
   ListAdminLedgerQueryParams, ListAdminLedgerResponse, ListAdminModelsResponse,
   ListAdminReportsResponse, ListAdminTemplatesResponse, ListAdminUsersQueryParams,
   ListAdminUsersResponse, LoginMeduhaAdminPairingBody, LoginMeduhaAdminPairingResponse,
+  LoginMeduhaAdminPasswordBody, LoginMeduhaAdminPasswordResponse,
   ModerateAdminTemplateBody, ModerateAdminTemplateResponse,
   RefundAdminCreditsBody, ReleaseAdminCreditsBody, ReserveAdminCreditsBody,
   ResolveAdminReportBody, ResolveAdminReportResponse, SettleAdminCreditsBody,
@@ -36,6 +37,10 @@ import {
 import { getFreshHiggsfieldCatalog, refreshHiggsfieldCatalog } from '../lib/higgsfield-catalog';
 import { applyGenerationProviderStatus, finalizeResolvedGeneration, type GenerationVideoStore } from '../lib/generation-worker';
 import { getHiggsfieldRequestStatus } from '../lib/higgsfield';
+import {
+  TEMPORARY_ADMIN_ACTOR, allowPasswordAttempt, temporaryAdminConfig, validTemporaryCredentials,
+  PASSWORD_ATTEMPT_WINDOW_MS,
+} from '../lib/temporary-admin';
 
 const COOKIE = 'meduha_admin_session';
 const ADMIN_SESSION_MS = 8 * 60 * 60 * 1000;
@@ -84,25 +89,33 @@ function tariffsMatchGenjutsuModel(value: unknown[], upstreamId: string): boolea
   return !!scenario && value.every(entry => (entry as Record<string, unknown>).scenario === scenario);
 }
 
-async function activeAdminId(req: Request, isDesignatedAdmin: (id: string) => Promise<boolean> = isTemplateAdmin): Promise<string | null> {
-  const account = await currentAccount(req);
-  if (account && !account.blocked && await isDesignatedAdmin(account.id)) return account.id;
+async function activeAdminId(req: Request, isDesignatedAdmin: (id: string) => Promise<boolean> = isTemplateAdmin, readTemporaryConfig = temporaryAdminConfig): Promise<string | null> {
   const raw = token(req);
-  if (!raw) return null;
-  const [session] = await db.select({ adminId: meduhaAdminSessions.adminId }).from(meduhaAdminSessions)
-    .innerJoin(meduhaAccounts, eq(meduhaAccounts.id, meduhaAdminSessions.adminId))
+  if (!raw) {
+    const account = await currentAccount(req);
+    return account && !account.blocked && await isDesignatedAdmin(account.id) ? account.id : null;
+  }
+  const [session] = await db.select().from(meduhaAdminSessions)
     .where(and(
       eq(meduhaAdminSessions.tokenHash, hash(raw)),
       gt(meduhaAdminSessions.expiresAt, sql<Date>`clock_timestamp()`),
-      eq(meduhaAccounts.blocked, false),
     ))
     .limit(1);
-  if (!session || !await isDesignatedAdmin(session.adminId)) return null;
+  if (!session) return null;
+  if (session.authMethod === 'temporary') {
+    const config = readTemporaryConfig();
+    if (config && session.adminId === TEMPORARY_ADMIN_ACTOR && session.configFingerprint === config.fingerprint) {
+      return TEMPORARY_ADMIN_ACTOR;
+    }
+    await db.delete(meduhaAdminSessions).where(eq(meduhaAdminSessions.tokenHash, hash(raw)));
+    return null;
+  }
+  if (session.authMethod !== 'telegram' || !await isActiveAccount(session.adminId) || !await isDesignatedAdmin(session.adminId)) return null;
   return session.adminId;
 }
 
-async function requireDesignatedAdmin(req: Request, res: Response, isDesignatedAdmin: (id: string) => Promise<boolean> = isTemplateAdmin): Promise<string | null> {
-  const id = await activeAdminId(req, isDesignatedAdmin);
+async function requireDesignatedAdmin(req: Request, res: Response, isDesignatedAdmin: (id: string) => Promise<boolean> = isTemplateAdmin, readTemporaryConfig = temporaryAdminConfig): Promise<string | null> {
+  const id = await activeAdminId(req, isDesignatedAdmin, readTemporaryConfig);
   if (id) return id;
   error(res, 403, 'ADMIN_REQUIRED', 'Для этой операции нужна назначенная действующая учётная запись администратора.');
   return null;
@@ -150,12 +163,13 @@ export function createMeduhaAdminRouter(
   catalogFetcher: typeof fetch = fetch,
   providerStatusFetcher: typeof getHiggsfieldRequestStatus = getHiggsfieldRequestStatus,
   storeGenerationVideoForTest?: GenerationVideoStore,
+  readTemporaryConfig = temporaryAdminConfig,
 ) {
 const router = Router();
-const requiredAdmin = (req: Request, res: Response) => requireDesignatedAdmin(req, res, isDesignatedAdmin);
+const requiredAdmin = (req: Request, res: Response) => requireDesignatedAdmin(req, res, isDesignatedAdmin, readTemporaryConfig);
 
 router.get('/admin/login', async (req, res): Promise<void> => {
-  const adminId = await activeAdminId(req, isDesignatedAdmin);
+  const adminId = await activeAdminId(req, isDesignatedAdmin, readTemporaryConfig);
   const setupRequired = setupRequiredForTest && isDesignatedAdmin !== isTemplateAdmin
     ? false
     : await isAdminSetupRequired();
@@ -165,6 +179,43 @@ router.get('/admin/login', async (req, res): Promise<void> => {
     isAdmin: !!adminId,
     setupRequired,
     adminId: adminId ?? undefined,
+    authMethod: adminId ? (adminId === TEMPORARY_ADMIN_ACTOR ? 'temporary' : 'telegram') : undefined,
+    passwordLoginAvailable: !!readTemporaryConfig(),
+    pairingLoginAvailable: !setupRequired,
+  }));
+});
+
+router.post('/admin/login/password', async (req, res): Promise<void> => {
+  if (!await allowPasswordAttempt(req.ip ?? 'unknown')) {
+    res.setHeader('Retry-After', String(PASSWORD_ATTEMPT_WINDOW_MS / 1000));
+    error(res, 429, 'ADMIN_LOGIN_RATE_LIMIT', 'Слишком много попыток входа. Повтори через 15 минут.');
+    return;
+  }
+  const config = readTemporaryConfig();
+  const body = LoginMeduhaAdminPasswordBody.strict().safeParse(req.body);
+  if (!body.success || !validTemporaryCredentials(config, body.data.login, body.data.password) || !config) {
+    error(res, 401, 'ADMIN_CREDENTIALS_INVALID', 'Неверный логин или пароль, либо временный вход отключён.');
+    return;
+  }
+  const raw = randomBytes(32).toString('hex');
+  const previous = token(req);
+  const session = await db.transaction(async tx => {
+    if (previous) await tx.delete(meduhaAdminSessions).where(eq(meduhaAdminSessions.tokenHash, hash(previous)));
+    const [created] = await tx.insert(meduhaAdminSessions).values({
+      tokenHash: hash(raw), adminId: TEMPORARY_ADMIN_ACTOR, authMethod: 'temporary',
+      configFingerprint: config.fingerprint,
+      expiresAt: sql<Date>`clock_timestamp() + (${ADMIN_SESSION_MS} * interval '1 millisecond')`,
+    }).returning({ expiresAt: meduhaAdminSessions.expiresAt });
+    await tx.insert(meduhaAdminAudit).values({
+      actorId: TEMPORARY_ADMIN_ACTOR, action: 'auth.password.login', entityType: 'admin-session', entityId: hash(raw),
+      details: { authMethod: 'temporary' },
+    });
+    return created;
+  });
+  res.cookie(COOKIE, raw, { ...cookieOptions(req), maxAge: ADMIN_SESSION_MS });
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(LoginMeduhaAdminPasswordResponse.parse({
+    authenticated: true, isAdmin: true, setupRequired: false, expiresAt: session.expiresAt,
   }));
 });
 

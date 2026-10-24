@@ -22,6 +22,7 @@ await build({
     path.join(root,'src/lib/finance.test.ts'),
     path.join(root,'src/lib/finance-multiprocess.integration.test.ts'),
     path.join(root,'src/routes/meduha-admin.integration.test.ts'),
+    path.join(root,'src/routes/meduha-admin-password.integration.test.ts'),
     path.join(root,'src/routes/meduha-generations.integration.test.ts'),
     path.join(root,'src/routes/meduha-genjutsu.integration.test.ts'),
     path.join(root,'src/routes/meduha-photo.integration.test.ts'),
@@ -31,8 +32,15 @@ await build({
   bundle:true,platform:'node',format:'cjs',outdir:out,entryNames:'[name]',
   outExtension:{'.js':'.cjs'},external:['pg-native'],logLevel:'warning',
 });
+if (process.argv.includes('--admin-access')) {
+  const adminResult = spawnSync(process.execPath, [
+    '--test', path.join(out, 'meduha-admin-password.integration.test.cjs'),
+  ], { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } });
+  process.exit(adminResult.status ?? 1);
+}
 const result=spawnSync(process.execPath,[
   '--test','--test-concurrency=1',path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'higgsfield.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),
+  path.join(out,'meduha-admin-password.integration.test.cjs'),
 ],{stdio:'inherit',env:{...process.env,NODE_ENV:'production'}});
 if(result.status!==0)process.exit(result.status??1);
 // The bundled test runner cannot resolve pino-pretty's worker entry under its

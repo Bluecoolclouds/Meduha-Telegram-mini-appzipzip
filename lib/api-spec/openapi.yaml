@@ -590,6 +590,24 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/AdminSession" }
         "401": { description: "Invalid, expired, or consumed pairing code" }
+  /meduha/admin/login/password:
+    post:
+      operationId: loginMeduhaAdminPassword
+      description: Temporary admin only when explicit server login and password secret are configured. Requires X-Meduha-Request header; never grants a Telegram identity.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminPasswordCredentials" }
+      responses:
+        "200":
+          description: Eight-hour server session; revoked when server credentials change
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminSession" }
+        "401": { description: Invalid credentials or password login disabled }
+        "403": { description: CSRF protection rejected request }
+        "429": { description: Attempt limit exceeded; Retry-After specifies seconds }
   /meduha/admin/logout:
     post:
       operationId: logoutMeduhaAdmin
@@ -1344,12 +1362,15 @@ components:
         subscription: { type: string }
     AdminStatus:
       type: object
-      required: [authenticated, isAdmin, setupRequired]
+      required: [authenticated, isAdmin, setupRequired, passwordLoginAvailable, pairingLoginAvailable]
       properties:
         authenticated: { type: boolean }
         isAdmin: { type: boolean }
         setupRequired: { type: boolean, description: No designated administrator account is currently available }
-        adminId: { type: string, description: Present only for an authenticated designated administrator }
+        adminId: { type: string, description: Authenticated actor ID; temporary admin uses a non-Telegram namespace }
+        authMethod: { type: string, enum: [telegram, temporary], description: Present only when authenticated }
+        passwordLoginAvailable: { type: boolean }
+        pairingLoginAvailable: { type: boolean }
     AdminSession:
       type: object
       required: [authenticated, isAdmin, setupRequired, expiresAt]
@@ -1363,6 +1384,13 @@ components:
       required: [code]
       properties:
         code: { type: string, minLength: 64, maxLength: 64, pattern: '^[a-f0-9]{64}$' }
+    AdminPasswordCredentials:
+      type: object
+      additionalProperties: false
+      required: [login, password]
+      properties:
+        login: { type: string, minLength: 1, maxLength: 80 }
+        password: { type: string, minLength: 1, maxLength: 1024, writeOnly: true }
     AdminPairingCode:
       type: object
       required: [code, expiresAt]

@@ -493,13 +493,28 @@ export interface MeduhaWallet {
   subscription: string;
 }
 
+/**
+ * Present only when authenticated
+ */
+export type AdminStatusAuthMethod = typeof AdminStatusAuthMethod[keyof typeof AdminStatusAuthMethod];
+
+
+export const AdminStatusAuthMethod = {
+  telegram: 'telegram',
+  temporary: 'temporary',
+} as const;
+
 export interface AdminStatus {
   authenticated: boolean;
   isAdmin: boolean;
   /** No designated administrator account is currently available */
   setupRequired: boolean;
-  /** Present only for an authenticated designated administrator */
+  /** Authenticated actor ID; temporary admin uses a non-Telegram namespace */
   adminId?: string;
+  /** Present only when authenticated */
+  authMethod?: AdminStatusAuthMethod;
+  passwordLoginAvailable: boolean;
+  pairingLoginAvailable: boolean;
 }
 
 export interface AdminSession {
@@ -516,6 +531,19 @@ export interface AdminPairingLoginInput {
      * @pattern ^[a-f0-9]{64}$
      */
   code: string;
+}
+
+export interface AdminPasswordCredentials {
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  login: string;
+  /**
+     * @minLength 1
+     * @maxLength 1024
+     */
+  password: string;
 }
 
 export interface AdminPairingCode {

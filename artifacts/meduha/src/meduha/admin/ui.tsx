@@ -1,23 +1,17 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { QueryClient } from '@tanstack/react-query';
 import { AlertTriangle, RotateCw, X } from 'lucide-react';
 import { meduhaErrorMessage } from '../session';
 import { createIntentStore, sessionStorageOrNull } from './intent';
+export { clearAdminQueries, isAdminKey } from './cache';
 
 /** Request options for every admin mutation: same-origin cookie + CSRF header. */
 export const adminRequest = { credentials: 'same-origin' as const, headers: { 'X-Meduha-Request': '1' } };
 export const adminQueryRequest = { credentials: 'same-origin' as const };
 
-export const isAdminKey = (key: readonly unknown[]) => {
-  const p = key[0];
-  return typeof p === 'string' && p.startsWith('/api/meduha/admin') && !p.startsWith('/api/meduha/admin/login');
-};
-export async function clearAdminQueries(qc: QueryClient) {
-  await qc.cancelQueries({ predicate: q => isAdminKey(q.queryKey) });
-  qc.removeQueries({ predicate: q => isAdminKey(q.queryKey) });
-}
 export const errStatus = (e: unknown) => (e as { status?: number } | null)?.status;
 const codeText: Record<string, string> = {
+  ADMIN_CREDENTIALS_INVALID: 'Неверный логин или пароль, либо временный вход отключён.',
+  ADMIN_LOGIN_RATE_LIMIT: 'Слишком много попыток входа. Повтори через 15 минут.',
   INSUFFICIENT_CREDITS: 'Недостаточно доступных кредитов на счёте.',
   SPENDING_DISABLED: 'Расход отключён аварийным выключателем. Новые резервы запрещены.',
   DAILY_LIMIT_EXCEEDED: 'Превышен глобальный дневной лимит кредитов.',

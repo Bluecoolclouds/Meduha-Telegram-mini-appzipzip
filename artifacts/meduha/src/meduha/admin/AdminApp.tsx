@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Activity, Boxes, FileClock, Flag, KeyRound, LogOut, Users, Wallet, Video } from 'lucide-react';
-import { getGetMeduhaAdminStatusQueryKey, getListAdminReportsQueryKey, useGetMeduhaAdminStatus, useListAdminReports, useLoginMeduhaAdminPairing, useLogoutMeduhaAdmin } from '@workspace/api-client-react';
+import { getGetMeduhaAdminStatusQueryKey, getListAdminReportsQueryKey, useGetMeduhaAdminStatus, useListAdminReports, useLoginMeduhaAdminPairing, useLogoutMeduhaAdmin, loginMeduhaAdminPassword } from '@workspace/api-client-react';
 import type { AdminReport } from '@workspace/api-client-react';
 import { ErrorBox, Feedback, Skeleton, adminQueryRequest, adminRequest, asArray, clearAdminQueries, errStatus, isAdminKey } from './ui';
 import ConfigSection from './Config';
@@ -19,8 +19,44 @@ const tabs: { id: Tab; label: string; icon: typeof Activity }[] = [
   { id: 'moderation', label: 'Модерация', icon: Flag }, { id: 'audit', label: 'Аудит', icon: FileClock },
 ];
 
-function Login({ setupRequired }: { setupRequired: boolean }) {
+function PasswordLogin() {
+  const qc = useQueryClient();
+  const [name, setName] = useState('admin');
+  const [password, setPassword] = useState('');
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (pending || !name || !password) return;
+    setPending(true); setError(null);
+    // Call directly: React Query mutations retain their variables in the cache.
+    // Credentials must never enter the shared mutation cache or storage.
+    const request = loginMeduhaAdminPassword({ login: name, password }, adminRequest);
+    setPassword('');
+    try {
+      await request;
+      await clearAdminQueries(qc);
+      await qc.invalidateQueries({ queryKey: getGetMeduhaAdminStatusQueryKey() });
+    } catch (caught) { setError(caught); }
+    finally { setPending(false); }
+  };
+  return <form className="adm-form" onSubmit={event => void submit(event)} autoComplete="off">
+    <h2>Вход по паролю</h2>
+    <p className="adm-login-help">Временный доступ владельца без Telegram. Пароль не сохраняется приложением.</p>
+    <label className="adm-field"><span>Логин</span>
+      <input type="text" value={name} onChange={e => setName(e.target.value)} autoComplete="off" maxLength={80} required disabled={pending} data-testid="input-admin-login" />
+    </label>
+    <label className="adm-field"><span>Пароль</span>
+      <input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="off" maxLength={1024} required disabled={pending} data-testid="input-admin-password" />
+    </label>
+    <Feedback error={error} />
+    <button className="adm-btn primary" disabled={pending || !name || !password} data-testid="button-password-login">{pending ? 'Проверяем…' : 'Войти в пульт'}</button>
+  </form>;
+}
+
+function Login({ setupRequired, passwordAvailable }: { setupRequired: boolean; passwordAvailable: boolean }) {
   const qc = useQueryClient(); const login = useLoginMeduhaAdminPairing({ request: adminRequest });
+  const [method, setMethod] = useState<'password' | 'code'>(passwordAvailable ? 'password' : 'code');
   const [code, setCode] = useState(''); const [touched, setTouched] = useState(false);
   const clean = code.trim().toLowerCase(); const valid = /^[a-f0-9]{64}$/.test(clean);
   const submit = (e: FormEvent) => {
@@ -29,7 +65,7 @@ function Login({ setupRequired }: { setupRequired: boolean }) {
   };
   return <div className="adm adm-login">
     <div className="adm-login-art">
-      <div><span className="adm-kicker">meduha · пульт</span><h1>Управление<br />студией<i>.</i></h1><p>Каналы, модели, кредиты и модерация. Вход только для назначенного администратора по одноразовому коду из Mini App.</p></div>
+      <div><span className="adm-kicker">meduha · пульт</span><h1>Управление<br />студией<i>.</i></h1><p>Каналы, модели, кредиты и модерация. Вход владельца по паролю или одноразовому коду из Mini App.</p></div>
       <ol>
         <li>Открой meduha в Telegram под аккаунтом администратора.</li>
         <li>Профиль → «Вход в пульт» → «Выпустить код». Код действует несколько минут и работает один раз.</li>
@@ -37,10 +73,14 @@ function Login({ setupRequired }: { setupRequired: boolean }) {
       </ol>
     </div>
     <div className="adm-login-form">
-      {setupRequired ? <>
+      {passwordAvailable && <div className="adm-tabs adm-login-methods" aria-label="Способ входа">
+        <button type="button" aria-pressed={method === 'password'} onClick={() => { setMethod('password'); setCode(''); login.reset(); }}>Логин и пароль</button>
+        <button type="button" aria-pressed={method === 'code'} onClick={() => setMethod('code')}>Одноразовый код</button>
+      </div>}
+      {passwordAvailable && method === 'password' ? <PasswordLogin /> : setupRequired ? <>
         <span className="adm-kicker">Требуется настройка</span>
         <h2>Администратор не назначен</h2>
-        <p>Сейчас на сервере нет назначенного администратора, поэтому вход в пульт закрыт. Права нельзя получить, просто открыв эту страницу первым.</p>
+        <p>Сейчас на сервере нет назначенного Telegram-администратора, поэтому вход по коду закрыт. Права нельзя получить, просто открыв эту страницу первым.{passwordAvailable && ' Вход по паролю доступен на соседней вкладке.'}</p>
         <div className="adm-note"><KeyRound size={15} /><span>Владелец должен явно задать переменную окружения <strong className="mono">MEDUHA_ADMIN_TELEGRAM_ID</strong> — числовой Telegram ID своего аккаунта. Его можно скопировать в Mini App: Профиль → «Telegram ID». После перезапуска сервера выпусти код в Mini App и вернись сюда.</span></div>
         <button className="adm-btn" onClick={() => void qc.invalidateQueries({ queryKey: getGetMeduhaAdminStatusQueryKey() })} data-testid="button-status-recheck">Проверить снова</button>
       </> : <form className="adm-form" onSubmit={submit} noValidate>
@@ -96,13 +136,13 @@ export default function AdminApp() {
 
   const doLogout = () => logout.mutate(undefined, { onSettled: async (_d, e) => {
     if (e && errStatus(e) !== 401) return;
-    await clearAdminQueries(qc); qc.setQueryData(getGetMeduhaAdminStatusQueryKey(), { authenticated: false, isAdmin: false, setupRequired: status.data?.setupRequired ?? false });
+    await clearAdminQueries(qc); qc.setQueryData(getGetMeduhaAdminStatusQueryKey(), { ...status.data, authenticated: false, isAdmin: false, adminId: undefined, authMethod: undefined });
     void qc.invalidateQueries({ queryKey: getGetMeduhaAdminStatusQueryKey() });
   } });
 
   if (status.isLoading) return <div className="adm" style={{ padding: 40 }}><Skeleton rows={6} /></div>;
   if (status.isError || !status.data) return <div className="adm" style={{ padding: 40, maxWidth: 640 }}><h1 style={{ letterSpacing: '-.02em' }}>Пульт недоступен</h1><ErrorBox error={status.error ?? new Error('Сервер не ответил')} onRetry={() => void status.refetch()} /></div>;
   if (status.data.authenticated && !status.data.isAdmin) return <div className="adm" style={{ padding: 40, maxWidth: 640 }}><span className="adm-kicker">Доступ закрыт</span><h1>Нет прав администратора</h1><p>Этот сеанс не принадлежит назначенному администратору.</p><button className="adm-btn" onClick={doLogout} data-testid="button-admin-logout">Выйти</button></div>;
-  if (!authed) return <Login setupRequired={status.data.setupRequired} />;
+   if (!authed) return <Login setupRequired={status.data.setupRequired} passwordAvailable={status.data.passwordLoginAvailable} />;
   return <Shell onLogout={doLogout} loggingOut={logout.isPending} logoutError={logout.error} />;
 }

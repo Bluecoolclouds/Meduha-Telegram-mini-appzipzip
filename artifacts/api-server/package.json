@@ -10,7 +10,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node ./test.mjs"
+    "test": "node ./test.mjs",
+    "test:admin-access": "node ./test.mjs --admin-access"
   },
   "dependencies": {
     "@google-cloud/storage": "^8.4.0",

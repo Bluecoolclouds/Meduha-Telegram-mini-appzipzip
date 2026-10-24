@@ -69,6 +69,13 @@ export async function cleanupExpiredMeduhaAdminAccess(): Promise<CleanupResult> 
       [ADMIN_ACCESS_CLEANUP_BATCH_SIZE],
     );
 
+    await client.query(
+      `DELETE FROM meduha_admin_login_attempts WHERE key IN (
+         SELECT key FROM meduha_admin_login_attempts WHERE expires_at <= clock_timestamp()
+         ORDER BY expires_at LIMIT $1 FOR UPDATE SKIP LOCKED
+       )`,
+      [ADMIN_ACCESS_CLEANUP_BATCH_SIZE],
+    );
     await client.query('COMMIT');
     transactionOpen = false;
     return {

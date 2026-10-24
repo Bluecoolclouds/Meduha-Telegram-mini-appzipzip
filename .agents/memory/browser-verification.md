@@ -25,3 +25,9 @@ For fullscreen viewer checks, emulate safe-area insets with the browser protocol
 **Why:** the community viewer can render its bundled examples even when the development database is missing a table required by the real feed, and Telegram safe-area padding needs a nonzero viewport inset to verify.
 
 **How to apply:** distinguish viewer behavior from feed/API health. Keep the production and development database untouched during a UI-only check unless schema repair is explicitly in scope.
+
+Use the artifact router for full-stack browser tests, not a direct Vite port without an API proxy.
+
+**Why:** direct Vite can serve HTML for an API request; the typed fetch client may accept that response and show a misleading login state instead of an obvious network error. This previously hid an enabled password-login form in a browser test.
+
+**How to apply:** verify the routed API status alongside the UI. For secret-independent authentication tests, run the real API router with random injected credentials and local Chromium in one process, forwarding browser API requests to that fixture and cleaning only its own sessions.

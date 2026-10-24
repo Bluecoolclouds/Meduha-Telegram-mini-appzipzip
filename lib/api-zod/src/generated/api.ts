@@ -1462,7 +1462,10 @@ export const GetMeduhaAdminStatusResponse = zod.object({
   "authenticated": zod.boolean(),
   "isAdmin": zod.boolean(),
   "setupRequired": zod.boolean().describe('No designated administrator account is currently available'),
-  "adminId": zod.string().optional().describe('Present only for an authenticated designated administrator')
+  "adminId": zod.string().optional().describe('Authenticated actor ID; temporary admin uses a non-Telegram namespace'),
+  "authMethod": zod.enum(['telegram', 'temporary']).optional().describe('Present only when authenticated'),
+  "passwordLoginAvailable": zod.boolean(),
+  "pairingLoginAvailable": zod.boolean()
 })
 
 
@@ -1478,6 +1481,28 @@ export const LoginMeduhaAdminPairingBody = zod.object({
 })
 
 export const LoginMeduhaAdminPairingResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "isAdmin": zod.boolean(),
+  "setupRequired": zod.boolean(),
+  "expiresAt": zod.coerce.date()
+})
+
+
+/**
+ * Temporary admin only when explicit server login and password secret are configured. Requires X-Meduha-Request header; never grants a Telegram identity.
+ */
+export const loginMeduhaAdminPasswordBodyLoginMax = 80;
+
+export const loginMeduhaAdminPasswordBodyPasswordMax = 1024;
+
+
+
+export const LoginMeduhaAdminPasswordBody = zod.object({
+  "login": zod.string().min(1).max(loginMeduhaAdminPasswordBodyLoginMax),
+  "password": zod.string().min(1).max(loginMeduhaAdminPasswordBodyPasswordMax)
+})
+
+export const LoginMeduhaAdminPasswordResponse = zod.object({
   "authenticated": zod.boolean(),
   "isAdmin": zod.boolean(),
   "setupRequired": zod.boolean(),

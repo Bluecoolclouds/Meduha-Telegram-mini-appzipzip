@@ -4,6 +4,8 @@ Meduha is a Russian-language creative Telegram Mini App for photo / video / musi
 
 ## Current application scope
 
+- `/admin` supports temporary owner access independent of Telegram: explicitly set `MEDUHA_ADMIN_LOGIN=admin` and supply `MEDUHA_ADMIN_PASSWORD` and `SESSION_SECRET` via Secrets. Without these, password login fails closed. Sessions last eight hours; changing/removing credentials revokes access on the next request. Restart the API after configuration changes. Temporary sessions use a non-Telegram audit actor, never create an account, never change the designated Telegram owner, and cannot issue pairing codes or access user APIs. Telegram/code access remains separate. `pnpm --filter @workspace/api-server run test:admin-access` runs isolated auth/finance-actor regression checks without changing real owner assignments or financial settings.
+
 - Runnable app: `artifacts/meduha`, served at `/`.
 - Home, Create, Works and Profile use the approved studio mockup as their visual baseline, with light/dark palettes and a shared floating translucent navigation capsule.
 - Guest drafts/settings remain local. Verified Telegram accounts store drafts/settings in PostgreSQL. Local-to-account draft import requires confirmation, preserves local originals and does not overwrite an existing account draft with the same ID. Reference images are previews only and are not retained.

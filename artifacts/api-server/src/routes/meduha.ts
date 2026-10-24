@@ -16,6 +16,7 @@ import { currentAccount, requireAccount } from './meduha-auth';
 export { currentAccount, requireAccount } from './meduha-auth';
 import { initializeTemplateAdmin } from '../lib/template-admin';
 import { createMeduhaAdminRouter } from './meduha-admin';
+import { temporaryAdminConfig } from '../lib/temporary-admin';
 import { getWallet } from '../lib/finance';
 import { isTemplateAdmin } from '../lib/template-admin';
 import { createMeduhaGenerationsRouter } from './meduha-generations';
@@ -56,6 +57,7 @@ export function createMeduhaRouter(
   providerStatusFetcher:typeof getHiggsfieldRequestStatus=getHiggsfieldRequestStatus,
   genjutsuDependencies:GenjutsuDependencies={},
   storeGenerationVideoForTest?:GenerationVideoStore,
+  readTemporaryConfig=temporaryAdminConfig,
 ){
 const router=Router();
 const configured=()=>!!readBotToken();
@@ -195,7 +197,7 @@ router.use(createMeduhaGenerationsRouter());
 router.use(createPhotoRouter());
 router.use(createVideoRouter());
 router.use(createGenjutsuRouter(genjutsuDependencies));
-router.use(createMeduhaAdminRouter(isAdminForTest,setupRequiredForTest,catalogFetcher,providerStatusFetcher,storeGenerationVideoForTest));
+router.use(createMeduhaAdminRouter(isAdminForTest,setupRequiredForTest,catalogFetcher,providerStatusFetcher,storeGenerationVideoForTest,readTemporaryConfig));
 router.use((error:unknown,req:Request,res:Response,_next:NextFunction)=>{
   req.log.error({ err: error }, 'Meduha request failed');
   if(!res.headersSent)fail(res,503,'ACCOUNT_SERVICE_UNAVAILABLE','Не удалось загрузить или сохранить данные аккаунта. Повтори попытку.');

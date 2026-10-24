@@ -5,12 +5,17 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AdminStatusAuthMethod } from './adminStatusAuthMethod';
 
 export interface AdminStatus {
   authenticated: boolean;
   isAdmin: boolean;
   /** No designated administrator account is currently available */
   setupRequired: boolean;
-  /** Present only for an authenticated designated administrator */
+  /** Authenticated actor ID; temporary admin uses a non-Telegram namespace */
   adminId?: string;
+  /** Present only when authenticated */
+  authMethod?: AdminStatusAuthMethod;
+  passwordLoginAvailable: boolean;
+  pairingLoginAvailable: boolean;
 }

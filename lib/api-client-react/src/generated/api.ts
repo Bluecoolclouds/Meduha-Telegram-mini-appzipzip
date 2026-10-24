@@ -34,6 +34,7 @@ import type {
   AdminModelUpdate,
   AdminPairingCode,
   AdminPairingLoginInput,
+  AdminPasswordCredentials,
   AdminReport,
   AdminReportResolutionInput,
   AdminSession,
@@ -3289,6 +3290,91 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getLoginMeduhaAdminPairingMutationOptions(options));
+    }
+
+export const getLoginMeduhaAdminPasswordUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/login/password`
+}
+
+/**
+ * Temporary admin only when explicit server login and password secret are configured. Requires X-Meduha-Request header; never grants a Telegram identity.
+ */
+export const loginMeduhaAdminPassword = async (adminPasswordCredentials: AdminPasswordCredentials, options?: Parameters<typeof customFetch>[1]): Promise<AdminSession> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AdminSession>(getLoginMeduhaAdminPasswordUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(adminPasswordCredentials)
+  }
+);}
+
+
+
+
+
+export const getLoginMeduhaAdminPasswordMutationKey = () => ['loginMeduhaAdminPassword'] as const;
+
+export const getLoginMeduhaAdminPasswordMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginMeduhaAdminPassword>>, TError,LoginMeduhaAdminPasswordMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof loginMeduhaAdminPassword>>, TError,LoginMeduhaAdminPasswordMutationVariables, TContext> => {
+
+const mutationKey = getLoginMeduhaAdminPasswordMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loginMeduhaAdminPassword>>, LoginMeduhaAdminPasswordMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  loginMeduhaAdminPassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoginMeduhaAdminPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof loginMeduhaAdminPassword>>>
+    export type LoginMeduhaAdminPasswordMutationBody = BodyType<AdminPasswordCredentials>
+    export type LoginMeduhaAdminPasswordMutationError = ErrorType<void>
+    export type LoginMeduhaAdminPasswordMutationVariables = {data: BodyType<AdminPasswordCredentials>}
+
+    export const useLoginMeduhaAdminPassword = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginMeduhaAdminPassword>>, TError,LoginMeduhaAdminPasswordMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof loginMeduhaAdminPassword>>,
+        TError,
+        LoginMeduhaAdminPasswordMutationVariables,
+        TContext
+      > => {
+      return useMutation(getLoginMeduhaAdminPasswordMutationOptions(options));
     }
 
 export const getLogoutMeduhaAdminUrl = () => {
