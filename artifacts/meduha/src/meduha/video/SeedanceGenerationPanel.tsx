@@ -136,7 +136,7 @@ export default function SeedanceGenerationPanel({ authenticated, prompt, duratio
   return <section className="seedance-panel" aria-live="polite">
     <div className="seedance-panel-heading">
       <span className="seedance-icon"><Video size={17}/></span>
-      <span><strong>Seedance 2.5</strong><small>Видео из текста · оплата кредитами</small></span>
+      <span><strong>Видео из текста</strong><small>Создание видео · оплата кредитами</small></span>
       {selectedModel && <b>{costLabel}</b>}
     </div>
     {!authenticated

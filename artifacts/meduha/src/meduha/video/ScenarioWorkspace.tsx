@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ImagePlus, Save, Video } from 'lucide-react';
+import { ArrowLeft, FileImage, Film, ImagePlus, Save, X } from 'lucide-react';
 import { Link, useSearch } from 'wouter';
 import { Frame, useToast } from '../shared';
 import { loadDrafts, saveDrafts, useDraftList, type Draft } from '../studio';
@@ -11,7 +11,42 @@ import './genjutsu/genjutsu.css';
 import './scenario-workspace.css';
 
 type ContentPlan = { platform: string; count: string; format: string };
+type InputSpec = { video: boolean; photos: number; requiredPhotos?: number; photoLabel?: string; videoLabel?: string };
+type ScenarioGuide = { requirements: string; explanation: string };
 const planMarker = /\n\nПараметры контент-плана Meduha:\nПлощадка: (.*)\nИдей: (\d+)\nФормат: (.*)$/;
+const inputSpecs: Record<string, InputSpec> = {
+  katana: { video: true, photos: 5, videoLabel: 'Видео для монтажа', photoLabel: 'Фото героев или предметов' },
+  'image-to-video': { video: false, photos: 1, requiredPhotos: 1, photoLabel: 'Исходное фото' },
+  'ai-blogger': { video: false, photos: 1, photoLabel: 'Фото персонажа · необязательно' },
+  cinema: { video: false, photos: 5, photoLabel: 'Референсы сцены · необязательно' },
+};
+const examples = new Set(['ai-blogger', 'text-to-video', 'cinema']);
+const publicGuides: Record<string, ScenarioGuide> = {
+  'ai-blogger': {
+    requirements: 'Опиши внешность и характер персонажа. Фото лица необязательно — используй его только с разрешением. Для видео потребуется отдельный этап.',
+    explanation: 'Можно подготовить описание персонажа и сохранить идею. Создание изображения или видео пока не подключено.',
+  },
+  katana: {
+    requirements: 'Одно видео-референс с разрешением на использование и до пяти фото героев или предметов.',
+    explanation: 'Здесь можно подготовить бриф монтажа. Запуск сценария пока не подключён.',
+  },
+  'content-factory': {
+    requirements: 'Укажи продукт, аудиторию, площадку, количество идей и формат публикаций.',
+    explanation: 'Можно подготовить контент-план. Пакетное создание материалов и автопубликация пока не подключены.',
+  },
+  'text-to-video': {
+    requirements: 'Текстовое описание сцены. Длительность — от 4 до 30 секунд.',
+    explanation: 'Проверь доступность, стоимость и ограничения в панели запуска ниже.',
+  },
+  'image-to-video': {
+    requirements: 'Исходное изображение и описание движения в кадре.',
+    explanation: 'Можно подготовить идею по исходному кадру. Создание видео пока не подключено.',
+  },
+  cinema: {
+    requirements: 'Описание сцены. Фото-референсы и дополнительные настройки — по желанию.',
+    explanation: 'Можно подготовить описание сцены и сохранить идею. Создание видео пока не подключено.',
+  },
+};
 
 function unpackPrompt(value: string): { prompt: string; plan: ContentPlan } {
   const match = planMarker.exec(value);
@@ -25,7 +60,8 @@ function packPrompt(prompt: string, scenario: VideoScenario, plan: ContentPlan) 
   return `${prompt.trim()}\n\nПараметры контент-плана Meduha:\nПлощадка: ${plan.platform}\nИдей: ${plan.count}\nФормат: ${plan.format}`;
 }
 
-function isImage(file: File) { return file.type.startsWith('image/'); }
+const isImage = (file: File) => file.type.startsWith('image/');
+const isVideo = (file: File) => file.type.startsWith('video/');
 
 export default function ScenarioWorkspace({ scenario, draftId }: { scenario: VideoScenario; draftId: string }) {
   const meduha = useMeduhaSession();
@@ -45,6 +81,14 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast, notify } = useToast();
+  const spec = inputSpecs[scenario.id];
+  const guide = publicGuides[scenario.id] ?? {
+    requirements: scenario.subtitle,
+    explanation: 'Можно подготовить описание сценария и сохранить его как черновик. Создание результата пока не подключено.',
+  };
+  const title = scenario.id === 'ai-blogger' ? 'ИИ блогер'
+    : scenario.id === 'content-factory' ? 'Контент-завод'
+      : scenario.id === 'text-to-video' ? 'Видео из текста' : scenario.title;
 
   useEffect(() => {
     if (!existing || existing.id === loadedId) return;
@@ -54,46 +98,35 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
     setRatio(existing.ratio);
     setDuration(existing.duration);
     setReferenceName(existing.referenceName ?? '');
-      setCurrentDraftId(existing.id);
+    setCurrentDraftId(existing.id);
     setLoadedId(existing.id);
   }, [existing, loadedId]);
 
-  const imageFiles = scenario.id === 'katana'
-    ? files.filter(isImage)
-    : files;
-  const needsVideo = scenario.id === 'katana';
-  const accept = needsVideo ? 'video/*,image/*' : 'image/*';
-  const maxFiles = needsVideo ? 6 : 1;
-  const filesHint = scenario.id === 'image-to-video'
-    ? 'Исходный кадр · изображение не покидает устройство'
-    : scenario.id === 'ai-blogger'
-      ? 'Фото лица — только с разрешением на использование'
-      : scenario.id === 'katana'
-        ? 'Видеореференс и до пяти фото · только локальный предпросмотр'
-        : scenario.id === 'cinema'
-          ? 'Изображение-референс, если нужно'
-          : 'Добавить изображение-референс';
-
   const addFiles = (selected: FileList | null) => {
-    if (!selected?.length) return;
-    const next = Array.from(selected);
-    const invalid = next.find(file => needsVideo
-      ? (!file.type.startsWith('video/') && !isImage(file)) || file.size > (file.type.startsWith('video/') ? 200 : 10) * 1024 * 1024
-      : !isImage(file) || file.size > 10 * 1024 * 1024);
+    if (!selected?.length || !spec) return;
+    const next = [...files, ...Array.from(selected)];
+    const videoFiles = next.filter(isVideo);
+    const imageFiles = next.filter(isImage);
+    const invalid = next.find(file => {
+      if (isVideo(file)) return !spec.video || file.size > 200 * 1024 * 1024;
+      return !isImage(file) || file.size > 10 * 1024 * 1024;
+    });
     if (invalid) {
-      notify(needsVideo ? 'Видео — до 200 МиБ, изображение — до 10 МиБ' : 'Выбери изображение до 10 МиБ');
+      notify(isVideo(invalid) ? 'Видео — до 200 МиБ' : 'Выбери изображение до 10 МиБ');
       return;
     }
-    if (next.length > maxFiles) {
-      notify(needsVideo ? 'Для Катаны можно выбрать одно видео и до пяти изображений' : 'Можно выбрать одно изображение');
+    if (videoFiles.length > (spec.video ? 1 : 0) || imageFiles.length > spec.photos) {
+      notify(spec.video
+        ? `Можно добавить одно видео и до ${spec.photos} фото`
+        : `Можно добавить до ${spec.photos} фото`);
       return;
     }
-    const videoCount = next.filter(file => file.type.startsWith('video/')).length;
-    const imageCount = next.filter(isImage).length;
-    if (needsVideo && (videoCount > 1 || imageCount > 5 || next.length > 6)) {
-      notify('Для Катаны можно выбрать одно видео и до пяти изображений');
-      return;
-    }
+    setFiles(next);
+    setReferenceName(next.map(file => file.name).join(', ').slice(0, 180));
+  };
+
+  const removeFile = (index: number) => {
+    const next = files.filter((_, i) => i !== index);
     setFiles(next);
     setReferenceName(next.map(file => file.name).join(', ').slice(0, 180));
   };
@@ -112,7 +145,7 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
       type: 'video',
       prompt: savedPrompt,
       style: 'Студия',
-      model: scenario.providerLabel,
+      model: title,
       ratio,
       duration,
       updatedAt: now,
@@ -141,11 +174,29 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
   };
 
   const textToVideo = scenario.id === 'text-to-video';
-  const title = scenario.id === 'ai-blogger' ? 'ИИ блогер'
-    : scenario.id === 'content-factory' ? 'Контент-завод'
-      : scenario.id === 'text-to-video' ? 'Видео из текста'
-        : scenario.title;
-  const initialNeed = scenario.id === 'image-to-video' && files.length === 0;
+  const promptLabel = scenario.id === 'katana' ? 'Как должен выглядеть монтаж?'
+    : scenario.id === 'content-factory' ? 'Что будем продвигать?'
+      : scenario.id === 'ai-blogger' ? 'Опиши персонажа'
+        : scenario.id === 'cinema' ? 'Расскажи о сцене'
+          : scenario.id === 'image-to-video' ? 'Как оживить этот кадр?'
+            : scenario.id === 'object-swap' ? 'Что заменить в видео?'
+              : scenario.id === 'restyle' ? 'Как изменить визуальный стиль?' : 'Опиши результат';
+  const photosCount = files.filter(isImage).length;
+  const videoCount = files.filter(isVideo).length;
+  const uploadHint = scenario.id === 'katana'
+    ? 'Одно видео и до пяти фото · файлы остаются на устройстве'
+    : scenario.id === 'image-to-video'
+      ? 'Исходный кадр обязателен · изображение не покидает устройство'
+      : scenario.id === 'object-swap'
+        ? 'Видео и минимум одно фото объекта обязательны'
+        : scenario.id === 'restyle'
+          ? 'Видео обязательно · до пяти фото-референсов по желанию'
+          : scenario.id === 'ai-blogger'
+            ? 'Фото лица по желанию · только с разрешением на использование'
+            : 'Референсы сцены по желанию · только локальный предпросмотр';
+  const accept = spec?.video ? 'video/mp4,video/webm,image/*' : 'image/*';
+  const canAddMore = Boolean(spec && (spec.video && videoCount === 0 || photosCount < spec.photos));
+  const missingRequiredMedia = Boolean(spec && ((spec.video && videoCount === 0) || photosCount < (spec.requiredPhotos ?? 0)));
 
   return <Frame active="Create">
     <main className="gj-page gj-scenario-page">
@@ -153,80 +204,91 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
       <header className="gj-scenario-heading">
         <div className="gj-top"><h1>{title}</h1></div>
         <p className="gj-lead">{scenario.subtitle}</p>
-        <span className="gj-scenario-provider">{scenario.providerLabel}</span>
+        <span className={`gj-scenario-provider ${textToVideo ? 'available' : ''}`} data-testid="status-scenario-availability">
+          {textToVideo ? 'Можно запустить в студии' : 'Подготовка сценария'}
+        </span>
       </header>
 
-      <ExamplePreview scenario={scenario.id}/>
+      {examples.has(scenario.id) && <ExamplePreview scenario={scenario.id}/>}
 
       <section className="gj-scenario-form gj-input" aria-label={`Настройки: ${title}`}>
-        <div className="gj-label">{scenario.id === 'katana' ? 'Как должен выглядеть монтаж?' : scenario.id === 'content-factory' ? 'Что будем продвигать?' : scenario.id === 'ai-blogger' ? 'Опиши персонажа' : scenario.id === 'cinema' ? 'Расскажи о сцене' : 'Опиши результат'}<small>{prompt.length}/10000</small></div>
+        <div className="gj-scenario-intro">
+          <span className="gj-scenario-index">01 / СЦЕНАРИЙ</span>
+          <p>{guide.explanation}</p>
+          <div className="gj-scenario-requirements">
+            <strong>Что понадобится</strong>
+            <span>{guide.requirements}</span>
+          </div>
+        </div>
+        <div className="gj-label"><span>{promptLabel}</span><small>{prompt.length}/10000</small></div>
         <div className="m-prompt gj-scenario-prompt">
-          <textarea aria-label="Описание сценария" value={prompt} onChange={event => setPrompt(event.target.value)} maxLength={10000} placeholder={scenario.prompt}/>
+          <textarea data-testid="input-scenario-prompt" aria-label="Описание сценария" value={prompt} onChange={event => setPrompt(event.target.value)} maxLength={10000} placeholder={scenario.prompt}/>
         </div>
 
         {scenario.id === 'content-factory' && <div className="gj-scenario-settings">
           <label className="gj-scenario-control">Площадка
-            <select aria-label="Площадка контент-плана" value={plan.platform} onChange={event => setPlan(current => ({ ...current, platform: event.target.value }))}>
+            <select data-testid="select-content-platform" aria-label="Площадка контент-плана" value={plan.platform} onChange={event => setPlan(current => ({ ...current, platform: event.target.value }))}>
               {['Instagram', 'TikTok', 'YouTube Shorts', 'VK'].map(value => <option key={value}>{value}</option>)}
             </select>
           </label>
           <label className="gj-scenario-control">Идей
-            <select aria-label="Количество идей" value={plan.count} onChange={event => setPlan(current => ({ ...current, count: event.target.value }))}>
+            <select data-testid="select-content-count" aria-label="Количество идей" value={plan.count} onChange={event => setPlan(current => ({ ...current, count: event.target.value }))}>
               {['1', '3', '5', '10'].map(value => <option key={value}>{value}</option>)}
             </select>
           </label>
           <label className="gj-scenario-control">Формат
-            <select aria-label="Формат публикаций" value={plan.format} onChange={event => setPlan(current => ({ ...current, format: event.target.value }))}>
+            <select data-testid="select-content-format" aria-label="Формат публикаций" value={plan.format} onChange={event => setPlan(current => ({ ...current, format: event.target.value }))}>
               {['Короткое видео', 'Stories', 'Пост'].map(value => <option key={value}>{value}</option>)}
             </select>
           </label>
         </div>}
 
-        {scenario.id !== 'text-to-video' && <div className="gj-scenario-upload">
-          <input
-            ref={inputRef}
-            type="file"
-            hidden
-            accept={accept}
-            multiple={needsVideo}
-            onChange={event => { addFiles(event.target.files); event.currentTarget.value = ''; }}
-          />
-          <button type="button" className="gj-drop" onClick={() => inputRef.current?.click()}>
-            {needsVideo ? <Video size={19}/> : <ImagePlus size={19}/>}
-            <span><strong>{files.length ? `Выбрано: ${files.length}` : filesHint}</strong><small>
-              {files.length ? files.map(file => file.name).join(' · ') : 'Локальный предпросмотр · файлы не загружаются и не сохраняются'}
-            </small></span>
-          </button>
-          {referenceName && !files.length && <p className="gj-muted">Ранее выбранные файлы: {referenceName}. Они не сохранены — прикрепи их ещё раз перед использованием.</p>}
-        </div>}
+        {spec && <>
+          <div className="gj-label gj-scenario-section-label">
+            <span>02</span>
+            <span className="gj-scenario-media-label">{spec.video ? spec.videoLabel : spec.photoLabel}</span>
+            <small>{uploadHint}</small>
+          </div>
+          <div className="gj-scenario-upload">
+            <input ref={inputRef} type="file" hidden accept={accept} multiple={spec.photos > 1 || spec.video} onChange={event => { addFiles(event.target.files); event.currentTarget.value = ''; }}/>
+            {canAddMore && <button type="button" className="gj-drop" onClick={() => inputRef.current?.click()} data-testid="button-add-scenario-media">
+              {spec.video && videoCount === 0 ? <Film size={19}/> : <ImagePlus size={19}/>}
+              <span><strong>{files.length ? 'Добавить материалы' : spec.video ? 'Выбрать видео и фото' : `Выбрать фото${spec.requiredPhotos ? '' : ' · необязательно'}`}</strong>
+                <small>{uploadHint} · до 10 МиБ на фото</small></span>
+            </button>}
+            {!!files.length && <div className="gj-scenario-file-list" aria-label="Выбранные локальные файлы">
+              {files.map((file, index) => <div className="gj-scenario-file" key={`${file.name}-${index}`}>
+                {isVideo(file) ? <Film size={15}/> : <FileImage size={15}/>}
+                <span><strong>{file.name}</strong><small>{isVideo(file) ? 'Видеореференс' : 'Изображение'} · только на этом устройстве</small></span>
+                <button type="button" aria-label={`Убрать ${file.name}`} data-testid={`button-remove-scenario-media-${index}`} onClick={() => removeFile(index)}><X size={14}/></button>
+              </div>)}
+              <p className="gj-muted">Файлы не загружаются и не сохраняются в черновике. При повторном открытии их нужно прикрепить снова.</p>
+            </div>}
+            {referenceName && !files.length && <p className="gj-muted">Ранее выбраны: {referenceName}. Файлы не сохранены — прикрепи их ещё раз.</p>}
+          </div>
+        </>}
 
         {scenario.id !== 'content-factory' && <>
-          <div className="gj-label sub">Кадр</div>
+          <div className="gj-label sub">Формат кадра</div>
           <div className="m-options gj-scenario-options">{['16:9', '9:16', '1:1'].map(value => <button key={value} type="button" className={`m-option ${ratio === value ? 'selected' : ''}`} aria-pressed={ratio === value} onClick={() => setRatio(value)}>{value}</button>)}</div>
           {scenario.id !== 'image-to-video' && <label className="gj-scenario-control gj-scenario-duration">Длительность
-            <select aria-label="Длительность видео" value={duration} onChange={event => setDuration(event.target.value)}>
+            <select data-testid="select-scenario-duration" aria-label="Длительность видео" value={duration} onChange={event => setDuration(event.target.value)}>
               {(textToVideo ? [4, 5, 6, 8, 10, 15, 20, 25, 30] : [5, 8, 10, 15, 20, 30]).map(value => <option key={value} value={`${value} сек`}>{value} сек</option>)}
             </select>
           </label>}
         </>}
 
         {textToVideo
-          ? <SeedanceGenerationPanel
-              authenticated={meduha.phase === 'authenticated'}
-              userId={meduha.account?.id}
-              prompt={prompt.trim()}
-              duration={duration}
-              ratio={ratio}
-              balance={meduha.bootstrap?.account.credits ?? meduha.account?.credits}
-              refreshBootstrap={meduha.refreshBootstrap}
-              notify={notify}
-            />
+          ? <SeedanceGenerationPanel authenticated={meduha.phase === 'authenticated'} userId={meduha.account?.id} prompt={prompt.trim()} duration={duration} ratio={ratio}
+              balance={meduha.bootstrap?.account.credits ?? meduha.account?.credits} refreshBootstrap={meduha.refreshBootstrap} notify={notify}/>
           : <div className="gj-scenario-unavailable" role="status" data-testid={`status-generation-${scenario.id}`}>
-              <strong>Запуск из Meduha пока не подключён</strong>
-              <span>{scenario.explanation} Сохранение идеи не запускает генерацию и не списывает кредиты.</span>
+              <strong><span className="gj-status-dot"/>Запуск из Meduha пока не подключён</strong>
+              <span>{missingRequiredMedia ? 'Для этого сценария нужны исходные материалы. ' : ''}{guide.explanation} Сохранение идеи не запускает генерацию и не списывает кредиты.</span>
             </div>}
 
-        {initialNeed && <p className="gj-warn">Чтобы оживить фото, нужен исходный кадр. Пока файл останется только на этом устройстве.</p>}
+        {scenario.id === 'image-to-video' && missingRequiredMedia && <p className="gj-warn">Добавь исходное фото: одного описания недостаточно, чтобы подготовить этот сценарий.</p>}
+        {scenario.id === 'katana' && missingRequiredMedia && <p className="gj-warn">Для брифа Катаны нужен видеореференс. Можно добавить к нему до пяти фото.</p>}
+        {scenario.id === 'object-swap' && missingRequiredMedia && <p className="gj-warn">Нужны исходное видео и хотя бы одно фото объекта для замены.</p>}
         <button type="button" className="gj-scenario-save" onClick={() => void save()} disabled={saving} data-testid="button-save-scenario-draft"><Save size={15}/>{saving ? 'Сохраняем…' : currentDraftId ? 'Сохранить черновик' : 'Сохранить идею'}</button>
         <p className="gj-muted">{meduha.phase === 'authenticated' ? 'Черновик сохранится в аккаунте.' : 'Черновик сохранится в этом браузере.'}</p>
       </section>

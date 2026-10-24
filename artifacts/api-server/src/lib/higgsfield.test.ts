@@ -2,31 +2,29 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { higgsfieldCredentials, submitHiggsfieldGeneration } from './higgsfield';
 
-async function withCredential(value: string, check: () => void | Promise<void>) {
-  const keys = ['HF_API_KEY', 'HF_CREDENTIALS', 'higgs', 'higgs_api'] as const;
+async function withCredential(value: string, check: () => void | Promise<void>, key: 'higgsapi' | 'higgs_api' = 'higgs_api') {
+  const keys = ['higgsapi', 'HF_API_KEY', 'HF_CREDENTIALS', 'higgs', 'higgs_api'] as const;
   const previous = Object.fromEntries(keys.map(key => [key, process.env[key]]));
   try {
-    process.env.HF_API_KEY = '';
-    process.env.HF_CREDENTIALS = '';
-    process.env.higgs = '';
-    process.env.higgs_api = value;
+    for (const name of keys) process.env[name] = '';
+    process.env[key] = value;
     await check();
   } finally {
-    for (const key of keys) {
-      const value = previous[key];
-      if (value === undefined) delete process.env[key];
-      else process.env[key] = value;
+    for (const name of keys) {
+      const oldValue = previous[name];
+      if (oldValue === undefined) delete process.env[name];
+      else process.env[name] = oldValue;
     }
   }
 }
 
-test('accepts the complete copied higgs_api credential without requiring a colon', async () => {
+test('accepts the Replit higgsapi secret as a complete credential without requiring a colon', async () => {
   await withCredential('synthetic-opaque-api-key', () => {
     assert.equal(higgsfieldCredentials(), 'synthetic-opaque-api-key');
-  });
+  }, 'higgsapi');
   await withCredential('test-key-id:test-key-secret', () => {
     assert.equal(higgsfieldCredentials(), 'test-key-id:test-key-secret');
-  });
+  }, 'higgsapi');
 });
 
 test('REST submission preserves the key header, endpoint and JSON input', async () => {

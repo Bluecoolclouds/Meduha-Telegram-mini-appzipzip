@@ -4,14 +4,14 @@ import { resolve } from 'node:path';
 export const SEEDANCE_MODEL = 'bytedance/seedance-2.5/text-to-video';
 const HIGGSFIELD_API = 'https://api.higgsfield.ai';
 
-// Existing Replit Secrets take priority; local credentials are never browser env vars.
+// Replit Secrets stay server-side; local credentials are never browser env vars.
 export function higgsfieldCredentials() {
-  if (!process.env.HF_API_KEY && !process.env.HF_CREDENTIALS && !process.env.higgs && !process.env.higgs_api) {
+  if (!process.env.higgsapi && !process.env.HF_API_KEY && !process.env.HF_CREDENTIALS && !process.env.higgs_api && !process.env.higgs) {
     loadEnv({ path: resolve(process.cwd(), '.env.local'), quiet: true });
   }
-  const credentials = process.env.HF_API_KEY || process.env.HF_CREDENTIALS || process.env.higgs_api || process.env.higgs;
+  const credentials = process.env.higgsapi || process.env.HF_API_KEY || process.env.HF_CREDENTIALS || process.env.higgs_api || process.env.higgs;
   if (!credentials || !/^\S+$/.test(credentials)) {
-    throw new Error('Save the complete copied Higgsfield API key in HF_API_KEY, HF_CREDENTIALS, higgs or higgs_api.');
+    throw new Error('Save the complete copied Higgsfield API key in higgsapi, HF_API_KEY, HF_CREDENTIALS, higgs or higgs_api.');
   }
   return credentials;
 }
