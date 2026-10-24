@@ -24,6 +24,11 @@ function signed(id:number,age=0){
   params.set('hash',createHmac('sha256',key).update([...params.entries()].sort(([a],[b])=>a<b?-1:1).map(([k,v])=>`${k}=${v}`).join('\n')).digest('hex'));
   return params.toString();
 }
+function unpackContentPlanPrompt(value:string){
+  const match=/^([\s\S]*?)\n\nПараметры контент-плана Meduha:\nПлощадка: (.*)\nИдей: (\d+)\nФормат: (.*)$/.exec(value);
+  assert(match,'saved content-plan settings should remain encoded in the prompt');
+  return {prompt:match[1],plan:{platform:match[2],count:match[3],format:match[4]}};
+}
 
 test('real API: verified login, session rotation, account isolation, drafts/settings/import/logout',async(t)=>{
   const ids=[4_503_599_000_000_000+randomInt(1_000_000),4_503_599_001_000_000+randomInt(1_000_000)];
@@ -508,11 +513,20 @@ test('real API: verified login, session rotation, account isolation, drafts/sett
       const changed = await call(`/templates/${row.id}`, 'PUT', { ...input, kind: 'photo', audioUrl: null }, a.cookie);
       assert.equal(changed.status, 200); assert.equal(CreateTemplateResponse.parse(await changed.json()).audioUrl, null);
     });
-    const payload={title:'Fixture idea',type:'photo',prompt:'An orange ocean',style:'Кино',model:'Flux',ratio:'9:16',duration:'5 сек'};
+    const contentPrompt='Продвинуть летнюю коллекцию\n\nПараметры контент-плана Meduha:\nПлощадка: TikTok\nИдей: 10\nФормат: Stories';
+    const payload={title:'Летняя коллекция',type:'video',prompt:contentPrompt,style:'Студия',model:'Контент-завод',ratio:'9:16',duration:'15 сек'};
     assert.equal((await call('/drafts/shared-fixture','PUT',{...payload,userId:String(ids[1])},a.cookie)).status,200);
     const accountA=await bootstrap(a.cookie);
     const accountB=await bootstrap(b.cookie);
     assert.equal(accountA.drafts.length,1);assert.equal(accountB.drafts.length,0);
+    const reopened=accountA.drafts.find(draft=>draft.id==='shared-fixture');
+    assert(reopened,'the saved account draft should be returned by a fresh bootstrap');
+    assert.deepEqual(unpackContentPlanPrompt(reopened.prompt),{
+      prompt:'Продвинуть летнюю коллекцию',
+      plan:{platform:'TikTok',count:'10',format:'Stories'},
+    });
+    assert.equal(reopened.ratio,'9:16');
+    assert.equal(reopened.duration,'15 сек');
     assert.equal((await call('/drafts/shared-fixture','DELETE',undefined,b.cookie)).status,404);
     assert.equal((await call('/drafts/shared-fixture','PUT',{...payload,title:'Other account'},b.cookie)).status,200);
     assert.equal((await bootstrap(a.cookie)).drafts[0].title,payload.title);
