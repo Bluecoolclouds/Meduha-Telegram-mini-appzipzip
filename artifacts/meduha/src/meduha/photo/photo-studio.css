@@ -140,3 +140,7 @@ html[data-theme="dark"] .ps-photo-entry{background:#241810;color:#f6f0eb;border-
 .meduha .ps-model .ps-cost small{color:var(--vk-mut);font-size:10.5px}
 .meduha .ps-model .m-section-title h2{font-size:17px;font-weight:750;letter-spacing:-.5px}
 @media(max-width:360px){.meduha .ps-art{width:84px}}
+.meduha .ps-model .ps-modes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.meduha .ps-model .ps-modes button{padding:8px 10px;font-size:11.5px;font-weight:550;border-radius:8px;border:1px solid var(--vk-line);background:transparent;color:var(--vk-mut);transition:border-color .15s,transform .15s}
+.meduha .ps-model .ps-modes button.on{border-color:var(--vk-accent);background:var(--vk-tag);box-shadow:inset 0 0 0 1px var(--vk-accent)}
+.meduha .ps-model .ps-modes button:active{transform:scale(.98)}

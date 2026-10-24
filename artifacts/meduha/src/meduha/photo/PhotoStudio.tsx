@@ -13,12 +13,13 @@ import { meduhaErrorMessage, useMeduhaSession } from '../session';
 import { uploadMedia, validateFile } from '../templates/manage/api';
 import { batchMultiplier, defaults, effective, fieldKind, isFileArray, isNullable, jsonExample, mediaUuid, validate, type Schema } from './schema';
 import './photo-studio.css';
+import { familyOf, familyPrice, filterFamilies, groupFamilies, modeKind, modeLabelIn, photoModelHref, type Group } from './families';
 
 const read = { credentials: 'same-origin' as const };
 const mutateReq = { credentials: 'same-origin' as const, headers: { 'X-Meduha-Request': '1' } };
 const LOCKED_WORKFLOW = ['preset_id', 'enhance_prompt', 'quality'];
 
-export const modeLabel = (m: PhotoCatalogModel) => m.workflow ? 'Сценарий' : /image-to-image|\/edit/.test(m.endpoint) ? 'Фото → фото' : 'Текст → фото';
+export const modeLabel = (m: PhotoCatalogModel) => ({ workflow: 'Сценарий', image: 'Фото → фото', text: 'Текст → фото' })[modeKind(m)];
 const suffixes: [RegExp, string][] = [[/utility\/pro/, 'Utility Pro'], [/\/pro\//, 'Pro'], [/utility/, 'Utility'], [/\/flare$/, 'Flare'], [/\/sunburst$/, 'Sunburst'], [/^marketing-studio\/image$/, 'Alpha'], [/image-to-image/, 'фото → фото'], [/soul\/v2\/standard/, 'текст → фото'], [/\/edit$/, 'правки'], [/qwen-image-3\/text-to-image/, 'текст → фото']];
 export const displayName = (m: PhotoCatalogModel) => { const hit = suffixes.find(([r]) => r.test(m.endpoint)); return hit && !m.name.toLowerCase().includes(hit[1].toLowerCase()) ? `${m.name} · ${hit[1]}` : m.name; };
 const blurbs: Record<string, string> = {
@@ -60,23 +61,18 @@ export function PhotoCatalogue() {
   const models = catalog.data?.models || [];
   const providers = useMemo(() => Array.from(new Set(models.map(photoProvider))), [models]);
   const t = q.trim().toLowerCase();
-  const shown = models.filter(m => {
-    const label = modeLabel(m);
-    if (mode === 'text' && label !== 'Текст → фото') return false;
-    if (mode === 'image' && label !== 'Фото → фото') return false;
-    if (mode === 'workflow' && !m.workflow) return false;
-    if (provider !== 'all' && photoProvider(m) !== provider) return false;
-    return !t || `${m.name} ${displayName(m)} ${m.id} ${blurb(m)} ${label}`.toLowerCase().includes(t);
-  });
+  const shown = filterFamilies(models, { q, mode, provider, providerOf: photoProvider, text: m => `${m.name} ${displayName(m)} ${m.id} ${blurb(m)} ${modeLabel(m)}` });
   const searching = t.length > 0;
   const activeFilters = (mode !== 'all' ? 1 : 0) + (provider !== 'all' ? 1 : 0);
   const update = (v: string) => { setQ(v); const p = new URLSearchParams({ type: 'photo' }); if (v.trim()) p.set('q', v.trim()); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}/create?${p}`); };
-  const href = (m: PhotoCatalogModel) => `/create?type=photo&photoModel=${encodeURIComponent(m.id)}`;
-  const priceLabel = (m: PhotoCatalogModel) => { const r = readiness(catalog.data, m); if (!r.ok) return r.reason; const b = m.schema.properties && (m.schema.properties as Schema).batch_size; return `${m.creditPrice} кр.${b ? ' за фото' : ''}`; };
-  const hero = models.slice(0, 5).map(m => ({ id: m.id, title: displayName(m), subtitle: blurb(m), image: photoModelArt(m), providerLabel: photoProviderLabel(photoProvider(m)), m }));
+  const href = (g: Group<PhotoCatalogModel>) => photoModelHref(g.initial.id);
+  const priceLabel = (list: PhotoCatalogModel[]) => { const ok = list.filter(m => readiness(catalog.data, m).ok); if (!ok.length) return readiness(catalog.data, list[0]).reason; const pr = familyPrice(ok, m => m.creditPrice ?? null)!; const per = ok.some(m => (m.schema.properties as Schema | undefined)?.batch_size); return `${pr.from ? 'от ' : ''}${pr.value} кр.${per ? ' за фото' : ''}`; };
+  const title = (g: Group<PhotoCatalogModel>) => g.family.title ?? displayName(g.initial);
+  const kinds = (g: Group<PhotoCatalogModel>) => Array.from(new Set(g.members.map(modeLabel))).join(' · ');
+  const hero = groupFamilies(models).slice(0, 5).map(g => ({ id: g.family.id, title: title(g), subtitle: blurb(g.initial), image: photoModelArt(g.initial), providerLabel: photoProviderLabel(photoProvider(g.initial)), g }));
   const modes = [['all', 'Все'], ['text', 'Текст → фото'], ['image', 'Фото → фото'], ['workflow', 'Сценарии']] as const;
   return <Frame active="Create"><div className="vs-page" data-testid="catalogue-photo-models">
-    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} label={h => priceLabel(h.m)} eyebrow={h => `${modeLabel(h.m)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.m))}/>}
+    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} label={h => priceLabel(h.g.members)} eyebrow={h => `${kinds(h.g)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.g))}/>}
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">
@@ -102,10 +98,10 @@ export function PhotoCatalogue() {
     <span className="vs-sr" aria-live="polite">{searching ? (shown.length ? `Найдено: ${shown.length}` : 'Ничего не нашлось') : ''}</span>
     {catalog.isLoading ? <div className="vs-grid">{[0, 1, 2, 3].map(i => <div key={i} className="vs-card" style={{ height: 230, opacity: .5 }}/>)}</div>
       : catalog.isError ? <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Каталог не загрузился</strong><p>{meduhaErrorMessage(catalog.error)}</p><div className="vs-empty-actions"><button onClick={() => catalog.refetch()}><RefreshCw size={12}/> Повторить</button></div></div>
-      : shown.length ? <div className="vs-grid">{shown.map((m, i) => <button key={m.id} data-testid={`card-photo-model-${m.id}`} className={`vs-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }} onClick={() => navigate(href(m))}>
-        <span className="vs-card-img"><img src={asset(photoModelArt(m))} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
-        <span className="vs-card-body"><strong>{displayName(m)}<em> · {modeLabel(m)}</em></strong><small>{blurb(m)}</small>
-          <span className="vs-card-foot"><span className="vs-prov">{photoProviderLabel(photoProvider(m))}</span><span className="vs-price" data-testid={`text-price-${m.id}`}>{priceLabel(m)}</span></span></span>
+      : shown.length ? <div className="vs-grid">{shown.map((g, i) => <button key={g.family.id} data-testid={`card-photo-model-${g.family.id}`} className={`vs-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }} onClick={() => navigate(href(g))}>
+        <span className="vs-card-img"><img src={asset(photoModelArt(g.initial))} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
+        <span className="vs-card-body"><strong>{title(g)}<em> · {g.members.length > 1 ? `${g.members.length} режима` : modeLabel(g.initial)}</em></strong><small>{blurb(g.initial)}</small>
+          <span className="vs-card-foot"><span className="vs-prov">{photoProviderLabel(photoProvider(g.initial))}</span><span className="vs-price" data-testid={`text-price-${g.family.id}`}>{priceLabel(g.matched)}</span></span></span>
       </button>)}</div>
       : <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Такой модели пока нет</strong><p>Попробуй проще: «Soul», «товар», «правки». Или сбрось фильтры.</p>
         <div className="vs-empty-actions"><button onClick={() => { update(''); setMode('all'); setProvider('all'); }}>Сбросить поиск</button><Link href="/create?type=photo&ideas=1">Фотоидеи</Link></div></div>}
@@ -125,13 +121,17 @@ export function PhotoModelPage({ catalogId }: { catalogId: string }) {
   const session = useMeduhaSession();
   const authed = session.phase === 'authenticated';
   const catalog = useGetPhotoCatalog({ request: read });
-  const model = catalog.data?.models.find(m => m.id === catalogId);
+  const [selected, setSelected] = useState(catalogId);
+  const model = catalog.data?.models.find(m => m.id === selected);
+  const siblings = catalog.data ? familyOf(catalogId).modes.map(x => catalog.data!.models.find(m => m.id === x.id)).filter((m): m is PhotoCatalogModel => !!m) : [];
+  const pick = (id: string) => { setSelected(id); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}${photoModelHref(id)}`); };
   if (catalog.isLoading) return <Frame active="Create"><div className="ps-page"><div className="ps-card ps-skel" style={{ height: 120 }}/><div className="ps-card ps-skel" style={{ height: 260, marginTop: 12 }}/></div></Frame>;
   if (catalog.isError || !model) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><img src={mood('curious')} alt=""/><strong>{catalog.isError ? 'Каталог не загрузился' : 'Модель не найдена'}</strong><p>{catalog.isError ? meduhaErrorMessage(catalog.error) : 'Возможно, она убрана из каталога.'}</p>{catalog.isError && <button className="ps-btn" onClick={() => catalog.refetch()}><RefreshCw size={14}/>Повторить</button>}<Link className="ps-btn" href="/create?type=photo">К каталогу</Link></div></div></Frame>;
-  return <ModelForm key={model.id} model={model} catalog={catalog.data!} authed={authed} navigate={navigate}/>;
+  return <ModelForm key={model.id} model={model} catalog={catalog.data!} authed={authed} navigate={navigate} siblings={siblings} onPick={pick}/>;
 }
 
-function ModelForm({ model, catalog, authed, navigate }: { model: PhotoCatalogModel; catalog: PhotoCatalog; authed: boolean; navigate: (to: string) => void }) {
+function ModelForm({ model, catalog, authed, navigate, siblings, onPick }: { model: PhotoCatalogModel; catalog: PhotoCatalog; authed: boolean; navigate: (to: string) => void; siblings: PhotoCatalogModel[]; onPick: (id: string) => void }) {
+  const fam = familyOf(model.id);
   const schema = model.schema as Schema;
   const qc = useQueryClient();
   const { toast, notify } = useToast();
@@ -216,7 +216,8 @@ function ModelForm({ model, catalog, authed, navigate }: { model: PhotoCatalogMo
 
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-photo-model-${model.id}`}>
     <a className="ps-back" href="/create?type=photo" onClick={go(navigate, '/create?type=photo')} data-testid="link-photo-catalogue"><ArrowLeft size={13}/>Все фотомодели</a>
-    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(photoModelArt(model))} alt=""/></span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{displayName(model)}<span>.</span></h1><p>{blurb(model)}</p><code className="ps-endpoint">{photoProviderLabel(photoProvider(model))} · {model.id}</code><a className="ps-source" href={model.source} target="_blank" rel="noreferrer" data-testid="link-photo-source">Официальная страница<ExternalLink size={11}/></a></div></div>
+    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(photoModelArt(model))} alt=""/></span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{fam.title ?? displayName(model)}<span>.</span></h1><p>{blurb(model)}</p><code className="ps-endpoint">{photoProviderLabel(photoProvider(model))} · {model.id}</code><a className="ps-source" href={model.source} target="_blank" rel="noreferrer" data-testid="link-photo-source">Официальная страница<ExternalLink size={11}/></a></div></div>
+    {siblings.length > 1 && <div className="ps-modes" role="group" aria-label="Режим модели" data-testid="group-photo-modes">{siblings.map(m => { const on = m.id === model.id; return <button key={m.id} type="button" aria-pressed={on} className={on ? 'on' : ''} data-testid={`button-photo-mode-${m.id}`} onClick={() => { if (!on) onPick(m.id); }}>{modeLabelIn(m.id) || displayName(m)}</button>; })}</div>}
     {!authed && <div className="ps-alert" data-testid="status-login-required"><Lock size={15}/><span><strong>Нужен вход через Telegram</strong>Открой студию из Telegram, чтобы загружать фото и запускать генерацию. Настройки можно смотреть и менять уже сейчас.</span></div>}
     {authed && !ready.ok && <div className="ps-alert muted" data-testid="status-model-unavailable"><Lock size={15}/><span><strong>Запуск пока недоступен</strong>{ready.reason}. Настройки сохраняются на этом устройстве.</span></div>}
     {model.workflow && schema.properties?.preset_id && <div className="ps-note">Сценарий использует официальный пресет и улучшение описания с высоким качеством — эти параметры зафиксированы.</div>}

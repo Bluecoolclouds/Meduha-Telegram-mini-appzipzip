@@ -105,3 +105,9 @@ Photo creation should start with a catalogue following the existing video-scenar
 **Why:** the user selected the photo catalogue, then rejected its separate visual design and explicitly said to make photo scenarios look like the video scenarios.
 
 **How to apply:** reuse the actual video components and styles rather than creating another visual direction. Keep the real photo-model settings and generation behavior intact. Legacy photo ideas still open the existing editor with their prompts; never present illustrative catalogue art as model outputs or user results.
+
+Photo modes and variants of the same model belong inside one scenario, not in separate catalogue cards.
+
+**Why:** the user explicitly rejected three separate SOUL cards and requested switching with buttons inside the scenario.
+
+**How to apply:** show one family card, then expose its documented modes/versions within the scenario page. Keep exact mode-specific schemas, required uploads, prices and saved settings. Workflows with distinct purposes remain separate scenarios even when they share an upstream endpoint.
