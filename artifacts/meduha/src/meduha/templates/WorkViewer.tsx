@@ -8,6 +8,7 @@ import { usePublicationLike } from './likes';
 import { usePublicationSave } from './saves';
 import { usePlaybackPolicy } from './playback-policy';
 import { PublicationReport } from './PublicationReport';
+import { isRecipe, recipeHref } from './recipe/model';
 import './work-viewer.css';
 
 type Props = {
@@ -59,6 +60,8 @@ export default function WorkViewer({ template, items, onSelect, onClose, hasMore
   const hasPrompt = prompt.trim().length > 0;
   const author = example ? 'Пример Meduha' : template.authorName?.trim() || 'Автор сообщества';
   const avatar = !example && template.authorAvatarUrl !== failedAvatar ? template.authorAvatarUrl : null;
+  const recipe = isRecipe((template as { recipe?: unknown }).recipe) ? (template as { recipe?: unknown }).recipe as Parameters<typeof recipeHref>[0] : null;
+  const repeatUrl = recipe ? recipeHref(recipe, { template: template.id }) : null;
   const prepareUrl = `/create?preset=${encodeURIComponent(template.title)}&type=${isAudio ? 'music' : template.kind}&prompt=${encodeURIComponent(prompt)}`;
   useEffect(() => {
     setMediaError(false); setPosterError(false); setMediaReady(false); setCopyFailed(false); setShareError('');
@@ -261,7 +264,8 @@ export default function WorkViewer({ template, items, onSelect, onClose, hasMore
         <h1 className="mw-title-accessible" data-testid="text-viewer-title">{template.title}</h1>
         <button className="mw-prompt" onClick={() => setDetail(true)} data-testid="text-work-prompt">{hasPrompt ? prompt : 'Автор не добавил промпт к этой работе.'}</button>
         {template.tags[0] && <p className="mw-template-name" data-testid="text-template-name">Шаблон: {template.tags[0]}</p>}
-        {hasPrompt && <Link className="mw-remix" href={prepareUrl} data-testid={`link-prepare-${template.id}`}><Sparkles size={17}/>Сделать так же</Link>}
+        {repeatUrl ? <Link className="mw-remix" href={repeatUrl} data-testid={`link-repeat-${template.id}`}><Sparkles size={17}/>Повторить</Link>
+          : hasPrompt && <Link className="mw-remix" href={prepareUrl} data-testid={`link-prepare-${template.id}`}><Sparkles size={17}/>Сделать так же · только промпт</Link>}
         {hasPlayback && duration > 0 && <input className="mw-seek" type="range" min="0" max={duration} step="0.1" value={time} aria-label="Позиция воспроизведения" onChange={event => { if (media.current) media.current.currentTime = Number(event.target.value); }}/>}
       </div>
       <AppNavigation active={location.startsWith('/community') ? 'Community' : 'Home'} onNavigate={onClose}/>
@@ -276,8 +280,9 @@ export default function WorkViewer({ template, items, onSelect, onClose, hasMore
         {template.description && <p>{template.description}</p>}
         {template.credit && <p>{template.credit}</p>}
         {template.sourceUrl && <a className="mw-source" href={template.sourceUrl} target="_blank" rel="noopener noreferrer">Источник медиа</a>}
-        <p className="mw-detail-note">{example ? 'Референс для вдохновения, а не результат генерации по этому промпту.' : 'Промпт откроется в редакторе. Генерация пока не подключена.'}</p>
-        {hasPrompt && <Link className="mw-remix" href={prepareUrl}><Sparkles size={17}/>Сделать так же</Link>}
+        <p className="mw-detail-note">{repeatUrl ? 'Повтор откроет нужную модель с промптом, настройками и файлами шаблона. Файлы копируются в твой аккаунт, генерация сама не запускается.' : example ? 'Референс для вдохновения, а не результат генерации по этому промпту.' : 'У этой работы нет рецепта: в редактор перейдёт только промпт.'}</p>
+        {repeatUrl ? <Link className="mw-remix" href={repeatUrl} data-testid={`link-repeat-detail-${template.id}`}><Sparkles size={17}/>Повторить</Link>
+          : hasPrompt && <Link className="mw-remix" href={prepareUrl}><Sparkles size={17}/>Сделать так же · только промпт</Link>}
       </Sheet>}
     </article>
   </Sheet>;

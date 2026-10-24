@@ -7,6 +7,7 @@
  */
 import type { TemplateInputKind } from './templateInputKind';
 import type { TemplateInputParameters } from './templateInputParameters';
+import type { TemplateRecipe } from './templateRecipe';
 
 export interface TemplateInput {
   /**
@@ -17,6 +18,7 @@ export interface TemplateInput {
   /** @maxLength 2000 */
   description: string;
   kind: TemplateInputKind;
+  recipe?: TemplateRecipe | null;
   /** @pattern ^(\/api\/meduha\/media\/[a-f0-9-]{36}|images\/[a-z0-9/_-]+\.(png|jpe?g|webp)|https:\/\/[^ ]+)$ */
   poster: string;
   /**

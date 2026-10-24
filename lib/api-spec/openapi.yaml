@@ -63,6 +63,62 @@ paths:
         "400": { description: Invalid model inputs }
         "401": { description: Telegram account required }
         "409": { description: "Model, price, balance or spending unavailable" }
+  /meduha/template-recipes/{id}:
+    get:
+      operationId: getTemplateRecipe
+      tags: [meduha]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Explicitly shared recipe or an owner's private recipe
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TemplateRecipeView" }
+  /meduha/templates/{id}/repeat:
+    post:
+      operationId: repeatTemplate
+      tags: [meduha]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TemplateRepeatInput" }
+      responses:
+        "201":
+          description: Independent private copy; no generation or credit mutation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TemplateRecipeView" }
+  /meduha/template-repeats/{id}:
+    get:
+      operationId: getTemplateRepeat
+      tags: [meduha]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Authenticated owner's saved recipe snapshot
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TemplateRecipeView" }
+  /meduha/template-recipe-drafts:
+    post:
+      operationId: createTemplateRecipeDraft
+      tags: [meduha]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TemplateRecipeDraftInput" }
+      responses:
+        "201":
+          description: Saved private recipe for preparing a publication
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TemplateRecipeView" }
   /meduha/templates:
     get:
       operationId: listTemplates
@@ -1058,6 +1114,53 @@ components:
       properties:
         contentType: { type: string, enum: [image/jpeg, image/png, image/webp, video/mp4, video/webm, video/quicktime, audio/mpeg, audio/wav, audio/x-wav, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown, text/plain] }
         size: { type: integer, minimum: 1, maximum: 104857600 }
+    TemplateRecipe:
+      type: object
+      required: [version, kind, catalogId, parameters, references]
+      properties:
+        version: { type: integer, enum: [1] }
+        kind: { type: string, enum: [photo, video] }
+        catalogId: { type: string, minLength: 1, maxLength: 240 }
+        parameters: { type: object, additionalProperties: true }
+        references:
+          type: object
+          maxProperties: 100
+          additionalProperties:
+            type: array
+            maxItems: 30
+            items: { type: string, format: uuid }
+    TemplateRecipeFile:
+      type: object
+      required: [id, url, contentType, size]
+      properties:
+        id: { type: string, format: uuid }
+        url: { type: string }
+        contentType: { type: string }
+        size: { type: integer, minimum: 1 }
+    TemplateRecipeView:
+      type: object
+      required: [id, title, sourceTemplateId, recipe, files]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        sourceTemplateId: { type: [string, "null"] }
+        recipe: { $ref: "#/components/schemas/TemplateRecipe" }
+        files:
+          type: object
+          additionalProperties:
+            type: array
+            items: { $ref: "#/components/schemas/TemplateRecipeFile" }
+    TemplateRepeatInput:
+      type: object
+      required: [requestId]
+      properties:
+        requestId: { type: string, format: uuid }
+    TemplateRecipeDraftInput:
+      type: object
+      required: [title, recipe]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 100 }
+        recipe: { $ref: "#/components/schemas/TemplateRecipe" }
     TemplateInput:
       type: object
       required: [title, description, kind, poster, width, height, prompt, tags, parameters]
@@ -1065,6 +1168,10 @@ components:
         title: { type: string, minLength: 1, maxLength: 100 }
         description: { type: string, maxLength: 2000 }
         kind: { type: string, enum: [photo, video, audio] }
+        recipe:
+          oneOf:
+            - { $ref: "#/components/schemas/TemplateRecipe" }
+            - { type: "null" }
         poster: { type: string, pattern: '^(\/api\/meduha\/media\/[a-f0-9-]{36}|images\/[a-z0-9/_-]+\.(png|jpe?g|webp)|https:\/\/[^ ]+)$' }
         videoUrl: { type: [string, "null"], pattern: '^(\/api\/meduha\/media\/[a-f0-9-]{36}|https:\/\/[^ ]+)$' }
         audioUrl: { type: [string, "null"], pattern: '^(\/api\/meduha\/media\/[a-f0-9-]{36}|https:\/\/[^ ]+)$' }

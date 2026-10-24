@@ -140,6 +140,149 @@ export const CreatePhotoGenerationResponse = zod.object({
 })
 
 
+export const GetTemplateRecipeParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const getTemplateRecipeResponseRecipeCatalogIdMax = 240;
+
+export const getTemplateRecipeResponseRecipeReferencesMaxOne = 30;
+
+
+
+
+export const GetTemplateRecipeResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "sourceTemplateId": zod.string().nullable(),
+  "recipe": zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(getTemplateRecipeResponseRecipeCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(getTemplateRecipeResponseRecipeReferencesMaxOne))
+}),
+  "files": zod.record(zod.string(), zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "url": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int().min(1)
+})))
+})
+
+
+export const RepeatTemplateParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const RepeatTemplateBody = zod.object({
+  "requestId": zod.string().uuid()
+})
+
+export const repeatTemplateResponseRecipeCatalogIdMax = 240;
+
+export const repeatTemplateResponseRecipeReferencesMaxOne = 30;
+
+
+
+
+export const RepeatTemplateResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "sourceTemplateId": zod.string().nullable(),
+  "recipe": zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(repeatTemplateResponseRecipeCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(repeatTemplateResponseRecipeReferencesMaxOne))
+}),
+  "files": zod.record(zod.string(), zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "url": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int().min(1)
+})))
+})
+
+
+export const GetTemplateRepeatParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const getTemplateRepeatResponseRecipeCatalogIdMax = 240;
+
+export const getTemplateRepeatResponseRecipeReferencesMaxOne = 30;
+
+
+
+
+export const GetTemplateRepeatResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "sourceTemplateId": zod.string().nullable(),
+  "recipe": zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(getTemplateRepeatResponseRecipeCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(getTemplateRepeatResponseRecipeReferencesMaxOne))
+}),
+  "files": zod.record(zod.string(), zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "url": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int().min(1)
+})))
+})
+
+
+export const createTemplateRecipeDraftBodyTitleMax = 100;
+
+export const createTemplateRecipeDraftBodyRecipeCatalogIdMax = 240;
+
+export const createTemplateRecipeDraftBodyRecipeReferencesMaxOne = 30;
+
+
+
+export const CreateTemplateRecipeDraftBody = zod.object({
+  "title": zod.string().min(1).max(createTemplateRecipeDraftBodyTitleMax),
+  "recipe": zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(createTemplateRecipeDraftBodyRecipeCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createTemplateRecipeDraftBodyRecipeReferencesMaxOne))
+})
+})
+
+export const createTemplateRecipeDraftResponseRecipeCatalogIdMax = 240;
+
+export const createTemplateRecipeDraftResponseRecipeReferencesMaxOne = 30;
+
+
+
+
+export const CreateTemplateRecipeDraftResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "sourceTemplateId": zod.string().nullable(),
+  "recipe": zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(createTemplateRecipeDraftResponseRecipeCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createTemplateRecipeDraftResponseRecipeReferencesMaxOne))
+}),
+  "files": zod.record(zod.string(), zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "url": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int().min(1)
+})))
+})
+
+
 export const listTemplatesQueryQueryMax = 100;
 
 export const listTemplatesQueryTagMax = 100;
@@ -163,6 +306,10 @@ export const ListTemplatesQueryParams = zod.object({
 export const listTemplatesResponseItemsItemOneTitleMax = 100;
 
 export const listTemplatesResponseItemsItemOneDescriptionMax = 2000;
+
+export const listTemplatesResponseItemsItemOneRecipeOneCatalogIdMax = 240;
+
+export const listTemplatesResponseItemsItemOneRecipeOneReferencesMaxOne = 30;
 
 export const listTemplatesResponseItemsItemOnePosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const listTemplatesResponseItemsItemOneVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -201,6 +348,13 @@ export const ListTemplatesResponse = zod.object({
   "title": zod.string().min(1).max(listTemplatesResponseItemsItemOneTitleMax),
   "description": zod.string().max(listTemplatesResponseItemsItemOneDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(listTemplatesResponseItemsItemOneRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(listTemplatesResponseItemsItemOneRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(listTemplatesResponseItemsItemOnePosterRegExp),
   "videoUrl": zod.string().regex(listTemplatesResponseItemsItemOneVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(listTemplatesResponseItemsItemOneAudioUrlRegExp).nullish(),
@@ -235,6 +389,10 @@ export const createTemplateBodyTitleMax = 100;
 
 export const createTemplateBodyDescriptionMax = 2000;
 
+export const createTemplateBodyRecipeOneCatalogIdMax = 240;
+
+export const createTemplateBodyRecipeOneReferencesMaxOne = 30;
+
 export const createTemplateBodyPosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const createTemplateBodyVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
 export const createTemplateBodyAudioUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -263,6 +421,13 @@ export const CreateTemplateBody = zod.object({
   "title": zod.string().min(1).max(createTemplateBodyTitleMax),
   "description": zod.string().max(createTemplateBodyDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(createTemplateBodyRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createTemplateBodyRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(createTemplateBodyPosterRegExp),
   "videoUrl": zod.string().regex(createTemplateBodyVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(createTemplateBodyAudioUrlRegExp).nullish(),
@@ -283,6 +448,10 @@ export const CreateTemplateBody = zod.object({
 export const createTemplateResponseOneTitleMax = 100;
 
 export const createTemplateResponseOneDescriptionMax = 2000;
+
+export const createTemplateResponseOneRecipeOneCatalogIdMax = 240;
+
+export const createTemplateResponseOneRecipeOneReferencesMaxOne = 30;
 
 export const createTemplateResponseOnePosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const createTemplateResponseOneVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -320,6 +489,13 @@ export const CreateTemplateResponse = zod.object({
   "title": zod.string().min(1).max(createTemplateResponseOneTitleMax),
   "description": zod.string().max(createTemplateResponseOneDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(createTemplateResponseOneRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createTemplateResponseOneRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(createTemplateResponseOnePosterRegExp),
   "videoUrl": zod.string().regex(createTemplateResponseOneVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(createTemplateResponseOneAudioUrlRegExp).nullish(),
@@ -552,6 +728,10 @@ export const getTemplateResponseOneTitleMax = 100;
 
 export const getTemplateResponseOneDescriptionMax = 2000;
 
+export const getTemplateResponseOneRecipeOneCatalogIdMax = 240;
+
+export const getTemplateResponseOneRecipeOneReferencesMaxOne = 30;
+
 export const getTemplateResponseOnePosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const getTemplateResponseOneVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
 export const getTemplateResponseOneAudioUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -588,6 +768,13 @@ export const GetTemplateResponse = zod.object({
   "title": zod.string().min(1).max(getTemplateResponseOneTitleMax),
   "description": zod.string().max(getTemplateResponseOneDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(getTemplateResponseOneRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(getTemplateResponseOneRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(getTemplateResponseOnePosterRegExp),
   "videoUrl": zod.string().regex(getTemplateResponseOneVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(getTemplateResponseOneAudioUrlRegExp).nullish(),
@@ -623,6 +810,10 @@ export const updateTemplateBodyTitleMax = 100;
 
 export const updateTemplateBodyDescriptionMax = 2000;
 
+export const updateTemplateBodyRecipeOneCatalogIdMax = 240;
+
+export const updateTemplateBodyRecipeOneReferencesMaxOne = 30;
+
 export const updateTemplateBodyPosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const updateTemplateBodyVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
 export const updateTemplateBodyAudioUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -651,6 +842,13 @@ export const UpdateTemplateBody = zod.object({
   "title": zod.string().min(1).max(updateTemplateBodyTitleMax),
   "description": zod.string().max(updateTemplateBodyDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(updateTemplateBodyRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(updateTemplateBodyRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(updateTemplateBodyPosterRegExp),
   "videoUrl": zod.string().regex(updateTemplateBodyVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(updateTemplateBodyAudioUrlRegExp).nullish(),
@@ -671,6 +869,10 @@ export const UpdateTemplateBody = zod.object({
 export const updateTemplateResponseOneTitleMax = 100;
 
 export const updateTemplateResponseOneDescriptionMax = 2000;
+
+export const updateTemplateResponseOneRecipeOneCatalogIdMax = 240;
+
+export const updateTemplateResponseOneRecipeOneReferencesMaxOne = 30;
 
 export const updateTemplateResponseOnePosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const updateTemplateResponseOneVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -708,6 +910,13 @@ export const UpdateTemplateResponse = zod.object({
   "title": zod.string().min(1).max(updateTemplateResponseOneTitleMax),
   "description": zod.string().max(updateTemplateResponseOneDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(updateTemplateResponseOneRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(updateTemplateResponseOneRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(updateTemplateResponseOnePosterRegExp),
   "videoUrl": zod.string().regex(updateTemplateResponseOneVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(updateTemplateResponseOneAudioUrlRegExp).nullish(),
@@ -747,6 +956,10 @@ export const setTemplatePublicationResponseOneTitleMax = 100;
 
 export const setTemplatePublicationResponseOneDescriptionMax = 2000;
 
+export const setTemplatePublicationResponseOneRecipeOneCatalogIdMax = 240;
+
+export const setTemplatePublicationResponseOneRecipeOneReferencesMaxOne = 30;
+
 export const setTemplatePublicationResponseOnePosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const setTemplatePublicationResponseOneVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
 export const setTemplatePublicationResponseOneAudioUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -783,6 +996,13 @@ export const SetTemplatePublicationResponse = zod.object({
   "title": zod.string().min(1).max(setTemplatePublicationResponseOneTitleMax),
   "description": zod.string().max(setTemplatePublicationResponseOneDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(setTemplatePublicationResponseOneRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(setTemplatePublicationResponseOneRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(setTemplatePublicationResponseOnePosterRegExp),
   "videoUrl": zod.string().regex(setTemplatePublicationResponseOneVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(setTemplatePublicationResponseOneAudioUrlRegExp).nullish(),
@@ -2141,6 +2361,10 @@ export const listAdminTemplatesResponseOneOneTitleMax = 100;
 
 export const listAdminTemplatesResponseOneOneDescriptionMax = 2000;
 
+export const listAdminTemplatesResponseOneOneRecipeOneCatalogIdMax = 240;
+
+export const listAdminTemplatesResponseOneOneRecipeOneReferencesMaxOne = 30;
+
 export const listAdminTemplatesResponseOneOnePosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const listAdminTemplatesResponseOneOneVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
 export const listAdminTemplatesResponseOneOneAudioUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -2177,6 +2401,13 @@ export const ListAdminTemplatesResponseItem = zod.object({
   "title": zod.string().min(1).max(listAdminTemplatesResponseOneOneTitleMax),
   "description": zod.string().max(listAdminTemplatesResponseOneOneDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(listAdminTemplatesResponseOneOneRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(listAdminTemplatesResponseOneOneRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(listAdminTemplatesResponseOneOnePosterRegExp),
   "videoUrl": zod.string().regex(listAdminTemplatesResponseOneOneVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(listAdminTemplatesResponseOneOneAudioUrlRegExp).nullish(),
@@ -2221,6 +2452,10 @@ export const moderateAdminTemplateResponseOneOneTitleMax = 100;
 
 export const moderateAdminTemplateResponseOneOneDescriptionMax = 2000;
 
+export const moderateAdminTemplateResponseOneOneRecipeOneCatalogIdMax = 240;
+
+export const moderateAdminTemplateResponseOneOneRecipeOneReferencesMaxOne = 30;
+
 export const moderateAdminTemplateResponseOneOnePosterRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|images\\/[a-z0-9/_-]+\\.(png|jpe?g|webp)|https:\\/\\/[^ ]+)$');
 export const moderateAdminTemplateResponseOneOneVideoUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
 export const moderateAdminTemplateResponseOneOneAudioUrlRegExp = new RegExp('^(\\/api\\/meduha\\/media\\/[a-f0-9-]{36}|https:\\/\\/[^ ]+)$');
@@ -2257,6 +2492,13 @@ export const ModerateAdminTemplateResponse = zod.object({
   "title": zod.string().min(1).max(moderateAdminTemplateResponseOneOneTitleMax),
   "description": zod.string().max(moderateAdminTemplateResponseOneOneDescriptionMax),
   "kind": zod.enum(['photo', 'video', 'audio']),
+  "recipe": zod.union([zod.object({
+  "version": zod.literal(1),
+  "kind": zod.enum(['photo', 'video']),
+  "catalogId": zod.string().min(1).max(moderateAdminTemplateResponseOneOneRecipeOneCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(moderateAdminTemplateResponseOneOneRecipeOneReferencesMaxOne))
+}),zod.null()]).optional(),
   "poster": zod.string().regex(moderateAdminTemplateResponseOneOnePosterRegExp),
   "videoUrl": zod.string().regex(moderateAdminTemplateResponseOneOneVideoUrlRegExp).nullish(),
   "audioUrl": zod.string().regex(moderateAdminTemplateResponseOneOneAudioUrlRegExp).nullish(),

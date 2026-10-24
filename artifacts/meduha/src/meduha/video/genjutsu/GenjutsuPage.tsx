@@ -12,6 +12,11 @@ import { uploadMedia, validateFile } from '../../templates/manage/api';
 import { UPSTREAM, clearIntent, mediaUuid, payloadSignature, readIntent, readVideoMeta, writeIntent, type GenjutsuScenarioId, type StoredIntent, type VideoMeta } from './intent';
 import ModeSelector from './ModeSelector';
 import ExamplePreview from './ExamplePreview';
+import { useRecipeSource } from '../../templates/recipe/useRecipeSource';
+import RecipeBanner from '../../templates/recipe/RecipeBanner';
+import SaveAsTemplate from '../../templates/recipe/SaveAsTemplate';
+import { GJ_IMAGES, GJ_VIDEO, genjutsuImagesKey, genjutsuModeOf, genjutsuVideoKey } from '../../templates/recipe/model';
+import { templateMediaUrl } from '../../templates/catalog';
 import './genjutsu.css';
 
 type Media = { localId: string; name: string; preview: string; status: 'uploading' | 'done' | 'error'; mediaId: string | null; error: string | null; file: File };
@@ -60,6 +65,47 @@ export default function GenjutsuPage({ scenario, initialPrompt, backQ }: { scena
   const photoInput = useRef<HTMLInputElement>(null);
   const urls = useRef(new Set<string>());
   const busy = useRef(false);
+  const source = useRecipeSource();
+  const recipeView = source.view && source.view.recipe.kind === 'video' && genjutsuModeOf(source.view.recipe.catalogId) === scenario ? source.view : null;
+  const hydratedFor = useRef('');
+  const [hydrated, setHydrated] = useState('');
+  const repeatStore = source.storeSuffix ? `meduha.genjutsu.repeat.v1.${source.storeSuffix}` : null;
+  type Saved = { prompt: string; resolution: GenjutsuInputResolution; styleId: string; video: { id: string; name: string; url: string } | null; photos: { id: string; name: string; url: string }[] };
+  const remote = (id: string, name: string, url: string): Media => ({ localId: nextId(), name, preview: url, status: 'done', mediaId: id, error: null, file: new File([], name) });
+  // Hydrate once per recipe view: own local edits first, otherwise the recipe snapshot.
+  useEffect(() => {
+    if (!recipeView || hydratedFor.current === `${recipeView.id}:${repeatStore ?? ''}`) return;
+    hydratedFor.current = `${recipeView.id}:${repeatStore ?? ''}`;
+    let saved: Saved | null = null;
+    try { saved = repeatStore ? JSON.parse(localStorage.getItem(repeatStore) || 'null') : null; } catch { saved = null; }
+    if (!saved) {
+      const p = recipeView.recipe.parameters, refs = recipeView.recipe.references;
+      const fileUrl = (key: string, id: string, i: number) => { const f = recipeView.files[key]?.find(x => x.id === id) ?? recipeView.files[key]?.[i]; return f ? templateMediaUrl(f.url) : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/meduha/media/${id}`; };
+      const vk = genjutsuVideoKey(refs), ik = genjutsuImagesKey(refs);
+      saved = {
+        prompt: typeof p.prompt === 'string' ? p.prompt : initialPrompt,
+        resolution: resolutions.includes(p.resolution as GenjutsuInputResolution) ? p.resolution as GenjutsuInputResolution : '720p',
+        styleId: typeof p.presetId === 'string' ? p.presetId : typeof p.preset_id === 'string' ? p.preset_id : '',
+        video: vk ? { id: refs[vk][0], name: 'Видео шаблона', url: fileUrl(vk, refs[vk][0], 0) } : null,
+        photos: ik ? refs[ik].slice(0, maxPhotos).map((id, i) => ({ id, name: `Image${i + 1}`, url: fileUrl(ik, id, i) })) : [],
+      };
+    }
+    setPrompt(saved.prompt.slice(0, 10000)); setResolution(saved.resolution); setStyleId(saved.styleId);
+    setPhotos(saved.photos.map(x => remote(x.id, x.name, x.url)));
+    if (saved.video) {
+      const v = saved.video; const localId = nextId();
+      setVideo({ ...remote(v.id, v.name, v.url), localId, meta: null, metaError: null });
+      readVideoMeta(v.url).then(meta => setVideo(cur => cur && cur.localId === localId ? { ...cur, meta } : cur)).catch(() => undefined);
+    } else setVideo(null);
+    setHydrated(hydratedFor.current);
+  }, [recipeView, repeatStore]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Persist own-copy edits (account + repeat id) so a refresh keeps them.
+  useEffect(() => {
+    if (!repeatStore || !recipeView || hydrated !== `${recipeView.id}:${repeatStore}`) return;
+    const asSaved = (m: Media) => ({ id: m.mediaId!, name: m.name, url: m.preview.startsWith('blob:') ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/meduha/media/${m.mediaId}` : m.preview });
+    const data: Saved = { prompt, resolution, styleId, video: video && video.mediaId && video.status === 'done' ? asSaved(video) : null, photos: photos.filter(m => m.mediaId && m.status === 'done').map(asSaved) };
+    try { localStorage.setItem(repeatStore, JSON.stringify(data)); } catch { /* storage full */ }
+  }, [repeatStore, recipeView, hydrated, prompt, resolution, styleId, video, photos]);
 
   useEffect(() => () => { urls.current.forEach(u => URL.revokeObjectURL(u)); }, []);
   useEffect(() => { if (accountId) { const stored = readIntent(accountId, scenario); setIntent(stored); setAmbiguous(!!stored); } else setIntent(null); }, [accountId, scenario]);
@@ -246,6 +292,7 @@ export default function GenjutsuPage({ scenario, initialPrompt, backQ }: { scena
 
   return <Frame active="Create"><div className="gj-page" data-testid={`page-genjutsu-${scenario}`}>
     <button className="gj-back" data-testid="button-back-catalog" onClick={back}><ArrowLeft size={14}/>Все сценарии</button>
+    <RecipeBanner source={source} mismatch={!!source.view && !recipeView}/>
     <ExamplePreview scenario={scenario}/>
     <div className="gj-grid"><div className="gj-input">
     <div className="gj-top"><h1>Genjutsu</h1><ModeSelector value={scenario} disabled={submitting} onChange={switchMode}/></div>
@@ -339,6 +386,9 @@ export default function GenjutsuPage({ scenario, initialPrompt, backQ }: { scena
       </>}
     </section>
 
+    <SaveAsTemplate recipe={{ version: 1, kind: 'video', catalogId: UPSTREAM[scenario], parameters: { prompt: prompt.trim(), resolution, ...(scenario === 'restyle' && styleId ? { presetId: styleId } : {}) }, references: { ...(video?.mediaId ? { [GJ_VIDEO]: [video.mediaId] } : {}), ...(readyPhotos.length ? { [GJ_IMAGES]: readyPhotos.map(p => p.mediaId!) } : {}) } }}
+      title={prompt.trim().split(/[.!?\n]/)[0] || text.title}
+      disabledReason={!authenticated ? 'Сохранить шаблон можно после входа через Telegram.' : anyUploading ? 'Дождись загрузки файлов.' : !video?.mediaId || video.status !== 'done' || video.metaError ? 'Добавь подходящее видео.' : photos.some(p => p.status !== 'done') || readyPhotos.length < minPhotos ? 'Добавь фото и дождись загрузки.' : scenario === 'restyle' && !styleId ? 'Выбери стиль.' : null}/>
     </div><aside className="gj-output">
     <div className="gj-out-head">Результат{jobsQuery.isFetching && <LoaderCircle className="gj-spin" size={12}/>}</div>
     {!authenticated ? <div className="gj-void"><Film size={20}/><span>Результаты появятся здесь после входа.</span></div> : <section className="gj-block flat">

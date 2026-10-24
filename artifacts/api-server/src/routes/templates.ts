@@ -18,6 +18,7 @@ import { currentAccount, requireAccount } from './meduha';
 import { isTemplateAdmin } from '../lib/template-admin';
 import { templateFile, templateUploadUrl } from '../lib/objectStorage';
 import { finalizeMedia, InvalidMediaError } from '../lib/template-files';
+import { validateOwnedRecipe, RecipeError } from '../lib/template-recipes';
 
 const router = Router();
 const error = (res: import('express').Response, status: number, message: string) => {
@@ -206,6 +207,12 @@ router.post('/templates', async (req, res): Promise<void> => {
   if (!parsed.success || !await validFiles(parsed.data, account.id)) {
     error(res, 400, 'Проверь название, описание создания и загрузку файлов.'); return;
   }
+  try {
+    parsed.data.recipe = await validateOwnedRecipe(parsed.data.recipe, [account.id], parsed.data.kind, parsed.data.prompt);
+  } catch (e) {
+    if (e instanceof RecipeError) { error(res, e.status, e.message); return; }
+    throw e;
+  }
   const [row] = await db.insert(meduhaTemplates).values({
     ...parsed.data, title: parsed.data.title.normalize('NFKC').trim().replace(/\s+/g, ' '),
       description: parsed.data.description ?? '',
@@ -227,6 +234,13 @@ router.put('/templates/:id', async (req, res): Promise<void> => {
     if (!existing) { error(res, 404, 'Шаблон не найден.'); return; }
     const admin = await isTemplateAdmin(account.id);
     if (existing.ownerId !== account.id && !admin) { error(res, 403, 'Это шаблон другого автора.'); return; }
+    try {
+      const value = body.data.recipe === undefined ? existing.recipe : body.data.recipe;
+      body.data.recipe = await validateOwnedRecipe(value, admin ? [existing.ownerId, account.id] : [account.id], body.data.kind, body.data.prompt);
+    } catch (e) {
+      if (e instanceof RecipeError) { error(res, e.status, e.message); return; }
+      throw e;
+    }
     // Admin may preserve author files, but newly uploaded files belong to admin.
     const validForAuthor = await validFiles(body.data, existing.ownerId, existing);
     const checkMixed = admin && await validFiles(body.data, account.id);
@@ -327,7 +341,8 @@ router.get('/media/:id', async (req, res): Promise<void> => {
   if (!upload) { res.sendStatus(404); return; }
   const [published] = await db.select({ id: meduhaTemplates.id }).from(meduhaTemplates).where(and(
     eq(meduhaTemplates.status, 'published'),
-    or(eq(meduhaTemplates.poster, mediaPath(upload.id)), eq(meduhaTemplates.videoUrl, mediaPath(upload.id)), eq(meduhaTemplates.audioUrl, mediaPath(upload.id))),
+    or(eq(meduhaTemplates.poster, mediaPath(upload.id)), eq(meduhaTemplates.videoUrl, mediaPath(upload.id)), eq(meduhaTemplates.audioUrl, mediaPath(upload.id)),
+      sql`exists(select 1 from jsonb_each(coalesce(${meduhaTemplates.recipe}->'references', '{}'::jsonb)) as ref where ref.value @> ${JSON.stringify([upload.id])}::jsonb)`),
   )).limit(1);
   if (!published) {
     const account = await currentAccount(req);

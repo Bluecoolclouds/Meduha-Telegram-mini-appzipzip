@@ -33,6 +33,7 @@ export const meduhaDrafts = pgTable('meduha_drafts', {
   payload: jsonb('payload').$type<{
     title:string;type:'photo'|'video'|'music';prompt:string;style:string;
     model:string;ratio:string;duration:string;referenceName?:string;
+    recipe?: unknown; recipeSourceId?: string | null;
   }>().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => [primaryKey({columns:[table.userId,table.id]})]);

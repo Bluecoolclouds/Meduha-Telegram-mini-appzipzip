@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { Readable } from 'node:stream';
+import { motionAssets } from '../lib/motion-example';
+import { templateFile } from '../lib/objectStorage';
 
 const router = Router();
 // Public, attributed sample media only. Never accept an arbitrary upstream URL
@@ -11,6 +13,30 @@ const sources: Record<string, string> = {
 };
 
 router.get('/:name', async (req, res): Promise<void> => {
+  const asset = motionAssets[req.params.name as keyof typeof motionAssets];
+  if (asset && Object.hasOwn(motionAssets, req.params.name)) {
+    try {
+      const file = templateFile(asset.id);
+      const [metadata] = await file.getMetadata();
+      const size = Number(metadata.size);
+      let start = 0, end = size - 1;
+      if (req.headers.range) {
+        const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
+        if (!match || (!match[1] && !match[2])) { res.status(416).set('Content-Range', `bytes */${size}`).end(); return; }
+        if (!match[1]) start = Math.max(0, size - Number(match[2]));
+        else { start = Number(match[1]); if (match[2]) end = Math.min(end, Number(match[2])); }
+        if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || start > end || start >= size) {
+          res.status(416).set('Content-Range', `bytes */${size}`).end(); return;
+        }
+        res.status(206).set('Content-Range', `bytes ${start}-${end}/${size}`);
+      }
+      res.set({ 'Content-Type': asset.contentType, 'Content-Length': String(end - start + 1),
+        'Accept-Ranges': 'bytes', 'Cache-Control': 'public,max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+      if (req.method === 'HEAD') { res.end(); return; }
+      file.createReadStream({ start, end }).on('error', () => res.destroy()).pipe(res);
+    } catch { if (!res.headersSent) res.status(503).json({ error: 'Материалы примера временно недоступны.' }); }
+    return;
+  }
   const source = Object.hasOwn(sources, req.params.name) ? sources[req.params.name] : undefined;
   if (!source) { res.sendStatus(404); return; }
   const controller = new AbortController();

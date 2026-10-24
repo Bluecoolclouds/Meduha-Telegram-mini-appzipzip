@@ -32,6 +32,10 @@ export const meduhaTemplates = pgTable('meduha_templates', {
   sourceUrl: text('source_url'),
   credit: text('credit'),
   parameters: jsonb('parameters').$type<{ model: string; style: string; ratio: string; duration: string }>().notNull(),
+  recipe: jsonb('recipe').$type<{
+    version: 1; kind: 'photo' | 'video'; catalogId: string;
+    parameters: Record<string, unknown>; references: Record<string, string[]>;
+  }>(),
   status: text('status', { enum: ['draft', 'pending', 'published'] }).notNull().default('draft'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

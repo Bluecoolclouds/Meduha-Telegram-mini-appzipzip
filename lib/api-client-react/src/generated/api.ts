@@ -93,6 +93,9 @@ import type {
   TemplateLikeState,
   TemplatePage,
   TemplatePublicationInput,
+  TemplateRecipeDraftInput,
+  TemplateRecipeView,
+  TemplateRepeatInput,
   TemplateSaveInput,
   TemplateSaveState,
   TemplateUploadInput,
@@ -431,6 +434,313 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getCreatePhotoGenerationMutationOptions(options));
+    }
+
+export const getGetTemplateRecipeUrl = (id: string,) => {
+
+
+
+
+  return `/api/meduha/template-recipes/${id}`
+}
+
+export const getTemplateRecipe = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<TemplateRecipeView> => {
+
+  return customFetch<TemplateRecipeView>(getGetTemplateRecipeUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTemplateRecipeQueryKey = (id: string,) => {
+    return [
+    `/api/meduha/template-recipes/${id}`
+    ] as const;
+    }
+
+
+export const getGetTemplateRecipeQueryOptions = <TData = Awaited<ReturnType<typeof getTemplateRecipe>>, TError = ErrorType<unknown>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplateRecipe>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTemplateRecipeQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTemplateRecipe>>> = ({ signal }) => getTemplateRecipe(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTemplateRecipe>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTemplateRecipeQueryResult = NonNullable<Awaited<ReturnType<typeof getTemplateRecipe>>>
+export type GetTemplateRecipeQueryError = ErrorType<unknown>
+
+
+
+export function useGetTemplateRecipe<TData = Awaited<ReturnType<typeof getTemplateRecipe>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplateRecipe>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTemplateRecipeQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRepeatTemplateUrl = (id: string,) => {
+
+
+
+
+  return `/api/meduha/templates/${id}/repeat`
+}
+
+export const repeatTemplate = async (id: string,
+    templateRepeatInput: TemplateRepeatInput, options?: Parameters<typeof customFetch>[1]): Promise<TemplateRecipeView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<TemplateRecipeView>(getRepeatTemplateUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(templateRepeatInput)
+  }
+);}
+
+
+
+
+
+export const getRepeatTemplateMutationKey = () => ['repeatTemplate'] as const;
+
+export const getRepeatTemplateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof repeatTemplate>>, TError,RepeatTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof repeatTemplate>>, TError,RepeatTemplateMutationVariables, TContext> => {
+
+const mutationKey = getRepeatTemplateMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof repeatTemplate>>, RepeatTemplateMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  repeatTemplate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RepeatTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof repeatTemplate>>>
+    export type RepeatTemplateMutationBody = BodyType<TemplateRepeatInput>
+    export type RepeatTemplateMutationError = ErrorType<unknown>
+    export type RepeatTemplateMutationVariables = {id: string;data: BodyType<TemplateRepeatInput>}
+
+    export const useRepeatTemplate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof repeatTemplate>>, TError,RepeatTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof repeatTemplate>>,
+        TError,
+        RepeatTemplateMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRepeatTemplateMutationOptions(options));
+    }
+
+export const getGetTemplateRepeatUrl = (id: string,) => {
+
+
+
+
+  return `/api/meduha/template-repeats/${id}`
+}
+
+export const getTemplateRepeat = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<TemplateRecipeView> => {
+
+  return customFetch<TemplateRecipeView>(getGetTemplateRepeatUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTemplateRepeatQueryKey = (id: string,) => {
+    return [
+    `/api/meduha/template-repeats/${id}`
+    ] as const;
+    }
+
+
+export const getGetTemplateRepeatQueryOptions = <TData = Awaited<ReturnType<typeof getTemplateRepeat>>, TError = ErrorType<unknown>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplateRepeat>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTemplateRepeatQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTemplateRepeat>>> = ({ signal }) => getTemplateRepeat(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTemplateRepeat>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTemplateRepeatQueryResult = NonNullable<Awaited<ReturnType<typeof getTemplateRepeat>>>
+export type GetTemplateRepeatQueryError = ErrorType<unknown>
+
+
+
+export function useGetTemplateRepeat<TData = Awaited<ReturnType<typeof getTemplateRepeat>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplateRepeat>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTemplateRepeatQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateTemplateRecipeDraftUrl = () => {
+
+
+
+
+  return `/api/meduha/template-recipe-drafts`
+}
+
+export const createTemplateRecipeDraft = async (templateRecipeDraftInput: TemplateRecipeDraftInput, options?: Parameters<typeof customFetch>[1]): Promise<TemplateRecipeView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<TemplateRecipeView>(getCreateTemplateRecipeDraftUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(templateRecipeDraftInput)
+  }
+);}
+
+
+
+
+
+export const getCreateTemplateRecipeDraftMutationKey = () => ['createTemplateRecipeDraft'] as const;
+
+export const getCreateTemplateRecipeDraftMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplateRecipeDraft>>, TError,CreateTemplateRecipeDraftMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTemplateRecipeDraft>>, TError,CreateTemplateRecipeDraftMutationVariables, TContext> => {
+
+const mutationKey = getCreateTemplateRecipeDraftMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTemplateRecipeDraft>>, CreateTemplateRecipeDraftMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createTemplateRecipeDraft(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateTemplateRecipeDraftMutationResult = NonNullable<Awaited<ReturnType<typeof createTemplateRecipeDraft>>>
+    export type CreateTemplateRecipeDraftMutationBody = BodyType<TemplateRecipeDraftInput>
+    export type CreateTemplateRecipeDraftMutationError = ErrorType<unknown>
+    export type CreateTemplateRecipeDraftMutationVariables = {data: BodyType<TemplateRecipeDraftInput>}
+
+    export const useCreateTemplateRecipeDraft = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTemplateRecipeDraft>>, TError,CreateTemplateRecipeDraftMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createTemplateRecipeDraft>>,
+        TError,
+        CreateTemplateRecipeDraftMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateTemplateRecipeDraftMutationOptions(options));
     }
 
 export const getListTemplatesUrl = (params?: ListTemplatesParams,) => {

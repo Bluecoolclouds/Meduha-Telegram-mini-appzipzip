@@ -152,6 +152,69 @@ export interface TemplateUploadInput {
   size: number;
 }
 
+export type TemplateRecipeVersion = typeof TemplateRecipeVersion[keyof typeof TemplateRecipeVersion];
+
+
+export const TemplateRecipeVersion = {
+  NUMBER_1: 1,
+} as const;
+
+export type TemplateRecipeKind = typeof TemplateRecipeKind[keyof typeof TemplateRecipeKind];
+
+
+export const TemplateRecipeKind = {
+  photo: 'photo',
+  video: 'video',
+} as const;
+
+export type TemplateRecipeParameters = { [key: string]: unknown };
+
+export type TemplateRecipeReferences = {[key: string]: string[]};
+
+export interface TemplateRecipe {
+  version: TemplateRecipeVersion;
+  kind: TemplateRecipeKind;
+  /**
+     * @minLength 1
+     * @maxLength 240
+     */
+  catalogId: string;
+  parameters: TemplateRecipeParameters;
+  references: TemplateRecipeReferences;
+}
+
+export interface TemplateRecipeFile {
+  id: string;
+  url: string;
+  contentType: string;
+  /** @minimum 1 */
+  size: number;
+}
+
+export type TemplateRecipeViewFiles = {[key: string]: TemplateRecipeFile[]};
+
+export interface TemplateRecipeView {
+  id: string;
+  title: string;
+  /** @nullable */
+  sourceTemplateId: string | null;
+  recipe: TemplateRecipe;
+  files: TemplateRecipeViewFiles;
+}
+
+export interface TemplateRepeatInput {
+  requestId: string;
+}
+
+export interface TemplateRecipeDraftInput {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  title: string;
+  recipe: TemplateRecipe;
+}
+
 export type TemplateInputKind = typeof TemplateInputKind[keyof typeof TemplateInputKind];
 
 
@@ -181,6 +244,7 @@ export interface TemplateInput {
   /** @maxLength 2000 */
   description: string;
   kind: TemplateInputKind;
+  recipe?: TemplateRecipe | null;
   /** @pattern ^(\/api\/meduha\/media\/[a-f0-9-]{36}|images\/[a-z0-9/_-]+\.(png|jpe?g|webp)|https:\/\/[^ ]+)$ */
   poster: string;
   /**

@@ -11,6 +11,7 @@ import {
 import { TelegramAuthError, validateTelegramInitData } from '../lib/telegram-init-data';
 import { resolveTelegramBotUsername } from '../lib/telegram-bot';
 import templatesRouter from './templates';
+import templateRecipesRouter from './template-recipes';
 import { initializeTemplateAdmin } from '../lib/template-admin';
 import { createMeduhaAdminRouter } from './meduha-admin';
 import { getWallet } from '../lib/finance';
@@ -201,6 +202,7 @@ router.post('/reports',async(req,res)=>{
   res.status(report.id?201:200).json(SubmitMeduhaReportResponse.parse({accepted:true}));
 });
 router.use(templatesRouter);
+router.use(templateRecipesRouter);
 router.use(createMeduhaGenerationsRouter());
 router.use(createPhotoRouter());
 router.use(createVideoRouter());

@@ -1,8 +1,10 @@
 import type { StudioTemplate } from '@workspace/api-client-react';
+import motionTransfer from '../../../public/templates/motion-transfer.json';
 
 const photoCredit = 'Иллюстрация из стартовых материалов Meduha. Не публикация пользователя.';
 
 export const exampleTemplates: StudioTemplate[] = [
+  motionTransfer as StudioTemplate,
   {
     id: 'example-fantasy-film', status: 'published', kind: 'video',
     title: 'История дракона', description: 'Анимационный видеореференс Sintel. Промпт описывает настроение сцены; этот ролик не сгенерирован в Meduha.',
