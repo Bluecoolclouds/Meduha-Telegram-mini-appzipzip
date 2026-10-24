@@ -61,3 +61,12 @@
 .meduha .mtp-yield small{font-size:10px;font-weight:500;color:#f3eee88c;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .meduha .mtp-inset-foot{margin-top:3px;padding-top:6px;border-top:1px dashed #ffffff1c}
 .meduha .mtp-yield-note{margin:8px 20px 0;font-size:10px;line-height:1.4;color:var(--muted);text-align:center}
+.meduha .mtp-levels{--pos:0;position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;margin-top:8px;padding-top:16px}
+.meduha .mtp-levels-track{position:absolute;left:16.6%;right:16.6%;top:5px;height:3px;border-radius:3px;background:#ffffff1f}
+.meduha .mtp-levels-track i{position:absolute;inset:0 auto 0 0;width:calc(var(--pos) * 100%);border-radius:inherit;background:var(--acc);transition:width .2s ease}
+.meduha .mtp-levels-track i::after{content:"";position:absolute;right:-7px;top:-5px;width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--acc)}
+.meduha .mtp-levels button{all:unset;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:4px;font-size:11.5px;font-weight:650;color:#f3eee88c;padding:4px 0;border-radius:8px}
+.meduha .mtp-levels button.on{color:#fff}
+.meduha .mtp-levels button svg{opacity:.7}
+.meduha .mtp-levels button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+@media(prefers-reduced-motion:reduce){.meduha .mtp-levels-track i{transition:none}}

@@ -8,12 +8,19 @@ import './topup.css';
 
 /* Preliminary TEST packages. Edit freely: nothing here is a live offer,
    nothing is sent to a server and the wallet is never touched. */
-export type TopupPackage = { id: string; credits: number; rub: number; note?: string };
-export const TOPUP_PACKAGES: TopupPackage[] = [
-  { id: 'p100', credits: 100, rub: 199 },
-  { id: 'p300', credits: 300, rub: 499, note: 'Для новых идей' },
-  { id: 'p1000', credits: 1000, rub: 1490 },
+export type TopupLevel = { credits: number; rub: number };
+/* The first level is the default. Extra levels keep the tier's price per
+   credit; replace them with final prices before launch. */
+export type TopupTier = { id: string; levels: TopupLevel[]; note?: string };
+export type TopupPackage = TopupLevel & { id: string; note?: string };
+export const TOPUP_PACKAGES: TopupTier[] = [
+  { id: 'p100', levels: [{ credits: 100, rub: 199 }] },
+  { id: 'p300', levels: [{ credits: 300, rub: 499 }, { credits: 600, rub: 998 }, { credits: 900, rub: 1497 }], note: 'Для новых идей' },
+  { id: 'p1000', levels: [{ credits: 1000, rub: 1490 }, { credits: 2000, rub: 2980 }, { credits: 3000, rub: 4470 }] },
 ];
+type LevelPicks = Record<string, number>;
+const levelOf = (t: TopupTier, picks: LevelPicks) => Math.min(Math.max(0, picks[t.id] ?? 0), t.levels.length - 1);
+const resolve = (t: TopupTier, picks: LevelPicks): TopupPackage => ({ id: t.id, note: t.note, ...t.levels[levelOf(t, picks)] });
 const rub = (n: number) => `${n.toLocaleString('ru-RU')} ₽`;
 const num = (n: number) => n.toLocaleString('ru-RU');
 type Step = 'choose' | 'review' | 'done';
@@ -21,13 +28,14 @@ type Step = 'choose' | 'review' | 'done';
 export function TopupSheet({ onClose, authenticated, balance }: { onClose: () => void; authenticated: boolean; balance: number | null }) {
   const [step, setStep] = useState<Step>('choose');
   const [picked, setPicked] = useState<string>(TOPUP_PACKAGES[1].id);
-  const pkg = TOPUP_PACKAGES.find(p => p.id === picked) ?? TOPUP_PACKAGES[0];
+  const [levels, setLevels] = useState<LevelPicks>({});
+  const pkg = resolve(TOPUP_PACKAGES.find(p => p.id === picked) ?? TOPUP_PACKAGES[0], levels);
   const title = step === 'done' ? 'Тест завершён' : step === 'review' ? 'Проверка заказа' : 'Пополнение кредитов';
   return <Sheet title={title} onClose={onClose} className="mt-sheet">
     <div className="mt-flag" data-testid="status-topup-demo"><CircleSlash size={13} />Тестовый режим · цены и пакеты предварительные, не действующее предложение</div>
     {step === 'choose' && <div className="mt-step" key="choose">
       <p className="mt-lead">Разовые пакеты кредитов. Не подписка: без автопродления и без активации plus.</p>
-      <TopupCarousel picked={picked} onPick={setPicked} onProceed={id => { setPicked(id); setStep('review'); }} />
+      <TopupCarousel picked={picked} onPick={setPicked} levels={levels} onLevel={(id, i) => { setLevels(v => ({ ...v, [id]: i })); setPicked(id); }} onProceed={id => { setPicked(id); setStep('review'); }} />
       <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('review')} data-testid="button-topup-continue">Продолжить · {num(pkg.credits)} кр. · {rub(pkg.rub)}</button><button className="m-startup-guest" onClick={onClose} data-testid="button-topup-cancel">Отмена</button></div>
     </div>}
     {step === 'review' && <div className="mt-step" key="review">
@@ -76,7 +84,7 @@ function YieldRows({ credits, y }: { credits: number; y: Yields }) {
 }
 const perCredit = (p: TopupPackage) => (p.rub / p.credits).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: (id: string) => void; onProceed: (id: string) => void }) {
+function TopupCarousel({ picked, onPick, onProceed, levels, onLevel }: { picked: string; onPick: (id: string) => void; onProceed: (id: string) => void; levels: LevelPicks; onLevel: (id: string, i: number) => void }) {
   const track = useRef<HTMLDivElement>(null);
   const radios = useRef<(HTMLButtonElement | null)[]>([]);
   const timer = useRef<number | undefined>(undefined);
@@ -124,7 +132,7 @@ function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: 
   };
   return <div className="mtp-carousel">
     <div className="mtp-track" ref={track} onScroll={onScroll} role="radiogroup" aria-label="Пакет кредитов" onKeyDown={onKey} data-testid="carousel-topup">
-      {TOPUP_PACKAGES.map((p, i) => { const t = TIERS[p.id] ?? { name: 'Пакет', tone: 'starter', sub: 'Разовый пакет' }; const on = p.id === picked;
+      {TOPUP_PACKAGES.map((tier, i) => { const p = resolve(tier, levels); const t = TIERS[p.id] ?? { name: 'Пакет', tone: 'starter', sub: 'Разовый пакет' }; const on = p.id === picked; const li = levelOf(tier, levels);
         return <article key={p.id} className={`mtp-card mtp-${t.tone}${on ? ' on' : ''}`} data-testid={`card-topup-${p.id}`}>
           <button type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} ref={el => { radios.current[i] = el; }} className="mtp-card-head" onClick={() => select(i)} data-testid={`radio-topup-${p.id}`} aria-label={`${t.name}: ${num(p.credits)} кредитов за ${rub(p.rub)}, разовый пакет`}>
             <span className="mtp-card-title"><strong>{t.name}</strong><span className="mtp-radio" aria-hidden="true"><Check size={11} strokeWidth={3} /></span></span>
@@ -133,6 +141,10 @@ function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: 
           <div className="mtp-inset">
             <div className="mtp-inset-big"><Zap size={14} fill="currentColor" />{num(p.credits)} кредитов</div>
             <YieldRows credits={p.credits} y={yields} />
+            {tier.levels.length > 1 && <div className="mtp-levels" role="radiogroup" aria-label={`Количество кредитов в пакете ${t.name}`} style={{ ['--pos' as string]: tier.levels.length > 1 ? li / (tier.levels.length - 1) : 0 }}>
+              <span className="mtp-levels-track" aria-hidden="true"><i /></span>
+              {tier.levels.map((l, k) => <button key={l.credits} type="button" role="radio" aria-checked={k === li} className={k === li ? 'on' : ''} onClick={() => onLevel(tier.id, k)} data-testid={`button-topup-level-${tier.id}-${l.credits}`}><Zap size={10} fill="currentColor" />{num(l.credits)}</button>)}
+            </div>}
             <div className="mtp-inset-row mtp-inset-foot">{perCredit(p)} ₽ за кредит</div>
             {p.note && <div className="mtp-inset-row">{p.note}</div>}
           </div>
