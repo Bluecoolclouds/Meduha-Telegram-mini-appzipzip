@@ -38,3 +38,15 @@ The user also approved «Каталог, настройки и реальная 
 **Why:** the user explicitly chose real photo-generation implementation, not a catalogue-only prototype.
 
 **How to apply:** implement real provider submission for documented photo modes, but do not infer approval for invented credit tariffs, enabling global spending, or billable smoke tests. Keep uploaded references and generated photos private.
+
+The user also approved adding the missing official video models and their modes, with one model card and mode buttons inside, using Higgsfield Explore Video and each model's Playground as the reference.
+
+**Why:** after the catalogue comparison, the user said «добавляй тогда» to that specific proposal.
+
+**How to apply:** implement the documented inputs and real queued submission, not catalogue-only placeholders. Preserve the existing Genjutsu duration-based quotation path; do not bypass it with a fixed-price request. Keep new modes disabled and unpriced until deliberately configured, and do not run billable tests without a separate budget.
+
+Provider-owned character/element IDs are not proof that a Meduha user owns that asset.
+
+**Why:** users share the application's Higgsfield provider account; accepting arbitrary upstream IDs could expose private provider assets across accounts.
+
+**How to apply:** allow owned Meduha uploads as references. Reject nonempty upstream `elements` until a per-user ownership mapping exists; explain this restriction in the form instead of pretending the feature is connected.

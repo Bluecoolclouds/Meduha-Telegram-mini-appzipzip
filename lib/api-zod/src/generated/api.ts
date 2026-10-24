@@ -8,6 +8,80 @@
 import * as zod from 'zod';
 
 
+export const GetVideoCatalogResponse = zod.object({
+  "families": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "source": zod.string(),
+  "modes": zod.array(zod.string())
+})),
+  "models": zod.array(zod.object({
+  "id": zod.string(),
+  "familyId": zod.string(),
+  "name": zod.string(),
+  "mode": zod.string(),
+  "endpoint": zod.string(),
+  "source": zod.string(),
+  "workflow": zod.boolean(),
+  "schema": zod.record(zod.string(), zod.unknown()),
+  "outputSchema": zod.record(zod.string(), zod.unknown()),
+  "fileFields": zod.array(zod.object({
+  "path": zod.string(),
+  "kind": zod.enum(['image', 'video', 'audio', 'document']),
+  "array": zod.boolean()
+})),
+  "available": zod.boolean(),
+  "quoteScenario": zod.union([zod.literal('genjutsu'),zod.literal('object-swap'),zod.literal('restyle'),zod.literal(null)]).nullish(),
+  "modelId": zod.string().nullable(),
+  "creditPrice": zod.number().int().nullable()
+})),
+  "spendingEnabled": zod.boolean(),
+  "providerConfigured": zod.boolean(),
+  "storageConfigured": zod.boolean()
+})
+
+
+export const createVideoGenerationBodyCatalogIdMax = 200;
+
+export const createVideoGenerationBodyExpectedCreditPriceMax = 100000000;
+
+export const createVideoGenerationBodyReferencesMaxOne = 30;
+
+
+
+export const CreateVideoGenerationBody = zod.object({
+  "idempotencyKey": zod.string().uuid(),
+  "modelId": zod.string().uuid(),
+  "catalogId": zod.string().max(createVideoGenerationBodyCatalogIdMax),
+  "expectedCreditPrice": zod.number().int().min(1).max(createVideoGenerationBodyExpectedCreditPriceMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createVideoGenerationBodyReferencesMaxOne))
+})
+
+export const CreateVideoGenerationResponse = zod.object({
+  "job": zod.object({
+  "mediaKind": zod.enum(['photo', 'video']).optional(),
+  "resultUrls": zod.array(zod.string()).optional(),
+  "id": zod.string().uuid(),
+  "idempotencyKey": zod.string().uuid(),
+  "modelId": zod.string().uuid(),
+  "modelName": zod.string(),
+  "scenario": zod.string().optional(),
+  "prompt": zod.string(),
+  "duration": zod.number().int(),
+  "aspectRatio": zod.string(),
+  "status": zod.enum(['awaiting_reservation', 'queued', 'submitting', 'unknown', 'in_progress', 'finalizing', 'completed', 'failed']),
+  "requestId": zod.string().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "createdAt": zod.number().int(),
+  "updatedAt": zod.number().int(),
+  "creditPrice": zod.number().int()
+})
+})
+
+
 export const GetPhotoCatalogResponse = zod.object({
   "models": zod.array(zod.object({
   "id": zod.string(),
@@ -772,7 +846,7 @@ export const requestTemplateUploadBodySizeMax = 104857600;
 
 
 export const RequestTemplateUploadBody = zod.object({
-  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/wav', 'audio/x-wav']),
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'text/markdown', 'text/plain']),
   "size": zod.number().int().min(1).max(requestTemplateUploadBodySizeMax)
 })
 

@@ -95,7 +95,9 @@ import type {
   TemplatePublicationInput,
   TemplateSaveInput,
   TemplateSaveState,
-  TemplateUploadInput
+  TemplateUploadInput,
+  VideoCatalog,
+  VideoGenerationInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -124,6 +126,159 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetVideoCatalogUrl = () => {
+
+
+
+
+  return `/api/meduha/video/catalog`
+}
+
+export const getVideoCatalog = async ( options?: Parameters<typeof customFetch>[1]): Promise<VideoCatalog> => {
+
+  return customFetch<VideoCatalog>(getGetVideoCatalogUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVideoCatalogQueryKey = () => {
+    return [
+    `/api/meduha/video/catalog`
+    ] as const;
+    }
+
+
+export const getGetVideoCatalogQueryOptions = <TData = Awaited<ReturnType<typeof getVideoCatalog>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVideoCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVideoCatalogQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideoCatalog>>> = ({ signal }) => getVideoCatalog({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVideoCatalog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetVideoCatalogQueryResult = NonNullable<Awaited<ReturnType<typeof getVideoCatalog>>>
+export type GetVideoCatalogQueryError = ErrorType<unknown>
+
+
+
+export function useGetVideoCatalog<TData = Awaited<ReturnType<typeof getVideoCatalog>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVideoCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetVideoCatalogQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateVideoGenerationUrl = () => {
+
+
+
+
+  return `/api/meduha/video/generations`
+}
+
+export const createVideoGeneration = async (videoGenerationInput: VideoGenerationInput, options?: Parameters<typeof customFetch>[1]): Promise<GenerationSubmission> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<GenerationSubmission>(getCreateVideoGenerationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(videoGenerationInput)
+  }
+);}
+
+
+
+
+
+export const getCreateVideoGenerationMutationKey = () => ['createVideoGeneration'] as const;
+
+export const getCreateVideoGenerationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createVideoGeneration>>, TError,CreateVideoGenerationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createVideoGeneration>>, TError,CreateVideoGenerationMutationVariables, TContext> => {
+
+const mutationKey = getCreateVideoGenerationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createVideoGeneration>>, CreateVideoGenerationMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createVideoGeneration(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateVideoGenerationMutationResult = NonNullable<Awaited<ReturnType<typeof createVideoGeneration>>>
+    export type CreateVideoGenerationMutationBody = BodyType<VideoGenerationInput>
+    export type CreateVideoGenerationMutationError = ErrorType<void>
+    export type CreateVideoGenerationMutationVariables = {data: BodyType<VideoGenerationInput>}
+
+    export const useCreateVideoGeneration = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createVideoGeneration>>, TError,CreateVideoGenerationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createVideoGeneration>>,
+        TError,
+        CreateVideoGenerationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateVideoGenerationMutationOptions(options));
+    }
 
 export const getGetPhotoCatalogUrl = () => {
 

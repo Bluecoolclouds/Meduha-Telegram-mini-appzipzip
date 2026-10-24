@@ -32,3 +32,9 @@ Shared links use the same «Глубина» viewer, but only real published use
 **Why:** Starter examples are local inspiration material, not community publications; public detail lookup must not accidentally turn them or private drafts into shareable posts.
 
 **How to apply:** For feed detail links, resolve examples from the local catalog and fetch all other IDs through the endpoint that only returns currently published work.
+
+Shared generation templates retain the source materials, exact prompt, model/mode and generation settings. «Повторить» should open the matching editor with that recipe, not a generic editor with only the prompt.
+
+**Why:** the user described this workflow explicitly using a Genjutsu Motion Transfer example with a result video, a reference video and two ordered face-photo references.
+
+**How to apply:** distinguish the showcase result from input references. Preserve reference order and prompt-token bindings such as Image 1, Image 2 and Video 1. Let the person repeating a template edit or replace the inputs without changing the author's template; never submit or spend credits just by opening it. Sharing a result alone does not authorize sharing its private source materials.

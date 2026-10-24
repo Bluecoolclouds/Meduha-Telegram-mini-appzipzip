@@ -6,6 +6,7 @@ import { startMeduhaAdminCleanupWorker } from './lib/meduha-admin-cleanup-worker
 import { startGenerationWorker } from './lib/generation-worker';
 import { pool } from '@workspace/db';
 import { registerPhotoModels } from './routes/meduha-photo';
+import { registerVideoModels } from './routes/meduha-video';
 
 const rawPort = process.env["PORT"];
 
@@ -22,6 +23,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 await registerPhotoModels();
+await registerVideoModels();
 const server=app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");

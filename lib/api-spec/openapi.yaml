@@ -11,6 +11,32 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /meduha/video/catalog:
+    get:
+      operationId: getVideoCatalog
+      responses:
+        "200":
+          description: Verified video families and exact mode schemas with configured availability
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VideoCatalog" }
+  /meduha/video/generations:
+    post:
+      operationId: createVideoGeneration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VideoGenerationInput" }
+      responses:
+        "202":
+          description: Queued or existing private video generation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GenerationSubmission" }
+        "400": { description: Invalid mode parameters or references }
+        "401": { description: Telegram account required }
+        "409": { description: "Unavailable model, price, balance or spending" }
   /meduha/photo/catalog:
     get:
       operationId: getPhotoCatalog
@@ -941,6 +967,65 @@ components:
       in: header
       name: X-Telegram-Bot-Api-Secret-Token
   schemas:
+    VideoFileField:
+      type: object
+      required: [path, kind, array]
+      properties:
+        path: { type: string }
+        kind: { type: string, enum: [image, video, audio, document] }
+        array: { type: boolean }
+    VideoFamily:
+      type: object
+      required: [id, name, description, source, modes]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        source: { type: string }
+        modes: { type: array, items: { type: string } }
+    VideoCatalogModel:
+      type: object
+      required: [id, familyId, name, mode, endpoint, source, workflow, schema, outputSchema, fileFields, available, modelId, creditPrice]
+      properties:
+        id: { type: string }
+        familyId: { type: string }
+        name: { type: string }
+        mode: { type: string }
+        endpoint: { type: string }
+        source: { type: string }
+        workflow: { type: boolean }
+        schema: { type: object, additionalProperties: true }
+        outputSchema: { type: object, additionalProperties: true }
+        fileFields: { type: array, items: { $ref: "#/components/schemas/VideoFileField" } }
+        available: { type: boolean }
+        quoteScenario: { type: [string, "null"], enum: [genjutsu, object-swap, restyle, null] }
+        modelId: { type: [string, "null"] }
+        creditPrice: { type: [integer, "null"] }
+    VideoCatalog:
+      type: object
+      required: [families, models, spendingEnabled, providerConfigured, storageConfigured]
+      properties:
+        families: { type: array, items: { $ref: "#/components/schemas/VideoFamily" } }
+        models: { type: array, items: { $ref: "#/components/schemas/VideoCatalogModel" } }
+        spendingEnabled: { type: boolean }
+        providerConfigured: { type: boolean }
+        storageConfigured: { type: boolean }
+    VideoGenerationInput:
+      type: object
+      required: [idempotencyKey, modelId, catalogId, expectedCreditPrice, parameters, references]
+      properties:
+        idempotencyKey: { type: string, format: uuid }
+        modelId: { type: string, format: uuid }
+        catalogId: { type: string, maxLength: 200 }
+        expectedCreditPrice: { type: integer, minimum: 1, maximum: 100000000 }
+        parameters: { type: object, additionalProperties: true }
+        references:
+          type: object
+          maxProperties: 100
+          additionalProperties:
+            type: array
+            maxItems: 30
+            items: { type: string, format: uuid }
     TemplateLikeInput:
       type: object
       required: [liked]
@@ -971,7 +1056,7 @@ components:
       type: object
       required: [contentType, size]
       properties:
-        contentType: { type: string, enum: [image/jpeg, image/png, image/webp, video/mp4, video/webm, audio/mpeg, audio/wav, audio/x-wav] }
+        contentType: { type: string, enum: [image/jpeg, image/png, image/webp, video/mp4, video/webm, video/quicktime, audio/mpeg, audio/wav, audio/x-wav, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown, text/plain] }
         size: { type: integer, minimum: 1, maximum: 104857600 }
     TemplateInput:
       type: object

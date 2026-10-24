@@ -1,0 +1,5843 @@
+{
+  "source": "https://open.higgsfield.ai/explore?tab=video",
+  "families": [
+    {
+      "id": "bytedance/seedance-2.5/text-to-video",
+      "name": "Seedance 2.5",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/text-to-video/playground",
+      "modes": [
+        "bytedance/seedance-2.5/text-to-video",
+        "bytedance/seedance-2.5/image-to-video",
+        "bytedance/seedance-2.5/reference-to-video",
+        "bytedance/seedance-2.5/video-edit",
+        "bytedance/seedance-2.5/video-extend"
+      ]
+    },
+    {
+      "id": "higgsfield/genjutsu-light/motion-transfer/v1.0",
+      "name": "Genjutsu Light",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu-light/motion-transfer/v1.0/playground",
+      "modes": [
+        "higgsfield/genjutsu-light/motion-transfer/v1.0",
+        "higgsfield/genjutsu-light/object-swap/v1.0"
+      ]
+    },
+    {
+      "id": "higgsfield/genjutsu/motion-transfer/v1.0",
+      "name": "Genjutsu",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu/motion-transfer/v1.0/playground",
+      "modes": [
+        "higgsfield/genjutsu/motion-transfer/v1.0",
+        "higgsfield/genjutsu/object-swap/v1.0",
+        "higgsfield/genjutsu/restyle/v1.0"
+      ]
+    },
+    {
+      "id": "kling-video/v4.0/text-to-video",
+      "name": "Kling 4.0",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/text-to-video/playground",
+      "modes": [
+        "kling-video/v4.0/text-to-video",
+        "kling-video/v4.0/reference-to-video",
+        "kling-video/v4.0/image-to-video",
+        "kling-video/v4.0/video-edit"
+      ]
+    },
+    {
+      "id": "minimax/h3/text-to-video",
+      "name": "MiniMax H3",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/minimax/h3/text-to-video/playground",
+      "modes": [
+        "minimax/h3/text-to-video",
+        "minimax/h3/image-to-video",
+        "minimax/h3/reference-to-video"
+      ]
+    },
+    {
+      "id": "alibaba/wan-3.0-prime/text-to-video",
+      "name": "Wan 3.0 Prime",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/text-to-video/playground",
+      "modes": [
+        "alibaba/wan-3.0-prime/text-to-video",
+        "alibaba/wan-3.0-prime/image-to-video",
+        "alibaba/wan-3.0-prime/reference-to-video"
+      ]
+    },
+    {
+      "id": "bytedance/seedance-2.0/text-to-video",
+      "name": "Seedance 2.0",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/text-to-video/playground",
+      "modes": [
+        "bytedance/seedance-2.0/text-to-video",
+        "bytedance/seedance-2.0/image-to-video",
+        "bytedance/seedance-2.0/reference-to-video"
+      ]
+    },
+    {
+      "id": "higgsfield/cinema-studio/4.0",
+      "name": "Cinema Studio 4.0",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/higgsfield/cinema-studio/4.0/playground",
+      "modes": [
+        "higgsfield/cinema-studio/4.0"
+      ]
+    },
+    {
+      "id": "workflows/genjutsu",
+      "name": "Genjutsu",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/workflows/genjutsu/playground",
+      "modes": [
+        "workflows/genjutsu",
+        "workflows/genjutsu/object-swap"
+      ]
+    },
+    {
+      "id": "kling-video/v3.0/std/text-to-video",
+      "name": "Kling 3.0 Standard",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/std/text-to-video/playground",
+      "modes": [
+        "kling-video/v3.0/std/text-to-video",
+        "kling-video/v3.0/pro/text-to-video",
+        "kling-video/v3.0/4k/text-to-video",
+        "kling-video/v3.0/std/image-to-video",
+        "kling-video/v3.0/pro/image-to-video",
+        "kling-video/v3.0/4k/image-to-video",
+        "kling-video/v3.0-turbo/text-to-video",
+        "kling-video/v3.0-turbo/image-to-video",
+        "kling-video/v3/motion-control/std",
+        "kling-video/v3/motion-control/pro"
+      ]
+    },
+    {
+      "id": "alibaba/wan-3.0/text-to-video",
+      "name": "Wan 3.0",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0/text-to-video/playground",
+      "modes": [
+        "alibaba/wan-3.0/text-to-video",
+        "alibaba/wan-3.0/image-to-video",
+        "alibaba/wan-3.0/reference-to-video"
+      ]
+    },
+    {
+      "id": "lightricks/ltx-2.5/text-to-video/fast",
+      "name": "LTX-2.5 Fast",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/fast/playground",
+      "modes": [
+        "lightricks/ltx-2.5/text-to-video/fast",
+        "lightricks/ltx-2.5/image-to-video/fast"
+      ]
+    },
+    {
+      "id": "lightricks/ltx-2.5/text-to-video/pro",
+      "name": "LTX-2.5 Pro",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/pro/playground",
+      "modes": [
+        "lightricks/ltx-2.5/text-to-video/pro",
+        "lightricks/ltx-2.5/image-to-video/pro"
+      ]
+    },
+    {
+      "id": "xai/grok-imagine-video/v1.5/reference-to-video",
+      "name": "Grok Imagine Video 1.5",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/xai/grok-imagine-video/v1.5/reference-to-video/playground",
+      "modes": [
+        "xai/grok-imagine-video/v1.5/reference-to-video"
+      ]
+    },
+    {
+      "id": "wan/v2.7/text-to-video",
+      "name": "Wan 2.7",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/wan/v2.7/text-to-video/playground",
+      "modes": [
+        "wan/v2.7/text-to-video",
+        "wan/v2.7/image-to-video",
+        "wan/v2.7/reference-to-video"
+      ]
+    },
+    {
+      "id": "alibaba/happy-horse/v1.1/text-to-video",
+      "name": "HappyHorse 1.1",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/text-to-video/playground",
+      "modes": [
+        "alibaba/happy-horse/v1.1/text-to-video",
+        "alibaba/happy-horse/v1.1/image-to-video",
+        "alibaba/happy-horse/v1.1/reference-to-video"
+      ]
+    },
+    {
+      "id": "alibaba/happy-horse/text-to-video",
+      "name": "Happy Horse 1.0",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/text-to-video/playground",
+      "modes": [
+        "alibaba/happy-horse/text-to-video",
+        "alibaba/happy-horse/image-to-video",
+        "alibaba/happy-horse/reference-to-video"
+      ]
+    },
+    {
+      "id": "pixverse/v6/text-to-video",
+      "name": "PixVerse V6",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/pixverse/v6/text-to-video/playground",
+      "modes": [
+        "pixverse/v6/text-to-video",
+        "pixverse/v6/image-to-video"
+      ]
+    },
+    {
+      "id": "kling-video/o3/first-last-frame",
+      "name": "Kling O3",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/first-last-frame/playground",
+      "modes": [
+        "kling-video/o3/first-last-frame",
+        "kling-video/o3/image-reference",
+        "kling-video/o3/video-reference",
+        "kling-video/o3/video-edit"
+      ]
+    },
+    {
+      "id": "kling-video/v2.6/pro/text-to-video",
+      "name": "Kling 2.6 Pro",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.6/pro/text-to-video/playground",
+      "modes": [
+        "kling-video/v2.6/pro/text-to-video",
+        "kling-video/v2.6/pro/image-to-video",
+        "kling-video/motion-control/std",
+        "kling-video/motion-control/pro"
+      ]
+    },
+    {
+      "id": "kling-video/omni/first-last-frame",
+      "name": "Kling Omni",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/first-last-frame/playground",
+      "modes": [
+        "kling-video/omni/first-last-frame",
+        "kling-video/omni/image-reference",
+        "kling-video/omni/video-reference",
+        "kling-video/omni/video-edit"
+      ]
+    },
+    {
+      "id": "wan/v2.6/text-to-video",
+      "name": "Wan 2.6",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/wan/v2.6/text-to-video/playground",
+      "modes": [
+        "wan/v2.6/text-to-video",
+        "wan/v2.6/image-to-video",
+        "wan/v2.6/reference-to-video"
+      ]
+    },
+    {
+      "id": "minimax/hailuo-2.3/standard/text-to-video",
+      "name": "MiniMax Hailuo 2.3 Standard",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/text-to-video/playground",
+      "modes": [
+        "minimax/hailuo-2.3/standard/text-to-video",
+        "minimax/hailuo-2.3/standard/image-to-video"
+      ]
+    },
+    {
+      "id": "kling-video/v2.5-turbo/standard/image-to-video",
+      "name": "Kling 2.5 Turbo Standard",
+      "description": "",
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/standard/image-to-video/playground",
+      "modes": [
+        "kling-video/v2.5-turbo/standard/image-to-video",
+        "kling-video/v2.5-turbo/pro/image-to-video",
+        "kling-video/v2.5-turbo/pro/text-to-video"
+      ]
+    }
+  ],
+  "models": [
+    {
+      "id": "bytedance/seedance-2.5/text-to-video",
+      "name": "Seedance 2.5",
+      "endpoint": "bytedance/seedance-2.5/text-to-video",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 4
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "21:9"
+            ],
+            "type": "string",
+            "default": "16:9"
+          },
+          "bitrate_mode": {
+            "enum": [
+              "standard",
+              "high"
+            ],
+            "type": "string",
+            "default": "high"
+          },
+          "output_format": {
+            "enum": [
+              "mp4",
+              "mov"
+            ],
+            "type": "string",
+            "default": "mp4"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.5/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "bytedance/seedance-2.5/image-to-video",
+      "name": "Seedance 2.5",
+      "endpoint": "bytedance/seedance-2.5/image-to-video",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 4
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "bitrate_mode": {
+            "enum": [
+              "standard",
+              "high"
+            ],
+            "type": "string",
+            "default": "high"
+          },
+          "end_image_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.5/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "bytedance/seedance-2.5/reference-to-video",
+      "name": "Seedance 2.5",
+      "endpoint": "bytedance/seedance-2.5/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/reference-to-video/playground",
+      "schema": {
+        "if": {
+          "required": [
+            "image_urls"
+          ]
+        },
+        "else": {
+          "if": {
+            "required": [
+              "video_urls"
+            ]
+          },
+          "else": {
+            "required": [
+              "audio_urls"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 4
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10,
+            "minItems": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 30,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10,
+            "minItems": 1
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "21:9"
+            ],
+            "type": "string",
+            "default": "16:9"
+          },
+          "bitrate_mode": {
+            "enum": [
+              "standard",
+              "high"
+            ],
+            "type": "string",
+            "default": "high"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.5/text-to-video",
+      "mode": "Reference to Video (with video reference)",
+      "workflow": false
+    },
+    {
+      "id": "bytedance/seedance-2.5/video-edit",
+      "name": "Seedance 2.5",
+      "endpoint": "bytedance/seedance-2.5/video-edit",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-edit/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "prompt",
+          "video_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "video_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10,
+            "minItems": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 30,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10,
+            "minItems": 1
+          },
+          "bitrate_mode": {
+            "enum": [
+              "standard",
+              "high"
+            ],
+            "type": "string",
+            "default": "high"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.5/text-to-video",
+      "mode": "Video Edit",
+      "workflow": false
+    },
+    {
+      "id": "bytedance/seedance-2.5/video-extend",
+      "name": "Seedance 2.5",
+      "endpoint": "bytedance/seedance-2.5/video-extend",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-extend/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "prompt",
+          "video_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 4
+          },
+          "video_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10,
+            "minItems": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 30,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10,
+            "minItems": 1
+          },
+          "bitrate_mode": {
+            "enum": [
+              "standard",
+              "high"
+            ],
+            "type": "string",
+            "default": "high"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.5/text-to-video",
+      "mode": "Video Extend",
+      "workflow": false
+    },
+    {
+      "id": "higgsfield/genjutsu-light/motion-transfer/v1.0",
+      "name": "Genjutsu Light",
+      "endpoint": "higgsfield/genjutsu-light/motion-transfer/v1.0",
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu-light/motion-transfer/v1.0/playground",
+      "schema": {
+        "type": "object",
+        "title": "MotionTransferParams",
+        "required": [
+          "video_url",
+          "image_urls"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "maxLength": 10000
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video Url",
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1
+            },
+            "title": "Image Urls",
+            "maxItems": 8,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "480p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "higgsfield/genjutsu-light/motion-transfer/v1.0",
+      "mode": "Motion Transfer",
+      "workflow": false
+    },
+    {
+      "id": "higgsfield/genjutsu-light/object-swap/v1.0",
+      "name": "Genjutsu Light",
+      "endpoint": "higgsfield/genjutsu-light/object-swap/v1.0",
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu-light/object-swap/v1.0/playground",
+      "schema": {
+        "type": "object",
+        "title": "ObjectSwapParams",
+        "required": [
+          "video_url",
+          "image_urls"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "maxLength": 10000
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video Url",
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1
+            },
+            "title": "Image Urls",
+            "maxItems": 8,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "480p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "higgsfield/genjutsu-light/motion-transfer/v1.0",
+      "mode": "Object Swap",
+      "workflow": false
+    },
+    {
+      "id": "higgsfield/genjutsu/motion-transfer/v1.0",
+      "name": "Genjutsu",
+      "endpoint": "higgsfield/genjutsu/motion-transfer/v1.0",
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu/motion-transfer/v1.0/playground",
+      "schema": {
+        "type": "object",
+        "title": "MotionTransferParams",
+        "required": [
+          "video_url",
+          "image_urls"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "maxLength": 10000
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video Url",
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1
+            },
+            "title": "Image Urls",
+            "maxItems": 8,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "480p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "higgsfield/genjutsu/motion-transfer/v1.0",
+      "mode": "Motion Transfer",
+      "workflow": false
+    },
+    {
+      "id": "higgsfield/genjutsu/object-swap/v1.0",
+      "name": "Genjutsu",
+      "endpoint": "higgsfield/genjutsu/object-swap/v1.0",
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu/object-swap/v1.0/playground",
+      "schema": {
+        "type": "object",
+        "title": "ObjectSwapParams",
+        "required": [
+          "video_url",
+          "image_urls"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "maxLength": 10000
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video Url",
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1
+            },
+            "title": "Image Urls",
+            "maxItems": 8,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "480p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "higgsfield/genjutsu/motion-transfer/v1.0",
+      "mode": "Object Swap",
+      "workflow": false
+    },
+    {
+      "id": "higgsfield/genjutsu/restyle/v1.0",
+      "name": "Genjutsu",
+      "endpoint": "higgsfield/genjutsu/restyle/v1.0",
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu/restyle/v1.0/playground",
+      "schema": {
+        "type": "object",
+        "title": "Genjutsu Restyle",
+        "required": [
+          "video_url",
+          "preset_id"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "maxLength": 10000
+          },
+          "preset_id": {
+            "type": "string",
+            "title": "Style preset",
+            "format": "uuid"
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Source video",
+            "format": "uri",
+            "minLength": 1,
+            "description": "Source video, 4–30 seconds. Longer videos are trimmed to 30 seconds."
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "minLength": 1
+            },
+            "title": "Character images",
+            "default": [],
+            "maxItems": 5,
+            "description": "Optional character references. Leave empty to restyle the source frame."
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "higgsfield/genjutsu/motion-transfer/v1.0",
+      "mode": "Restyle",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v4.0/text-to-video",
+      "name": "Kling 4.0",
+      "endpoint": "kling-video/v4.0/text-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "duration": {
+            "type": "integer",
+            "default": 10,
+            "maximum": 30,
+            "minimum": 3
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "1080p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "21:9",
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "default": "16:9"
+          }
+        },
+        "additionalProperties": true
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v4.0/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v4.0/reference-to-video",
+      "name": "Kling 4.0",
+      "endpoint": "kling-video/v4.0/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/reference-to-video/playground",
+      "schema": {
+        "if": {
+          "required": [
+            "image_url"
+          ]
+        },
+        "else": {
+          "if": {
+            "required": [
+              "image_urls"
+            ],
+            "properties": {
+              "image_urls": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "required": [
+                "end_image_url"
+              ]
+            },
+            "else": {
+              "if": {
+                "required": [
+                  "video_urls"
+                ],
+                "properties": {
+                  "video_urls": {
+                    "minItems": 1
+                  }
+                }
+              },
+              "else": {
+                "required": [
+                  "elements"
+                ],
+                "properties": {
+                  "elements": {
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "duration": {
+            "type": "integer",
+            "default": 10,
+            "maximum": 30,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxItems": 7
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "minLength": 1
+            },
+            "maxItems": 10
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "1080p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "minLength": 1
+            },
+            "maxItems": 5
+          },
+          "aspect_ratio": {
+            "enum": [
+              "21:9",
+              "16:9",
+              "9:16",
+              "1:1",
+              "adaptive"
+            ],
+            "type": "string",
+            "default": "adaptive"
+          },
+          "end_image_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v4.0/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v4.0/image-to-video",
+      "name": "Kling 4.0",
+      "endpoint": "kling-video/v4.0/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 10,
+            "maximum": 30,
+            "minimum": 3
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "minLength": 1
+            },
+            "title": "Middle frames",
+            "maxItems": 8,
+            "description": "Intermediate frames between the first and end frames. Up to 8 images."
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "1080p"
+          },
+          "end_image_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v4.0/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v4.0/video-edit",
+      "name": "Kling 4.0",
+      "endpoint": "kling-video/v4.0/video-edit",
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/video-edit/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "prompt",
+          "video_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "duration": {
+            "type": "integer",
+            "default": 10,
+            "maximum": 30,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxItems": 7
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          },
+          "video_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "minLength": 1
+            },
+            "maxItems": 10
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "1080p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "minLength": 1
+            },
+            "maxItems": 5
+          },
+          "aspect_ratio": {
+            "enum": [
+              "21:9",
+              "16:9",
+              "9:16",
+              "1:1",
+              "adaptive"
+            ],
+            "type": "string",
+            "default": "adaptive"
+          },
+          "end_image_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v4.0/text-to-video",
+      "mode": "Video Edit",
+      "workflow": false
+    },
+    {
+      "id": "minimax/h3/text-to-video",
+      "name": "MiniMax H3",
+      "endpoint": "minimax/h3/text-to-video",
+      "source": "https://open.higgsfield.ai/models/minimax/h3/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "MiniMax H3 Text to Video Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 5
+          },
+          "resolution": {
+            "enum": [
+              "2K"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "2K"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "auto",
+              "adaptive",
+              "21:9",
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "auto"
+          },
+          "aigc_watermark": {
+            "type": "boolean",
+            "title": "AIGC watermark",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "minimax/h3/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "minimax/h3/image-to-video",
+      "name": "MiniMax H3",
+      "endpoint": "minimax/h3/image-to-video",
+      "source": "https://open.higgsfield.ai/models/minimax/h3/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "MiniMax H3 Image to Video Playground",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 5
+          },
+          "image_url": {
+            "type": "string",
+            "title": "First frame URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "2K"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "2K"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "auto",
+              "adaptive",
+              "21:9",
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "auto"
+          },
+          "end_image_url": {
+            "type": "string",
+            "title": "Last frame URL",
+            "format": "uri"
+          },
+          "aigc_watermark": {
+            "type": "boolean",
+            "title": "AIGC watermark",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "minimax/h3/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "minimax/h3/reference-to-video",
+      "name": "MiniMax H3",
+      "endpoint": "minimax/h3/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/minimax/h3/reference-to-video/playground",
+      "schema": {
+        "if": {
+          "required": [
+            "image_urls"
+          ]
+        },
+        "else": {
+          "required": [
+            "video_urls"
+          ]
+        },
+        "type": "object",
+        "title": "MiniMax H3 Reference to Video Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 5
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference audio URLs",
+            "maxItems": 3,
+            "minItems": 0
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference image URLs",
+            "maxItems": 9,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "2K"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "2K"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference video URLs",
+            "maxItems": 3,
+            "minItems": 1
+          },
+          "aspect_ratio": {
+            "enum": [
+              "auto",
+              "adaptive",
+              "21:9",
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "auto"
+          },
+          "aigc_watermark": {
+            "type": "boolean",
+            "title": "AIGC watermark",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "minimax/h3/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/wan-3.0-prime/text-to-video",
+      "name": "Wan 3.0 Prime",
+      "endpoint": "alibaba/wan-3.0-prime/text-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 3.0 Prime Text to Video",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration (sec)",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 2,
+            "description": "2-30 seconds."
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "adaptive"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "adaptive"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Sound",
+            "default": true
+          },
+          "enable_thinking": {
+            "type": "boolean",
+            "title": "Deep Thinking",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/wan-3.0-prime/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/wan-3.0-prime/image-to-video",
+      "name": "Wan 3.0 Prime",
+      "endpoint": "alibaba/wan-3.0-prime/image-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 3.0 Prime Image to Video",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration (sec)",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 2,
+            "description": "2-30 seconds."
+          },
+          "image_url": {
+            "type": "string",
+            "title": "First Frame",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "adaptive"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "adaptive"
+          },
+          "end_image_url": {
+            "type": "string",
+            "title": "Last Frame",
+            "format": "uri"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Sound",
+            "default": true
+          },
+          "enable_thinking": {
+            "type": "boolean",
+            "title": "Deep Thinking",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/wan-3.0-prime/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/wan-3.0-prime/reference-to-video",
+      "name": "Wan 3.0 Prime",
+      "endpoint": "alibaba/wan-3.0-prime/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/reference-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 3.0 Prime Reference to Video",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration (sec)",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 2,
+            "description": "2-30 seconds."
+          },
+          "file_url": {
+            "type": "string",
+            "title": "Reference Document",
+            "format": "uri",
+            "description": "One document (docx/xlsx/pptx/pdf/md). Forces deep thinking."
+          },
+          "link_url": {
+            "type": "string",
+            "title": "Reference Web Page",
+            "format": "uri",
+            "description": "One public page. Forces deep thinking. Not combinable with file_url."
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference Audio",
+            "maxItems": 5,
+            "description": "Up to 5 files, 30s total. WAV or MP3."
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference Images",
+            "maxItems": 10
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference Videos",
+            "maxItems": 5,
+            "description": "Up to 5 clips, 30s total, each 1-30s."
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "adaptive"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "adaptive"
+          },
+          "prompt_extend": {
+            "type": "boolean",
+            "title": "Prompt Expansion",
+            "default": false,
+            "description": "Enable Alibaba automatic prompt rewriting. Set false to disable it. Always enabled when file_url or link_url is provided."
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Sound",
+            "default": true
+          },
+          "enable_thinking": {
+            "type": "boolean",
+            "title": "Deep Thinking",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/wan-3.0-prime/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "bytedance/seedance-2.0/text-to-video",
+      "name": "Seedance 2.0",
+      "endpoint": "bytedance/seedance-2.0/text-to-video",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 4
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p",
+              "4k"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "21:9"
+            ],
+            "type": "string",
+            "default": "16:9"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.0/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "bytedance/seedance-2.0/image-to-video",
+      "name": "Seedance 2.0",
+      "endpoint": "bytedance/seedance-2.0/image-to-video",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 4
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p",
+              "4k"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "end_image_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.0/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "bytedance/seedance-2.0/reference-to-video",
+      "name": "Seedance 2.0",
+      "endpoint": "bytedance/seedance-2.0/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/reference-to-video/playground",
+      "schema": {
+        "if": {
+          "required": [
+            "image_urls"
+          ]
+        },
+        "else": {
+          "required": [
+            "video_urls"
+          ]
+        },
+        "type": "object",
+        "required": [],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 4
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 3,
+            "minItems": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 9,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p",
+              "4k"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 3,
+            "minItems": 1
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "21:9"
+            ],
+            "type": "string",
+            "default": "16:9"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "bytedance/seedance-2.0/text-to-video",
+      "mode": "Reference to Video (with video reference)",
+      "workflow": false
+    },
+    {
+      "id": "higgsfield/cinema-studio/4.0",
+      "name": "Cinema Studio 4.0",
+      "endpoint": "higgsfield/cinema-studio/4.0",
+      "source": "https://open.higgsfield.ai/models/higgsfield/cinema-studio/4.0/playground",
+      "schema": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "era": {
+            "enum": [
+              "1960s",
+              "1980s",
+              "1990s",
+              "2000s",
+              "2020s"
+            ],
+            "type": "string"
+          },
+          "genre": {
+            "enum": [
+              "epic",
+              "drama",
+              "noir",
+              "comedy",
+              "horror",
+              "action"
+            ],
+            "type": "string"
+          },
+          "light": {
+            "enum": [
+              "silhouette",
+              "practicals",
+              "window",
+              "overhead-fall",
+              "contre-jour",
+              "soft-cross"
+            ],
+            "type": "string"
+          },
+          "pacing": {
+            "enum": [
+              "chaotic",
+              "dynamic",
+              "calm",
+              "single-shot"
+            ],
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string",
+            "pattern": "\\S",
+            "minLength": 1
+          },
+          "duration": {
+            "type": "integer",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 4
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 30
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "maxItems": 10
+          },
+          "camera_lens": {
+            "enum": [
+              "clean-sharp",
+              "anamorphic",
+              "vintage-anamorphic",
+              "warm-vintage",
+              "halation-vintage"
+            ],
+            "type": "string"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "21:9"
+            ],
+            "type": "string",
+            "default": "16:9"
+          },
+          "camera_model": {
+            "enum": [
+              "modern",
+              "35mm-film",
+              "8mm-film",
+              "dv-camcorder"
+            ],
+            "type": "string"
+          },
+          "color_palette": {
+            "enum": [
+              "static-noon",
+              "twilight-fable",
+              "back-row-kissing-seats",
+              "on-the-other-side-of-the-porthole",
+              "the-emerald-ambush",
+              "highway-standoff",
+              "the-faded-fresco",
+              "oil-ochre",
+              "the-mountain-convent",
+              "ghost-in-the-code",
+              "pink-velvet",
+              "two-days-to-the-horizon",
+              "industrial-fog",
+              "stairs-go-up",
+              "field-post",
+              "home-is-the-next-gas-station",
+              "glossy-flesh",
+              "the-crimson-ballet",
+              "neon-rain-at-midnight",
+              "the-morning-after-rain",
+              "the-iron-borough",
+              "the-ground",
+              "the-investigation",
+              "turquoise-mirage",
+              "a-dream-in-color",
+              "breakfast-on-schedule",
+              "favela-gold",
+              "a-hotel-for-one",
+              "after-dark",
+              "crimson-vigi",
+              "the-neighbors-saw-everything",
+              "the-grey-channel",
+              "mirage-at-noon",
+              "bubblegum-boulevard",
+              "yellow-room",
+              "the-earth-keeps-things-reluctantly",
+              "tropic-fever-dream",
+              "bioluminescent-night",
+              "dont-turn-it-off-im-watching",
+              "the-silk-curtain-falls",
+              "the-butterfly",
+              "playtime",
+              "wallpaper-romance",
+              "overtime",
+              "the-way-home-is-longer",
+              "everyone-speaks-in-whispers",
+              "runaway-summer",
+              "amber-wasteland",
+              "the-circus",
+              "gasoline-sunset"
+            ],
+            "type": "string"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          },
+          "camera_aperture": {
+            "enum": [
+              "f14-wide-open",
+              "f4-moderate",
+              "f11-deep-focus"
+            ],
+            "type": "string"
+          },
+          "camera_movement": {
+            "enum": [
+              "snorricam",
+              "robot-arm",
+              "tilt-up",
+              "rack-focus",
+              "tilt-down",
+              "pov",
+              "pan-left",
+              "crane-up",
+              "pan-right",
+              "crane-down",
+              "side-tracking",
+              "pedestal-up",
+              "pedestal-down",
+              "handheld",
+              "tracking",
+              "drone-orbit",
+              "dolly-zoom",
+              "aerial-pullback",
+              "static-shot",
+              "bullet-time",
+              "whip-pan",
+              "slow-zoom-in",
+              "arc-left",
+              "slow-zoom-out",
+              "arc-right",
+              "truck-right",
+              "dolly-in",
+              "truck-left",
+              "dolly-out",
+              "slider-right",
+              "crush-zoom",
+              "slider-left",
+              "helicopter-shot"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "higgsfield/cinema-studio/4.0",
+      "mode": "",
+      "workflow": false
+    },
+    {
+      "id": "workflows/genjutsu",
+      "name": "Genjutsu",
+      "endpoint": "higgsfiled/genjutsu/motion-transfer/v1.0",
+      "source": "https://open.higgsfield.ai/models/workflows/genjutsu/playground",
+      "schema": {
+        "type": "object",
+        "title": "MotionTransferParams",
+        "required": [
+          "video_url",
+          "image_urls"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "swap the video's main character to the attached characters and his clother",
+            "maxLength": 10000
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video Url",
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1
+            },
+            "title": "Image Urls",
+            "maxItems": 8,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "480p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "workflows/genjutsu",
+      "mode": "Motion Transfer",
+      "workflow": true
+    },
+    {
+      "id": "workflows/genjutsu/object-swap",
+      "name": "Genjutsu",
+      "endpoint": "higgsfiled/genjutsu/object-swap/v1.0",
+      "source": "https://open.higgsfield.ai/models/workflows/genjutsu/object-swap/playground",
+      "schema": {
+        "type": "object",
+        "title": "ObjectSwapParams",
+        "required": [
+          "video_url",
+          "image_urls"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "swap the video's main character to the attached characters and his clother",
+            "maxLength": 10000
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video Url",
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1
+            },
+            "title": "Image Urls",
+            "maxItems": 8,
+            "minItems": 1
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "480p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "workflows/genjutsu",
+      "mode": "Object Swap",
+      "workflow": true
+    },
+    {
+      "id": "kling-video/v3.0/std/text-to-video",
+      "name": "Kling 3.0 Standard",
+      "endpoint": "kling-video/v3.0/std/text-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/std/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Playground",
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 1
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 1
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Text to Video (Standard)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3.0/pro/text-to-video",
+      "name": "Kling 3.0 Pro",
+      "endpoint": "kling-video/v3.0/pro/text-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/pro/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Playground",
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 1
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 0
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Text to Video (Pro)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3.0/4k/text-to-video",
+      "name": "Kling 3.0",
+      "endpoint": "kling-video/v3.0/4k/text-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/4k/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Playground",
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 1
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 0
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Text to Video (4K)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3.0/std/image-to-video",
+      "name": "Kling 3.0 Standard",
+      "endpoint": "kling-video/v3.0/std/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/std/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Playground",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 1
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 1
+          },
+          "last_image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Image to Video (Standard)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3.0/pro/image-to-video",
+      "name": "Kling 3.0 Pro",
+      "endpoint": "kling-video/v3.0/pro/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/pro/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Playground",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 1
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 0
+          },
+          "last_image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Image to Video (Pro)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3.0/4k/image-to-video",
+      "name": "Kling 3.0 4k",
+      "endpoint": "kling-video/v3.0/4k/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/4k/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Playground",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 1
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 0
+          },
+          "last_image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Image to Video (4K)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3.0-turbo/text-to-video",
+      "name": "Kling 3.0 Turbo",
+      "endpoint": "kling-video/v3.0-turbo/text-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0-turbo/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Turbo",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Text to Video (Turbo)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3.0-turbo/image-to-video",
+      "name": "Kling 3.0 Turbo",
+      "endpoint": "kling-video/v3.0-turbo/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0-turbo/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 3.0 Turbo",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Image to Video (Turbo)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3/motion-control/std",
+      "name": "Kling 3.0",
+      "endpoint": "kling-video/v3/motion-control/std",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3/motion-control/std/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling V3 Motion Control Playground",
+        "required": [
+          "image_url",
+          "video_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "description": "Write your prompt here"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video URL",
+            "format": "uri"
+          },
+          "keep_original_sound": {
+            "enum": [
+              "yes",
+              "no"
+            ],
+            "type": "string",
+            "title": "Keep original sound",
+            "default": "yes"
+          },
+          "character_orientation": {
+            "enum": [
+              "image",
+              "video"
+            ],
+            "type": "string",
+            "title": "Character orientation",
+            "default": "video",
+            "description": "Generate the orientation of the characters in the video, which can be selected to match the image or the video"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Motion Control (Standard)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v3/motion-control/pro",
+      "name": "Kling 3.0",
+      "endpoint": "kling-video/v3/motion-control/pro",
+      "source": "https://open.higgsfield.ai/models/kling-video/v3/motion-control/pro/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling V3 Motion Control Playground",
+        "required": [
+          "image_url",
+          "video_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "description": "Write your prompt here"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video URL",
+            "format": "uri"
+          },
+          "keep_original_sound": {
+            "enum": [
+              "yes",
+              "no"
+            ],
+            "type": "string",
+            "title": "Keep original sound",
+            "default": "yes"
+          },
+          "character_orientation": {
+            "enum": [
+              "image",
+              "video"
+            ],
+            "type": "string",
+            "title": "Character orientation",
+            "default": "video",
+            "description": "Generate the orientation of the characters in the video, which can be selected to match the image or the video"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v3.0/std/text-to-video",
+      "mode": "Motion Control (Pro)",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/wan-3.0/text-to-video",
+      "name": "Wan 3.0",
+      "endpoint": "alibaba/wan-3.0/text-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 3.0 Text to Video",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration (sec)",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 2,
+            "description": "2-30 seconds."
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "adaptive"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "adaptive"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Sound",
+            "default": true
+          },
+          "enable_thinking": {
+            "type": "boolean",
+            "title": "Deep Thinking",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/wan-3.0/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/wan-3.0/image-to-video",
+      "name": "Wan 3.0",
+      "endpoint": "alibaba/wan-3.0/image-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 3.0 Image to Video",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration (sec)",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 2,
+            "description": "2-30 seconds."
+          },
+          "image_url": {
+            "type": "string",
+            "title": "First Frame",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "adaptive"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "adaptive"
+          },
+          "end_image_url": {
+            "type": "string",
+            "title": "Last Frame",
+            "format": "uri"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Sound",
+            "default": true
+          },
+          "enable_thinking": {
+            "type": "boolean",
+            "title": "Deep Thinking",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/wan-3.0/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/wan-3.0/reference-to-video",
+      "name": "Wan 3.0",
+      "endpoint": "alibaba/wan-3.0/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0/reference-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 3.0 Reference to Video",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration (sec)",
+            "default": 5,
+            "maximum": 30,
+            "minimum": 2,
+            "description": "2-30 seconds."
+          },
+          "file_url": {
+            "type": "string",
+            "title": "Reference Document",
+            "format": "uri",
+            "description": "One document (docx/xlsx/pptx/pdf/md). Forces deep thinking."
+          },
+          "link_url": {
+            "type": "string",
+            "title": "Reference Web Page",
+            "format": "uri",
+            "description": "One public page. Forces deep thinking. Not combinable with file_url."
+          },
+          "audio_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference Audio",
+            "maxItems": 5,
+            "description": "Up to 5 files, 30s total. WAV or MP3."
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference Images",
+            "maxItems": 10
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "title": "Reference Videos",
+            "maxItems": 5,
+            "description": "Up to 5 clips, 30s total, each 1-30s."
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16",
+              "adaptive"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "adaptive"
+          },
+          "prompt_extend": {
+            "type": "boolean",
+            "title": "Prompt Expansion",
+            "default": false,
+            "description": "Enable Alibaba automatic prompt rewriting. Set false to disable it. Always enabled when file_url or link_url is provided."
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Sound",
+            "default": true
+          },
+          "enable_thinking": {
+            "type": "boolean",
+            "title": "Deep Thinking",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/wan-3.0/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "lightricks/ltx-2.5/text-to-video/fast",
+      "name": "LTX-2.5 Fast",
+      "endpoint": "lightricks/ltx-2.5/text-to-video/fast",
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/fast/playground",
+      "schema": {
+        "type": "object",
+        "title": "LTX-2.5 Fast Text to Video Playground",
+        "required": [
+          "prompt",
+          "duration"
+        ],
+        "properties": {
+          "fps": {
+            "enum": [
+              24,
+              25,
+              48,
+              50
+            ],
+            "type": "integer",
+            "title": "Frames per second",
+            "default": 25
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "maxLength": 5000,
+            "minLength": 2,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              6,
+              8,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 6
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p",
+              "2k",
+              "4k"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Generate audio",
+            "default": true
+          },
+          "camera_movement": {
+            "enum": [
+              "dolly_in",
+              "dolly_out",
+              "dolly_left",
+              "dolly_right",
+              "jib_up",
+              "jib_down",
+              "static",
+              "focus_shift"
+            ],
+            "type": "string",
+            "title": "Camera movement"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "lightricks/ltx-2.5/text-to-video/fast",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "lightricks/ltx-2.5/image-to-video/fast",
+      "name": "LTX-2.5 Fast",
+      "endpoint": "lightricks/ltx-2.5/image-to-video/fast",
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/image-to-video/fast/playground",
+      "schema": {
+        "type": "object",
+        "title": "LTX-2.5 Fast Image to Video Playground",
+        "required": [
+          "prompt",
+          "duration",
+          "image_url"
+        ],
+        "properties": {
+          "fps": {
+            "enum": [
+              24,
+              25,
+              48,
+              50
+            ],
+            "type": "integer",
+            "title": "Frames per second",
+            "default": 25
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "maxLength": 5000,
+            "minLength": 2,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              6,
+              8,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 6
+          },
+          "image_url": {
+            "type": "string",
+            "title": "First frame",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p",
+              "2k",
+              "4k"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "end_image_url": {
+            "type": "string",
+            "title": "Last frame",
+            "format": "uri"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Generate audio",
+            "default": true
+          },
+          "camera_movement": {
+            "enum": [
+              "dolly_in",
+              "dolly_out",
+              "dolly_left",
+              "dolly_right",
+              "jib_up",
+              "jib_down",
+              "static",
+              "focus_shift"
+            ],
+            "type": "string",
+            "title": "Camera movement"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "lightricks/ltx-2.5/text-to-video/fast",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "lightricks/ltx-2.5/text-to-video/pro",
+      "name": "LTX-2.5 Pro",
+      "endpoint": "lightricks/ltx-2.5/text-to-video/pro",
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/pro/playground",
+      "schema": {
+        "type": "object",
+        "title": "LTX-2.5 Pro Text to Video Playground",
+        "required": [
+          "prompt",
+          "duration"
+        ],
+        "properties": {
+          "fps": {
+            "enum": [
+              24,
+              25,
+              50
+            ],
+            "type": "integer",
+            "title": "Frames per second",
+            "default": 25
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "maxLength": 5000,
+            "minLength": 2,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              6,
+              8,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 6
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Generate audio",
+            "default": true
+          },
+          "camera_movement": {
+            "enum": [
+              "dolly_in",
+              "dolly_out",
+              "dolly_left",
+              "dolly_right",
+              "jib_up",
+              "jib_down",
+              "static",
+              "focus_shift"
+            ],
+            "type": "string",
+            "title": "Camera movement"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "lightricks/ltx-2.5/text-to-video/pro",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "lightricks/ltx-2.5/image-to-video/pro",
+      "name": "LTX-2.5 Pro",
+      "endpoint": "lightricks/ltx-2.5/image-to-video/pro",
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/image-to-video/pro/playground",
+      "schema": {
+        "type": "object",
+        "title": "LTX-2.5 Pro Image to Video Playground",
+        "required": [
+          "prompt",
+          "duration",
+          "image_url"
+        ],
+        "properties": {
+          "fps": {
+            "enum": [
+              24,
+              25,
+              50
+            ],
+            "type": "integer",
+            "title": "Frames per second",
+            "default": 25
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "maxLength": 5000,
+            "minLength": 2,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              6,
+              8,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 6
+          },
+          "image_url": {
+            "type": "string",
+            "title": "First frame",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "end_image_url": {
+            "type": "string",
+            "title": "Last frame",
+            "format": "uri"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Generate audio",
+            "default": true
+          },
+          "camera_movement": {
+            "enum": [
+              "dolly_in",
+              "dolly_out",
+              "dolly_left",
+              "dolly_right",
+              "jib_up",
+              "jib_down",
+              "static",
+              "focus_shift"
+            ],
+            "type": "string",
+            "title": "Camera movement"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "lightricks/ltx-2.5/text-to-video/pro",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "xai/grok-imagine-video/v1.5/reference-to-video",
+      "name": "Grok Imagine Video 1.5",
+      "endpoint": "xai/grok-imagine-video/v1.5/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/xai/grok-imagine-video/v1.5/reference-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Grok Imagine Video 1.5 Reference Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 1
+          },
+          "audio_url": {
+            "type": "string",
+            "title": "Reference audio",
+            "format": "uri"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "First-frame image",
+            "format": "uri"
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image",
+              "format": "uri"
+            },
+            "title": "Reference images",
+            "maxItems": 7,
+            "minItems": 0
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "480p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "auto",
+              "1:1",
+              "16:9",
+              "9:16",
+              "4:3",
+              "3:4",
+              "3:2",
+              "2:3"
+            ],
+            "type": "string",
+            "default": "auto"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "xai/grok-imagine-video/v1.5/reference-to-video",
+      "mode": "",
+      "workflow": false
+    },
+    {
+      "id": "wan/v2.7/text-to-video",
+      "name": "Wan 2.7",
+      "endpoint": "wan/v2.7/text-to-video",
+      "source": "https://open.higgsfield.ai/models/wan/v2.7/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 2.6 Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 2
+          },
+          "audio_url": {
+            "type": "string",
+            "title": "Audio URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "16:9"
+          },
+          "prompt_extend": {
+            "type": "boolean",
+            "default": false
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative prompt",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "wan/v2.7/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "wan/v2.7/image-to-video",
+      "name": "Wan 2.7",
+      "endpoint": "wan/v2.7/image-to-video",
+      "source": "https://open.higgsfield.ai/models/wan/v2.7/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 2.6 Playground",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 2
+          },
+          "audio_url": {
+            "type": "string",
+            "title": "Audio URL",
+            "format": "uri"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "end_image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "prompt_extend": {
+            "type": "boolean",
+            "default": false
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative prompt",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "wan/v2.7/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "wan/v2.7/reference-to-video",
+      "name": "Wan 2.7",
+      "endpoint": "wan/v2.7/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/wan/v2.7/reference-to-video/playground",
+      "schema": {
+        "if": {
+          "required": [
+            "image_urls"
+          ],
+          "properties": {
+            "image_urls": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        "else": {
+          "required": [
+            "video_urls"
+          ],
+          "properties": {
+            "video_urls": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        "type": "object",
+        "title": "Wan 2.7 References",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 10,
+            "minimum": 2
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image",
+              "format": "uri"
+            }
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Video",
+              "format": "uri"
+            }
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "16:9"
+          },
+          "prompt_extend": {
+            "type": "boolean",
+            "default": false
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative prompt",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "wan/v2.7/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/happy-horse/v1.1/text-to-video",
+      "name": "HappyHorse 1.1",
+      "endpoint": "alibaba/happy-horse/v1.1/text-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Happy Horse",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "1080p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "16:9"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/happy-horse/v1.1/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/happy-horse/v1.1/image-to-video",
+      "name": "HappyHorse 1.1",
+      "endpoint": "alibaba/happy-horse/v1.1/image-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Happy horse",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 2
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "1080p"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/happy-horse/v1.1/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/happy-horse/v1.1/reference-to-video",
+      "name": "HappyHorse 1.1",
+      "endpoint": "alibaba/happy-horse/v1.1/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/reference-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Happy horse",
+        "required": [
+          "image_urls",
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 2
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            }
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "1080p"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/happy-horse/v1.1/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/happy-horse/text-to-video",
+      "name": "Happy Horse 1.0",
+      "endpoint": "alibaba/happy-horse/text-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Happy Horse",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "type": "string",
+            "title": "Aspect Ratio",
+            "default": "16:9"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/happy-horse/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/happy-horse/image-to-video",
+      "name": "Happy Horse 1.0",
+      "endpoint": "alibaba/happy-horse/image-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Happy horse",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 2
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/happy-horse/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "alibaba/happy-horse/reference-to-video",
+      "name": "Happy Horse 1.0",
+      "endpoint": "alibaba/happy-horse/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/reference-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Happy horse",
+        "required": [
+          "image_urls",
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 2
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            }
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "alibaba/happy-horse/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "pixverse/v6/text-to-video",
+      "name": "PixVerse V6",
+      "endpoint": "pixverse/v6/text-to-video",
+      "source": "https://open.higgsfield.ai/models/pixverse/v6/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "PixVerse V6 Text to Video Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "maxLength": 5000,
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "number",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 1
+          },
+          "resolution": {
+            "enum": [
+              "360p",
+              "540p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Generate audio",
+            "default": true
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative prompt",
+            "maxLength": 2048,
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "pixverse/v6/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "pixverse/v6/image-to-video",
+      "name": "PixVerse V6",
+      "endpoint": "pixverse/v6/image-to-video",
+      "source": "https://open.higgsfield.ai/models/pixverse/v6/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "PixVerse V6 Image to Video Playground",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "title": "Seed",
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "maxLength": 5000,
+            "minLength": 1,
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "number",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 1
+          },
+          "image_url": {
+            "type": "string",
+            "title": "First frame",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "360p",
+              "540p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "end_image_url": {
+            "type": "string",
+            "title": "Last frame",
+            "format": "uri"
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "title": "Generate audio",
+            "default": true
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative prompt",
+            "maxLength": 2048,
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "pixverse/v6/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/o3/first-last-frame",
+      "name": "Kling O3",
+      "endpoint": "kling-video/o3/first-last-frame",
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/first-last-frame/playground",
+      "schema": {
+        "if": {
+          "properties": {
+            "multi_shots": {
+              "const": true
+            }
+          }
+        },
+        "else": {
+          "required": [
+            "prompt",
+            "first_frame_url"
+          ]
+        },
+        "then": {
+          "required": [
+            "multi_prompt",
+            "first_frame_url"
+          ]
+        },
+        "type": "object",
+        "title": "Kling O3 Playground",
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro",
+              "4k"
+            ],
+            "type": "string",
+            "default": "pro"
+          },
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "default": "off"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string"
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 1
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 1
+          },
+          "last_frame_url": {
+            "type": "string",
+            "title": "Last frame URL",
+            "format": "uri"
+          },
+          "first_frame_url": {
+            "type": "string",
+            "title": "First frame URL",
+            "format": "uri"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/o3/first-last-frame",
+      "mode": "First/Last Frame",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/o3/image-reference",
+      "name": "Kling O3",
+      "endpoint": "kling-video/o3/image-reference",
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/image-reference/playground",
+      "schema": {
+        "if": {
+          "properties": {
+            "multi_shots": {
+              "const": true
+            }
+          }
+        },
+        "else": {
+          "required": [
+            "prompt"
+          ]
+        },
+        "then": {
+          "required": [
+            "multi_prompt"
+          ]
+        },
+        "type": "object",
+        "title": "Kling Omni Playground",
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro",
+              "4k"
+            ],
+            "type": "string",
+            "default": "std"
+          },
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "default": "off"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 15,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "shot_type": {
+            "enum": [
+              "customize",
+              "intelligent"
+            ],
+            "type": "string",
+            "default": "customize"
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            }
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string"
+          },
+          "multi_prompt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "duration": {
+                  "type": "integer",
+                  "maximum": 15,
+                  "minimum": 0
+                }
+              }
+            },
+            "maxItems": 6,
+            "minItems": 1
+          },
+          "last_frame_url": {
+            "type": "string",
+            "title": "Last frame URL",
+            "format": "uri"
+          },
+          "first_frame_url": {
+            "type": "string",
+            "title": "First frame URL",
+            "format": "uri"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/o3/first-last-frame",
+      "mode": "Image Reference",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/o3/video-reference",
+      "name": "Kling O3",
+      "endpoint": "kling-video/o3/video-reference",
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/video-reference/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling O3 Playground",
+        "required": [
+          "prompt",
+          "video_urls"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro"
+            ],
+            "type": "string",
+            "default": "pro"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 10,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Video URL",
+              "format": "uri"
+            },
+            "maxItems": 1,
+            "minItems": 1
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/o3/first-last-frame",
+      "mode": "Video Reference",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/o3/video-edit",
+      "name": "Kling O3",
+      "endpoint": "kling-video/o3/video-edit",
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/video-edit/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling O3 Playground",
+        "required": [
+          "prompt",
+          "video_urls"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro",
+              "4k"
+            ],
+            "type": "string",
+            "default": "pro"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Video URL",
+              "format": "uri"
+            },
+            "maxItems": 1,
+            "minItems": 1
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/o3/first-last-frame",
+      "mode": "Video Edit",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v2.6/pro/text-to-video",
+      "name": "Kling 2.6 Pro",
+      "endpoint": "kling-video/v2.6/pro/text-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.6/pro/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 2.6 Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "title": "Aspect ratio",
+            "default": "16:9"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v2.6/pro/text-to-video",
+      "mode": "Text to Video (Pro)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v2.6/pro/image-to-video",
+      "name": "Kling 2.6 Pro",
+      "endpoint": "kling-video/v2.6/pro/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.6/pro/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 2.6 Playground",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "sound": {
+            "enum": [
+              "on",
+              "off"
+            ],
+            "type": "string",
+            "title": "Generate sound",
+            "default": "on"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "title": "Aspect ratio"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v2.6/pro/text-to-video",
+      "mode": "Image to Video (Pro)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/motion-control/std",
+      "name": "Kling 2.6",
+      "endpoint": "kling-video/motion-control/std",
+      "source": "https://open.higgsfield.ai/models/kling-video/motion-control/std/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling Motion Control Playground",
+        "required": [
+          "image_url",
+          "video_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "description": "Write your prompt here"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video URL",
+            "format": "uri"
+          },
+          "keep_original_sound": {
+            "enum": [
+              "yes",
+              "no"
+            ],
+            "type": "string",
+            "title": "Keep original sound",
+            "default": "yes"
+          },
+          "character_orientation": {
+            "enum": [
+              "image",
+              "video"
+            ],
+            "type": "string",
+            "title": "Character orientation",
+            "default": "video",
+            "description": "Generate the orientation of the characters in the video, which can be selected to match the image or the video"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v2.6/pro/text-to-video",
+      "mode": "Motion Control (Standard)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/motion-control/pro",
+      "name": "Kling 2.6",
+      "endpoint": "kling-video/motion-control/pro",
+      "source": "https://open.higgsfield.ai/models/kling-video/motion-control/pro/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling Motion Control Playground",
+        "required": [
+          "image_url",
+          "video_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "default": "",
+            "description": "Write your prompt here"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "video_url": {
+            "type": "string",
+            "title": "Video URL",
+            "format": "uri"
+          },
+          "keep_original_sound": {
+            "enum": [
+              "yes",
+              "no"
+            ],
+            "type": "string",
+            "title": "Keep original sound",
+            "default": "yes"
+          },
+          "character_orientation": {
+            "enum": [
+              "image",
+              "video"
+            ],
+            "type": "string",
+            "title": "Character orientation",
+            "default": "video",
+            "description": "Generate the orientation of the characters in the video, which can be selected to match the image or the video"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v2.6/pro/text-to-video",
+      "mode": "Motion Control (Pro)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/omni/first-last-frame",
+      "name": "Kling Omni",
+      "endpoint": "kling-video/omni/first-last-frame",
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/first-last-frame/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling Omni Playground",
+        "required": [
+          "prompt",
+          "first_frame_url"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro"
+            ],
+            "type": "string",
+            "default": "pro"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "default": "16:9"
+          },
+          "last_frame_url": {
+            "type": "string",
+            "title": "Last frame URL",
+            "format": "uri"
+          },
+          "first_frame_url": {
+            "type": "string",
+            "title": "First frame URL",
+            "format": "uri"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/omni/first-last-frame",
+      "mode": "First/Last Frame",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/omni/image-reference",
+      "name": "Kling Omni",
+      "endpoint": "kling-video/omni/image-reference",
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/image-reference/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling Omni Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro"
+            ],
+            "type": "string",
+            "default": "pro"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 10,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            }
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "default": "16:9"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/omni/first-last-frame",
+      "mode": "Image Reference",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/omni/video-reference",
+      "name": "Kling Omni",
+      "endpoint": "kling-video/omni/video-reference",
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/video-reference/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling Omni Playground",
+        "required": [
+          "prompt",
+          "video_urls"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro"
+            ],
+            "type": "string",
+            "default": "pro"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "mode": {
+              "enum": [
+                "std",
+                "pro"
+              ],
+              "type": "string",
+              "default": "pro"
+            },
+            "type": "integer",
+            "title": "Duration",
+            "default": 5,
+            "maximum": 10,
+            "minimum": 3
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Video URL",
+              "format": "uri"
+            },
+            "maxItems": 1,
+            "minItems": 1
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1"
+            ],
+            "type": "string",
+            "default": "16:9"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/omni/first-last-frame",
+      "mode": "Video Reference",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/omni/video-edit",
+      "name": "Kling Omni",
+      "endpoint": "kling-video/omni/video-edit",
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/video-edit/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling Omni Playground",
+        "required": [
+          "prompt",
+          "video_urls"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "std",
+              "pro"
+            ],
+            "type": "string",
+            "default": "pro"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "image_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Image URL",
+              "format": "uri"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Video URL",
+              "format": "uri"
+            },
+            "maxItems": 1,
+            "minItems": 1
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/omni/first-last-frame",
+      "mode": "Video Edit",
+      "workflow": false
+    },
+    {
+      "id": "wan/v2.6/text-to-video",
+      "name": "Wan 2.6",
+      "endpoint": "wan/v2.6/text-to-video",
+      "source": "https://open.higgsfield.ai/models/wan/v2.6/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 2.6 Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 10000000,
+            "minimum": -1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10,
+              15
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "audio_url": {
+            "type": "string",
+            "title": "Audio URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "prompt_extend": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "wan/v2.6/text-to-video",
+      "mode": "Text to Video",
+      "workflow": false
+    },
+    {
+      "id": "wan/v2.6/image-to-video",
+      "name": "Wan 2.6",
+      "endpoint": "wan/v2.6/image-to-video",
+      "source": "https://open.higgsfield.ai/models/wan/v2.6/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 2.6 Playground",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "maximum": 10000000,
+            "minimum": -1
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10,
+              15
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "audio_url": {
+            "type": "string",
+            "title": "Audio URL",
+            "format": "uri"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "resolution": {
+            "enum": [
+              "480p",
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "default": "720p"
+          },
+          "multi_shots": {
+            "type": "boolean",
+            "default": false
+          },
+          "prompt_extend": {
+            "type": "boolean",
+            "default": false
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative prompt",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "wan/v2.6/text-to-video",
+      "mode": "Image to Video",
+      "workflow": false
+    },
+    {
+      "id": "wan/v2.6/reference-to-video",
+      "name": "Wan 2.6",
+      "endpoint": "wan/v2.6/reference-to-video",
+      "source": "https://open.higgsfield.ai/models/wan/v2.6/reference-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Wan 2.6 Playground",
+        "required": [
+          "prompt",
+          "video_urls"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "resolution": {
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "type": "string",
+            "title": "Resolution",
+            "default": "720p"
+          },
+          "video_urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "title": "Video URL",
+              "format": "uri"
+            },
+            "maxItems": 3,
+            "minItems": 1
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "type": "string",
+            "default": "16:9"
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "wan/v2.6/text-to-video",
+      "mode": "Reference to Video",
+      "workflow": false
+    },
+    {
+      "id": "minimax/hailuo-2.3/standard/text-to-video",
+      "name": "MiniMax Hailuo 2.3 Standard",
+      "endpoint": "minimax/hailuo-2.3/standard/text-to-video",
+      "source": "https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Minimax Hailuo 2.3 Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              6,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 6
+          },
+          "prompt_optimizer": {
+            "type": "boolean",
+            "title": "Prompt optimizer",
+            "default": true
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "minimax/hailuo-2.3/standard/text-to-video",
+      "mode": "Text to Video (Standard)",
+      "workflow": false
+    },
+    {
+      "id": "minimax/hailuo-2.3/standard/image-to-video",
+      "name": "MiniMax Hailuo 2.3 Standard",
+      "endpoint": "minimax/hailuo-2.3/standard/image-to-video",
+      "source": "https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Minimax Hailuo 2.3 Playground",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              6,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 6
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "prompt_optimizer": {
+            "type": "boolean",
+            "title": "Prompt optimizer",
+            "default": true
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "minimax/hailuo-2.3/standard/text-to-video",
+      "mode": "Image to Video (Standard)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v2.5-turbo/standard/image-to-video",
+      "name": "Kling 2.5 Turbo Standard",
+      "endpoint": "kling-video/v2.5-turbo/standard/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/standard/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 2.5 Playground",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative Prompt",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v2.5-turbo/standard/image-to-video",
+      "mode": "Image to Video (Standard)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v2.5-turbo/pro/image-to-video",
+      "name": "Kling 2.5 Turbo Pro",
+      "endpoint": "kling-video/v2.5-turbo/pro/image-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/image-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 2.5 Playground",
+        "required": [
+          "prompt",
+          "image_url"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image URL",
+            "format": "uri"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative Prompt",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v2.5-turbo/standard/image-to-video",
+      "mode": "Image to Video (Pro)",
+      "workflow": false
+    },
+    {
+      "id": "kling-video/v2.5-turbo/pro/text-to-video",
+      "name": "Kling 2.5 Turbo Pro",
+      "endpoint": "kling-video/v2.5-turbo/pro/text-to-video",
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/text-to-video/playground",
+      "schema": {
+        "type": "object",
+        "title": "Kling 2.5 Playground",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Write your prompt here"
+          },
+          "duration": {
+            "enum": [
+              5,
+              10
+            ],
+            "type": "integer",
+            "title": "Duration",
+            "default": 5
+          },
+          "cfg_scale": {
+            "type": "number",
+            "title": "CFG Scale",
+            "default": 0.5,
+            "maximum": 1,
+            "minimum": 0,
+            "multipleOf": 0.01
+          },
+          "negative_prompt": {
+            "type": "string",
+            "title": "Negative Prompt",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {},
+      "description": "",
+      "familyId": "kling-video/v2.5-turbo/standard/image-to-video",
+      "mode": "Text to Video (Pro)",
+      "workflow": false
+    }
+  ]
+}

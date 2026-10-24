@@ -5,6 +5,92 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type VideoFileFieldKind = typeof VideoFileFieldKind[keyof typeof VideoFileFieldKind];
+
+
+export const VideoFileFieldKind = {
+  image: 'image',
+  video: 'video',
+  audio: 'audio',
+  document: 'document',
+} as const;
+
+export interface VideoFileField {
+  path: string;
+  kind: VideoFileFieldKind;
+  array: boolean;
+}
+
+export interface VideoFamily {
+  id: string;
+  name: string;
+  description: string;
+  source: string;
+  modes: string[];
+}
+
+export type VideoCatalogModelSchema = { [key: string]: unknown };
+
+export type VideoCatalogModelOutputSchema = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type VideoCatalogModelQuoteScenario = typeof VideoCatalogModelQuoteScenario[keyof typeof VideoCatalogModelQuoteScenario] | null;
+
+
+export const VideoCatalogModelQuoteScenario = {
+  genjutsu: 'genjutsu',
+  'object-swap': 'object-swap',
+  restyle: 'restyle',
+} as const;
+
+export interface VideoCatalogModel {
+  id: string;
+  familyId: string;
+  name: string;
+  mode: string;
+  endpoint: string;
+  source: string;
+  workflow: boolean;
+  schema: VideoCatalogModelSchema;
+  outputSchema: VideoCatalogModelOutputSchema;
+  fileFields: VideoFileField[];
+  available: boolean;
+  /** @nullable */
+  quoteScenario?: VideoCatalogModelQuoteScenario;
+  /** @nullable */
+  modelId: string | null;
+  /** @nullable */
+  creditPrice: number | null;
+}
+
+export interface VideoCatalog {
+  families: VideoFamily[];
+  models: VideoCatalogModel[];
+  spendingEnabled: boolean;
+  providerConfigured: boolean;
+  storageConfigured: boolean;
+}
+
+export type VideoGenerationInputParameters = { [key: string]: unknown };
+
+export type VideoGenerationInputReferences = {[key: string]: string[]};
+
+export interface VideoGenerationInput {
+  idempotencyKey: string;
+  modelId: string;
+  /** @maxLength 200 */
+  catalogId: string;
+  /**
+     * @minimum 1
+     * @maximum 100000000
+     */
+  expectedCreditPrice: number;
+  parameters: VideoGenerationInputParameters;
+  references: VideoGenerationInputReferences;
+}
+
 export interface TemplateLikeInput {
   liked: boolean;
 }
@@ -45,9 +131,16 @@ export const TemplateUploadInputContentType = {
   'image/webp': 'image/webp',
   'video/mp4': 'video/mp4',
   'video/webm': 'video/webm',
+  'video/quicktime': 'video/quicktime',
   'audio/mpeg': 'audio/mpeg',
   'audio/wav': 'audio/wav',
   'audio/x-wav': 'audio/x-wav',
+  'application/pdf': 'application/pdf',
+  'application/vndopenxmlformats-officedocumentwordprocessingmldocument': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vndopenxmlformats-officedocumentspreadsheetmlsheet': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vndopenxmlformats-officedocumentpresentationmlpresentation': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/markdown': 'text/markdown',
+  'text/plain': 'text/plain',
 } as const;
 
 export interface TemplateUploadInput {

@@ -93,7 +93,7 @@ async function fetchProviderVideo(rawUrl: string, fetcher: typeof fetch, resolve
   for (let redirects = 0; redirects <= 3; redirects++) {
     const response = await fetcher(url, {
       method: 'GET',
-      headers: { Accept: 'video/mp4, video/webm', 'Accept-Encoding': 'identity' },
+      headers: { Accept: 'video/mp4, video/webm, video/quicktime', 'Accept-Encoding': 'identity' },
       redirect: 'manual',
       cache: 'no-store',
       signal: AbortSignal.timeout(60_000),
@@ -145,7 +145,7 @@ async function validateStoredVideo(file: ReturnType<typeof generationVideoFile>,
   return { size, contentType };
 }
 
-const GENERATION_VIDEO_TYPES = new Set(['video/mp4', 'video/webm']);
+const GENERATION_VIDEO_TYPES = new Set(['video/mp4', 'video/webm', 'video/quicktime']);
 
 type HostResolver = (hostname: string, options: { all: true; verbatim: true }) => Promise<{ address: string }[]>;
 
@@ -167,7 +167,7 @@ function isPublicIp(address: string) {
 }
 
 function validateVideoHeader(contentType: string, header: Buffer) {
-  if (contentType === 'video/mp4') {
+  if (contentType === 'video/mp4' || contentType === 'video/quicktime') {
     if (header.length < 8 || header.toString('ascii', 4, 8) !== 'ftyp') {
       throw new GenerationVideoValidationError('Provider video does not match its MP4 content type');
     }

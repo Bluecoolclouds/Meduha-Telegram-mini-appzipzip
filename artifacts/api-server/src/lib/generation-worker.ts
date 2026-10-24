@@ -6,6 +6,7 @@ import { genjutsuProviderInput, type GenjutsuMetadata } from './genjutsu';
 import { GenerationVideoValidationError, storeGenerationVideo } from './objectStorage';
 import { photoProviderInput, type PhotoMetadata } from './photo';
 import { storeGenerationImages, PhotoResultValidationError } from './photo-storage';
+import { videoProviderInput, type VideoMetadata } from './video';
 
 type GenerationJob = {
   id: string;
@@ -15,7 +16,7 @@ type GenerationJob = {
   reservation_id: string;
   request_id: string | null;
   status: string;
-  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata; _photo?: PhotoMetadata };
+  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata; _photo?: PhotoMetadata; _video?: VideoMetadata };
   provider_status: string | null;
   result_url: string | null;
   resolution_outcome?: 'completed' | 'failed' | null;
@@ -32,7 +33,7 @@ type WorkerDependencies = {
 };
 export type GenerationVideoStore = typeof storeGenerationVideo;
 class ProviderPreparationError extends Error {}
-const jobLabel = (job: GenerationJob) => job.input._photo ? 'Photo' : job.input._genjutsu ? 'Genjutsu' : 'Seedance';
+const jobLabel = (job: GenerationJob) => job.input._photo ? 'Photo' : job.input._video ? 'Video' : job.input._genjutsu ? 'Genjutsu' : 'Seedance';
 const actorFor = (job: GenerationJob) => `generation:${job.id}`;
 const transitionKey = (job: GenerationJob, operation: string) => `generation:${job.id}:${operation}`;
 
@@ -300,6 +301,12 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
         catch { throw new ProviderPreparationError('Photo inputs unavailable'); }
         // Only allowlisted endpoint and validated inputs reach this billable POST.
         return higgsfieldClient().subscribe(input._photo.endpoint, { input: providerInput, withPolling: false });
+      }
+      if (input._video) {
+        let providerInput;
+        try { providerInput = await videoProviderInput(job.account_id, input._video); }
+        catch { throw new ProviderPreparationError('Не удалось подготовить настройки или приватные референсы видео.'); }
+        return higgsfieldClient().subscribe(input._video.endpoint, { input: providerInput, withPolling: false });
       }
       if (input._genjutsu) {
         let providerInput: Awaited<ReturnType<typeof genjutsuProviderInput>>;

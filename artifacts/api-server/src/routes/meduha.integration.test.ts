@@ -185,7 +185,8 @@ test('real API: verified login, session rotation, account isolation, drafts/sett
     }).from(meduhaUploads).where(eq(meduhaUploads.ownerId,a.account.id));
     const rejectedUploads=[
       {contentType:'image/gif',size:1},
-      {contentType:'application/pdf',size:1},
+      {contentType:'application/x-executable',size:1},
+      {contentType:'application/pdf',size:10*1024*1024+1},
       {contentType:'image/jpeg',size:10*1024*1024+1},
       {contentType:'video/mp4',size:100*1024*1024+1},
       {contentType:'image/png',size:0},

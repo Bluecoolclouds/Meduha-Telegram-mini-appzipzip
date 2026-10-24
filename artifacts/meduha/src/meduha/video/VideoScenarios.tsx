@@ -33,7 +33,7 @@ export default function VideoScenarios() {
   const results = useMemo(() => searchVideoScenarios(q).filter(s => (cat === 'all' || s.category === cat) && (provider === 'all' || scenarioProvider(s) === provider)), [q, cat, provider]);
   const searching = q.trim().length > 0;
   const activeFilters = (cat !== 'all' ? 1 : 0) + (provider !== 'all' ? 1 : 0);
-  const syncUrl = (value: string) => { const p = new URLSearchParams({ type: 'video' }); if (value.trim()) p.set('q', value.trim()); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}/create?${p}`); };
+  const syncUrl = (value: string) => { const p = new URLSearchParams({ type: 'video', ideas: '1' }); if (value.trim()) p.set('q', value.trim()); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}/create?${p}`); };
   const update = (v: string) => { setQ(v); syncUrl(v); };
   const openScenario = (s: VideoScenario) => navigate(withQuery(scenarioDraftHref(s, q), q));
 
@@ -71,6 +71,7 @@ export default function VideoScenarios() {
               </button>); })}</div>
       : <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Такого сценария пока нет</strong><p>Попробуй описать проще: «танец», «товар», «стиль», «фото». Или начни с чистого листа.</p>
         <div className="vs-empty-actions"><button onClick={() => { update(''); setCat('all'); setProvider('all'); }}>Сбросить поиск</button><Link href="/create?type=video&editor=1">Свободная идея</Link></div></div>}
+    <Link className="vs-free" href="/create?type=video" data-testid="link-video-models"><span><strong>Видеомодели</strong><small>Официальный каталог моделей с генерацией</small></span><ArrowRight size={15}/></Link>
     <Link className="vs-free" href="/create?type=video&editor=1"><span><strong>Без сценария</strong><small>Открыть обычный редактор видеоидеи</small></span><ArrowRight size={15}/></Link>
     </div>
   </Frame>;

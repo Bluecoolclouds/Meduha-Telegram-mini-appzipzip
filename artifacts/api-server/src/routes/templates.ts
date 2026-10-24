@@ -277,8 +277,8 @@ router.post('/templates/:id/publication', async (req, res): Promise<void> => {
 router.post('/uploads', async (req, res): Promise<void> => {
   const account = await requireAccount(req, res); if (!account) return;
   const parsed = RequestTemplateUploadBody.safeParse(req.body);
-  if (!parsed.success || (parsed.data.contentType.startsWith('image/') && parsed.data.size > 10 * 1024 * 1024)) {
-    error(res, 400, 'Обложка — до 10 МБ, видео и аудио — до 100 МБ. Разрешены JPEG, PNG, WebP, MP4, WebM, MP3, WAV.'); return;
+  if (!parsed.success || (!parsed.data.contentType.startsWith('video/') && !parsed.data.contentType.startsWith('audio/') && parsed.data.size > 10 * 1024 * 1024)) {
+    error(res, 400, 'Фото и документы — до 10 МБ, видео и аудио — до 100 МБ.'); return;
   }
   const id = randomUUID();
   // Persistent per-user quota also works across server instances.
@@ -337,11 +337,15 @@ router.get('/media/:id', async (req, res): Promise<void> => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Content-Type', upload.contentType);
   res.setHeader('Accept-Ranges', 'bytes');
-  if (req.query.download === 'true') {
+  if (req.query.download === 'true' || !/^(image|video|audio)\//.test(upload.contentType)) {
     const extensions: Record<string, string> = {
       'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp',
-      'video/mp4': 'mp4', 'video/webm': 'webm',
+      'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov',
       'audio/mpeg': 'mp3', 'audio/wav': 'wav', 'audio/x-wav': 'wav',
+      'application/pdf': 'pdf', 'text/markdown': 'md', 'text/plain': 'md',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
     };
     const extension = extensions[upload.contentType] ?? 'bin';
     const requestedName = typeof req.query.filename === 'string' ? req.query.filename : '';

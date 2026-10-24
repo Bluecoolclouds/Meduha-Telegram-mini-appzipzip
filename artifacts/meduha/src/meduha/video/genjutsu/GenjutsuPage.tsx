@@ -233,7 +233,7 @@ export default function GenjutsuPage({ scenario, initialPrompt, backQ }: { scena
   };
   const forgetIntent = () => { clearIntent(accountId, scenario); setIntent(null); setAmbiguous(false); setSubmitError(''); };
 
-  const back = () => navigate(`/create?type=video${backQ ? `&q=${encodeURIComponent(backQ)}` : ''}`);
+  const back = () => navigate(`/create?type=video&ideas=1${backQ ? `&q=${encodeURIComponent(backQ)}` : ''}`);
   const balance = meduha.bootstrap?.account.credits ?? meduha.account?.credits;
   const lacking = currentQuote && balance !== undefined && balance < currentQuote.creditPrice;
   const pendingIntent = intent && !intentJob && ambiguous;

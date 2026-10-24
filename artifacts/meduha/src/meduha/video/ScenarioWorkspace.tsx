@@ -149,7 +149,7 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
 
   return <Frame active="Create">
     <main className="gj-page gj-scenario-page">
-      <Link className="gj-back" href="/create?type=video" data-testid="link-back-scenarios"><ArrowLeft size={13}/>Все сценарии</Link>
+      <Link className="gj-back" href="/create?type=video&ideas=1" data-testid="link-back-scenarios"><ArrowLeft size={13}/>Все сценарии</Link>
       <header className="gj-scenario-heading">
         <div className="gj-top"><h1>{title}</h1></div>
         <p className="gj-lead">{scenario.subtitle}</p>

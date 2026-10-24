@@ -23,9 +23,14 @@ export async function registerPhotoModels() {
   if (!channel) {
     await db.insert(meduhaAiChannels).values({
       id: defaultChannelId, name: 'Higgsfield', adapter: 'higgsfield',
-      baseUrl: 'https://api.higgsfield.ai', secretRef: 'higgs_api', enabled: false,
+      baseUrl: 'https://api.higgsfield.ai', secretRef: 'secret://higgs_api', enabled: false,
     }).onConflictDoNothing();
     [channel] = await db.select().from(meduhaAiChannels).where(eq(meduhaAiChannels.id, defaultChannelId));
+  }
+  // Normalize the old auto-created reference, not the credential itself.
+  // The administrator API requires the public secret:// reference syntax.
+  if (channel.id === defaultChannelId && channel.secretRef === 'higgs_api') {
+    await db.update(meduhaAiChannels).set({ secretRef: 'secret://higgs_api' }).where(eq(meduhaAiChannels.id, channel.id));
   }
   for (const model of photoModels.filter((m, i, all) => all.findIndex(x => x.endpoint === m.endpoint) === i)) {
     const [existing] = await db.select({ id: meduhaAiModels.id }).from(meduhaAiModels)

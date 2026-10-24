@@ -25,7 +25,7 @@ export function publicJob(row: Record<string, any>) {
     idempotencyKey: row.idempotency_key as string,
     modelId: row.model_id as string,
     modelName: row.display_name as string,
-    scenario: row.input._photo?.catalogId ?? row.input._genjutsu?.scenario ?? 'text-to-video',
+    scenario: row.input._photo?.catalogId ?? row.input._video?.catalogId ?? row.input._genjutsu?.scenario ?? 'text-to-video',
     mediaKind: isPhoto ? 'photo' : 'video',
     resultUrls,
     prompt: row.input.prompt as string,
@@ -121,7 +121,7 @@ export function createMeduhaGenerationsRouter() {
     const size = Number(metadata.size);
     const contentType = metadata.contentType?.toLowerCase();
     if (!Number.isSafeInteger(size) || size < 8 || size > 512 * 1024 * 1024
-      || !['video/mp4', 'video/webm'].includes(contentType ?? '')) {
+      || !['video/mp4', 'video/webm', 'video/quicktime'].includes(contentType ?? '')) {
       req.log.error({ jobId: req.params.id }, 'Stored generation video metadata is invalid');
       fail(res, 503, 'VIDEO_TEMPORARILY_UNAVAILABLE', 'Не удалось загрузить видео. Попробуй позже.');
       return;
@@ -146,7 +146,9 @@ export function createMeduhaGenerationsRouter() {
       'Content-Type': contentType,
       'Accept-Ranges': 'bytes',
       'Content-Length': String(end - start + 1),
-      'Content-Disposition': 'inline',
+      'Content-Disposition': req.query.download === '1'
+        ? `attachment; filename="meduha-${req.params.id}.${contentType === 'video/webm' ? 'webm' : contentType === 'video/quicktime' ? 'mov' : 'mp4'}"`
+        : 'inline',
     });
     const stream = file.createReadStream({ start, end });
     stream.on('error', error => {
