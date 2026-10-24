@@ -3,7 +3,7 @@ import { ArrowLeft, Check, CircleSlash, Zap, Repeat, Layers, Image as ImageIcon,
 import { useGetPhotoCatalog } from '@workspace/api-client-react';
 import { useVideoCatalog } from '../video/videoApi';
 import { cheapestAvailable, generationsFor, type Cheapest } from './yield';
-import { TOPUP_PACKAGES, levelOf, resolvePackage as resolve, usd, perCredit, type LevelPicks } from './pricing';
+import { TOPUP_PACKAGES, BILLING_PERIODS, billingQuote, discountLabel, levelOf, resolvePackage as resolve, usd, perCredit, type LevelPicks, type BillingMonths } from './pricing';
 import { Sheet } from '../shared';
 import './topup.css';
 
@@ -14,27 +14,38 @@ export function TopupSheet({ onClose, authenticated, balance }: { onClose: () =>
   const [step, setStep] = useState<Step>('choose');
   const [picked, setPicked] = useState<string>(TOPUP_PACKAGES[1].id);
   const [levels, setLevels] = useState<LevelPicks>({});
+  const [months, setMonths] = useState<BillingMonths>(1);
   const pkg = resolve(TOPUP_PACKAGES.find(p => p.id === picked) ?? TOPUP_PACKAGES[0], levels);
+  const quote = billingQuote(pkg, months);
+  const period = BILLING_PERIODS.find(p => p.months === months)!;
   const title = step === 'done' ? 'Тест завершён' : step === 'review' ? 'Проверка выбора' : 'Тарифы и кредиты';
   return <Sheet title={title} onClose={onClose} className="mt-sheet">
     <div className="mt-flag" data-testid="status-topup-demo"><CircleSlash size={13} />Тестовый режим · оплата, подписка и начисление кредитов не подключены</div>
     {step === 'choose' && <div className="mt-step" key="choose">
-      <p className="mt-lead">Месячные цены в USD, как на Higgsfield. Starter и Plus — фиксированные, в Ultra можно выбрать объём. Годовые скидки не применяются.</p>
-      <TopupCarousel picked={picked} onPick={setPicked} levels={levels} onLevel={(id, i) => { setLevels(v => ({ ...v, [id]: i })); setPicked(id); }} onProceed={id => { setPicked(id); setStep('review'); }} />
-      <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('review')} data-testid="button-topup-continue">Продолжить · {num(pkg.credits)} кр. · {usd(pkg.usd)}/мес.</button><button className="m-startup-guest" onClick={onClose} data-testid="button-topup-cancel">Отмена</button></div>
+      <p className="mt-lead">Цены в USD. Годовая скидка — как у Higgsfield; на 3 месяца — половина годовой. Кредиты указаны за каждый месяц, полная сумма — за выбранный срок.</p>
+      <div className="mt-periods" role="group" aria-label="Срок тарифа">
+        {BILLING_PERIODS.map(p => <button key={p.months} type="button" aria-pressed={months === p.months} className={months === p.months ? 'on' : ''} onClick={() => setMonths(p.months)} data-testid={`button-topup-period-${p.months}`}><strong>{p.label}</strong>{p.months > 1 && <small>до −{discountLabel(billingQuote(resolve(TOPUP_PACKAGES[2], {}), p.months).discount)}</small>}</button>)}
+      </div>
+      <TopupCarousel picked={picked} onPick={setPicked} levels={levels} months={months} onLevel={(id, i) => { setLevels(v => ({ ...v, [id]: i })); setPicked(id); }} onProceed={id => { setPicked(id); setStep('review'); }} />
+      <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('review')} data-testid="button-topup-continue">Продолжить · {usd(quote.totalUsd)} за {period.label}</button><button className="m-startup-guest" onClick={onClose} data-testid="button-topup-cancel">Отмена</button></div>
     </div>}
     {step === 'review' && <div className="mt-step" key="review">
       <dl className="mt-review" data-testid="text-topup-review">
         <div><dt>Кредиты в месяц</dt><dd>{num(pkg.credits)}</dd></div>
-        <div><dt>Цена в USD</dt><dd>{usd(pkg.usd)}/мес.</dd></div>
+        <div><dt>Срок</dt><dd>{period.label}</dd></div>
+        <div><dt>В пересчёте на месяц</dt><dd>{usd(quote.monthlyUsd)}/мес.</dd></div>
+        <div><dt>Скидка</dt><dd>{quote.discount > 0 ? `−${discountLabel(quote.discount)}` : 'Без скидки'}</dd></div>
+        <div><dt>Всего за срок · USD</dt><dd>{usd(quote.totalUsd)}</dd></div>
+        {quote.savingsUsd > 0 && <div><dt>Экономия за срок</dt><dd>{usd(quote.savingsUsd)}</dd></div>}
         <div><dt>Оплата сейчас</dt><dd>Недоступна · тест</dd></div>
         <div><dt>Тип</dt><dd>Месячный тариф · макет</dd></div>
       </dl>
+      {quote.volumeCalculated && <p className="mt-lead">Для этого объёма Ultra применён процент скидки базового Ultra — расчёт meduha, не отдельная подтверждённая цена Higgsfield.</p>}
       <p className="mt-lead">Это демонстрация. Подписка не оформится, деньги не спишутся, баланс не изменится.</p>
       <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('done')} data-testid="button-topup-sbp-test">Проверить выбор · без оплаты</button><button className="m-startup-guest" onClick={() => setStep('choose')} data-testid="button-topup-change"><ArrowLeft size={14} />Изменить тариф</button></div>
     </div>}
     {step === 'done' && <div className="mt-step" key="done" role="status">
-      <div className="mt-done"><Check size={20} /><div><strong>Тестовый сценарий пройден</strong><small>{num(pkg.credits)} кр./мес. · {usd(pkg.usd)}/мес.</small></div></div>
+      <div className="mt-done"><Check size={20} /><div><strong>Тестовый сценарий пройден</strong><small>{period.label} · {num(pkg.credits)} кр./мес. · всего {usd(quote.totalUsd)}</small></div></div>
       <ul className="mt-facts" data-testid="text-topup-result">
         <li>Деньги не списаны — платёжный провайдер не подключён.</li>
         <li>Кредиты не начислены, запись в истории не создана.</li>
@@ -69,7 +80,7 @@ function YieldRows({ credits, y }: { credits: number; y: Yields }) {
   return rows.length ? <>{rows}</> : <div className="mtp-inset-row" data-testid={`text-yield-none-${credits}`}>Цены моделей ещё не настроены — количество генераций появится после настройки</div>;
 }
 
-function TopupCarousel({ picked, onPick, onProceed, levels, onLevel }: { picked: string; onPick: (id: string) => void; onProceed: (id: string) => void; levels: LevelPicks; onLevel: (id: string, i: number) => void }) {
+function TopupCarousel({ picked, onPick, onProceed, levels, onLevel, months }: { picked: string; onPick: (id: string) => void; onProceed: (id: string) => void; levels: LevelPicks; onLevel: (id: string, i: number) => void; months: BillingMonths }) {
   const track = useRef<HTMLDivElement>(null);
   const radios = useRef<(HTMLButtonElement | null)[]>([]);
   const timer = useRef<number | undefined>(undefined);
@@ -117,9 +128,9 @@ function TopupCarousel({ picked, onPick, onProceed, levels, onLevel }: { picked:
   };
   return <div className="mtp-carousel">
     <div className="mtp-track" ref={track} onScroll={onScroll} role="radiogroup" aria-label="Пакет кредитов" onKeyDown={onKey} data-testid="carousel-topup">
-      {TOPUP_PACKAGES.map((tier, i) => { const p = resolve(tier, levels); const t = TIERS[p.id] ?? { name: 'Пакет', tone: 'starter', sub: 'Разовый пакет' }; const on = p.id === picked; const li = levelOf(tier, levels);
+      {TOPUP_PACKAGES.map((tier, i) => { const p = resolve(tier, levels); const q = billingQuote(p, months); const term = BILLING_PERIODS.find(x => x.months === months)!; const t = TIERS[p.id] ?? { name: 'Пакет', tone: 'starter', sub: 'Тариф' }; const on = p.id === picked; const li = levelOf(tier, levels);
         return <article key={p.id} className={`mtp-card mtp-${t.tone}${on ? ' on' : ''}`} data-testid={`card-topup-${p.id}`}>
-          <button type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} ref={el => { radios.current[i] = el; }} className="mtp-card-head" onClick={() => select(i)} data-testid={`radio-topup-${p.id}`} aria-label={`${t.name}: ${num(p.credits)} кредитов в месяц за ${usd(p.usd)} в месяц, тестовый тариф`}>
+          <button type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} ref={el => { radios.current[i] = el; }} className="mtp-card-head" onClick={() => select(i)} data-testid={`radio-topup-${p.id}`} aria-label={`${t.name}: ${num(p.credits)} кредитов в месяц, ${usd(q.totalUsd)} за ${term.label}, тестовый тариф`}>
             <span className="mtp-card-title"><strong>{t.name}</strong><span className="mtp-radio" aria-hidden="true"><Check size={11} strokeWidth={3} /></span></span>
             <small>{t.sub}</small>
           </button>
@@ -130,10 +141,11 @@ function TopupCarousel({ picked, onPick, onProceed, levels, onLevel }: { picked:
               <span className="mtp-levels-track" aria-hidden="true"><i /></span>
               {tier.levels.map((l, k) => <button key={l.credits} type="button" role="radio" aria-checked={k === li} className={k === li ? 'on' : ''} onClick={() => onLevel(tier.id, k)} data-testid={`button-topup-level-${tier.id}-${l.credits}`}><Zap size={10} fill="currentColor" />{num(l.credits)}</button>)}
             </div>}
-            <div className="mtp-inset-row mtp-inset-foot">{perCredit(p)} за кредит</div>
+            <div className="mtp-inset-row mtp-inset-foot">{perCredit({ ...p, usd: q.monthlyUsd })} за кредит</div>
             {p.note && <div className="mtp-inset-row">{p.note}</div>}
           </div>
-          <div className="mtp-price"><b>{usd(p.usd)}</b><span>в месяц · USD</span></div>
+          <div className="mtp-price" data-testid={`text-topup-price-${p.id}`}>{q.discount > 0 && <del>{usd(p.usd)}</del>}<b>{usd(q.monthlyUsd)}</b><span>в месяц · USD</span>{q.discount > 0 && <em>−{discountLabel(q.discount)}</em>}</div>
+          <div className="mtp-billing" data-testid={`text-topup-total-${p.id}`} aria-live="polite"><strong>Всего {usd(q.totalUsd)} за {term.label}</strong><small>{q.savingsUsd > 0 ? `Экономия ${usd(q.savingsUsd)} за срок` : 'Без скидки за срок'}</small>{q.volumeCalculated && <small>Скидка по базовому Ultra · расчёт meduha</small>}</div>
           <button type="button" className="mtp-cta" onClick={() => { window.clearTimeout(timer.current); onProceed(p.id); }} data-testid={`button-topup-select-${p.id}`}>Выбрать · {num(p.credits)} кр.</button>
           <ul className="mtp-benefits">
             <li><Layers size={12} />{num(p.credits)} кредитов в месяц · макет</li>

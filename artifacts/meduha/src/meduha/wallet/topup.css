@@ -3,6 +3,12 @@
 .meduha .mt-flag{display:flex;gap:7px;align-items:flex-start;padding:8px 10px;margin-bottom:12px;border:1px dashed #e9a77c;border-radius:10px;background:#fff1e4;color:#9a4518;font-size:10.5px;line-height:1.35;font-weight:600}
 .meduha .mt-flag svg{flex-shrink:0;margin-top:1px}
 .meduha .mt-lead{font-size:11.5px;margin:0 0 12px;line-height:1.45}
+.meduha .mt-periods{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--line,#f0dccb);border-radius:13px;margin-bottom:14px}
+.meduha .mt-periods button{border:0;border-radius:10px;padding:9px 4px;display:grid;gap:3px;justify-items:center;background:transparent;color:var(--muted);cursor:pointer;font:inherit}
+.meduha .mt-periods button.on{background:var(--orange,#ff6b18);color:#fff}
+.meduha .mt-periods button strong{font-size:12px}
+.meduha .mt-periods button small{font-size:10px}
+.meduha .mt-periods button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 .meduha .mt-step{animation:mt-in .22s ease both}
 @keyframes mt-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .meduha .mt-actions{display:grid;gap:8px}
@@ -43,7 +49,12 @@
 .meduha .mtp-inset-big{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:750}
 .meduha .mtp-inset-big svg{color:var(--acc)}
 .meduha .mtp-inset-row{font-size:10.5px;color:#f3eee8a6;padding-left:20px}
-.meduha .mtp-price{display:flex;align-items:baseline;gap:7px}
+.meduha .mtp-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px}
+.meduha .mtp-price del{font-size:13px;color:#f3eee88c}
+.meduha .mtp-price em{font-size:10px;font-style:normal;font-weight:700;color:var(--acc);background:var(--glow);border-radius:5px;padding:3px 5px}
+.meduha .mtp-billing{display:grid;gap:3px;min-height:32px}
+.meduha .mtp-billing strong{font-size:11.5px;font-weight:650}
+.meduha .mtp-billing small{font-size:10px;line-height:1.35;color:#f3eee8a6}
 .meduha .mtp-price b{font-size:26px;font-weight:900;letter-spacing:-.02em}
 .meduha .mtp-price span{font-size:10.5px;color:#f3eee8a6}
 .meduha .mtp-cta{border:0;border-radius:11px;padding:11px;font-weight:750;font-size:13px;background:var(--acc);color:var(--ink);cursor:pointer;transition:transform .15s ease}
