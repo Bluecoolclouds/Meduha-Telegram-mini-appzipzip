@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Download, ExternalLink, ImagePlus, Lightbulb, Lock, RefreshCw, Search, Sparkles, Trash2, Upload, X, Zap } from 'lucide-react';
-import { Link, useLocation } from 'wouter';
+import { ArrowLeft, ArrowRight, Download, ExternalLink, Lock, RefreshCw, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X, Zap } from 'lucide-react';
+import { Link, useLocation, useSearch } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetPhotoCatalogQueryKey, getGetMeduhaBootstrapQueryKey, getGetMeduhaWalletQueryKey, getListMeduhaGenerationsQueryKey, useCreatePhotoGeneration, useGetPhotoCatalog, useListMeduhaGenerations } from '@workspace/api-client-react';
 import type { GenerationJob, PhotoCatalog, PhotoCatalogModel, PhotoGenerationInput } from '@workspace/api-client-react';
-import { Frame, mood, useToast } from '../shared';
+import { Frame, asset, mood, useToast } from '../shared';
+import { ScenarioCarousel, PromoBanner } from '../video/ScenarioHero';
+import { photoModelArt, photoProvider, photoProviderLabel } from './modelArt';
+import '../video/video.css';
+import '../video/catalogue.css';
 import { meduhaErrorMessage, useMeduhaSession } from '../session';
 import { uploadMedia, validateFile } from '../templates/manage/api';
 import { batchMultiplier, defaults, effective, fieldKind, isFileArray, isNullable, jsonExample, mediaUuid, validate, type Schema } from './schema';
@@ -47,37 +51,66 @@ const go = (navigate: (to: string) => void, to: string) => (e: React.MouseEvent)
 
 export function PhotoCatalogue() {
   const [, navigate] = useLocation();
+  const search = useSearch();
   const catalog = useGetPhotoCatalog({ request: read });
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(() => new URLSearchParams(search).get('q') || '');
   const [mode, setMode] = useState<'all' | 'text' | 'image' | 'workflow'>('all');
+  const [provider, setProvider] = useState('all');
+  const [filterOpen, setFilterOpen] = useState(false);
   const models = catalog.data?.models || [];
+  const providers = useMemo(() => Array.from(new Set(models.map(photoProvider))), [models]);
+  const t = q.trim().toLowerCase();
   const shown = models.filter(m => {
     const label = modeLabel(m);
     if (mode === 'text' && label !== 'Текст → фото') return false;
     if (mode === 'image' && label !== 'Фото → фото') return false;
     if (mode === 'workflow' && !m.workflow) return false;
-    const t = q.trim().toLowerCase();
-    return !t || `${m.name} ${m.id} ${blurb(m)}`.toLowerCase().includes(t);
+    if (provider !== 'all' && photoProvider(m) !== provider) return false;
+    return !t || `${m.name} ${displayName(m)} ${m.id} ${blurb(m)} ${label}`.toLowerCase().includes(t);
   });
-  const readyCount = models.filter(m => readiness(catalog.data, m).ok).length;
-  return <Frame active="Create"><div className="ps-page" data-testid="catalogue-photo-models">
-    <div className="ps-head"><span className="ps-kicker"><Sparkles size={12}/>ФОТОСТУДИЯ</span><h1>Выбери<br/>фотомодель<span>.</span></h1><p>Настоящие модели с официальными настройками. Результаты приватные и видны только тебе.</p></div>
-    <div className="ps-links">
-      <Link href="/create?type=photo&ideas=1" className="ps-link" data-testid="link-photo-ideas"><Lightbulb size={16}/><span><strong>Фотоидеи</strong><small>Готовые сюжеты для вдохновения</small></span><ArrowRight size={14}/></Link>
-      <Link href="/create?type=photo&editor=1" className="ps-link" data-testid="link-photo-editor"><ImagePlus size={16}/><span><strong>Черновик идеи</strong><small>Записать мысль без генерации</small></span><ArrowRight size={14}/></Link>
+  const searching = t.length > 0;
+  const activeFilters = (mode !== 'all' ? 1 : 0) + (provider !== 'all' ? 1 : 0);
+  const update = (v: string) => { setQ(v); const p = new URLSearchParams({ type: 'photo' }); if (v.trim()) p.set('q', v.trim()); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}/create?${p}`); };
+  const href = (m: PhotoCatalogModel) => `/create?type=photo&photoModel=${encodeURIComponent(m.id)}`;
+  const priceLabel = (m: PhotoCatalogModel) => { const r = readiness(catalog.data, m); if (!r.ok) return r.reason; const b = m.schema.properties && (m.schema.properties as Schema).batch_size; return `${m.creditPrice} кр.${b ? ' за фото' : ''}`; };
+  const hero = models.slice(0, 5).map(m => ({ id: m.id, title: displayName(m), subtitle: blurb(m), image: photoModelArt(m), providerLabel: photoProviderLabel(photoProvider(m)), m }));
+  const modes = [['all', 'Все'], ['text', 'Текст → фото'], ['image', 'Фото → фото'], ['workflow', 'Сценарии']] as const;
+  return <Frame active="Create"><div className="vs-page" data-testid="catalogue-photo-models">
+    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} label={h => priceLabel(h.m)} eyebrow={h => `${modeLabel(h.m)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.m))}/>}
+    <PromoBanner/>
+    <div className="vs-toolbar">
+      <div className="vs-toolrow">
+        <form className="vs-search" role="search" onSubmit={e => { e.preventDefault(); if (shown[0]) navigate(href(shown[0])); }}>
+          <Search size={14} aria-hidden/>
+          <input data-testid="input-photo-model-search" aria-label="Поиск фотомодели" value={q} onChange={e => update(e.target.value)} maxLength={300} placeholder="Soul, Recraft, товар" enterKeyHint="search"/>
+          {searching && <button type="button" className="vs-clear" aria-label="Очистить поиск" onClick={() => update('')}><X size={13}/></button>}
+        </form>
+        <button type="button" data-testid="button-photo-filter" className={`vs-filter${activeFilters ? ' on' : ''}`} aria-expanded={filterOpen} aria-controls="ps-filter-panel" onClick={() => setFilterOpen(v => !v)}><SlidersHorizontal size={13}/>Фильтр{activeFilters > 0 && <b>{activeFilters}</b>}</button>
+      </div>
+      {filterOpen && <div id="ps-filter-panel" className="vs-panel">
+        <span className="vs-panel-label">Режим</span>
+        <div className="vs-chips" role="group" aria-label="Режим">{modes.map(([id, l]) => <button key={id} data-testid={`button-photo-mode-${id}`} className={mode === id ? 'on' : ''} aria-pressed={mode === id} onClick={() => setMode(id)}>{l}</button>)}</div>
+        <span className="vs-panel-label">Поставщик модели</span>
+        <div className="vs-chips" role="group" aria-label="Поставщик модели">
+          <button data-testid="button-photo-provider-all" className={provider === 'all' ? 'on' : ''} aria-pressed={provider === 'all'} onClick={() => setProvider('all')}>Все поставщики</button>
+          {providers.map(p => <button key={p} data-testid={`button-photo-provider-${p}`} className={provider === p ? 'on' : ''} aria-pressed={provider === p} onClick={() => setProvider(p)}>{photoProviderLabel(p)}</button>)}
+        </div>
+        {activeFilters > 0 && <button type="button" className="vs-panel-reset" onClick={() => { setMode('all'); setProvider('all'); }}>Сбросить фильтры</button>}
+      </div>}
     </div>
-    {catalog.data && <div className="ps-status" data-testid="status-photo-readiness"><i className={readyCount ? 'on' : ''}/>{readyCount ? `Готовы к запуску: ${readyCount} из ${models.length}` : 'Сейчас запуск недоступен — настройки можно смотреть и сохранять'}</div>}
-    <div className="ps-search"><Search size={14}/><input data-testid="input-photo-model-search" value={q} onChange={e => setQ(e.target.value)} placeholder="Soul, Recraft, товар…" aria-label="Поиск модели"/>{q && <button aria-label="Очистить" onClick={() => setQ('')}><X size={13}/></button>}</div>
-    <div className="ps-chips" role="group" aria-label="Режим">{([['all', 'Все'], ['text', 'Текст → фото'], ['image', 'Фото → фото'], ['workflow', 'Сценарии']] as const).map(([id, l]) => <button key={id} data-testid={`button-photo-mode-${id}`} className={mode === id ? 'on' : ''} aria-pressed={mode === id} onClick={() => setMode(id)}>{l}</button>)}</div>
-    {catalog.isLoading ? <div className="ps-grid">{[0, 1, 2, 3].map(i => <div key={i} className="ps-card ps-skel"/>)}</div>
-      : catalog.isError ? <div className="ps-empty"><img src={mood('curious')} alt=""/><strong>Каталог не загрузился</strong><p>{meduhaErrorMessage(catalog.error)}</p><button className="ps-btn" onClick={() => catalog.refetch()}><RefreshCw size={14}/>Повторить</button></div>
-      : shown.length === 0 ? <div className="ps-empty"><img src={mood('curious')} alt=""/><strong>Ничего не нашлось</strong><button className="ps-btn" onClick={() => { setQ(''); setMode('all'); }}>Сбросить</button></div>
-      : <div className="ps-grid">{shown.map((m, i) => { const r = readiness(catalog.data, m); const b = m.schema.properties && (m.schema.properties as Schema).batch_size; return <a key={m.id} href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/create?type=photo&photoModel=${encodeURIComponent(m.id)}`} onClick={go(navigate, `/create?type=photo&photoModel=${encodeURIComponent(m.id)}`)} className="ps-card" data-testid={`card-photo-model-${m.id}`} style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}>
-        <span className="ps-mono" aria-hidden="true">{m.name.replace(/[^A-Za-zА-я0-9 ]/g, '').split(' ').map(w => w[0]).join('').slice(0, 2)}</span>
-        <span className="ps-card-body"><span className="ps-mode">{modeLabel(m)}</span><strong>{displayName(m)}</strong><small>{blurb(m)}</small><code className="ps-endpoint">{m.id}</code>
-          <span className="ps-card-foot">{r.ok ? <span className="ps-price"><Zap size={11} fill="currentColor"/>{m.creditPrice}{b ? ' за фото' : ''}</span> : <span className="ps-off"><Lock size={10}/>{r.reason}</span>}</span></span>
-      </a>; })}</div>}
-    <p className="ps-foot-note">Схемы настроек взяты из официальных страниц Higgsfield Playground. Ссылки на источник есть на странице каждой модели.</p>
+    <h2 className="vs-section">{searching ? 'Подходящие модели' : mode === 'all' ? 'Все фотомодели' : modes.find(x => x[0] === mode)?.[1]}</h2>
+    <span className="vs-sr" aria-live="polite">{searching ? (shown.length ? `Найдено: ${shown.length}` : 'Ничего не нашлось') : ''}</span>
+    {catalog.isLoading ? <div className="vs-grid">{[0, 1, 2, 3].map(i => <div key={i} className="vs-card" style={{ height: 230, opacity: .5 }}/>)}</div>
+      : catalog.isError ? <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Каталог не загрузился</strong><p>{meduhaErrorMessage(catalog.error)}</p><div className="vs-empty-actions"><button onClick={() => catalog.refetch()}><RefreshCw size={12}/> Повторить</button></div></div>
+      : shown.length ? <div className="vs-grid">{shown.map((m, i) => <button key={m.id} data-testid={`card-photo-model-${m.id}`} className={`vs-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }} onClick={() => navigate(href(m))}>
+        <span className="vs-card-img"><img src={asset(photoModelArt(m))} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
+        <span className="vs-card-body"><strong>{displayName(m)}<em> · {modeLabel(m)}</em></strong><small>{blurb(m)}</small>
+          <span className="vs-card-foot"><span className="vs-prov">{photoProviderLabel(photoProvider(m))}</span><span className="vs-price" data-testid={`text-price-${m.id}`}>{priceLabel(m)}</span></span></span>
+      </button>)}</div>
+      : <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Такой модели пока нет</strong><p>Попробуй проще: «Soul», «товар», «правки». Или сбрось фильтры.</p>
+        <div className="vs-empty-actions"><button onClick={() => { update(''); setMode('all'); setProvider('all'); }}>Сбросить поиск</button><Link href="/create?type=photo&ideas=1">Фотоидеи</Link></div></div>}
+    <Link className="vs-free" href="/create?type=photo&ideas=1" data-testid="link-photo-ideas"><span><strong>Фотоидеи</strong><small>Готовые сюжеты для вдохновения</small></span><ArrowRight size={15}/></Link>
+    <Link className="vs-free" href="/create?type=photo&editor=1" data-testid="link-photo-editor"><span><strong>Без модели</strong><small>Записать идею без генерации</small></span><ArrowRight size={15}/></Link>
   </div></Frame>;
 }
 
@@ -181,9 +214,9 @@ function ModelForm({ model, catalog, authed, navigate }: { model: PhotoCatalogMo
     });
   };
 
-  return <Frame active="Create"><div className="ps-page" data-testid={`page-photo-model-${model.id}`}>
+  return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-photo-model-${model.id}`}>
     <a className="ps-back" href="/create?type=photo" onClick={go(navigate, '/create?type=photo')} data-testid="link-photo-catalogue"><ArrowLeft size={13}/>Все фотомодели</a>
-    <div className="ps-model-head"><span className="ps-mono big" aria-hidden="true">{model.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{displayName(model)}<span>.</span></h1><code className="ps-endpoint">{model.id}</code><p>{blurb(model)}</p><a className="ps-source" href={model.source} target="_blank" rel="noreferrer" data-testid="link-photo-source">Официальная страница<ExternalLink size={11}/></a></div></div>
+    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(photoModelArt(model))} alt=""/></span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{displayName(model)}<span>.</span></h1><p>{blurb(model)}</p><code className="ps-endpoint">{photoProviderLabel(photoProvider(model))} · {model.id}</code><a className="ps-source" href={model.source} target="_blank" rel="noreferrer" data-testid="link-photo-source">Официальная страница<ExternalLink size={11}/></a></div></div>
     {!authed && <div className="ps-alert" data-testid="status-login-required"><Lock size={15}/><span><strong>Нужен вход через Telegram</strong>Открой студию из Telegram, чтобы загружать фото и запускать генерацию. Настройки можно смотреть и менять уже сейчас.</span></div>}
     {authed && !ready.ok && <div className="ps-alert muted" data-testid="status-model-unavailable"><Lock size={15}/><span><strong>Запуск пока недоступен</strong>{ready.reason}. Настройки сохраняются на этом устройстве.</span></div>}
     {model.workflow && schema.properties?.preset_id && <div className="ps-note">Сценарий использует официальный пресет и улучшение описания с высоким качеством — эти параметры зафиксированы.</div>}

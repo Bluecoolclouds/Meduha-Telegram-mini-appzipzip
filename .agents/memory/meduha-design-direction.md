@@ -100,8 +100,8 @@ Catalogue price labels represent Meduha's configured retail credit prices, not H
 
 **How to apply:** use honest unavailable/unconfigured states when no matching tariff exists. The user's supplied Higgsfield CSS is a catalogue styling reference, not a request to replace the global Meduha brand or its orange accent.
 
-Photo creation should start with a catalogue of photo ideas: carousel, search and cards, following the video catalogue.
+Photo creation should start with a catalogue following the existing video-scenario design, including its carousel, compact promo strip, search/filters and two-column media cards. Photo scenario pages should use the same restrained workspace styling as video.
 
-**Why:** the user explicitly selected the photo-scenario catalogue option.
+**Why:** the user selected the photo catalogue, then rejected its separate visual design and explicitly said to make photo scenarios look like the video scenarios.
 
-**How to apply:** selecting an idea opens the existing photo editor with its prompt. Until photo generation is connected, describe these as idea templates, not generated results or available API models.
+**How to apply:** reuse the actual video components and styles rather than creating another visual direction. Keep the real photo-model settings and generation behavior intact. Legacy photo ideas still open the existing editor with their prompts; never present illustrative catalogue art as model outputs or user results.
