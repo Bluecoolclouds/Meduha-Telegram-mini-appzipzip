@@ -18,9 +18,9 @@ const examples: Record<string, { thumb?: string; video?: string; image?: string 
   cinema: { thumb: `${CDN}24fc2ccb2207a9d37b094f6da28c9055d73e98a02dddfa8d3b1c7d17b05865d8-thumbnail.webp`, video: `${CDN}cf76b0c05e5ac8154b16bd24238d7527c837452db713691fa6d9db4bea7a7b3d-video.mp4` },
 };
 
-export default function ExamplePreview({ scenario }: { scenario: string }) {
+export default function ExamplePreview({ scenario, showDemo = true }: { scenario: string; showDemo?: boolean }) {
   const item = videoScenarios.find(value => value.id === scenario);
-  const ex = examples[scenario];
+  const ex = showDemo ? examples[scenario] : undefined;
   const hasGenjutsuLibrary = scenario === 'genjutsu' || scenario === 'object-swap' || scenario === 'restyle';
   const video = useRef<HTMLVideoElement>(null);
   const [started, setStarted] = useState(false);

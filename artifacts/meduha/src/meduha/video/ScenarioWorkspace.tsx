@@ -209,18 +209,10 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
         </span>
       </header>
 
-      {examples.has(scenario.id) && <ExamplePreview scenario={scenario.id}/>}
+      <ExamplePreview scenario={scenario.id} showDemo={examples.has(scenario.id)}/>
 
       <section className="gj-scenario-form gj-input" aria-label={`Настройки: ${title}`}>
-        <div className="gj-scenario-intro">
-          <span className="gj-scenario-index">01 / СЦЕНАРИЙ</span>
-          <p>{guide.explanation}</p>
-          <div className="gj-scenario-requirements">
-            <strong>Что понадобится</strong>
-            <span>{guide.requirements}</span>
-          </div>
-        </div>
-        <div className="gj-label"><span>{promptLabel}</span><small>{prompt.length}/10000</small></div>
+        <div className="gj-label">{promptLabel}<small>{prompt.length}/10000</small></div>
         <div className="m-prompt gj-scenario-prompt">
           <textarea data-testid="input-scenario-prompt" aria-label="Описание сценария" value={prompt} onChange={event => setPrompt(event.target.value)} maxLength={10000} placeholder={scenario.prompt}/>
         </div>
@@ -244,17 +236,12 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
         </div>}
 
         {spec && <>
-          <div className="gj-label gj-scenario-section-label">
-            <span>02</span>
-            <span className="gj-scenario-media-label">{spec.video ? spec.videoLabel : spec.photoLabel}</span>
-            <small>{uploadHint}</small>
-          </div>
           <div className="gj-scenario-upload">
             <input ref={inputRef} type="file" hidden accept={accept} multiple={spec.photos > 1 || spec.video} onChange={event => { addFiles(event.target.files); event.currentTarget.value = ''; }}/>
             {canAddMore && <button type="button" className="gj-drop" onClick={() => inputRef.current?.click()} data-testid="button-add-scenario-media">
               {spec.video && videoCount === 0 ? <Film size={19}/> : <ImagePlus size={19}/>}
-              <span><strong>{files.length ? 'Добавить материалы' : spec.video ? 'Выбрать видео и фото' : `Выбрать фото${spec.requiredPhotos ? '' : ' · необязательно'}`}</strong>
-                <small>{uploadHint} · до 10 МиБ на фото</small></span>
+              <span><strong>{files.length ? 'Добавить материалы' : spec.video ? 'Видеореференс и до пяти фото' : spec.photoLabel}</strong>
+                <small>Локальный предпросмотр · файлы не загружаются и не сохраняются</small></span>
             </button>}
             {!!files.length && <div className="gj-scenario-file-list" aria-label="Выбранные локальные файлы">
               {files.map((file, index) => <div className="gj-scenario-file" key={`${file.name}-${index}`}>
@@ -269,7 +256,7 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
         </>}
 
         {scenario.id !== 'content-factory' && <>
-          <div className="gj-label sub">Формат кадра</div>
+          <div className="gj-label sub">Кадр</div>
           <div className="m-options gj-scenario-options">{['16:9', '9:16', '1:1'].map(value => <button key={value} type="button" className={`m-option ${ratio === value ? 'selected' : ''}`} aria-pressed={ratio === value} onClick={() => setRatio(value)}>{value}</button>)}</div>
           {scenario.id !== 'image-to-video' && <label className="gj-scenario-control gj-scenario-duration">Длительность
             <select data-testid="select-scenario-duration" aria-label="Длительность видео" value={duration} onChange={event => setDuration(event.target.value)}>
@@ -277,6 +264,11 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
             </select>
           </label>}
         </>}
+
+        <details className="gj-scenario-help" data-testid="details-scenario-requirements">
+          <summary>Требования к материалам</summary>
+          <p>{guide.requirements} {spec ? uploadHint : ''}</p>
+        </details>
 
         {textToVideo
           ? <SeedanceGenerationPanel authenticated={meduha.phase === 'authenticated'} userId={meduha.account?.id} prompt={prompt.trim()} duration={duration} ratio={ratio}
