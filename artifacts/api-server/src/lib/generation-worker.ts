@@ -306,7 +306,7 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
         let providerInput;
         try { providerInput = await videoProviderInput(job.account_id, input._video); }
         catch { throw new ProviderPreparationError('Не удалось подготовить настройки или приватные референсы видео.'); }
-        return higgsfieldClient().subscribe(input._video.endpoint, { input: providerInput, withPolling: false });
+        return submitHiggsfieldGeneration(input._video.endpoint, providerInput);
       }
       if (input._genjutsu) {
         let providerInput: Awaited<ReturnType<typeof genjutsuProviderInput>>;
