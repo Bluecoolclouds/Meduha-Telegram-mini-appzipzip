@@ -42,6 +42,7 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
   const userSessionHash = hash(randomBytes(32).toString('hex'));
   const { rows: ownerBefore } = await pool.query('SELECT * FROM meduha_template_admin WHERE slot = 1');
   const { rows: financeBefore } = await pool.query('SELECT * FROM meduha_finance_settings WHERE id = 1');
+  await pool.query('DELETE FROM meduha_admin_login_attempts WHERE key = $1', [rateKey]);
   const app = express();
   app.set('trust proxy', 1);
   app.use(pinoHttp({ logger: pino({ level: 'silent' }) }));
@@ -96,27 +97,38 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
 
     const cookie = await login();
     const otherCookie = await login();
-    const sessionListResponse = await call('/admin/sessions', 'GET', undefined, cookie);
+    const targetCookie = await login();
+    const sessionListResponse = await call('/admin/sessions', 'GET', undefined, targetCookie);
     assert.equal(sessionListResponse.status, 200);
     const listedSessions = await sessionListResponse.json() as Array<Record<string, unknown>>;
-    assert(listedSessions.length >= 2);
-    const own = listedSessions.find(session => session.current);
-    const other = listedSessions.find(session => !session.current);
-    assert(own && other);
-    assert.equal(own.authMethod, 'temporary');
-    assert.equal(typeof own.createdAt, 'string');
-    assert.equal(typeof own.expiresAt, 'string');
-    assert.deepEqual(Object.keys(own).sort(), ['authMethod', 'createdAt', 'current', 'expiresAt', 'id']);
+    assert(listedSessions.length >= 3);
+    const target = listedSessions.find(session => session.current);
+    assert(target);
+    assert.equal(target.authMethod, 'temporary');
+    assert.equal(typeof target.createdAt, 'string');
+    assert.equal(typeof target.expiresAt, 'string');
+    assert.deepEqual(Object.keys(target).sort(), ['authMethod', 'createdAt', 'current', 'expiresAt', 'id']);
     assert(!JSON.stringify(listedSessions).includes(sessionHashes.at(-1)!), 'the session response does not expose token hashes');
     assert.equal((await call('/admin/sessions', 'DELETE', undefined, cookie, false)).status, 403, 'bulk revocation requires CSRF protection');
-    assert.equal((await call(`/admin/sessions/${own.id}`, 'DELETE', undefined, cookie)).status, 404, 'the current admin session cannot revoke itself');
-    assert.equal((await call(`/admin/sessions/${other.id}`, 'DELETE', undefined, cookie)).status, 204);
-    sessionIds.push(String(other.id));
-    assert.equal((await call('/admin/channels', 'GET', undefined, otherCookie)).status, 403, 'revoking an admin session immediately blocks it');
+    assert.equal((await call(`/admin/sessions/${target.id}`, 'DELETE', undefined, targetCookie)).status, 404, 'the current admin session cannot revoke itself');
+    sessionIds.push(String(target.id));
+    const concurrentRevocations = await Promise.all([
+      call(`/admin/sessions/${target.id}`, 'DELETE', undefined, cookie),
+      call(`/admin/sessions/${target.id}`, 'DELETE', undefined, otherCookie),
+    ]);
+    assert.deepEqual(concurrentRevocations.map(response => response.status).sort(), [204, 404],
+      'exactly one administrator revokes the session; the other sees it as not found');
+    const notFound = concurrentRevocations.find(response => response.status === 404);
+    assert(notFound);
+    assert.equal((await notFound.json() as { code: string }).code, 'ADMIN_SESSION_NOT_FOUND');
+    assert.equal((await call('/admin/channels', 'GET', undefined, targetCookie)).status, 403,
+      'a concurrently revoked admin session immediately stops authorizing requests');
     const { rows: selectedAudit } = await pool.query(
-      `SELECT id, actor_id, action, entity_type, entity_id, details FROM meduha_admin_audit WHERE entity_id = $1`,
-      [other.id],
+      `SELECT id, actor_id, action, entity_type, entity_id, details FROM meduha_admin_audit
+       WHERE entity_id = $1 AND action = 'auth.session.revoke'`,
+      [target.id],
     );
+    assert.equal(selectedAudit.length, 1, 'concurrent revocations create exactly one audit record');
     auditIds.push(selectedAudit[0].id);
     assert.equal(selectedAudit[0]?.actor_id, TEMPORARY_ADMIN_ACTOR);
     assert.equal(selectedAudit[0]?.action, 'auth.session.revoke');
@@ -179,6 +191,7 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
     assert.equal((await call('/admin/channels', 'GET', undefined, revocable)).status, 403);
     config = initialConfig;
     assert.equal((await call('/admin/channels', 'GET', undefined, revocable)).status, 403, 'revoked session stays revoked');
+    await pool.query('DELETE FROM meduha_admin_login_attempts WHERE key = $1', [rateKey]);
     const disabled = await login();
     config = null;
     assert.equal((await call('/admin/channels', 'GET', undefined, disabled)).status, 403);
