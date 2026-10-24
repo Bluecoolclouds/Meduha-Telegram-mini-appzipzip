@@ -56,9 +56,9 @@ The top «Пример результата» must play a video inline, not mere
 
 **How to apply:** provide an actual playable source, a visible play action, native controls and a useful loading-error fallback. Keep it labelled as a provider demo, load on demand, and pause offscreen or in the background.
 
-The approved restrained Genjutsu playground presentation also applies to every other video scenario.
+Katana and Genjutsu are visual references for the other video scenario pages. Adapt the other scenarios to those references, not the references to a new shared design.
 
-**Why:** the user asked to use the same style for scenarios such as Katana and AI Blogger, not just the three Genjutsu modes.
+**Why:** the user requested this direction and corrected a result that changed Katana itself instead.
 
 **How to apply:** retain each scenario's own inputs and honest generation status, reuse only verified provider demos (and don't present another model's result as this one), and never route an unsupported scenario through a different paid generation model.
 
