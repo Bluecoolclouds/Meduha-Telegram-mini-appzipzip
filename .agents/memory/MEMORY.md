@@ -13,3 +13,4 @@
 - [Schema synchronization](schema-sync.md) — schema push may exit successfully without applying changes; inspect output and use column-level single-column primary keys.
 - [JSX instrumentation](jsx-instrumentation.md) — prefer inferred generic component types; explicit JSX type arguments can break the preview despite passing TypeScript.
 - [Feature CSS isolation](css-isolation.md) — scope styles by feature; shared short namespaces can silently alter unrelated routed pages and sheets.
+- [Pricing reference](pricing-reference.md) — user chose Higgsfield-style USD prices; distinguish monthly from annual pricing and do not copy website-only benefits.
