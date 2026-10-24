@@ -3,6 +3,7 @@ import { createReadStream } from 'node:fs';
 import { access, stat } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { Readable, Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { motionAssets } from '../artifacts/api-server/src/lib/motion-example';
 import { templateFile } from '../artifacts/api-server/src/lib/objectStorage';
@@ -11,6 +12,38 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(scriptDir, '..');
 const mediaDir = resolve(projectRoot, process.env.MOTION_EXAMPLE_MEDIA_DIR ?? 'attached_assets');
 const posterPath = resolve(scriptDir, 'assets/motion-poster.jpg');
+
+export interface SeedAsset {
+  id: string;
+  contentType: string;
+  size: number;
+}
+
+interface StoredMetadata {
+  size?: string | number;
+  contentType?: string;
+  md5Hash?: string;
+  generation?: string | number;
+}
+
+export interface SeedStorageFile {
+  exists(): Promise<[boolean]>;
+  getMetadata(): Promise<[StoredMetadata, unknown?]>;
+  createReadStream(): Readable;
+  createWriteStream(options: {
+    resumable: false;
+    preconditionOpts: { ifGenerationMatch: number };
+    metadata: { contentType: string; cacheControl: string };
+  }): Writable;
+}
+
+export interface SeedAssetsOptions {
+  assets: Record<string, SeedAsset>;
+  approvedSha256: Record<string, string>;
+  sourcePath(name: string): Promise<string>;
+  templateFile(id: string): SeedStorageFile;
+  writeOutput?: (message: string) => void;
+}
 
 const sourceNames: Partial<Record<keyof typeof motionAssets, string[]>> = {
   'motion-result.mp4': ['motion-result.mp4', '0_generation_1792882899573.mp4'],
@@ -52,7 +85,7 @@ async function checksums(path: string): Promise<{ md5Base64: string; sha256Hex: 
   return { md5Base64: md5.digest('base64'), sha256Hex: sha256.digest('hex') };
 }
 
-async function storedMd5Base64(file: ReturnType<typeof templateFile>): Promise<string> {
+async function storedMd5Base64(file: SeedStorageFile): Promise<string> {
   const [metadata] = await file.getMetadata();
   if (metadata.md5Hash) return metadata.md5Hash;
   const hash = createHash('md5');
@@ -61,11 +94,13 @@ async function storedMd5Base64(file: ReturnType<typeof templateFile>): Promise<s
 }
 
 async function storedMatches(
-  name: keyof typeof motionAssets,
+  name: string,
+  assets: Record<string, SeedAsset>,
+  getFile: (id: string) => SeedStorageFile,
   expectedMd5: string,
 ): Promise<boolean> {
-  const asset = motionAssets[name];
-  const file = templateFile(asset.id);
+  const asset = assets[name];
+  const file = getFile(asset.id);
   const [metadata] = await file.getMetadata();
   const size = Number(metadata.size);
   const storedMd5 = await storedMd5Base64(file);
@@ -73,14 +108,16 @@ async function storedMatches(
 }
 
 async function writeAsset(
-  name: keyof typeof motionAssets,
+  name: string,
   path: string,
   generationMatch: number,
+  assets: Record<string, SeedAsset>,
+  getFile: (id: string) => SeedStorageFile,
 ): Promise<void> {
-  const asset = motionAssets[name];
+  const asset = assets[name];
   await pipeline(
     createReadStream(path),
-    templateFile(asset.id).createWriteStream({
+    getFile(asset.id).createWriteStream({
       resumable: false,
       preconditionOpts: { ifGenerationMatch: generationMatch },
       metadata: { contentType: asset.contentType, cacheControl: 'private,no-cache' },
@@ -88,11 +125,13 @@ async function writeAsset(
   );
 }
 
-async function seed(): Promise<void> {
-  const prepared: { name: keyof typeof motionAssets; path: string; size: number; md5Base64: string }[] = [];
-  for (const name of Object.keys(motionAssets) as (keyof typeof motionAssets)[]) {
-    const asset = motionAssets[name];
-    const path = await sourcePath(name);
+export async function seedAssets(options: SeedAssetsOptions): Promise<void> {
+  const { assets, approvedSha256, sourcePath: resolveSource, templateFile: getFile } = options;
+  const output = options.writeOutput ?? (message => process.stdout.write(message));
+  const prepared: { name: string; path: string; size: number; md5Base64: string }[] = [];
+  for (const name of Object.keys(assets)) {
+    const asset = assets[name];
+    const path = await resolveSource(name);
     const { size } = await stat(path);
     if (size !== asset.size) {
       throw new Error(`Unexpected size for ${name}: expected ${asset.size}, got ${size}.`);
@@ -106,40 +145,51 @@ async function seed(): Promise<void> {
 
   // Validate every local input before writing any of the five stable IDs.
   for (const { name, path, size, md5Base64: expectedMd5 } of prepared) {
-    const asset = motionAssets[name];
-    const file = templateFile(asset.id);
+    const asset = assets[name];
+    const file = getFile(asset.id);
     const [exists] = await file.exists();
     if (exists) {
-      if (await storedMatches(name, expectedMd5)) {
-        process.stdout.write(`Already seeded ${name} (${size} bytes)\n`);
+      if (await storedMatches(name, assets, getFile, expectedMd5)) {
+        output(`Already seeded ${name} (${size} bytes)\n`);
         continue;
       }
       const [metadata] = await file.getMetadata();
       if (!metadata.generation) throw new Error(`Cannot safely refresh ${name}: App Storage did not return its generation.`);
       try {
-        await writeAsset(name, path, Number(metadata.generation));
+        await writeAsset(name, path, Number(metadata.generation), assets, getFile);
       } catch (error) {
         if (Number((error as { code?: number }).code) !== 409 && Number((error as { code?: number }).code) !== 412) throw error;
-        if (!(await storedMatches(name, expectedMd5))) throw error;
+        if (!(await storedMatches(name, assets, getFile, expectedMd5))) throw error;
       }
-      process.stdout.write(`Refreshed ${name} (${size} bytes)\n`);
+      output(`Refreshed ${name} (${size} bytes)\n`);
     } else {
       try {
-        await writeAsset(name, path, 0);
+        await writeAsset(name, path, 0, assets, getFile);
       } catch (error) {
         if (Number((error as { code?: number }).code) !== 409 && Number((error as { code?: number }).code) !== 412) throw error;
-        if (!(await storedMatches(name, expectedMd5))) throw error;
+        if (!(await storedMatches(name, assets, getFile, expectedMd5))) throw error;
       }
-      process.stdout.write(`Seeded ${name} (${size} bytes)\n`);
+      output(`Seeded ${name} (${size} bytes)\n`);
     }
 
-    if (!(await storedMatches(name, expectedMd5))) {
+    if (!(await storedMatches(name, assets, getFile, expectedMd5))) {
       throw new Error(`App Storage verification failed for ${name}.`);
     }
   }
 }
 
-seed().catch(error => {
-  process.stderr.write(`Could not seed the Genjutsu community example: ${error instanceof Error ? error.message : String(error)}\n`);
-  process.exitCode = 1;
-});
+async function seed(): Promise<void> {
+  await seedAssets({
+    assets: motionAssets,
+    approvedSha256,
+    sourcePath: name => sourcePath(name as keyof typeof motionAssets),
+    templateFile: id => templateFile(id),
+  });
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  seed().catch(error => {
+    process.stderr.write(`Could not seed the Genjutsu community example: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  });
+}

@@ -6,7 +6,8 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed:motion-example": "tsx ./seed-motion-example.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test ./src/seed-motion-example.test.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",
