@@ -13,7 +13,7 @@ Meduha is a Russian-language creative Telegram Mini App for photo / video / musi
 
 ## Run & Operate
 
-- Import setup verified: dependencies install with the existing lockfile, the development database schema initializes successfully, and all three managed workflows start. The studio renders in guest mode and `/api/healthz` returns HTTP 200. Account-only screens were not verified without Telegram credentials; no imported user records were present in the new development database.
+- Import setup verified on Node.js 24: dependencies install with the existing lockfile, the development database schema initializes successfully, and all three managed workflows start. Full workspace typechecking and all 33 frontend unit tests pass. The mobile studio renders in guest mode and `/api/healthz` returns HTTP 200. Account-only screens were not verified without Telegram credentials; no imported user records were present in the new development database. The imported motion example's App Storage media is unavailable (`/api/meduha/example-media/motion-poster.jpg` returns 503); other checked public sample media loads. Storage assets must be restored separately, not replaced with simulated user work.
 - After importing: run `pnpm install --frozen-lockfile`, then `pnpm --filter @workspace/db run push` to initialize the development database before starting the app. Do not use the schema-push command against production.
 - Start the existing managed workflows below; they provide `PORT` and `BASE_PATH`. Do not run a root-level `pnpm dev` or create replacement workflows.
 - `pnpm --filter @workspace/api-server run dev` — run through `artifacts/api-server: API Server` (managed port 8080)
