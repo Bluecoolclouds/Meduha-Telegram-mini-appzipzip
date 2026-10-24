@@ -11,7 +11,7 @@ Catalog completeness also depends on checking the family and workflow totals pub
 
 **How to apply:** Read official catalog and model-reference pages server-side for refreshes. Distinguish documented workflows from account-specific availability, compare category totals with links, exclude entries without an exact endpoint ID from model import, and never submit a paid generation to discover models.
 
-For photo scenarios, the user designated the `open.higgsfield.ai` Playground pages as the reference. A workflow's catalogue slug is not necessarily its submission endpoint: Product shots, Graphic ads and Marketplace design use Marketing Studio with different official preset IDs.
+For photo and video scenarios, the user designated the `open.higgsfield.ai` Playground pages as the reference. For video coverage, compare the Explore Video catalogue as well as the modes within each model's Playground; a model card alone does not establish support for all its modes. A workflow's catalogue slug is not necessarily its submission endpoint: Product shots, Graphic ads and Marketplace design use Marketing Studio with different official preset IDs.
 
 **Why:** the official Playground embeds both the input schema and the SDK example, and those workflows share a model endpoint while applying conditional preset/enhancement requirements.
 

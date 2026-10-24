@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ArrowLeft, Check, CircleSlash, Zap } from 'lucide-react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ArrowLeft, Check, CircleSlash, Zap, Repeat, Layers } from 'lucide-react';
 import { Sheet } from '../shared';
 import './topup.css';
 
@@ -24,15 +24,8 @@ export function TopupSheet({ onClose, authenticated, balance }: { onClose: () =>
     <div className="mt-flag" data-testid="status-topup-demo"><CircleSlash size={13} />Тестовый режим · цены и пакеты предварительные, не действующее предложение</div>
     {step === 'choose' && <div className="mt-step" key="choose">
       <p className="mt-lead">Разовые пакеты кредитов. Не подписка: без автопродления и без активации plus.</p>
-      <div className="mt-packs" role="radiogroup" aria-label="Пакет кредитов">
-        {TOPUP_PACKAGES.map(p => <label key={p.id} className={`mt-pack${p.id === picked ? ' on' : ''}`} data-testid={`radio-topup-${p.id}`}>
-          <input type="radio" name="topup-pack" value={p.id} checked={p.id === picked} onChange={() => setPicked(p.id)} />
-          <span className="mt-dot" aria-hidden="true"><Check size={11} strokeWidth={3} /></span>
-          <span className="mt-pack-main"><strong><Zap size={13} fill="currentColor" />{num(p.credits)} кредитов</strong>{p.note && <small>{p.note}</small>}</span>
-          <b>{rub(p.rub)}</b>
-        </label>)}
-      </div>
-      <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('review')} data-testid="button-topup-continue">Продолжить · {rub(pkg.rub)}</button><button className="m-startup-guest" onClick={onClose} data-testid="button-topup-cancel">Отмена</button></div>
+      <TopupCarousel picked={picked} onPick={setPicked} onProceed={id => { setPicked(id); setStep('review'); }} />
+      <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('review')} data-testid="button-topup-continue">Продолжить · {num(pkg.credits)} кр. · {rub(pkg.rub)}</button><button className="m-startup-guest" onClick={onClose} data-testid="button-topup-cancel">Отмена</button></div>
     </div>}
     {step === 'review' && <div className="mt-step" key="review">
       <dl className="mt-review" data-testid="text-topup-review">
@@ -54,4 +47,84 @@ export function TopupSheet({ onClose, authenticated, balance }: { onClose: () =>
       <div className="mt-actions"><button className="m-startup-action" onClick={onClose} data-testid="button-topup-close">Понятно</button><button className="m-startup-guest" onClick={() => setStep('choose')} data-testid="button-topup-restart">Выбрать другой пакет</button></div>
     </div>}
   </Sheet>;
+}
+
+const TIERS: Record<string, { name: string; tone: string; sub: string }> = {
+  p100: { name: 'Старт', tone: 'starter', sub: 'Малый разовый пакет' },
+  p300: { name: 'Плюс', tone: 'plus', sub: 'Средний разовый пакет' },
+  p1000: { name: 'Ультра', tone: 'ultra', sub: 'Большой разовый пакет' },
+};
+const perCredit = (p: TopupPackage) => (p.rub / p.credits).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: (id: string) => void; onProceed: (id: string) => void }) {
+  const track = useRef<HTMLDivElement>(null);
+  const radios = useRef<(HTMLButtonElement | null)[]>([]);
+  const timer = useRef<number | undefined>(undefined);
+  const pickRef = useRef(onPick); pickRef.current = onPick;
+  const idx = Math.max(0, TOPUP_PACKAGES.findIndex(p => p.id === picked));
+  const snapTo = (i: number, smooth: boolean) => {
+    const t = track.current; const card = t?.children[i] as HTMLElement | undefined;
+    if (!t || !card || t.scrollWidth <= t.clientWidth + 2) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    t.scrollTo({ left: card.offsetLeft - (t.clientWidth - card.offsetWidth) / 2, behavior: smooth && !reduce ? 'smooth' : 'auto' });
+  };
+  const idxRef = useRef(idx); idxRef.current = idx;
+  useLayoutEffect(() => { snapTo(idx, false); }, []); // align initial / restored card on mount
+  useEffect(() => {
+    const t = track.current;
+    let previousWidth = t?.clientWidth;
+    const ro = t && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => {
+      if (t.clientWidth === previousWidth) return;
+      previousWidth = t.clientWidth;
+      snapTo(idxRef.current, false);
+    }) : null;
+    if (t && ro) ro.observe(t);
+    return () => { ro?.disconnect(); window.clearTimeout(timer.current); };
+  }, []);
+  const select = (i: number, focus = false) => {
+    const p = TOPUP_PACKAGES[(i + TOPUP_PACKAGES.length) % TOPUP_PACKAGES.length];
+    const j = TOPUP_PACKAGES.indexOf(p);
+    onPick(p.id); snapTo(j, true); if (focus) radios.current[j]?.focus({ preventScroll: true });
+  };
+  const onScroll = () => {
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => {
+      const t = track.current; if (!t || t.scrollWidth <= t.clientWidth + 2) return;
+      const mid = t.scrollLeft + t.clientWidth / 2; let best = 0, dist = Infinity;
+      [...t.children].forEach((c, i) => { const el = c as HTMLElement; const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid); if (d < dist) { dist = d; best = i; } });
+      const id = TOPUP_PACKAGES[best].id; if (id !== picked) pickRef.current(id);
+    }, 90);
+  };
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); select(idx + 1, true); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); select(idx - 1, true); }
+    else if (e.key === 'Home') { e.preventDefault(); select(0, true); }
+    else if (e.key === 'End') { e.preventDefault(); select(TOPUP_PACKAGES.length - 1, true); }
+  };
+  return <div className="mtp-carousel">
+    <div className="mtp-track" ref={track} onScroll={onScroll} role="radiogroup" aria-label="Пакет кредитов" onKeyDown={onKey} data-testid="carousel-topup">
+      {TOPUP_PACKAGES.map((p, i) => { const t = TIERS[p.id] ?? { name: 'Пакет', tone: 'starter', sub: 'Разовый пакет' }; const on = p.id === picked;
+        return <article key={p.id} className={`mtp-card mtp-${t.tone}${on ? ' on' : ''}`} data-testid={`card-topup-${p.id}`}>
+          <button type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} ref={el => { radios.current[i] = el; }} className="mtp-card-head" onClick={() => select(i)} data-testid={`radio-topup-${p.id}`} aria-label={`${t.name}: ${num(p.credits)} кредитов за ${rub(p.rub)}, разовый пакет`}>
+            <span className="mtp-card-title"><strong>{t.name}</strong><span className="mtp-radio" aria-hidden="true"><Check size={11} strokeWidth={3} /></span></span>
+            <small>{t.sub} · не подписка</small>
+          </button>
+          <div className="mtp-inset">
+            <div className="mtp-inset-big"><Zap size={14} fill="currentColor" />{num(p.credits)} кредитов</div>
+            <div className="mtp-inset-row">= {perCredit(p)} ₽ за кредит</div>
+            {p.note && <div className="mtp-inset-row">{p.note}</div>}
+          </div>
+          <div className="mtp-price"><b>{rub(p.rub)}</b><span>разово</span></div>
+          <button type="button" className="mtp-cta" onClick={() => { window.clearTimeout(timer.current); onProceed(p.id); }} data-testid={`button-topup-select-${p.id}`}>Выбрать · {num(p.credits)} кр.</button>
+          <ul className="mtp-benefits">
+            <li><Layers size={12} />Начисление один раз</li>
+            <li><Repeat size={12} />Без автопродления</li>
+            <li><CircleSlash size={12} />Plus не активируется</li>
+          </ul>
+        </article>; })}
+    </div>
+    <div className="mtp-dots" aria-hidden="true">
+      {TOPUP_PACKAGES.map((p, i) => <span key={p.id} className={i === idx ? 'on' : ''} data-testid={`indicator-topup-${p.id}`} onClick={() => select(i)} />)}
+    </div>
+  </div>;
 }

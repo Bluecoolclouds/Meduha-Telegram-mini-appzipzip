@@ -111,3 +111,9 @@ Photo modes and variants of the same model belong inside one scenario, not in se
 **Why:** the user explicitly rejected three separate SOUL cards and requested switching with buttons inside the scenario.
 
 **How to apply:** show one family card, then expose its documented modes/versions within the scenario page. Keep exact mode-specific schemas, required uploads, prices and saved settings. Workflows with distinct purposes remain separate scenarios even when they share an upstream endpoint.
+
+The package/tariff chooser should use three cards that swipe horizontally, styled like the user's Higgsfield pricing reference: dark cards with distinct colour accents, prominent prices and inset detail sections.
+
+**Why:** the user explicitly requested three left/right-swipeable blocks and supplied that pricing screenshot as the design reference.
+
+**How to apply:** keep the existing package amounts, prices and payment status; this visual request does not change one-off packs into recurring subscriptions or authorize new advertised benefits.
