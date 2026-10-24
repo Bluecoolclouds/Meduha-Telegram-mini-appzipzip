@@ -31,3 +31,9 @@ Use the artifact router for full-stack browser tests, not a direct Vite port wit
 **Why:** direct Vite can serve HTML for an API request; the typed fetch client may accept that response and show a misleading login state instead of an obvious network error. This previously hid an enabled password-login form in a browser test.
 
 **How to apply:** verify the routed API status alongside the UI. For secret-independent authentication tests, run the real API router with random injected credentials and local Chromium in one process, forwarding browser API requests to that fixture and cleaning only its own sessions.
+
+Password-login browser regressions must forward API calls into the actual Meduha router with per-run random credentials; do not mock a successful login response or read owner secrets. Scope cleanup to the test's hashed session, audit id, and attempt bucket, and compare owner/finance state before and after.
+
+**Why:** Authentication behavior includes cookie persistence and database-backed revocation; a client-only mocked success would not verify those boundaries, while shared admin fixtures can disturb real access or finance state.
+
+**How to apply:** Keep the API fixture in the Playwright worker, route the browser through the artifact preview, and fail with a clear schema prerequisite if required admin tables are missing.
