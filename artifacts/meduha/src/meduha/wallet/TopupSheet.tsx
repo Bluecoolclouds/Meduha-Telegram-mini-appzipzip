@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowLeft, Check, CircleSlash, Zap, Repeat, Layers, Image as ImageIcon, Clapperboard } from 'lucide-react';
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, CircleSlash, Zap, Repeat, Layers, Image as ImageIcon, Clapperboard } from 'lucide-react';
 import { useGetPhotoCatalog } from '@workspace/api-client-react';
 import { useVideoCatalog } from '../video/videoApi';
 import { cheapestAvailable, generationsFor, type Cheapest } from './yield';
@@ -84,6 +84,9 @@ function TopupCarousel({ picked, onPick, onProceed, levels, onLevel, months }: {
   const track = useRef<HTMLDivElement>(null);
   const radios = useRef<(HTMLButtonElement | null)[]>([]);
   const timer = useRef<number | undefined>(undefined);
+  const drag = useRef<{ x: number; y: number; left: number; active: boolean } | null>(null);
+  const suppressClick = useRef(false);
+  const [dragging, setDragging] = useState(false);
   const pickRef = useRef(onPick); pickRef.current = onPick;
   const yields = useYields();
   const idx = Math.max(0, TOPUP_PACKAGES.findIndex(p => p.id === picked));
@@ -107,27 +110,64 @@ function TopupCarousel({ picked, onPick, onProceed, levels, onLevel, months }: {
     return () => { ro?.disconnect(); window.clearTimeout(timer.current); };
   }, []);
   const select = (i: number, focus = false) => {
+    window.clearTimeout(timer.current);
     const p = TOPUP_PACKAGES[(i + TOPUP_PACKAGES.length) % TOPUP_PACKAGES.length];
     const j = TOPUP_PACKAGES.indexOf(p);
     onPick(p.id); snapTo(j, true); if (focus) radios.current[j]?.focus({ preventScroll: true });
   };
   const onScroll = () => {
     window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => {
-      const t = track.current; if (!t || t.scrollWidth <= t.clientWidth + 2) return;
-      const mid = t.scrollLeft + t.clientWidth / 2; let best = 0, dist = Infinity;
-      [...t.children].forEach((c, i) => { const el = c as HTMLElement; const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid); if (d < dist) { dist = d; best = i; } });
-      const id = TOPUP_PACKAGES[best].id; if (id !== picked) pickRef.current(id);
-    }, 90);
+    timer.current = window.setTimeout(syncSelection, 120);
   };
   const onKey = (e: React.KeyboardEvent) => {
+    if ((e.target as HTMLElement).closest('.mtp-levels')) return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); select(idx + 1, true); }
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); select(idx - 1, true); }
     else if (e.key === 'Home') { e.preventDefault(); select(0, true); }
     else if (e.key === 'End') { e.preventDefault(); select(TOPUP_PACKAGES.length - 1, true); }
   };
+  const syncSelection = () => {
+    const t = track.current;
+    if (!t || t.scrollWidth <= t.clientWidth + 2) return;
+    const mid = t.scrollLeft + t.clientWidth / 2;
+    let best = 0, distance = Infinity;
+    [...t.children].forEach((c, i) => {
+      const el = c as HTMLElement;
+      const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
+      if (d < distance) { distance = d; best = i; }
+    });
+    pickRef.current(TOPUP_PACKAGES[best].id);
+  };
+  const finishDrag = () => {
+    const wasDragging = drag.current?.active;
+    drag.current = null;
+    setDragging(false);
+    if (wasDragging) syncSelection();
+  };
   return <div className="mtp-carousel">
-    <div className="mtp-track" ref={track} onScroll={onScroll} role="radiogroup" aria-label="Пакет кредитов" onKeyDown={onKey} data-testid="carousel-topup">
+    <div className="mtp-stage">
+    <button type="button" className="mtp-arrow mtp-arrow-prev" aria-label="Предыдущий тариф" disabled={idx === 0} onClick={() => select(idx - 1)} data-testid="button-topup-prev"><ChevronLeft size={20}/></button>
+    <div className={`mtp-track${dragging ? ' dragging' : ''}`} ref={track} onScroll={onScroll} onScrollEnd={syncSelection} role="radiogroup" aria-label="Пакет кредитов" onKeyDown={onKey} data-testid="carousel-topup"
+      onPointerDown={e => {
+        suppressClick.current = false;
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag.current = { x: e.clientX, y: e.clientY, left: e.currentTarget.scrollLeft, active: false };
+      }}
+      onDragStart={e => e.preventDefault()}
+      onPointerMove={e => {
+        const d = drag.current;
+        if (!d) return;
+        const dx = e.clientX - d.x;
+        if (!d.active && Math.abs(e.clientY - d.y) > Math.abs(dx) + 8) { drag.current = null; return; }
+        if (!d.active && Math.abs(dx) > 8) {
+          d.active = true; suppressClick.current = true;
+          e.currentTarget.setPointerCapture(e.pointerId); setDragging(true);
+        }
+        if (d.active) { e.preventDefault(); e.currentTarget.scrollLeft = d.left - dx; }
+      }}
+      onPointerUp={finishDrag} onPointerCancel={finishDrag} onLostPointerCapture={finishDrag}
+      onClickCapture={e => { if (suppressClick.current) { e.preventDefault(); e.stopPropagation(); suppressClick.current = false; } }}
+    >
       {TOPUP_PACKAGES.map((tier, i) => { const p = resolve(tier, levels); const q = billingQuote(p, months); const term = BILLING_PERIODS.find(x => x.months === months)!; const t = TIERS[p.id] ?? { name: 'Пакет', tone: 'starter', sub: 'Тариф' }; const on = p.id === picked; const li = levelOf(tier, levels);
         return <article key={p.id} className={`mtp-card mtp-${t.tone}${on ? ' on' : ''}`} data-testid={`card-topup-${p.id}`}>
           <button type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} ref={el => { radios.current[i] = el; }} className="mtp-card-head" onClick={() => select(i)} data-testid={`radio-topup-${p.id}`} aria-label={`${t.name}: ${num(p.credits)} кредитов в месяц, ${usd(q.totalUsd)} за ${term.label}, тестовый тариф`}>
@@ -154,10 +194,13 @@ function TopupCarousel({ picked, onPick, onProceed, levels, onLevel, months }: {
           </ul>
         </article>; })}
     </div>
+    <button type="button" className="mtp-arrow mtp-arrow-next" aria-label="Следующий тариф" disabled={idx === TOPUP_PACKAGES.length - 1} onClick={() => select(idx + 1)} data-testid="button-topup-next"><ChevronRight size={20}/></button>
+    </div>
+    <div className="mtp-dots" role="group" aria-label="Перейти к тарифу">
+      {TOPUP_PACKAGES.map((p, i) => <button key={p.id} type="button" className={i === idx ? 'on' : ''} aria-label={`Тариф ${TIERS[p.id].name}`} aria-current={i === idx ? 'true' : undefined} data-testid={`indicator-topup-${p.id}`} onClick={() => select(i)} />)}
+    </div>
+    <span className="vs-sr" aria-live="polite">Выбран тариф {TIERS[picked]?.name}, {idx + 1} из {TOPUP_PACKAGES.length}</span>
     <p className="mtp-yield-note">Фото или видео — альтернативные варианты расходования кредитов meduha, не оба сразу. Расчёт по самой дешёвой доступной модели, округлён вниз. Дорогие модели и длинные видео расходуют больше. Безлимиты и бонусы Higgsfield не включены.</p>
     <p className="mtp-yield-note"><a href="https://higgsfield.ai/pricing" target="_blank" rel="noreferrer">Цены Higgsfield</a> · <a href="https://higgsfield.ai/blog/seedance-2-5-pricing-2026" target="_blank" rel="noreferrer">Объёмы Ultra</a> · проверено 24.10.2026</p>
-    <div className="mtp-dots" aria-hidden="true">
-      {TOPUP_PACKAGES.map((p, i) => <span key={p.id} className={i === idx ? 'on' : ''} data-testid={`indicator-topup-${p.id}`} onClick={() => select(i)} />)}
-    </div>
   </div>;
 }
