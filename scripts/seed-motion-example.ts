@@ -11,7 +11,15 @@ import { templateFile } from '../artifacts/api-server/src/lib/objectStorage';
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(scriptDir, '..');
 const mediaDir = resolve(projectRoot, process.env.MOTION_EXAMPLE_MEDIA_DIR ?? 'attached_assets');
-const posterPath = resolve(scriptDir, 'assets/motion-poster.jpg');
+const bundledSources: Partial<Record<keyof typeof motionAssets, string>> = {
+  'motion-poster.jpg': 'motion-poster.jpg',
+  'home-video.mp4': 'home-video.mp4',
+  'home-video-poster.webp': 'home-video-poster.webp',
+  'home-photo-1.webp': 'home-photo-1.webp',
+  'home-photo-2.webp': 'home-photo-2.webp',
+  'home-photo-3.webp': 'home-photo-3.webp',
+  'home-photo-4.webp': 'home-photo-4.webp',
+};
 
 export interface SeedAsset {
   id: string;
@@ -57,10 +65,17 @@ const approvedSha256: Record<keyof typeof motionAssets, string> = {
   'motion-reference.mp4': '716b56c18c793967593921827796be22a77fceaded2cd5f440d12e90ad5aac65',
   'motion-image-1.webp': 'e17e76e23bb1aef56b805c4d8feb47d08a9fe3c51f6f0e4d4d1e34a47067eb75',
   'motion-image-2.webp': 'aac9d6eb2aaeabce51db6a351b3de32ed257405a460c60612e9612fd8e774108',
+  'home-video.mp4': '8b5710284219777430073c696ef34aceffdae95bc0eb3a31ba6a28afe2a6a431',
+  'home-video-poster.webp': '84c1246b635f779ee0b98eec8427431e10e641362f1b507ad900a7a163d02950',
+  'home-photo-1.webp': 'd33165170aabe63f434e27fb2a8d6b409f131dea3fff1e9a2fcb39c536d58ced',
+  'home-photo-2.webp': '053c7247d90709f575cd7c670dfe78a6618858501457b3d2badadca31143f62a',
+  'home-photo-3.webp': '81ea169464cb782a791b28c7399007a7c22b456b21c3e7d30229fc146de57b16',
+  'home-photo-4.webp': 'fe073d7c4f69b814d27c55b1340f0195092069a24dd4f5ebd64abd32ecbbb2b7',
 };
 
 async function sourcePath(name: keyof typeof motionAssets): Promise<string> {
-  if (name === 'motion-poster.jpg') return posterPath;
+  const bundled = bundledSources[name];
+  if (bundled) return resolve(scriptDir, 'assets', bundled);
   for (const filename of sourceNames[name] ?? []) {
     const candidate = resolve(mediaDir, filename);
     try {
@@ -71,7 +86,7 @@ async function sourcePath(name: keyof typeof motionAssets): Promise<string> {
     }
   }
   throw new Error(
-    `Missing ${name}. Put the four approved source files in ${mediaDir} using their canonical names (motion-result.mp4, motion-reference.mp4, motion-image-1.webp, motion-image-2.webp).`,
+    `Missing ${name}. Restore its approved copy under scripts/assets or put the approved Genjutsu source media in ${mediaDir}.`,
   );
 }
 
@@ -143,7 +158,7 @@ export async function seedAssets(options: SeedAssetsOptions): Promise<void> {
     prepared.push({ name, path, size, md5Base64: digest.md5Base64 });
   }
 
-  // Validate every local input before writing any of the five stable IDs.
+  // Validate every local input before writing any of the stable media IDs.
   for (const { name, path, size, md5Base64: expectedMd5 } of prepared) {
     const asset = assets[name];
     const file = getFile(asset.id);

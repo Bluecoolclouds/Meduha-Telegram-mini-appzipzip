@@ -2215,6 +2215,88 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getCompleteTemplateUploadMutationOptions(options));
     }
 
+export const getGetFeedMediaUrl = (id: string,
+    variant: 'thumb' | 'preview',) => {
+
+
+
+
+  return `/api/meduha/feed-media/${id}/${variant}`
+}
+
+/**
+ * @summary Small cached media for published community cards; originals remain unchanged
+ */
+export const getFeedMedia = async (id: string,
+    variant: 'thumb' | 'preview', options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetFeedMediaUrl(id,variant),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetFeedMediaQueryKey = (id: string,
+    variant: 'thumb' | 'preview',) => {
+    return [
+    `/api/meduha/feed-media/${id}/${variant}`
+    ] as const;
+    }
+
+
+export const getGetFeedMediaQueryOptions = <TData = Awaited<ReturnType<typeof getFeedMedia>>, TError = ErrorType<void>>(id: string,
+    variant: 'thumb' | 'preview', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeedMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetFeedMediaQueryKey(id,variant);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFeedMedia>>> = ({ signal }) => getFeedMedia(id,variant, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined && variant !== null && variant !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFeedMedia>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetFeedMediaQueryResult = NonNullable<Awaited<ReturnType<typeof getFeedMedia>>>
+export type GetFeedMediaQueryError = ErrorType<void>
+
+
+/**
+ * @summary Small cached media for published community cards; originals remain unchanged
+ */
+
+export function useGetFeedMedia<TData = Awaited<ReturnType<typeof getFeedMedia>>, TError = ErrorType<void>>(
+ id: string,
+    variant: 'thumb' | 'preview', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeedMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetFeedMediaQueryOptions(id,variant,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getGetTemplateMediaUrl = (id: string,) => {
 
 

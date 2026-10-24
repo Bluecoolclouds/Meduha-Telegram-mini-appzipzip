@@ -239,6 +239,6 @@
 .meduha .mt-tile .mt-card-title{left:8px;bottom:7px;font-size:9px;opacity:.92}
 .meduha .mt-tile-badges{position:absolute;top:6px;left:6px;right:6px;display:flex;flex-wrap:wrap;gap:4px;pointer-events:none}
 .meduha .mt-tile-badges .mt-kind-badge{position:static}
-.meduha .mt-example-badge{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;background:var(--orange);color:#25150a;font-size:8px;font-weight:750;line-height:1}
+.meduha .mt-example-badge{display:inline-flex;align-items:center;padding:4px 1px;border-radius:0;background:transparent;color:#fff;font-size:9px;font-weight:750;line-height:1;text-shadow:0 1px 5px #000c}
 .meduha .mt-mosaic .mt-skeleton{border-radius:8px}
 @media(min-width:560px){.meduha .mt-mosaic,.meduha .mt-mosaic-column{gap:6px}}

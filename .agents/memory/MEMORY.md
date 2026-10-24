@@ -9,6 +9,7 @@
 - [Browser verification](browser-verification.md) — select a CDP page target; authenticated tests need Telegram context; playback fixtures must outlast automation.
 - [Playwright on Replit](playwright-replit-runtime.md) — use Replit's Nix-aware Chromium launcher for browser tests instead of the downloaded browser binary.
 - [Transaction response ordering](transaction-response-ordering.md) — acknowledge mutations only after commit so immediate reads cannot observe old publication access.
+- [Storage stream cancellation](storage-stream-cancellation.md) — destroying a GCS reader before its response initializes can crash the process despite an error listener.
 - [Administrator designation](admin-security.md) — fail closed for missing/orphaned owners; never promote the first visitor or replace real admin rights for testing.
 - [Administrator session identifiers](admin-session-identifiers.md) — session listings use separate random IDs; never expose token hashes or config fingerprints as identifiers.
 - [Schema synchronization](schema-sync.md) — schema push may exit successfully without applying changes; inspect output and use column-level single-column primary keys.

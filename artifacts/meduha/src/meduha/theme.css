@@ -61,9 +61,9 @@ html[data-theme="dark"] body{background:#0c0c0e;color:#f6f0eb}
 .meduha.light.dark .m-hero p{color:var(--muted)}
 .meduha.light.dark .m-hero .ml-live{filter:drop-shadow(0 15px 28px #ff6b182e)}
 .meduha.light.dark .m-entry{border-color:#302d30;box-shadow:0 8px 22px #0003}
-.meduha.light.dark .m-music-link{background:var(--surface);border-color:#43352e!important;box-shadow:0 2px 10px #0002}
+.meduha.light.dark .m-music-link{background:var(--surface);border-color:#fff!important;box-shadow:0 2px 10px #0002}
 .meduha.light.dark .m-tool{background:var(--surface);border-color:#ffffff0d!important;box-shadow:0 3px 12px #0002}
-.meduha.light.dark .m-music-link .music-icon{background:#ff6b1821}
+.meduha.light.dark .m-music-link .music-icon{background:#173d43;color:#7fd4d3}
 .meduha.light.dark .m-heading p{color:var(--muted)}
 .meduha.light.dark .m-segment{background:#202023}
 .meduha.light.dark .m-segment button{color:#b1a7a1}

@@ -3,7 +3,8 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Camera, Clapperboard, LoaderCircle, Music2, Play, Plus, RotateCw } from 'lucide-react';
 import { Link, useLocation, useSearch } from 'wouter';
 import { Sheet } from '../shared';
-import { getExampleTemplate, getPublicTemplate, getTemplatePage, isExampleTemplate, templateMediaUrl, type InspirationTemplate } from './catalog';
+import { getExampleTemplate, getPublicTemplate, getTemplatePage, isExampleTemplate, type InspirationTemplate } from './catalog';
+import { feedMediaUrl } from './feedMedia';
 import WorkViewer from './WorkViewer';
 import { useMeduhaSession } from '../session';
 import { usePlaybackPolicy } from './playback-policy';
@@ -188,8 +189,8 @@ function MosaicTile({ template, onOpen, autoplay, reportVisibility }: { template
     aria-label={`Открыть работу: ${template.title}, ${template.kind === 'audio' ? 'аудио' : isVideo ? 'видео' : 'фото'}`}
     data-testid={`card-template-${template.id}`}
   >
-    {!imgFailed && <img src={templateMediaUrl(template.poster)} alt="" loading="lazy" onError={() => setImgFailed(true)}/>}
-    {shouldPlay && <video ref={videoRef} className={videoPlaying ? 'on' : ''} src={templateMediaUrl(template.videoUrl!)} poster={templateMediaUrl(template.poster)} muted playsInline loop preload="none" aria-hidden="true" tabIndex={-1} onPlaying={() => setVideoPlaying(true)} onPause={() => setVideoPlaying(false)} onError={() => setVideoFailed(true)}/>}
+    {!imgFailed && <img src={feedMediaUrl(template.id, 'thumb')} alt="" loading="lazy" decoding="async" onError={() => setImgFailed(true)}/>}
+    {shouldPlay && <video ref={videoRef} className={videoPlaying ? 'on' : ''} src={feedMediaUrl(template.id, 'preview')} poster={feedMediaUrl(template.id, 'thumb')} muted playsInline loop preload="none" aria-hidden="true" tabIndex={-1} onPlaying={() => setVideoPlaying(true)} onPause={() => setVideoPlaying(false)} onError={() => setVideoFailed(true)}/>}
     {both && <span className="mt-card-failed"><Icon size={18}/><span>Превью недоступно</span></span>}
     <span className="mt-card-shade"/>
     <span className="mt-tile-badges">

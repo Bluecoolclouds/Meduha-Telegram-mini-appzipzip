@@ -1086,6 +1086,22 @@ export const CompleteTemplateUploadResponse = zod.object({
 
 
 /**
+ * @summary Small cached media for published community cards; originals remain unchanged
+ */
+export const GetFeedMediaParams = zod.object({
+  "id": zod.coerce.string(),
+  "variant": zod.enum(['thumb', 'preview'])
+})
+
+export const GetFeedMediaHeader = zod.object({
+  "Range": zod.string().optional(),
+  "If-None-Match": zod.string().optional()
+})
+
+export const GetFeedMediaResponse = zod.unknown()
+
+
+/**
  * Public only while referenced by a published template; otherwise author/admin only. Supports byte ranges. The app may request an attachment by appending download=true and an optional filename.
  */
 export const GetTemplateMediaParams = zod.object({

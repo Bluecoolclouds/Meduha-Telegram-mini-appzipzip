@@ -394,6 +394,30 @@ paths:
                 required: [objectPath]
                 properties:
                   objectPath: { type: string }
+  /meduha/feed-media/{id}/{variant}:
+    get:
+      operationId: getFeedMedia
+      tags: [templates]
+      summary: Small cached media for published community cards; originals remain unchanged
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: variant, in: path, required: true, schema: { type: string, enum: [thumb, preview] } }
+        - { name: Range, in: header, schema: { type: string } }
+        - { name: If-None-Match, in: header, schema: { type: string } }
+      responses:
+        "200":
+          description: WebP thumbnail or silent six-second MP4 preview
+          content:
+            image/webp: { schema: { type: string, format: binary } }
+            video/mp4: { schema: { type: string, format: binary } }
+        "206":
+          description: Partial preview content
+          content:
+            video/mp4: { schema: { type: string, format: binary } }
+        "304": { description: Unchanged preview; publication access is still checked }
+        "404": { description: Work is not published or has no such media }
+        "416": { description: Invalid byte range }
+        "503": { description: Preview is being prepared or media processing is unavailable }
   /meduha/media/{id}:
     parameters:
       - { in: path, name: id, required: true, schema: { type: string, format: uuid } }

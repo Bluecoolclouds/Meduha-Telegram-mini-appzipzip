@@ -123,3 +123,9 @@ Keep the upstream provider's identity out of all customer-facing Meduha screens,
 **Why:** the user explicitly said customers should not know which upstream provider powers the service.
 
 **How to apply:** use neutral Meduha/model wording in public screens and keep provider names only in internal configuration and technical implementation where required.
+
+Keep the homepage «Вдохновляйся» artist showcase hidden until there are real artists to feature.
+
+**Why:** the user said «у нас их пока нет» and requested hiding that block.
+
+**How to apply:** do not substitute invented artist accounts; keep the separate community/example feed available.

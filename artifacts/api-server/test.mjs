@@ -11,6 +11,8 @@ await mkdir(out,{recursive:true});
 // or extra test runtime is required. CJS handles pg's optional dynamic requires.
 await build({
   entryPoints:[
+    path.join(root,'src/lib/feed-media.test.ts'),
+    { in: path.join(root,'src/routes/feed-media.test.ts'), out: 'feed-media-route.test' },
     path.join(root,'src/lib/telegram-init-data.test.ts'),
     path.join(root,'src/lib/telegram-commands.test.ts'),
     path.join(root,'src/lib/template-files.test.ts'),
@@ -32,6 +34,12 @@ await build({
   bundle:true,platform:'node',format:'cjs',outdir:out,entryNames:'[name]',
   outExtension:{'.js':'.cjs'},external:['pg-native'],logLevel:'warning',
 });
+if (process.argv.includes('--feed-media')) {
+  const mediaResult = spawnSync(process.execPath, [
+    '--test', path.join(out, 'feed-media.test.cjs'), path.join(out, 'feed-media-route.test.cjs'),
+  ], { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } });
+  process.exit(mediaResult.status ?? 1);
+}
 if (process.argv.includes('--admin-access')) {
   const adminResult = spawnSync(process.execPath, [
     '--test', path.join(out, 'meduha-admin-password.integration.test.cjs'),
@@ -39,7 +47,7 @@ if (process.argv.includes('--admin-access')) {
   process.exit(adminResult.status ?? 1);
 }
 const result=spawnSync(process.execPath,[
-  '--test','--test-concurrency=1',path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'higgsfield.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),
+  '--test','--test-concurrency=1',path.join(out,'feed-media.test.cjs'),path.join(out,'feed-media-route.test.cjs'),path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'higgsfield.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),
   path.join(out,'meduha-admin-password.integration.test.cjs'),
 ],{stdio:'inherit',env:{...process.env,NODE_ENV:'production'}});
 if(result.status!==0)process.exit(result.status??1);

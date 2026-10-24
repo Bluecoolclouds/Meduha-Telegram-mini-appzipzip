@@ -5,9 +5,21 @@ description: Community is a mosaic of shared user photo/video work with the orig
 
 Community is a mosaic of photo/video materials people created and chose to share. Clicking a tile opens its media and original prompt, which can be reused in creation. Do not replace this with a large featured template card or horizontal carousel.
 
+Keep originals for full viewing and downloads; the mosaic should use lightweight covers and short compressed previews, without silently falling back to full-size media when preview preparation fails.
+
+**Why:** the user approved automatic feed optimization to reduce traffic while retaining originals.
+
+**How to apply:** reuse cached derivatives rather than creating copies per view, and apply the publication's access restrictions to its previews too.
+
 **Why:** The user clarified the earlier template direction: «должна же мозайка видео материалов быть в тренде типа всё что создавали люди и чем поделились с их промптом если нажать на неё».
 
 **How to apply:** Only explicitly shared/published user work belongs in the public feed. Never represent starter samples, stock references, or private drafts as user publications. Do not imply generation already exists.
+
+Keep the «Пример» attribution visible on feed tiles without the round orange badge; use plain, unobtrusive text.
+
+**Why:** the user asked to remove the round «Пример» badge from all community media.
+
+**How to apply:** keep demo media distinguishable from real community publications without adding a pill or card.
 
 The user also asked to populate the mosaic with several media examples, using Higgsfield screenshots as a reference for tile layout.
 
