@@ -61,12 +61,37 @@ test('older drafts without the content-plan marker reopen with safe defaults', (
   });
 });
 
-test('ordinary video draft detail keeps the complete prompt unchanged', () => {
+test('account-saved content-plan detail separates the brief and all settings', () => {
+  const accountDraft = {
+    id: 'account-content-plan',
+    title: 'Летняя коллекция',
+    type: 'video',
+    prompt: 'Продвинуть летнюю коллекцию\n\nПараметры контент-плана Meduha:\nПлощадка: TikTok\nИдей: 10\nФормат: Stories',
+    style: 'Студия',
+    model: 'Контент-завод',
+    ratio: '9:16',
+    duration: '15 сек',
+    updatedAt: 1,
+  };
+
+  assert.deepEqual(getDraftPromptDisplay(accountDraft), {
+    prompt: 'Продвинуть летнюю коллекцию',
+    plan: { platform: 'TikTok', count: '10', format: 'Stories' },
+  });
+});
+
+test('ordinary account-saved video detail keeps the complete prompt unchanged', () => {
   const prompt = 'Сцена для ролика\n\nПараметры контент-плана Meduha:\nПлощадка: TikTok\nИдей: 10\nФормат: Stories';
   assert.deepEqual(getDraftPromptDisplay({
+    id: 'account-video',
+    title: 'Ролик',
     type: 'video',
     model: 'Seedance 2.5',
     prompt,
+    style: 'Кино',
+    ratio: '16:9',
+    duration: '5 сек',
+    updatedAt: 1,
   }), {
     prompt,
     plan: null,
