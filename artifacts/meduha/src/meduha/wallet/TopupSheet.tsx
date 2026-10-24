@@ -1,5 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowLeft, Check, CircleSlash, Zap, Repeat, Layers } from 'lucide-react';
+import { ArrowLeft, Check, CircleSlash, Zap, Repeat, Layers, Image as ImageIcon, Clapperboard } from 'lucide-react';
+import { useGetPhotoCatalog } from '@workspace/api-client-react';
+import { useVideoCatalog } from '../video/videoApi';
+import { cheapestAvailable, generationsFor, type Cheapest } from './yield';
 import { Sheet } from '../shared';
 import './topup.css';
 
@@ -54,6 +57,23 @@ const TIERS: Record<string, { name: string; tone: string; sub: string }> = {
   p300: { name: 'Плюс', tone: 'plus', sub: 'Средний разовый пакет' },
   p1000: { name: 'Ультра', tone: 'ultra', sub: 'Большой разовый пакет' },
 };
+const read = { credentials: 'same-origin' as const };
+type Yields = { loading: boolean; error: boolean; photo: Cheapest | null; video: Cheapest | null };
+function useYields(): Yields {
+  const photo = useGetPhotoCatalog({ request: read });
+  const video = useVideoCatalog();
+  return { loading: photo.isLoading || video.isLoading, error: photo.isError || video.isError,
+    photo: cheapestAvailable(photo.data?.models), video: cheapestAvailable(video.data?.models) };
+}
+function YieldRows({ credits, y }: { credits: number; y: Yields }) {
+  if (y.loading) return <div className="mtp-inset-row">Считаем, сколько это генераций…</div>;
+  if (y.error) return <div className="mtp-inset-row">Не удалось загрузить цены генераций</div>;
+  const rows = ([['photo', 'фото', ImageIcon, y.photo], ['video', 'видео', Clapperboard, y.video]] as const)
+    .map(([key, label, Icon, c]) => { const n = generationsFor(credits, c); return c && n !== null
+      ? <div key={key} className="mtp-yield" data-testid={`text-yield-${key}-${credits}`}><Icon size={12} /><span>≈ {num(n)} {label}</span><small>{c.name} · {num(c.price)} кр.</small></div> : null; })
+    .filter(Boolean);
+  return rows.length ? <>{rows}</> : <div className="mtp-inset-row" data-testid={`text-yield-none-${credits}`}>Цены моделей ещё не настроены — количество генераций появится после настройки</div>;
+}
 const perCredit = (p: TopupPackage) => (p.rub / p.credits).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: (id: string) => void; onProceed: (id: string) => void }) {
@@ -61,6 +81,7 @@ function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: 
   const radios = useRef<(HTMLButtonElement | null)[]>([]);
   const timer = useRef<number | undefined>(undefined);
   const pickRef = useRef(onPick); pickRef.current = onPick;
+  const yields = useYields();
   const idx = Math.max(0, TOPUP_PACKAGES.findIndex(p => p.id === picked));
   const snapTo = (i: number, smooth: boolean) => {
     const t = track.current; const card = t?.children[i] as HTMLElement | undefined;
@@ -111,7 +132,8 @@ function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: 
           </button>
           <div className="mtp-inset">
             <div className="mtp-inset-big"><Zap size={14} fill="currentColor" />{num(p.credits)} кредитов</div>
-            <div className="mtp-inset-row">= {perCredit(p)} ₽ за кредит</div>
+            <YieldRows credits={p.credits} y={yields} />
+            <div className="mtp-inset-row mtp-inset-foot">{perCredit(p)} ₽ за кредит</div>
             {p.note && <div className="mtp-inset-row">{p.note}</div>}
           </div>
           <div className="mtp-price"><b>{rub(p.rub)}</b><span>разово</span></div>
@@ -123,6 +145,7 @@ function TopupCarousel({ picked, onPick, onProceed }: { picked: string; onPick: 
           </ul>
         </article>; })}
     </div>
+    <p className="mtp-yield-note">Количество — по самой дешёвой доступной модели каждого типа, округлено вниз. Дорогие модели и длинные видео расходуют больше.</p>
     <div className="mtp-dots" aria-hidden="true">
       {TOPUP_PACKAGES.map((p, i) => <span key={p.id} className={i === idx ? 'on' : ''} data-testid={`indicator-topup-${p.id}`} onClick={() => select(i)} />)}
     </div>
