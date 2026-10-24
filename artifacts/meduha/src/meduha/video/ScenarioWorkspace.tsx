@@ -5,21 +5,15 @@ import { Frame, useToast } from '../shared';
 import { loadDrafts, saveDrafts, useDraftList, type Draft } from '../studio';
 import { useMeduhaSession } from '../session';
 import type { VideoScenario } from './scenarios';
+import { isScenarioImage, isScenarioVideo, missingRequiredScenarioMedia, scenarioInputSpecs, scenarioMediaError, scenarioReferenceMetadata } from './scenarioMedia';
 import SeedanceGenerationPanel from './SeedanceGenerationPanel';
 import ExamplePreview from './genjutsu/ExamplePreview';
 import './genjutsu/genjutsu.css';
 import './scenario-workspace.css';
 
 type ContentPlan = { platform: string; count: string; format: string };
-type InputSpec = { video: boolean; photos: number; requiredPhotos?: number; photoLabel?: string; videoLabel?: string };
 type ScenarioGuide = { requirements: string; explanation: string };
 const planMarker = /\n\nПараметры контент-плана Meduha:\nПлощадка: (.*)\nИдей: (\d+)\nФормат: (.*)$/;
-const inputSpecs: Record<string, InputSpec> = {
-  katana: { video: true, photos: 5, videoLabel: 'Видео для монтажа', photoLabel: 'Фото героев или предметов' },
-  'image-to-video': { video: false, photos: 1, requiredPhotos: 1, photoLabel: 'Исходное фото' },
-  'ai-blogger': { video: false, photos: 1, photoLabel: 'Фото персонажа · необязательно' },
-  cinema: { video: false, photos: 5, photoLabel: 'Референсы сцены · необязательно' },
-};
 const examples = new Set(['ai-blogger', 'text-to-video', 'cinema']);
 const publicGuides: Record<string, ScenarioGuide> = {
   'ai-blogger': {
@@ -60,9 +54,6 @@ function packPrompt(prompt: string, scenario: VideoScenario, plan: ContentPlan) 
   return `${prompt.trim()}\n\nПараметры контент-плана Meduha:\nПлощадка: ${plan.platform}\nИдей: ${plan.count}\nФормат: ${plan.format}`;
 }
 
-const isImage = (file: File) => file.type.startsWith('image/');
-const isVideo = (file: File) => file.type.startsWith('video/');
-
 export default function ScenarioWorkspace({ scenario, draftId }: { scenario: VideoScenario; draftId: string }) {
   const meduha = useMeduhaSession();
   const localDrafts = useDraftList();
@@ -81,7 +72,7 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast, notify } = useToast();
-  const spec = inputSpecs[scenario.id];
+  const spec = scenarioInputSpecs[scenario.id];
   const guide = publicGuides[scenario.id] ?? {
     requirements: scenario.subtitle,
     explanation: 'Можно подготовить описание сценария и сохранить его как черновик. Создание результата пока не подключено.',
@@ -105,30 +96,19 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
   const addFiles = (selected: FileList | null) => {
     if (!selected?.length || !spec) return;
     const next = [...files, ...Array.from(selected)];
-    const videoFiles = next.filter(isVideo);
-    const imageFiles = next.filter(isImage);
-    const invalid = next.find(file => {
-      if (isVideo(file)) return !spec.video || file.size > 200 * 1024 * 1024;
-      return !isImage(file) || file.size > 10 * 1024 * 1024;
-    });
-    if (invalid) {
-      notify(isVideo(invalid) ? 'Видео — до 200 МиБ' : 'Выбери изображение до 10 МиБ');
-      return;
-    }
-    if (videoFiles.length > (spec.video ? 1 : 0) || imageFiles.length > spec.photos) {
-      notify(spec.video
-        ? `Можно добавить одно видео и до ${spec.photos} фото`
-        : `Можно добавить до ${spec.photos} фото`);
+    const error = scenarioMediaError(spec, next);
+    if (error) {
+      notify(error);
       return;
     }
     setFiles(next);
-    setReferenceName(next.map(file => file.name).join(', ').slice(0, 180));
+    setReferenceName(scenarioReferenceMetadata(next).referenceName ?? '');
   };
 
   const removeFile = (index: number) => {
     const next = files.filter((_, i) => i !== index);
     setFiles(next);
-    setReferenceName(next.map(file => file.name).join(', ').slice(0, 180));
+    setReferenceName(scenarioReferenceMetadata(next).referenceName ?? '');
   };
 
   const save = async () => {
@@ -181,8 +161,8 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
           : scenario.id === 'image-to-video' ? 'Как оживить этот кадр?'
             : scenario.id === 'object-swap' ? 'Что заменить в видео?'
               : scenario.id === 'restyle' ? 'Как изменить визуальный стиль?' : 'Опиши результат';
-  const photosCount = files.filter(isImage).length;
-  const videoCount = files.filter(isVideo).length;
+  const photosCount = files.filter(isScenarioImage).length;
+  const videoCount = files.filter(isScenarioVideo).length;
   const uploadHint = scenario.id === 'katana'
     ? 'Одно видео и до пяти фото · файлы остаются на устройстве'
     : scenario.id === 'image-to-video'
@@ -196,7 +176,7 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
             : 'Референсы сцены по желанию · только локальный предпросмотр';
   const accept = spec?.video ? 'video/mp4,video/webm,image/*' : 'image/*';
   const canAddMore = Boolean(spec && (spec.video && videoCount === 0 || photosCount < spec.photos));
-  const missingRequiredMedia = Boolean(spec && ((spec.video && videoCount === 0) || photosCount < (spec.requiredPhotos ?? 0)));
+  const missingRequiredMedia = Boolean(spec && missingRequiredScenarioMedia(spec, files));
 
   return <Frame active="Create">
     <main className="gj-page gj-scenario-page">
@@ -245,8 +225,8 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
             </button>}
             {!!files.length && <div className="gj-scenario-file-list" aria-label="Выбранные локальные файлы">
               {files.map((file, index) => <div className="gj-scenario-file" key={`${file.name}-${index}`}>
-                {isVideo(file) ? <Film size={15}/> : <FileImage size={15}/>}
-                <span><strong>{file.name}</strong><small>{isVideo(file) ? 'Видеореференс' : 'Изображение'} · только на этом устройстве</small></span>
+                {isScenarioVideo(file) ? <Film size={15}/> : <FileImage size={15}/>}
+                <span><strong>{file.name}</strong><small>{isScenarioVideo(file) ? 'Видеореференс' : 'Изображение'} · только на этом устройстве</small></span>
                 <button type="button" aria-label={`Убрать ${file.name}`} data-testid={`button-remove-scenario-media-${index}`} onClick={() => removeFile(index)}><X size={14}/></button>
               </div>)}
               <p className="gj-muted">Файлы не загружаются и не сохраняются в черновике. При повторном открытии их нужно прикрепить снова.</p>
