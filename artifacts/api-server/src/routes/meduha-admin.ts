@@ -308,6 +308,13 @@ router.delete('/admin/sessions', async (req, res): Promise<void> => {
   const actor = await requiredAdmin(req, res); if (!actor) return;
   const raw = token(req);
   const revokedCount = await db.transaction(async tx => {
+    const [actorSession] = raw
+      ? await tx.select({ authMethod: meduhaAdminSessions.authMethod }).from(meduhaAdminSessions)
+        .where(and(
+          eq(meduhaAdminSessions.tokenHash, hash(raw)),
+          gt(meduhaAdminSessions.expiresAt, sql<Date>`clock_timestamp()`),
+        )).limit(1)
+      : [];
     const deleted = await tx.delete(meduhaAdminSessions).where(and(
       gt(meduhaAdminSessions.expiresAt, sql<Date>`clock_timestamp()`),
       raw ? sql<boolean>`${meduhaAdminSessions.tokenHash} <> ${hash(raw)}` : sql<boolean>`true`,
@@ -315,7 +322,10 @@ router.delete('/admin/sessions', async (req, res): Promise<void> => {
     if (deleted.length) {
       await tx.insert(meduhaAdminAudit).values({
         actorId: actor, action: 'auth.sessions.revoke_others', entityType: 'admin-session',
-        details: { revokedCount: deleted.length },
+        details: {
+          authMethod: actorSession?.authMethod ?? (actor === TEMPORARY_ADMIN_ACTOR ? 'temporary' : 'telegram'),
+          revokedCount: deleted.length,
+        },
       });
     }
     return deleted.length;
@@ -892,7 +902,10 @@ router.get('/admin/audit', async (req, res): Promise<void> => {
     db.select().from(meduhaAdminAudit).orderBy(desc(meduhaAdminAudit.createdAt)).limit(limit).offset(offset),
     db.select({ total: count() }).from(meduhaAdminAudit),
   ]);
-  res.json(ListAdminAuditResponse.parse({ items, total: totals[0].total, limit, offset }));
+  res.json(ListAdminAuditResponse.parse({
+    items: items.map(item => item.entityType === 'admin-session' ? { ...item, entityId: null } : item),
+    total: totals[0].total, limit, offset,
+  }));
 });
 
 function validHttpsUrl(value: string | undefined): boolean {

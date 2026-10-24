@@ -86,17 +86,31 @@ export function ModerationSection() {
 }
 
 const AUDIT_PAGE = 50;
+const authMethodLabel = (method: unknown) => method === 'temporary' ? 'логин и пароль' : method === 'telegram' ? 'Telegram' : 'не указан';
+const auditActionLabel = (action: string) => action === 'auth.session.revoke' ? 'Завершён один сеанс'
+  : action === 'auth.sessions.revoke_others' ? 'Завершены остальные сеансы'
+    : action;
 export function AuditSection() {
   const [offset, setOffset] = useState(0);
   const q = useListAdminAudit({ limit: AUDIT_PAGE, offset }, { request: adminQueryRequest });
   const items = asArray<AdminAuditEvent>(q.data?.items);
   const details = (d: unknown) => d && typeof d === 'object' ? Object.entries(d as Record<string, unknown>).slice(0, 6).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`).join(' · ') : '';
+  const auditDetails = (event: AdminAuditEvent) => {
+    const eventDetails = event.details as Record<string, unknown>;
+    if (event.action === 'auth.session.revoke') return `Способ входа: ${authMethodLabel(eventDetails.authMethod)}`;
+    if (event.action === 'auth.sessions.revoke_others') {
+      const count = eventDetails.revokedCount;
+      const countLabel = Number.isSafeInteger(count) && Number(count) >= 0 ? fmtInt(Number(count)) : 'неизвестно';
+      return `Способ входа администратора: ${authMethodLabel(eventDetails.authMethod)} · Завершено сеансов: ${countLabel}`;
+    }
+    return details(event.details);
+  };
   return <div className="adm-section">
     <PageHead kicker="Аудит" title="Журнал действий">Каждое административное действие фиксируется сервером. Записи неизменяемы.</PageHead>
     <Panel title="События" meta={q.data ? `${fmtInt(q.data.total)} записей` : undefined}>
       {q.isLoading ? <Skeleton rows={10} /> : q.isError ? <ErrorBox error={q.error} onRetry={() => void q.refetch()} /> : items.length === 0 ? <Empty title="Событий пока нет" /> : <>
         <div className="adm-table-wrap"><table className="adm-table"><thead><tr><th>Время</th><th>Действие</th><th>Объект</th><th>Автор</th><th>Детали</th></tr></thead><tbody>
-          {items.map(e => <tr key={e.id}><td className="num">{fmtDate(e.createdAt)}</td><td className="mono">{e.action}</td><td>{e.entityType}<span className="sub mono">{e.entityId ? shortId(e.entityId) : '—'}</span></td><td className="mono">{shortId(e.actorId)}</td><td className="mono" style={{ fontSize: 11.5, maxWidth: 420, wordBreak: 'break-word' }}>{details(e.details)}</td></tr>)}
+          {items.map(e => <tr key={e.id}><td className="num">{fmtDate(e.createdAt)}</td><td>{auditActionLabel(e.action)}</td><td>{e.entityType === 'admin-session' ? 'Административный сеанс' : e.entityType}<span className="sub mono">{e.entityType === 'admin-session' ? '' : e.entityId ? shortId(e.entityId) : '—'}</span></td><td className="mono">{shortId(e.actorId)}</td><td className="mono" style={{ fontSize: 11.5, maxWidth: 420, wordBreak: 'break-word' }}>{auditDetails(e)}</td></tr>)}
         </tbody></table></div>
         <Pager total={q.data?.total ?? 0} limit={AUDIT_PAGE} offset={offset} onChange={setOffset} /></>}
     </Panel>

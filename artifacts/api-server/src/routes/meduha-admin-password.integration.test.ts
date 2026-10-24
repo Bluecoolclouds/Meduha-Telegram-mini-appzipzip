@@ -155,6 +155,22 @@ test('password auth is isolated from Telegram, revocable, rate limited and audit
     assert(bulkAudit[0]);
     auditIds.push(bulkAudit[0].id);
     assert.equal(bulkAudit[0].details.revokedCount, bulkPayload.revokedCount);
+    assert.equal(bulkAudit[0].details.authMethod, 'temporary');
+    const auditResponse = await call('/admin/audit', 'GET', undefined, cookie);
+    assert.equal(auditResponse.status, 200);
+    const auditText = await auditResponse.text();
+    const auditPayload = JSON.parse(auditText) as { items: Array<{ action: string; entityType: string; entityId: string | null; details: Record<string, unknown> }> };
+    const revokeEvent = auditPayload.items.find(item => item.action === 'auth.session.revoke');
+    const revokeOthersEvent = auditPayload.items.find(item => item.action === 'auth.sessions.revoke_others');
+    assert(revokeEvent);
+    assert.equal(revokeEvent.details.authMethod, 'temporary');
+    assert(revokeOthersEvent);
+    assert.equal(revokeOthersEvent.details.authMethod, 'temporary');
+    assert.equal(revokeOthersEvent.details.revokedCount, bulkPayload.revokedCount);
+    assert(auditPayload.items.filter(item => item.entityType === 'admin-session').every(item => item.entityId === null),
+      'session audit entries never return token hashes or session identifiers');
+    assert(!sessionHashes.some(value => auditText.includes(value)), 'audit response never exposes session token hashes');
+    assert(!auditText.includes(initialConfig!.fingerprint), 'audit response never exposes temporary-login configuration fingerprints');
     const { rows: userSession } = await pool.query('SELECT token_hash FROM meduha_sessions WHERE token_hash = $1', [userSessionHash]);
     assert.equal(userSession.length, 1, 'administrator session revocation leaves the user login session untouched');
 
