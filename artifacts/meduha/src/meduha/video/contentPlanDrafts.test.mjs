@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { loadDrafts, packContentPlanPrompt, saveDrafts, unpackContentPlanPrompt } from '../studio.ts';
+import { getDraftPromptDisplay, loadDrafts, packContentPlanPrompt, saveDrafts, unpackContentPlanPrompt } from '../studio.ts';
 
 const values = new Map();
 globalThis.localStorage = {
@@ -30,6 +30,10 @@ test('saved content-factory drafts reopen with their settings and video options'
     prompt: 'Продвинуть летнюю коллекцию',
     plan,
   });
+  assert.deepEqual(getDraftPromptDisplay(reopened), {
+    prompt: 'Продвинуть летнюю коллекцию',
+    plan,
+  });
   assert.equal(reopened.ratio, '9:16');
   assert.equal(reopened.duration, '15 сек');
 });
@@ -54,5 +58,17 @@ test('older drafts without the content-plan marker reopen with safe defaults', (
   assert.deepEqual(unpackContentPlanPrompt(reopened.prompt), {
     prompt: oldPrompt,
     plan: { platform: 'Instagram', count: '3', format: 'Короткое видео' },
+  });
+});
+
+test('ordinary video draft detail keeps the complete prompt unchanged', () => {
+  const prompt = 'Сцена для ролика\n\nПараметры контент-плана Meduha:\nПлощадка: TikTok\nИдей: 10\nФормат: Stories';
+  assert.deepEqual(getDraftPromptDisplay({
+    type: 'video',
+    model: 'Seedance 2.5',
+    prompt,
+  }), {
+    prompt,
+    plan: null,
   });
 });

@@ -12,6 +12,11 @@ export function unpackContentPlanPrompt(value:string):{prompt:string;plan:Conten
     ? {prompt:value.slice(0,match.index),plan:{platform:match[1],count:match[2],format:match[3]}}
     : {prompt:value,plan:{...contentPlanDefaults}};
 }
+export function getDraftPromptDisplay(draft:Pick<Draft,'type'|'model'|'prompt'>):{prompt:string;plan:ContentPlanSettings|null}{
+  if(draft.type!=='video'||draft.model!=='Контент-завод')return {prompt:draft.prompt,plan:null};
+  const {prompt,plan}=unpackContentPlanPrompt(draft.prompt);
+  return {prompt,plan};
+}
 export function packContentPlanPrompt(prompt:string,plan:ContentPlanSettings){
   return `${prompt.trim()}\n\nПараметры контент-плана Meduha:\nПлощадка: ${plan.platform}\nИдей: ${plan.count}\nФормат: ${plan.format}`;
 }
