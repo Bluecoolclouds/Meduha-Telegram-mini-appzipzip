@@ -31,7 +31,7 @@ test('composite scenarios never show a component price as their total', () => {
 test('model provider filters come from upstream IDs and exclude non-model scenarios', () => {
   assert.deepEqual(videoScenarioProviders, ['bytedance', 'higgsfield']);
   assert.equal(videoScenarioProviderLabel('bytedance'), 'ByteDance');
-  assert.equal(videoScenarioProviderLabel('higgsfield'), 'Higgsfield');
+  assert.equal(videoScenarioProviderLabel('higgsfield'), 'Модель Meduha');
   assert.deepEqual(videoScenarios.filter(s => scenarioProvider(s) === 'bytedance').map(s => s.id), ['text-to-video', 'image-to-video']);
   assert.ok(videoScenarios.filter(s => scenarioProvider(s) === 'higgsfield').length > 0);
   assert.equal(scenarioProvider(videoScenarios.find(s => s.id === 'katana')), null);

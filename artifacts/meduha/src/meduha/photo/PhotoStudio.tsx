@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Download, ExternalLink, Lock, RefreshCw, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Download, Lock, RefreshCw, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X, Zap } from 'lucide-react';
 import { Link, useLocation, useSearch } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetPhotoCatalogQueryKey, getGetMeduhaBootstrapQueryKey, getGetMeduhaWalletQueryKey, getListMeduhaGenerationsQueryKey, useCreatePhotoGeneration, useGetPhotoCatalog, useListMeduhaGenerations } from '@workspace/api-client-react';
 import type { GenerationJob, PhotoCatalog, PhotoCatalogModel, PhotoGenerationInput } from '@workspace/api-client-react';
 import { Frame, asset, mood, useToast } from '../shared';
+import { hideProviderBrand } from '../publicText';
 import { ScenarioCarousel, PromoBanner } from '../video/ScenarioHero';
 import { photoModelArt, photoProvider, photoProviderLabel } from './modelArt';
 import '../video/video.css';
@@ -25,7 +26,8 @@ const LOCKED_WORKFLOW = ['preset_id', 'enhance_prompt', 'quality'];
 
 export const modeLabel = (m: PhotoCatalogModel) => ({ workflow: 'Сценарий', image: 'Фото → фото', text: 'Текст → фото' })[modeKind(m)];
 const suffixes: [RegExp, string][] = [[/utility\/pro/, 'Utility Pro'], [/\/pro\//, 'Pro'], [/utility/, 'Utility'], [/\/flare$/, 'Flare'], [/\/sunburst$/, 'Sunburst'], [/^marketing-studio\/image$/, 'Alpha'], [/image-to-image/, 'фото → фото'], [/soul\/v2\/standard/, 'текст → фото'], [/\/edit$/, 'правки'], [/qwen-image-3\/text-to-image/, 'текст → фото']];
-export const displayName = (m: PhotoCatalogModel) => { const hit = suffixes.find(([r]) => r.test(m.endpoint)); return hit && !m.name.toLowerCase().includes(hit[1].toLowerCase()) ? `${m.name} · ${hit[1]}` : m.name; };
+const userSafeName = (name: string) => hideProviderBrand(name) || 'Модель Meduha';
+export const displayName = (m: PhotoCatalogModel) => { const hit = suffixes.find(([r]) => r.test(m.endpoint)); const name = userSafeName(m.name); return hit && !name.toLowerCase().includes(hit[1].toLowerCase()) ? `${name} · ${hit[1]}` : name; };
 const blurbs: Record<string, string> = {
   'higgsfield-ai/soul/standard': 'Фирменная эстетика Soul: живая кожа, мода, свет как в журнале.',
   'higgsfield-ai/soul/v2/standard': 'Soul второго поколения из текста. Поддерживает Soul ID.',
@@ -39,7 +41,7 @@ const blurbs: Record<string, string> = {
   'workflows/marketplace-design': 'Карточки для маркетплейсов из фото товара.',
   'workflows/ads-studio': 'Рекламные креативы под нишу и аудиторию.',
 };
-const blurb = (m: PhotoCatalogModel) => blurbs[m.id] || (m.id.startsWith('recraft') ? 'Чистая графика с заданной палитрой и фоном. Файл JPG, PNG или WEBP.' : m.id.startsWith('marketing') ? 'Маркетинговые изображения с пресетами.' : m.id.includes('qwen') ? 'Точное следование описанию, режим размышления.' : m.id.includes('z-image') ? 'Быстрые черновые кадры.' : 'Модель генерации изображений.');
+const blurb = (m: PhotoCatalogModel) => userSafeName(blurbs[m.id] || (m.id.startsWith('recraft') ? 'Чистая графика с заданной палитрой и фоном. Файл JPG, PNG или WEBP.' : m.id.startsWith('marketing') ? 'Маркетинговые изображения с пресетами.' : m.id.includes('qwen') ? 'Точное следование описанию, режим размышления.' : m.id.includes('z-image') ? 'Быстрые черновые кадры.' : 'Модель генерации изображений.'));
 const fieldLabels: Record<string, string> = { prompt: 'Описание', brief: 'Бриф', seed: 'Seed', style_id: 'Soul Style ID', batch_size: 'Сколько изображений', resolution: 'Разрешение', aspect_ratio: 'Формат кадра', enhance_prompt: 'Улучшить описание', style_strength: 'Сила стиля', custom_reference_id: 'Soul ID', custom_reference_strength: 'Сила Soul ID', image_url: 'Фото-референс', image_urls: 'Фото-референсы', item_image_urls: 'Фото предметов', quality: 'Качество', moderation: 'Модерация', preset_id: 'Пресет (UUID)', image_weight: 'Вес исходного фото', rendering_speed: 'Скорость', colors: 'Палитра', background_color: 'Цвет фона', output_format: 'Формат файла', negative_prompt: 'Чего избегать', prompt_extend: 'Расширить описание', enable_thinking: 'Режим размышления', prompt_extend_mode: 'Режим расширения', tier: 'Тип персонажа', selection: 'Выбор черт', body_color: 'Цвет тела', pinned_species: 'Вид', trait_variants: 'Варианты черт', variation_index: 'Индекс вариации', niche: 'Ниша', language: 'Язык', target_audience: 'Аудитория' };
 const order = ['prompt', 'brief', 'image_url', 'image_urls', 'item_image_urls'];
 
@@ -224,7 +226,7 @@ function ModelForm({ suffix, source, recipeView, model, catalog, authed, navigat
 
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-photo-model-${model.id}`}>
     <a className="ps-back" href="/create?type=photo" onClick={go(navigate, '/create?type=photo')} data-testid="link-photo-catalogue"><ArrowLeft size={13}/>Все фотомодели</a>
-    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(photoModelArt(model))} alt=""/></span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{fam.title ?? displayName(model)}<span>.</span></h1><p>{blurb(model)}</p><code className="ps-endpoint">{photoProviderLabel(photoProvider(model))} · {model.id}</code><a className="ps-source" href={model.source} target="_blank" rel="noreferrer" data-testid="link-photo-source">Официальная страница<ExternalLink size={11}/></a></div></div>
+    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(photoModelArt(model))} alt=""/></span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{userSafeName(fam.title ?? displayName(model))}<span>.</span></h1><p>{userSafeName(blurb(model))}</p></div></div>
     {siblings.length > 1 && <div className="ps-modes" role="group" aria-label="Режим модели" data-testid="group-photo-modes">{siblings.map(m => { const on = m.id === model.id; return <button key={m.id} type="button" aria-pressed={on} className={on ? 'on' : ''} data-testid={`button-photo-mode-${m.id}`} onClick={() => { if (!on) onPick(m.id); }}>{modeLabelIn(m.id) || displayName(m)}</button>; })}</div>}
     {!authed && <div className="ps-alert" data-testid="status-login-required"><Lock size={15}/><span><strong>Нужен вход через Telegram</strong>Открой студию из Telegram, чтобы загружать фото и запускать генерацию. Настройки можно смотреть и менять уже сейчас.</span></div>}
     {authed && !ready.ok && <div className="ps-alert muted" data-testid="status-model-unavailable"><Lock size={15}/><span><strong>Запуск пока недоступен</strong>{ready.reason}. Настройки сохраняются на этом устройстве.</span></div>}
@@ -260,7 +262,7 @@ function Field({ name, s, schema, required, locked, value, jsonText, error, refs
   const kind = fieldKind(name, s);
   const label = fieldLabels[name] || s.title || name;
   const input = useRef<HTMLInputElement>(null); const replaceAt = useRef<number | undefined>(undefined);
-  const head = <div className="ps-label"><span>{label}{required && <b> *</b>}</span>{s.description && kind !== 'longtext' && <small>{s.description}</small>}</div>;
+  const head = <div className="ps-label"><span>{label}{required && <b> *</b>}</span>{s.description && kind !== 'longtext' && <small>{userSafeName(s.description)}</small>}</div>;
   const id = `ps-${name}`;
   let body: React.ReactNode;
   if (kind === 'files') {

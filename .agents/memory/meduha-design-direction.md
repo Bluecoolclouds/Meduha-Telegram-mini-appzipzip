@@ -117,3 +117,9 @@ The package/tariff chooser should use three cards that swipe horizontally, style
 **Why:** the user explicitly requested three left/right-swipeable blocks and supplied that pricing screenshot as the design reference.
 
 **How to apply:** keep the existing package amounts, prices and payment status; this visual request does not change one-off packs into recurring subscriptions or authorize new advertised benefits.
+
+Keep the upstream provider's identity out of all customer-facing Meduha screens, including model labels, pricing copy, source links and error messages. Preserve the internal adapter and its identifiers so generation continues to work.
+
+**Why:** the user explicitly said customers should not know which upstream provider powers the service.
+
+**How to apply:** use neutral Meduha/model wording in public screens and keep provider names only in internal configuration and technical implementation where required.

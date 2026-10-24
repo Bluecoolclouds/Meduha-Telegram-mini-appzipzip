@@ -19,7 +19,7 @@ export const videoScenarios: VideoScenario[] = [
   {
     id: 'ai-blogger', title: 'ИИ блогер', subtitle: 'Свой персонаж для историй и роликов',
     image: 'fashion', category: 'characters', availability: 'documented',
-    providerLabel: 'AI Influencer + Genjutsu', endpoint: 'higgsfield/ai-influencer',
+    providerLabel: 'Сценарий персонажа', endpoint: 'higgsfield/ai-influencer',
     source: 'https://open.higgsfield.ai/models/higgsfield/ai-influencer/api-reference',
     requirements: 'Описание персонажа; при необходимости — фото с разрешением на использование лица. Для анимации нужен отдельный видеореференс.',
     explanation: 'AI Influencer создаёт изображение-лист персонажа, а не готовое видео. Движение добавляется отдельным шагом через Genjutsu. API описан; этот процесс в Meduha ещё не подключён.',
@@ -31,7 +31,7 @@ export const videoScenarios: VideoScenario[] = [
     image: 'car', category: 'editing', availability: 'mcp', providerLabel: 'Katana · MCP / Claude',
     source: 'https://higgsfield.ai/blog/higgsfield-katana',
     requirements: 'Видео с разрешением на использование, до пяти фото персонажей или предметов и пожелания к монтажу.',
-    explanation: 'Katana официально описана как сценарий Higgsfield MCP для Claude. Отдельный REST API не подтверждён. Здесь можно подготовить бриф, но не запустить Katana.',
+    explanation: 'Здесь можно подготовить бриф монтажа, но запуск этого сценария пока недоступен.',
     prompt: 'Бриф монтажа по референсу: порядок сцен, ритм, персонажи или товар, что сохранить и что заменить.',
     keywords: ['катана', 'katana', 'монтаж', 'эдит', 'edit', 'референс', 'повторить', 'склейки', 'ритм'],
   },
@@ -40,7 +40,7 @@ export const videoScenarios: VideoScenario[] = [
     image: 'perfume', category: 'business', availability: 'workflow', providerLabel: 'Составной сценарий',
     source: 'https://higgsfield.ai/higgsfield-api',
     requirements: 'Описание продукта, аудитория, площадка, количество идей и нужные форматы.',
-    explanation: 'Это цепочка: идеи → сценарии → персонаж или товар → ролики. Higgsfield приводит Content factory как пример применения API, но это не подтверждённый единый endpoint. Пакетная генерация и автопубликация в Meduha не подключены.',
+    explanation: 'Это цепочка: идеи → сценарии → персонаж или товар → ролики. Пакетная генерация и автопубликация в Meduha не подключены.',
     prompt: 'Контент-план: продукт, аудитория, площадка, ключевое сообщение. Подготовить серию идей для коротких роликов:',
     keywords: ['контент', 'завод', 'фабрика', 'серия', 'массово', 'пакет', 'реклама', 'продажи', 'маркетинг', 'товар', 'бизнес', 'публикации', 'reels', 'рилс', 'shorts', 'tiktok'],
   },
@@ -117,7 +117,7 @@ export const videoScenarioProviders = [...new Set(videoScenarios.map(scenarioPro
 
 export function videoScenarioProviderLabel(provider: string): string {
   if (provider === 'bytedance') return 'ByteDance';
-  if (provider === 'higgsfield') return 'Higgsfield';
+  if (provider === 'higgsfield') return 'Модель Meduha';
   return provider.charAt(0).toUpperCase() + provider.slice(1);
 }
 

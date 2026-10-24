@@ -22,7 +22,7 @@ export function TopupSheet({ onClose, authenticated, balance }: { onClose: () =>
   return <Sheet title={title} onClose={onClose} className="mt-sheet">
     <div className="mt-flag" data-testid="status-topup-demo"><CircleSlash size={13} />Тестовый режим · оплата, подписка и начисление кредитов не подключены</div>
     {step === 'choose' && <div className="mt-step" key="choose">
-      <p className="mt-lead">Цены в USD. Годовая скидка — как у Higgsfield; на 3 месяца — половина годовой. Кредиты указаны за каждый месяц, полная сумма — за выбранный срок.</p>
+      <p className="mt-lead">Цены в USD. На 3 месяца действует половина годовой скидки. Кредиты указаны за каждый месяц, полная сумма — за выбранный срок.</p>
       <div className="mt-periods" role="group" aria-label="Срок тарифа">
         {BILLING_PERIODS.map(p => <button key={p.months} type="button" aria-pressed={months === p.months} className={months === p.months ? 'on' : ''} onClick={() => setMonths(p.months)} data-testid={`button-topup-period-${p.months}`}><strong>{p.label}</strong>{p.months > 1 && <small>до −{discountLabel(billingQuote(resolve(TOPUP_PACKAGES[2], {}), p.months).discount)}</small>}</button>)}
       </div>
@@ -40,7 +40,7 @@ export function TopupSheet({ onClose, authenticated, balance }: { onClose: () =>
         <div><dt>Оплата сейчас</dt><dd>Недоступна · тест</dd></div>
         <div><dt>Тип</dt><dd>Месячный тариф · макет</dd></div>
       </dl>
-      {quote.volumeCalculated && <p className="mt-lead">Для этого объёма Ultra применён процент скидки базового Ultra — расчёт meduha, не отдельная подтверждённая цена Higgsfield.</p>}
+      {quote.volumeCalculated && <p className="mt-lead">Скидка для этого объёма Ultra рассчитана по базовой цене тарифа и может отличаться от итогового предложения.</p>}
       <p className="mt-lead">Это демонстрация. Подписка не оформится, деньги не спишутся, баланс не изменится.</p>
       <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('done')} data-testid="button-topup-sbp-test">Проверить выбор · без оплаты</button><button className="m-startup-guest" onClick={() => setStep('choose')} data-testid="button-topup-change"><ArrowLeft size={14} />Изменить тариф</button></div>
     </div>}
@@ -200,7 +200,6 @@ function TopupCarousel({ picked, onPick, onProceed, levels, onLevel, months }: {
       {TOPUP_PACKAGES.map((p, i) => <button key={p.id} type="button" className={i === idx ? 'on' : ''} aria-label={`Тариф ${TIERS[p.id].name}`} aria-current={i === idx ? 'true' : undefined} data-testid={`indicator-topup-${p.id}`} onClick={() => select(i)} />)}
     </div>
     <span className="vs-sr" aria-live="polite">Выбран тариф {TIERS[picked]?.name}, {idx + 1} из {TOPUP_PACKAGES.length}</span>
-    <p className="mtp-yield-note">Фото или видео — альтернативные варианты расходования кредитов meduha, не оба сразу. Расчёт по самой дешёвой доступной модели, округлён вниз. Дорогие модели и длинные видео расходуют больше. Безлимиты и бонусы Higgsfield не включены.</p>
-    <p className="mtp-yield-note"><a href="https://higgsfield.ai/pricing" target="_blank" rel="noreferrer">Цены Higgsfield</a> · <a href="https://higgsfield.ai/blog/seedance-2-5-pricing-2026" target="_blank" rel="noreferrer">Объёмы Ultra</a> · проверено 24.10.2026</p>
+    <p className="mtp-yield-note">Фото или видео — альтернативные варианты расходования кредитов meduha, не оба сразу. Расчёт по самой дешёвой доступной модели, округлён вниз. Дорогие модели и длинные видео расходуют больше. Дополнительные безлимиты и бонусы в тариф не включены.</p>
   </div>;
 }

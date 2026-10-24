@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { hideProviderBrand } from './publicText';
 import {
   authenticateMeduhaTelegram, deleteMeduhaDraft, getGetMeduhaBootstrapQueryKey,
   getGetMeduhaSessionQueryKey, getMeduhaBootstrap, importMeduhaDrafts, logoutMeduha,
@@ -24,16 +25,17 @@ function telegramApp() {
   return (window as Window & { Telegram?: { WebApp?: { initData?: string; platform?: string; initDataUnsafe?: { user?: { id?: number | string } }; ready?: () => void; expand?: () => void } } }).Telegram?.WebApp;
 }
 function apiErrorStatus(error: unknown) { return (error as { status?: number } | null)?.status; }
+const safeErrorText = (text: string) => hideProviderBrand(text) || 'Проверь соединение и попробуй ещё раз.';
 export function meduhaErrorMessage(error: unknown): string {
   const apiError = error as { data?: { error?: unknown; code?: unknown; message?: unknown }; message?: string } | null;
   const data = apiError?.data;
   if (data && typeof data === 'object') {
     if (typeof data.code === 'string' && data.code === 'TELEGRAM_NOT_CONFIGURED') return 'Проверка аккаунтов Telegram пока не настроена на сервере.';
-    if (typeof data.error === 'string' && data.error.trim()) return data.error;
-    if (typeof data.message === 'string' && data.message.trim()) return data.message;
-    if (typeof data.code === 'string' && data.code.trim()) return `Ошибка сервиса: ${data.code}`;
+    if (typeof data.error === 'string' && data.error.trim()) return safeErrorText(data.error);
+    if (typeof data.message === 'string' && data.message.trim()) return safeErrorText(data.message);
+    if (typeof data.code === 'string' && data.code.trim()) return safeErrorText(`Ошибка сервиса: ${data.code}`);
   }
-  return typeof apiError?.message === 'string' && apiError.message.trim() ? apiError.message : 'Проверь соединение и попробуй ещё раз.';
+  return typeof apiError?.message === 'string' && apiError.message.trim() ? safeErrorText(apiError.message) : 'Проверь соединение и попробуй ещё раз.';
 }
 function asInput(draft: Draft): MeduhaDraftInput {
   return { title: draft.title.slice(0, 100), type: draft.type, prompt: draft.prompt, style: draft.style.slice(0, 100), model: draft.model.slice(0, 100), ratio: draft.ratio.slice(0, 30), duration: draft.duration.slice(0, 30), ...(draft.referenceName ? { referenceName: draft.referenceName.slice(0, 255) } : {}) };

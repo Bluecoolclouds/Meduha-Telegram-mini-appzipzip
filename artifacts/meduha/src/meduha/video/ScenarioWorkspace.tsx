@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ExternalLink, ImagePlus, Save, Video } from 'lucide-react';
+import { ArrowLeft, ImagePlus, Save, Video } from 'lucide-react';
 import { Link, useSearch } from 'wouter';
 import { Frame, useToast } from '../shared';
 import { loadDrafts, saveDrafts, useDraftList, type Draft } from '../studio';
@@ -224,7 +224,6 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
           : <div className="gj-scenario-unavailable" role="status" data-testid={`status-generation-${scenario.id}`}>
               <strong>Запуск из Meduha пока не подключён</strong>
               <span>{scenario.explanation} Сохранение идеи не запускает генерацию и не списывает кредиты.</span>
-              <a href={scenario.source} target="_blank" rel="noopener noreferrer">О сценарии у поставщика <ExternalLink size={12}/></a>
             </div>}
 
         {initialNeed && <p className="gj-warn">Чтобы оживить фото, нужен исходный кадр. Пока файл останется только на этом устройстве.</p>}

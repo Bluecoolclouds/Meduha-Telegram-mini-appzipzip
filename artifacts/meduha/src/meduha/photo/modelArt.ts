@@ -10,5 +10,5 @@ const families: [RegExp, string][] = [
 export const photoModelArt = (m: PhotoCatalogModel) => families.find(([r]) => r.test(m.id))?.[1] ?? 'portrait';
 
 export const photoProvider = (m: PhotoCatalogModel) => (m.endpoint || m.id).split('/')[0];
-const providerNames: Record<string, string> = { 'higgsfield-ai': 'Higgsfield', higgsfield: 'Higgsfield', xai: 'xAI', ideogram: 'Ideogram', alibaba: 'Alibaba', workflows: 'Higgsfield Workflows', recraft: 'Recraft', 'marketing-studio': 'Marketing Studio' };
+const providerNames: Record<string, string> = { 'higgsfield-ai': 'Модель Meduha', higgsfield: 'Модель Meduha', xai: 'xAI', ideogram: 'Ideogram', alibaba: 'Alibaba', workflows: 'Сценарий Meduha', recraft: 'Recraft', 'marketing-studio': 'Marketing Studio' };
 export const photoProviderLabel = (p: string) => providerNames[p] ?? p;

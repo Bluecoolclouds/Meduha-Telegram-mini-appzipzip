@@ -53,9 +53,9 @@ export default function VideoScenarios() {
       {filterOpen && <div id="vs-filter-panel" className="vs-panel">
         <span className="vs-panel-label">Категория</span>
         <div className="vs-chips" role="group" aria-label="Категории">{chips.map(c => <button key={c.id} data-testid={`button-category-${c.id}`} aria-pressed={cat === c.id} className={cat === c.id ? 'on' : ''} onClick={() => setCat(c.id)}>{c.label}</button>)}</div>
-        <span className="vs-panel-label">Поставщик модели</span>
-        <div id="vs-provider-filters" className="vs-chips" role="group" aria-label="Поставщик модели">
-          <button data-testid="button-provider-all" className={provider === 'all' ? 'on' : ''} aria-pressed={provider === 'all'} onClick={() => setProvider('all')}>Все поставщики</button>
+        <span className="vs-panel-label">Модель</span>
+        <div id="vs-provider-filters" className="vs-chips" role="group" aria-label="Модель">
+          <button data-testid="button-provider-all" className={provider === 'all' ? 'on' : ''} aria-pressed={provider === 'all'} onClick={() => setProvider('all')}>Все модели</button>
           {videoScenarioProviders.map(value => <button key={value} data-testid={`button-provider-${value}`} className={provider === value ? 'on' : ''} aria-pressed={provider === value} onClick={() => setProvider(value)}>{videoScenarioProviderLabel(value)}</button>)}
         </div>
         {activeFilters > 0 && <button type="button" className="vs-panel-reset" onClick={() => { setCat('all'); setProvider('all'); }}>Сбросить фильтры</button>}

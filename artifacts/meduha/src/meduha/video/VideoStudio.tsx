@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Download, ExternalLink, FileText, Lock, Minus, Plus, RefreshCw, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Download, FileText, Lock, Minus, Plus, RefreshCw, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X, Zap } from 'lucide-react';
 import { Link, useLocation, useSearch } from 'wouter';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getGetMeduhaBootstrapQueryKey, getGetMeduhaWalletQueryKey, getListMeduhaGenerationsQueryKey, useListMeduhaGenerations } from '@workspace/api-client-react';
@@ -8,7 +8,7 @@ import { Frame, Sheet, asset, mood, useToast } from '../shared';
 import { meduhaErrorMessage, useMeduhaSession } from '../session';
 import { uploadMedia } from '../templates/manage/api';
 import { ScenarioCarousel, PromoBanner } from './ScenarioHero';
-import { VIDEO_CATALOG_KEY, VideoApiError, createVideoGeneration, familyArt, quoteHref, providerLabel, providerOf, useVideoCatalog, videoErrorText, videoModelHref, type VideoCatalog, type VideoFamily, type VideoGenerationInput, type VideoModel } from './videoApi';
+import { VIDEO_CATALOG_KEY, VideoApiError, createVideoGeneration, familyArt, quoteHref, providerLabel, providerOf, useVideoCatalog, userSafeModelText, videoErrorText, videoModelHref, type VideoCatalog, type VideoFamily, type VideoGenerationInput, type VideoModel } from './videoApi';
 import { KIND_RULES, buildPayload, checkFile, defaults, describeConditions, dropGroupItem, effective, fieldKind, itemKey, mediaUuid, modeKind, modeLabel, normalizeFileFields, referencePromptExpansion, splitPath, unwrap, validate, type FileField, type FileKind, type Ref, type Schema } from './videoSchema';
 import { useRecipeSource, type RecipeSource } from '../templates/recipe/useRecipeSource';
 import RecipeBanner from '../templates/recipe/RecipeBanner';
@@ -35,7 +35,7 @@ export function videoReadiness(c: VideoCatalog | undefined, m: VideoModel): Read
 }
 const blurb = (f: VideoFamily, ms: VideoModel[]) => {
   const modes = ms.map(m => modeLabel(m.mode)).filter((x, i, a) => a.indexOf(x) === i).join(', ');
-  return f.description ? `${f.description.trim()} Режимы: ${modes}.` : `${modes}.`;
+  return f.description ? `${userSafeModelText(f.description.trim())} Режимы: ${modes}.` : `${modes}.`;
 };
 type Group = { family: VideoFamily; members: VideoModel[] };
 function groups(c: VideoCatalog | undefined): Group[] {
@@ -62,7 +62,7 @@ export function VideoCatalogue() {
   const update = (v: string) => { setQ(v); const p = new URLSearchParams({ type: 'video' }); if (v.trim()) p.set('q', v.trim()); window.history.replaceState(window.history.state, '', `${BASE}/create?${p}`); };
   const priceLabel = (list: VideoModel[]) => { const ok = list.filter(m => videoReadiness(catalog.data, m).ok); if (!ok.length) { if (list.some(m => m.quoteScenario)) return 'Цена после проверки видео'; } if (!ok.length) return list.some(m => m.creditPrice != null && m.available) ? videoReadiness(catalog.data, list[0]).reason : 'Скоро'; const ps = ok.map(m => m.creditPrice!); const min = Math.min(...ps); return `${ps.some(p => p !== min) ? 'от ' : ''}${min} кр.`; };
   const open = (id: string) => navigate(videoModelHref(id));
-  const hero = all.slice(0, 5).map(g => ({ id: g.family.id, title: g.family.name, subtitle: blurb(g.family, g.members), image: familyArt(g.family.id), providerLabel: providerLabel(providerOf(g.members[0])), g }));
+  const hero = all.slice(0, 5).map(g => ({ id: g.family.id, title: userSafeModelText(g.family.name), subtitle: blurb(g.family, g.members), image: familyArt(g.family.id), providerLabel: providerLabel(providerOf(g.members[0])), g }));
   const modes = [['all', 'Все'], ['text', 'Из текста'], ['image', 'Из фото'], ['video', 'Из видео']] as const;
   return <Frame active="Create"><div className="vs-page" data-testid="catalogue-video-models">
     {catalog.isLoading ? <div className="vs-hero vst-skel" style={{ height: 268 }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} label={h => priceLabel(h.g.members)} eyebrow={h => `${h.g.members.length > 1 ? `${h.g.members.length} режимов` : modeLabel(h.g.members[0].mode)} · ${h.providerLabel}`} onOpen={h => open(h.g.family.modes[0])}/>}
@@ -94,7 +94,7 @@ export function VideoCatalogue() {
       : shown.length ? <div className="vs-grid">{shown.map((g, i) => <article key={g.family.id} data-testid={`card-video-family-${g.family.id}`} className={`vs-card vst-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}>
         <button type="button" className="vst-open" data-testid={`button-open-video-family-${g.family.id}`} onClick={() => open(g.family.modes[0])}>
           <span className="vs-card-img"><img src={asset(familyArt(g.family.id))} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
-          <span className="vs-card-body"><strong>{g.family.name}<em> · {g.members.length > 1 ? `${g.members.length} режимов` : modeLabel(g.members[0].mode)}</em></strong><small>{blurb(g.family, g.members)}</small></span>
+          <span className="vs-card-body"><strong>{userSafeModelText(g.family.name)}<em> · {g.members.length > 1 ? `${g.members.length} режимов` : modeLabel(g.members[0].mode)}</em></strong><small>{blurb(g.family, g.members)}</small></span>
         </button>
         <span className="vs-card-foot vst-foot"><span className="vs-prov">{providerLabel(providerOf(g.members[0]))}</span><span className="vs-price" data-testid={`text-video-price-${g.family.id}`}>{priceLabel(g.members)}</span></span>
       </article>)}</div>
@@ -112,7 +112,7 @@ export function VideoModelPage({ catalogId }: { catalogId: string }) {
   const model = catalog.data?.models.find(m => m.id === catalogId);
   if (catalog.isLoading) return <Frame active="Create"><div className="ps-page"><div className="ps-card vst-skel" style={{ height: 120 }}/><div className="ps-card vst-skel" style={{ height: 300, marginTop: 12 }}/></div></Frame>;
   if (catalog.isError || !model) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><img src={mood('curious')} alt=""/><strong>{catalog.isError ? 'Каталог не загрузился' : 'Модель не найдена'}</strong><p>{catalog.isError ? videoErrorText(catalog.error) : 'Возможно, она убрана из каталога.'}</p>{catalog.isError && <button className="ps-btn" data-testid="button-video-model-retry" onClick={() => catalog.refetch()}><RefreshCw size={14}/>Повторить</button>}<Link className="ps-btn" href="/create?type=video" data-testid="link-video-catalogue-missing">К каталогу</Link></div></div></Frame>;
-  const family = catalog.data!.families.find(f => f.id === model.familyId) ?? catalog.data!.families.find(f => f.modes.includes(model.id)) ?? { id: model.id, name: model.name, description: '', source: model.source, modes: [model.id] };
+  const family = catalog.data!.families.find(f => f.id === model.familyId) ?? catalog.data!.families.find(f => f.modes.includes(model.id)) ?? { id: model.id, name: userSafeModelText(model.name), description: '', source: model.source, modes: [model.id] };
   const siblings = family.modes.map(id => catalog.data!.models.find(m => m.id === id)).filter((m): m is VideoModel => !!m);
   const scope = session.phase === 'authenticated' && session.account?.id ? `acct-${session.account.id}` : session.phase === 'authenticated' ? null : 'guest';
   if (!scope || (source.active && source.phase === 'loading')) return <Frame active="Create"><div className="ps-page"><RecipeBanner source={source}/><div className="ps-card vst-skel" style={{ height: 300 }}/></div></Frame>;
@@ -171,7 +171,7 @@ function ModelForm({ scope, source, recipeView, model, family, siblings, catalog
   const conditions = useMemo(() => describeConditions(schema), [schema]);
   const fields = Object.keys(eff.props).sort((a, b) => fieldOrder(a) - fieldOrder(b));
   if (Array.isArray(values.elements) && values.elements.length) {
-    errors.elements = 'Элементы Higgsfield пока не привязаны к вашему аккаунту Meduha. Используй свои загруженные референсы.';
+    errors.elements = 'Элементы этого сценария пока не привязаны к вашему аккаунту Meduha. Используй свои загруженные референсы.';
   }
 
   for (const k of fields) {
@@ -267,7 +267,7 @@ function ModelForm({ scope, source, recipeView, model, family, siblings, catalog
 
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-video-model-${model.id}`}>
     <Link className="ps-back" href="/create?type=video" data-testid="link-video-catalogue"><ArrowLeft size={13}/>Все видеомодели</Link>
-    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(familyArt(family.id))} alt=""/></span><div><span className="ps-mode">{modeLabel(model.mode)}{model.workflow ? ' · сценарий' : ''}</span><h1>{family.name}<span>.</span></h1><p>{family.description || model.name}</p><code className="ps-endpoint" data-testid="text-video-endpoint">{providerLabel(providerOf(model))} · {model.endpoint}</code><a className="ps-source" href={model.source} target="_blank" rel="noreferrer" data-testid="link-video-source">Официальная страница<ExternalLink size={11}/></a></div></div>
+    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(familyArt(family.id))} alt=""/></span><div><span className="ps-mode">{modeLabel(model.mode)}{model.workflow ? ' · сценарий' : ''}</span><h1>{userSafeModelText(family.name)}<span>.</span></h1><p>{userSafeModelText(family.description || model.name)}</p></div></div>
     {siblings.length > 1 && <div className="ps-modes" role="group" aria-label="Режим модели" data-testid="group-video-modes">{siblings.map(m => { const on = m.id === model.id; return <button key={m.id} type="button" aria-pressed={on} className={on ? 'on' : ''} data-testid={`button-video-mode-${m.id}`} onClick={() => { if (!on) navigate(videoModelHref(m.id), { replace: true }); }}>{modeLabel(m.mode)}</button>; })}</div>}
     {!authed && <div className="ps-alert" data-testid="status-video-login-required"><Lock size={15}/><span><strong>Нужен вход через Telegram</strong>Открой студию из Telegram, чтобы загружать файлы и запускать генерацию. Настройки можно смотреть и менять уже сейчас.</span></div>}
     <RecipeBanner source={source} mismatch={!!source.view && !recipeView}/>
@@ -278,12 +278,12 @@ function ModelForm({ scope, source, recipeView, model, family, siblings, catalog
       const s = eff.props[k]; const err = touched || values[k] !== undefined ? errors[k] : undefined;
       const tf = fileOf(k);
       if (tf) { const { s: us } = unwrap(s, schema); const max = tf.array ? us.maxItems ?? 10 : 1;
-        return <FilesField key={k} name={k} title={label(k, us)} hint={us.description} kind={tf.kind} required={eff.required.has(k)} refs={refs[tf.path] || []} max={max} uploading={uploading[tf.path] || 0} authed={authed} error={err}
+        return <FilesField key={k} name={k} title={label(k, us)} hint={userSafeModelText(us.description || '')} kind={tf.kind} required={eff.required.has(k)} refs={refs[tf.path] || []} max={max} uploading={uploading[tf.path] || 0} authed={authed} error={err}
           onFiles={(f, idx) => void addFiles(tf.path, tf.kind, f, max, idx)} onRemove={i => setRefs(r => ({ ...r, [tf.path]: (r[tf.path] || []).filter((_, j) => j !== i) }))}/>; }
       if (parents.includes(k)) {
         const subs = nested.filter(f => splitPath(f.path).root === k);
         const list = items[k] || []; const { s: us } = unwrap(s, schema); const maxItems = us.maxItems ?? 10;
-        return <div key={k} className={`ps-field vst-group${err ? ' bad' : ''}`} data-testid={`group-${k}`}><div className="ps-label"><span>{label(k, us)}{eff.required.has(k) && <b> *</b>}</span>{us.description && <small>{us.description}</small>}</div>
+        return <div key={k} className={`ps-field vst-group${err ? ' bad' : ''}`} data-testid={`group-${k}`}><div className="ps-label"><span>{label(k, us)}{eff.required.has(k) && <b> *</b>}</span>{us.description && <small>{userSafeModelText(us.description)}</small>}</div>
           {list.map((txt, i) => <div key={i} className="vst-item" data-testid={`item-${k}-${i}`}><div className="vst-item-head"><strong>Элемент {i + 1}</strong><button type="button" aria-label="Удалить элемент" data-testid={`button-remove-item-${k}-${i}`} onClick={() => { setItems(it => ({ ...it, [k]: (it[k] || []).filter((_, j) => j !== i) })); setRefs(r => dropGroupItem(r, k, i)); }}><Minus size={12}/></button></div>
             {subs.map(f => { const { sub } = splitPath(f.path); if (!sub) return null; const key = itemKey(k, i, sub); const max = f.array ? 10 : 1;
               return <FilesField key={key} name={`${k}-${i}-${sub.slice(1)}`} title={label(sub.slice(1).split('/').pop()!)} kind={f.kind} required={false} refs={refs[key] || []} max={max} uploading={uploading[key] || 0} authed={authed}
@@ -333,7 +333,7 @@ function Field({ name, s: s0, schema, required, locked = false, value, jsonText,
   const { s, nullable } = unwrap(s0, schema);
   const kind = fieldKind(name, s);
   const title = label(name, s); const id = `vst-${name}`;
-  const head = <div className="ps-label"><label htmlFor={id}>{title}{required && <b> *</b>}</label>{s.description && <small>{s.description}</small>}</div>;
+  const head = <div className="ps-label"><label htmlFor={id}>{title}{required && <b> *</b>}</label>{s.description && <small>{userSafeModelText(s.description)}</small>}</div>;
   const none = !required && (nullable || s.default === undefined);
   let body: React.ReactNode;
   if (kind === 'enum') {
