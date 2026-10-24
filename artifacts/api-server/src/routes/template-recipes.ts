@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CreateTemplateRecipeDraftBody, RepeatTemplateBody, GetTemplateRecipeResponse as TemplateRecipeView } from '@workspace/api-zod';
-import { currentAccount, requireAccount } from './meduha';
+import { currentAccount, requireAccount } from './meduha-auth';
 import { RecipeError, sourceRecipe, savedRecipe, saveRecipeDraft, repeatRecipe } from '../lib/template-recipes';
 
 export function createTemplateRecipeRouter(copy?: Parameters<typeof repeatRecipe>[3], remove?: Parameters<typeof repeatRecipe>[4]) {

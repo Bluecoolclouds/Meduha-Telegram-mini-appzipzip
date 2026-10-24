@@ -12,6 +12,8 @@ import { TelegramAuthError, validateTelegramInitData } from '../lib/telegram-ini
 import { resolveTelegramBotUsername } from '../lib/telegram-bot';
 import templatesRouter from './templates';
 import templateRecipesRouter from './template-recipes';
+import { currentAccount, requireAccount } from './meduha-auth';
+export { currentAccount, requireAccount } from './meduha-auth';
 import { initializeTemplateAdmin } from '../lib/template-admin';
 import { createMeduhaAdminRouter } from './meduha-admin';
 import { getWallet } from '../lib/finance';
@@ -39,20 +41,6 @@ function cookieOptions(req:Request) {
 function readCookie(req:Request):string|null {
   const raw:unknown=req.cookies?.[COOKIE];
   return typeof raw==='string' && /^[a-f0-9]{64}$/.test(raw)?raw:null;
-}
-export async function currentAccount(req:Request):Promise<MeduhaAccountRow|null>{
-  const raw=readCookie(req);
-  if(!raw)return null;
-  const [row]=await db.select({account:meduhaAccounts}).from(meduhaSessions)
-    .innerJoin(meduhaAccounts,eq(meduhaAccounts.id,meduhaSessions.userId))
-    .where(and(eq(meduhaSessions.tokenHash,digest(raw)),gt(meduhaSessions.expiresAt,new Date()))).limit(1);
-  return row?.account??null;
-}
-export async function requireAccount(req:Request,res:Response){
-  const account=await currentAccount(req);
-  if(!account)fail(res,401,'SESSION_REQUIRED','Войди через Telegram, чтобы загрузить аккаунт.');
-  else if(account.blocked){fail(res,403,'ACCOUNT_BLOCKED','Доступ к аккаунту ограничен.');return null}
-  return account;
 }
 async function allDrafts(userId:string){
   const rows=await db.select().from(meduhaDrafts).where(eq(meduhaDrafts.userId,userId)).orderBy(desc(meduhaDrafts.updatedAt));

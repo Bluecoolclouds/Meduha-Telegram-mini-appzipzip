@@ -37,7 +37,7 @@ test('Community recipes preserve mode, prompt and ordered private files in an ac
   const root = `http://127.0.0.1:${addr.port}/api/meduha`;
   const request = (path: string, body?: object, auth = true) => fetch(`${root}${path}`, {
     ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}),
-    headers: { 'Content-Type': 'application/json', ...(auth ? cookie : {}) },
+    headers: { 'Content-Type': 'application/json', ...(body ? { 'X-Meduha-Request': '1' } : {}), ...(auth ? cookie : {}) },
   });
   try {
     await db.insert(meduhaAccounts).values([
@@ -95,6 +95,7 @@ test('Community recipes preserve mode, prompt and ordered private files in an ac
       title: 'Wrong owner', recipe: { ...recipe, references: { '/video_url': [originalFiles[0]], '/image_urls': [originalFiles[1], originalFiles[2]] } },
     })).status, 403);
 
+    await db.update(meduhaTemplates).set({ status: 'published' }).where(eq(meduhaTemplates.id, sourceId));
     const failedId = randomUUID(), beforeFailed = copies.length;
     await assert.rejects(async () => {
       await import('../lib/template-recipes').then(({ repeatRecipe }) => repeatRecipe(sourceId, failedId, viewer,
