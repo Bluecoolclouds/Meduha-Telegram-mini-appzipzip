@@ -5,6 +5,74 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type VideoTokenRateResolution = typeof VideoTokenRateResolution[keyof typeof VideoTokenRateResolution];
+
+
+export const VideoTokenRateResolution = {
+  '480p': '480p',
+  '720p': '720p',
+  '1080p': '1080p',
+} as const;
+
+export interface VideoTokenRate {
+  resolution: VideoTokenRateResolution;
+  videoInput: boolean;
+  usdPer1000Tokens: number;
+}
+
+export type GenjutsuUsdRateScenario = typeof GenjutsuUsdRateScenario[keyof typeof GenjutsuUsdRateScenario];
+
+
+export const GenjutsuUsdRateScenario = {
+  genjutsu: 'genjutsu',
+  'object-swap': 'object-swap',
+  restyle: 'restyle',
+} as const;
+
+export type GenjutsuUsdRateResolution = typeof GenjutsuUsdRateResolution[keyof typeof GenjutsuUsdRateResolution];
+
+
+export const GenjutsuUsdRateResolution = {
+  '480p': '480p',
+  '720p': '720p',
+  '1080p': '1080p',
+} as const;
+
+export interface GenjutsuUsdRate {
+  scenario: GenjutsuUsdRateScenario;
+  resolution: GenjutsuUsdRateResolution;
+  usdPerSecond: number;
+  exact: boolean;
+}
+
+export interface VideoPricingReference {
+  reviewedAt: string;
+  seedanceRates: VideoTokenRate[];
+  genjutsuRates: GenjutsuUsdRate[];
+  sources: string[];
+  notes: string[];
+}
+
+export type VideoPriceQuoteInputParameters = { [key: string]: unknown };
+
+export type VideoPriceQuoteInputReferences = {[key: string]: string[]};
+
+export interface VideoPriceQuoteInput {
+  idempotencyKey: string;
+  modelId: string;
+  /** @maxLength 200 */
+  catalogId: string;
+  parameters: VideoPriceQuoteInputParameters;
+  references: VideoPriceQuoteInputReferences;
+}
+
+export interface VideoPriceQuote {
+  token: string;
+  creditPrice: number;
+  usdMicros: number;
+  expiresAt: number;
+}
+
 export type VideoFileFieldKind = typeof VideoFileFieldKind[keyof typeof VideoFileFieldKind];
 
 
@@ -45,6 +113,14 @@ export const VideoCatalogModelQuoteScenario = {
   restyle: 'restyle',
 } as const;
 
+export type VideoCatalogModelPricingMode = typeof VideoCatalogModelPricingMode[keyof typeof VideoCatalogModelPricingMode];
+
+
+export const VideoCatalogModelPricingMode = {
+  fixed: 'fixed',
+  estimate: 'estimate',
+} as const;
+
 export interface VideoCatalogModel {
   id: string;
   familyId: string;
@@ -59,6 +135,7 @@ export interface VideoCatalogModel {
   available: boolean;
   /** @nullable */
   quoteScenario?: VideoCatalogModelQuoteScenario;
+  pricingMode?: VideoCatalogModelPricingMode;
   /** @nullable */
   modelId: string | null;
   /** @nullable */
@@ -87,6 +164,11 @@ export interface VideoGenerationInput {
      * @maximum 100000000
      */
   expectedCreditPrice: number;
+  /**
+     * @minLength 1
+     * @maxLength 8192
+     */
+  priceQuote?: string;
   parameters: VideoGenerationInputParameters;
   references: VideoGenerationInputReferences;
 }

@@ -46,6 +46,34 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/PhotoCatalog" }
+  /meduha/video/pricing-reference:
+    get:
+      operationId: getVideoPricingReference
+      responses:
+        "200":
+          description: Verified reference rates, not an authorization to spend
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VideoPricingReference" }
+  /meduha/video/quote:
+    post:
+      operationId: quoteVideoGeneration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VideoPriceQuoteInput" }
+      responses:
+        "200":
+          description: Signed price for the exact video request; no generation or reservation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VideoPriceQuote" }
+        "400": { description: Invalid video parameters }
+        "401": { description: Sign in required }
+        "409": { description: Model or pricing policy unavailable }
+        "429": { description: Too many price requests }
+        "503": { description: Estimate unavailable }
   /meduha/photo/quote:
     post:
       operationId: quotePhotoGeneration
@@ -1116,6 +1144,58 @@ components:
       in: header
       name: X-Telegram-Bot-Api-Secret-Token
   schemas:
+    VideoPricingReference:
+      type: object
+      required: [reviewedAt, seedanceRates, genjutsuRates, sources, notes]
+      properties:
+        reviewedAt: { type: string }
+        seedanceRates:
+          type: array
+          items: { $ref: "#/components/schemas/VideoTokenRate" }
+        genjutsuRates:
+          type: array
+          items: { $ref: "#/components/schemas/GenjutsuUsdRate" }
+        sources: { type: array, items: { type: string } }
+        notes: { type: array, items: { type: string } }
+    VideoTokenRate:
+      type: object
+      required: [resolution, videoInput, usdPer1000Tokens]
+      properties:
+        resolution: { type: string, enum: [480p, 720p, 1080p] }
+        videoInput: { type: boolean }
+        usdPer1000Tokens: { type: number }
+    GenjutsuUsdRate:
+      type: object
+      required: [scenario, resolution, usdPerSecond, exact]
+      properties:
+        scenario: { type: string, enum: [genjutsu, object-swap, restyle] }
+        resolution: { type: string, enum: [480p, 720p, 1080p] }
+        usdPerSecond: { type: number }
+        exact: { type: boolean }
+    VideoPriceQuoteInput:
+      type: object
+      additionalProperties: false
+      required: [idempotencyKey, modelId, catalogId, parameters, references]
+      properties:
+        idempotencyKey: { type: string, format: uuid }
+        modelId: { type: string, format: uuid }
+        catalogId: { type: string, maxLength: 200 }
+        parameters: { type: object, additionalProperties: true }
+        references:
+          type: object
+          maxProperties: 100
+          additionalProperties:
+            type: array
+            maxItems: 30
+            items: { type: string, format: uuid }
+    VideoPriceQuote:
+      type: object
+      required: [token, creditPrice, usdMicros, expiresAt]
+      properties:
+        token: { type: string }
+        creditPrice: { type: integer }
+        usdMicros: { type: integer }
+        expiresAt: { type: integer }
     VideoFileField:
       type: object
       required: [path, kind, array]
@@ -1148,6 +1228,7 @@ components:
         fileFields: { type: array, items: { $ref: "#/components/schemas/VideoFileField" } }
         available: { type: boolean }
         quoteScenario: { type: [string, "null"], enum: [genjutsu, object-swap, restyle, null] }
+        pricingMode: { type: string, enum: [fixed, estimate] }
         modelId: { type: [string, "null"] }
         creditPrice: { type: [integer, "null"] }
     VideoCatalog:
@@ -1167,6 +1248,7 @@ components:
         modelId: { type: string, format: uuid }
         catalogId: { type: string, maxLength: 200 }
         expectedCreditPrice: { type: integer, minimum: 1, maximum: 100000000 }
+        priceQuote: { type: string, minLength: 1, maxLength: 8192 }
         parameters: { type: object, additionalProperties: true }
         references:
           type: object

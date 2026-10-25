@@ -21,3 +21,4 @@
 - [Workflow port ownership](workflow-port-ownership.md) — a failed workflow can coexist with an older live server; identify the port owner before restarting.
 - [Storage transport interop](storage-transport-interop.md) — keep the pinned transport patch until upstream lifecycle handling is verified; do not hide listener warnings globally.
 - [Wallet refresh stale data](wallet-refresh-stale-data.md) — show cached daily values as stale as soon as a wallet refetch fails, including while automatic retries are pending.
+- [Video price basis](video-price-basis.md) — Seedance uses account-specific estimates; USD-to-credit conversion is explicit; approximate provider rates never become exact tariffs.

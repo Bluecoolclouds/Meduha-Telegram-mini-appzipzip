@@ -1,5 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { videoPricingPolicy } from '../lib/video-pricing';
 import { isDeepStrictEqual } from 'node:util';
 import { and, count, desc, eq, gt, ilike, isNull, or, sql } from 'drizzle-orm';
 import {
@@ -390,6 +391,13 @@ router.post('/admin/models', async (req, res): Promise<void> => {
   const [channel] = await db.select({ id: meduhaAiChannels.id, adapter: meduhaAiChannels.adapter })
     .from(meduhaAiChannels).where(eq(meduhaAiChannels.id, parsed.data.channelId)).limit(1);
   if (!channel) { error(res, 404, 'CHANNEL_NOT_FOUND', 'Канал не найден.'); return; }
+  try {
+    const policy = videoPricingPolicy(parsed.data.upstreamId, parsed.data.limits);
+    if (policy && (parsed.data.kind !== 'video' || channel.adapter !== 'higgsfield')) throw new Error();
+  } catch {
+    error(res, 400, 'INVALID_INPUT', 'Расчёт Seedance 2.5 требует видеомодель, подходящий канал, целый videoCreditsPerUsd и положительный videoMaxUsd.');
+    return;
+  }
   if (genjutsuPricing.length > 0 && channel.adapter !== 'higgsfield') {
     error(res, 400, 'INVALID_INPUT', 'Тарифы Genjutsu можно привязать только к каналу Higgsfield.');
     return;
@@ -416,18 +424,28 @@ router.patch('/admin/models/:modelId', async (req, res): Promise<void> => {
     error(res, 400, 'INVALID_INPUT', 'Проверь тарифы Genjutsu: сочетания сценария, качества и длительности должны быть уникальными.');
     return;
   }
-  if (parsed.data.genjutsuPricing !== undefined || parsed.data.upstreamId !== undefined || parsed.data.channelId !== undefined) {
+  if (parsed.data.genjutsuPricing !== undefined || parsed.data.upstreamId !== undefined || parsed.data.channelId !== undefined || parsed.data.limits !== undefined || parsed.data.kind !== undefined) {
     const [current] = await db.select({
       upstreamId: meduhaAiModels.upstreamId,
       channelId: meduhaAiModels.channelId,
       genjutsuPricing: meduhaAiModels.genjutsuPricing,
+      limits: meduhaAiModels.limits,
+      kind: meduhaAiModels.kind,
     }).from(meduhaAiModels)
       .where(eq(meduhaAiModels.id, modelId)).limit(1);
     const genjutsuPricing = parsed.data.genjutsuPricing ?? current?.genjutsuPricing ?? [];
     const upstreamId = parsed.data.upstreamId ?? current?.upstreamId;
     const channelId = parsed.data.channelId ?? current?.channelId;
-    if (genjutsuPricing.length > 0) {
-      if (!upstreamId || !tariffsMatchGenjutsuModel(genjutsuPricing, upstreamId)) {
+    let policy;
+    try {
+      policy = videoPricingPolicy(upstreamId ?? '', parsed.data.limits ?? current?.limits);
+      if (policy && (parsed.data.kind ?? current?.kind) !== 'video') throw new Error();
+    } catch {
+      error(res, 400, 'INVALID_INPUT', 'Проверь videoCreditsPerUsd, videoMaxUsd и режим Seedance 2.5.');
+      return;
+    }
+    if (genjutsuPricing.length > 0 || policy) {
+      if (genjutsuPricing.length > 0 && (!upstreamId || !tariffsMatchGenjutsuModel(genjutsuPricing, upstreamId))) {
         error(res, 400, 'INVALID_INPUT', 'Сценарий тарифа должен соответствовать endpoint модели Genjutsu.');
         return;
       }

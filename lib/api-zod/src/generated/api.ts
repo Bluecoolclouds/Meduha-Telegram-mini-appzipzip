@@ -33,6 +33,7 @@ export const GetVideoCatalogResponse = zod.object({
 })),
   "available": zod.boolean(),
   "quoteScenario": zod.union([zod.literal('genjutsu'),zod.literal('object-swap'),zod.literal('restyle'),zod.literal(null)]).nullish(),
+  "pricingMode": zod.enum(['fixed', 'estimate']).optional(),
   "modelId": zod.string().nullable(),
   "creditPrice": zod.number().int().nullable()
 })),
@@ -46,6 +47,8 @@ export const createVideoGenerationBodyCatalogIdMax = 200;
 
 export const createVideoGenerationBodyExpectedCreditPriceMax = 100000000;
 
+export const createVideoGenerationBodyPriceQuoteMax = 8192;
+
 export const createVideoGenerationBodyReferencesMaxOne = 30;
 
 
@@ -55,6 +58,7 @@ export const CreateVideoGenerationBody = zod.object({
   "modelId": zod.string().uuid(),
   "catalogId": zod.string().max(createVideoGenerationBodyCatalogIdMax),
   "expectedCreditPrice": zod.number().int().min(1).max(createVideoGenerationBodyExpectedCreditPriceMax),
+  "priceQuote": zod.string().min(1).max(createVideoGenerationBodyPriceQuoteMax).optional(),
   "parameters": zod.record(zod.string(), zod.unknown()),
   "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createVideoGenerationBodyReferencesMaxOne))
 })
@@ -98,6 +102,46 @@ export const GetPhotoCatalogResponse = zod.object({
   "spendingEnabled": zod.boolean(),
   "storageConfigured": zod.boolean(),
   "providerConfigured": zod.boolean()
+})
+
+
+export const GetVideoPricingReferenceResponse = zod.object({
+  "reviewedAt": zod.string(),
+  "seedanceRates": zod.array(zod.object({
+  "resolution": zod.enum(['480p', '720p', '1080p']),
+  "videoInput": zod.boolean(),
+  "usdPer1000Tokens": zod.number()
+})),
+  "genjutsuRates": zod.array(zod.object({
+  "scenario": zod.enum(['genjutsu', 'object-swap', 'restyle']),
+  "resolution": zod.enum(['480p', '720p', '1080p']),
+  "usdPerSecond": zod.number(),
+  "exact": zod.boolean()
+})),
+  "sources": zod.array(zod.string()),
+  "notes": zod.array(zod.string())
+})
+
+
+export const quoteVideoGenerationBodyCatalogIdMax = 200;
+
+export const quoteVideoGenerationBodyReferencesMaxOne = 30;
+
+
+
+export const QuoteVideoGenerationBody = zod.object({
+  "idempotencyKey": zod.string().uuid(),
+  "modelId": zod.string().uuid(),
+  "catalogId": zod.string().max(quoteVideoGenerationBodyCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(quoteVideoGenerationBodyReferencesMaxOne))
+})
+
+export const QuoteVideoGenerationResponse = zod.object({
+  "token": zod.string(),
+  "creditPrice": zod.number().int(),
+  "usdMicros": zod.number().int(),
+  "expiresAt": zod.number().int()
 })
 
 

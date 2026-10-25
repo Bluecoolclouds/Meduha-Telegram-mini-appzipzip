@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Download, FileText, Lock, Minus, Plus, RefreshCw
 import { Link, useLocation, useSearch } from 'wouter';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getGetMeduhaBootstrapQueryKey, getGetMeduhaWalletQueryKey, getListMeduhaGenerationsQueryKey, useListMeduhaGenerations } from '@workspace/api-client-react';
-import type { GenerationJob } from '@workspace/api-client-react';
+import { useQuoteVideoGeneration, type GenerationJob, type VideoPriceQuote } from '@workspace/api-client-react';
 import { Frame, Sheet, asset, mood, useToast } from '../shared';
 import { meduhaErrorMessage, useMeduhaSession } from '../session';
 import { uploadMedia } from '../templates/manage/api';
@@ -33,10 +33,10 @@ export function videoReadiness(c: VideoCatalog | undefined, m: VideoModel): Read
   if (!c) return { ok: false, reason: 'Каталог загружается' };
   if (!c.providerConfigured) return { ok: false, reason: 'Провайдер не настроен' };
   if (!c.storageConfigured) return { ok: false, reason: 'Хранилище не настроено' };
-  if (!c.spendingEnabled) return { ok: false, reason: 'Списания выключены' };
+  if (!c.spendingEnabled && m.pricingMode !== 'estimate') return { ok: false, reason: 'Списания выключены' };
   if (m.quoteScenario) return { ok: false, reason: 'Цена считается после проверки длительности видео — запуск через редактор с расчётом' };
   if (!m.available || !m.modelId) return { ok: false, reason: 'Модель пока не включена администратором' };
-  if (m.creditPrice == null) return { ok: false, reason: 'Цена модели ещё не назначена' };
+  if (m.pricingMode !== 'estimate' && m.creditPrice == null) return { ok: false, reason: 'Цена модели ещё не назначена' };
   return { ok: true, reason: '' };
 }
 const blurb = (f: VideoFamily, ms: VideoModel[]) => {
@@ -66,7 +66,7 @@ export function VideoCatalogue() {
   const searching = t.length > 0;
   const activeFilters = (mode !== 'all' ? 1 : 0) + (provider !== 'all' ? 1 : 0);
   const update = (v: string) => { setQ(v); const p = new URLSearchParams({ type: 'video' }); if (v.trim()) p.set('q', v.trim()); window.history.replaceState(window.history.state, '', `${BASE}/create?${p}`); };
-  const priceLabel = (list: VideoModel[]) => { const ok = list.filter(m => videoReadiness(catalog.data, m).ok); if (!ok.length) { if (list.some(m => m.quoteScenario)) return 'Цена после проверки видео'; } if (!ok.length) return list.some(m => m.creditPrice != null && m.available) ? videoReadiness(catalog.data, list[0]).reason : 'Скоро'; const ps = ok.map(m => m.creditPrice!); const min = Math.min(...ps); return `${ps.some(p => p !== min) ? 'от ' : ''}${min} кр.`; };
+  const priceLabel = (list: VideoModel[]) => { const ok = list.filter(m => videoReadiness(catalog.data, m).ok); if (!ok.length) { if (list.some(m => m.quoteScenario)) return 'Цена после проверки видео'; } if (!ok.length) return list.some(m => m.creditPrice != null && m.available) ? videoReadiness(catalog.data, list[0]).reason : 'Скоро'; if (ok.some(m => m.pricingMode === 'estimate')) return 'Цена по параметрам'; const ps = ok.map(m => m.creditPrice!); const min = Math.min(...ps); return `${ps.some(p => p !== min) ? 'от ' : ''}${min} кр.`; };
   const open = (id: string) => navigate(videoModelHref(id));
   const hero = all.slice(0, 5).map(g => ({ id: g.family.id, title: userSafeModelText(g.family.name), subtitle: blurb(g.family, g.members), image: familyArt(g.family.id), providerLabel: providerLabel(providerOf(g.members[0])), g }));
   const modes = [['all', 'Все'], ['text', 'Из текста'], ['image', 'Из фото'], ['video', 'Из видео']] as const;
@@ -137,7 +137,8 @@ export function VideoModelPage({ catalogId, scenarioId }: { catalogId: string; s
   return <ModelForm key={`${formScope}:${model.id}:${recipeView?.id ?? ''}`} context={context} scope={formScope} source={source} recipeView={recipeView} model={model} family={family} siblings={siblings} catalog={catalog.data!} authed={session.phase === 'authenticated'}/>;
 }
 
-type Stored = { params: Record<string, unknown>; json: Record<string, string>; refs: Record<string, Ref[]>; items: Record<string, string[]>; pending?: { fp: string; key: string } };
+type PendingVideo = { fp: string; key: string; expectedCreditPrice?: number; priceQuote?: string };
+type Stored = { params: Record<string, unknown>; json: Record<string, string>; refs: Record<string, Ref[]>; items: Record<string, string[]>; pending?: PendingVideo };
 const storeKey = (scope: string, id: string) => `meduha.video.v2.${scope}.${id}`;
 const loadStored = (scope: string, id: string): Stored | null => { try { const raw = localStorage.getItem(storeKey(scope, id)); return raw ? JSON.parse(raw) : null; } catch { return null; } };
 
@@ -169,7 +170,7 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
   const [uncertain, setUncertain] = useState<string | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
   const idem = useRef<{ fp: string; key: string } | null>(stored?.pending ?? null);
-  const pending = useRef<{ fp: string; key: string } | null>(stored?.pending ?? null);
+  const pending = useRef<PendingVideo | null>(stored?.pending ?? null);
   const create = useMutation({ mutationFn: createVideoGeneration });
 
   // Parse JSON editors
@@ -215,7 +216,15 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
 
   const busyUpload = Object.values(uploading).some(n => n > 0);
   const ready = videoReadiness(catalog, model);
-  const price = model.creditPrice;
+  const estimated = model.pricingMode === 'estimate';
+  const quoteRequest = useQuoteVideoGeneration();
+  const [quote, setQuote] = useState<(VideoPriceQuote & { fp: string }) | null>(null);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    if (!quote) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [quote]);
   const flatValues: Record<string, unknown> = {};
   for (const k of fields) if (!roots.has(k) && values[k] !== undefined) flatValues[k] = values[k];
   const liveRefs: Record<string, Ref[]> = {};
@@ -224,7 +233,13 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
   for (const f of nested) { const { root, sub } = splitPath(f.path); if (sub) (items[root] || []).forEach((_, i) => validPaths.add(itemKey(root, i, sub))); }
   for (const [k, list] of Object.entries(refs)) if (validPaths.has(k) && list.length) liveRefs[k] = list;
   const { parameters, references } = buildPayload({ fileFields, values: flatValues, refs: liveRefs, groups: groupValues });
-  const fp = JSON.stringify([model.id, model.modelId, price, parameters, references]);
+  const fp = JSON.stringify([model.id, model.modelId, estimated ? 'estimate' : model.creditPrice, parameters, references]);
+  const quoteScope = useRef(fp); quoteScope.current = fp;
+  const activeQuote = quote?.fp === fp && quote.expiresAt > now ? quote : null;
+  const recovering = pending.current?.fp === fp ? pending.current : null;
+  const price = estimated ? activeQuote?.creditPrice ?? recovering?.expectedCreditPrice ?? null : model.creditPrice;
+  useEffect(() => { setQuote(null); setConfirm(false); }, [fp]);
+  useEffect(() => { if (quote && !activeQuote && !recovering) setConfirm(false); }, [quote, activeQuote, recovering]);
   if (!idem.current || idem.current.fp !== fp) idem.current = { fp, key: crypto.randomUUID() };
   const keepKey = pending.current?.fp === fp;
 
@@ -232,7 +247,22 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
   useEffect(persistState, [params, json, refs, items, scope, model.id, uncertain]);
 
   const invalid = Object.keys(errors).length > 0;
-  const canSubmit = authed && ready.ok && !invalid && !busyUpload && !create.isPending;
+  const canQuote = authed && ready.ok && !invalid && !busyUpload && !create.isPending && !quoteRequest.isPending;
+  const canSubmit = canQuote && catalog.spendingEnabled;
+  const calculate = () => {
+    setTouched(true);
+    if (!canQuote || !model.modelId || !idem.current || recovering) return;
+    setQuote(null); setLastError(null);
+    const key = idem.current.key, scope = fp;
+    quoteRequest.mutate({ data: { catalogId: model.id, modelId: model.modelId, idempotencyKey: key, parameters, references } }, {
+      onSuccess: result => {
+        if (quoteScope.current === scope && idem.current?.key === key) {
+          setNow(Date.now()); setQuote({ ...result, fp: scope });
+        }
+      },
+      onError: error => { if (quoteScope.current === scope) setLastError(meduhaErrorMessage(error)); },
+    });
+  };
 
   const setP = (k: string, v: unknown) => setParams(p => { const n = { ...p }; if (v === undefined) delete n[k]; else n[k] = v; return n; });
   const addFiles = async (key: string, kind: FileKind, files: FileList | null, max: number, replaceIndex?: number) => {
@@ -253,18 +283,21 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
     }
   };
 
-  const ask = () => { setTouched(true); if (canSubmit) setConfirm(true); };
+  const ask = () => { setTouched(true); if (canSubmit && (!estimated || activeQuote || recovering)) setConfirm(true); };
   const submit = () => {
     setConfirm(false);
     if (!canSubmit || !model.modelId || price == null || !idem.current) return;
+    if (estimated && !activeQuote && !recovering) { notify('Рассчитай цену заново.'); return; }
     const key = idem.current.key;
-    pending.current = { fp, key }; setLastError(null);
+    const priceQuote = estimated ? activeQuote?.token ?? recovering?.priceQuote : undefined;
+    pending.current = { fp, key, expectedCreditPrice: price, priceQuote }; setLastError(null);
     // Persist before the network call: reload/close during submission must reuse
     // this key, even before React has had a chance to run an effect.
     persistState();
-    const data: VideoGenerationInput = { catalogId: model.id, modelId: model.modelId, expectedCreditPrice: price, idempotencyKey: key, parameters, references };
+    const data: VideoGenerationInput = { catalogId: model.id, modelId: model.modelId, expectedCreditPrice: price, idempotencyKey: key, parameters, references, ...(priceQuote ? { priceQuote } : {}) };
     create.mutate(data, {
       onSuccess: () => {
+        setQuote(null);
         notify('Генерация запущена. Результат появится ниже'); pending.current = null; setUncertain(null);
         persistState();
         idem.current = { fp, key: crypto.randomUUID() };
@@ -274,6 +307,7 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
         const text = videoErrorText(e);
         if (e instanceof VideoApiError && e.uncertain) { persistState(); setUncertain(text); void qc.invalidateQueries({ queryKey: getListMeduhaGenerationsQueryKey() }); return; }
         pending.current = null; setUncertain(null); setLastError(text);
+        if (estimated) { setQuote(null); idem.current = { fp, key: crypto.randomUUID() }; }
         persistState();
         if (e instanceof VideoApiError && e.status === 409) void qc.invalidateQueries({ queryKey: VIDEO_CATALOG_KEY });
       },
@@ -323,10 +357,13 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
       return <Field key={k} name={k} s={s} schema={schema} required={eff.required.has(k)} locked={forcePromptExpansion && k === 'prompt_extend'} value={values[k]} jsonText={json[k] ?? ''} error={err} onChange={v => setP(k, v)} onJson={t => setJson(j => ({ ...j, [k]: t }))}/>;
     })}</div>
     <div className="ps-submit">
-      <div className="ps-cost" data-testid="text-video-cost">{model.quoteScenario ? <small>Цена после проверки длительности видео</small> : price != null ? <><Zap size={13} fill="currentColor"/><strong>{price}</strong> кредитов<small>фиксированная цена за одну генерацию</small></> : <small>Цена не назначена — запуск недоступен</small>}</div>
+      <div className="ps-cost" data-testid="text-video-cost">{model.quoteScenario ? <small>Цена после проверки длительности видео</small> : price != null ? <><Zap size={13} fill="currentColor"/><strong>{price}</strong> кредитов<small>{estimated ? 'смета по выбранным параметрам · 1 видео' : 'фиксированная цена за одну генерацию'}</small></> : <small>{estimated ? 'Рассчитай цену по параметрам — это не запускает генерацию' : 'Цена не назначена — запуск недоступен'}</small>}</div>
+      {estimated && quote && !activeQuote && !recovering && <p className="ps-err" data-testid="status-video-quote-expired">Смета истекла. Рассчитай цену заново.</p>}
       {uncertain && <div className="ps-alert" data-testid="status-video-uncertain"><RefreshCw size={15}/><span><strong>Неизвестно, принят ли запрос</strong>{uncertain}. Проверь историю ниже. Повтор отправит тот же ключ запроса — кредиты не спишутся дважды. Не меняй настройки, если хочешь повторить именно этот запуск.</span></div>}
       {lastError && <p className="ps-err" data-testid="text-video-error" role="alert">Не запустилось: {lastError}</p>}
-      <button className="m-generate" data-testid="button-video-generate" disabled={!canSubmit} onClick={ask}><Sparkles size={16}/>{create.isPending ? 'Отправляем…' : busyUpload ? 'Ждём загрузку…' : uncertain && keepKey ? 'Повторить с тем же ключом' : 'Создать видео'}</button>
+      {estimated && !activeQuote && !recovering ? <button className="m-generate" data-testid="button-video-quote" disabled={!canQuote} onClick={calculate}><Sparkles size={16}/>{quoteRequest.isPending ? 'Рассчитываем…' : 'Рассчитать стоимость'}</button>
+        : <button className="m-generate" data-testid="button-video-generate" disabled={!canSubmit} onClick={ask}><Sparkles size={16}/>{create.isPending ? 'Отправляем…' : busyUpload ? 'Ждём загрузку…' : uncertain && keepKey ? 'Повторить с тем же ключом' : 'Создать видео'}</button>}
+      {authed && estimated && !catalog.spendingEnabled && <p className="m-cost-note" data-testid="status-video-spending-disabled">Смету можно рассчитать. Запуски и списания выключены.</p>}
       {!authed ? <p className="m-cost-note">Запуск после входа через Telegram</p> : !ready.ok && <p className="m-cost-note">{ready.reason}</p>}
       {touched && invalid && <p className="ps-err" data-testid="text-video-invalid">Проверь поля: {Object.keys(errors).map(k => k.startsWith('conflict:') ? errors[k] : label(k.split('#')[0])).join(', ')}</p>}
     </div>

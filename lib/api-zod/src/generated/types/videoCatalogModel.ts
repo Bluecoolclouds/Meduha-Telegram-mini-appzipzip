@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { VideoCatalogModelOutputSchema } from './videoCatalogModelOutputSchema';
+import type { VideoCatalogModelPricingMode } from './videoCatalogModelPricingMode';
 import type { VideoCatalogModelQuoteScenario } from './videoCatalogModelQuoteScenario';
 import type { VideoCatalogModelSchema } from './videoCatalogModelSchema';
 import type { VideoFileField } from './videoFileField';
@@ -24,6 +25,7 @@ export interface VideoCatalogModel {
   available: boolean;
   /** @nullable */
   quoteScenario?: VideoCatalogModelQuoteScenario;
+  pricingMode?: VideoCatalogModelPricingMode;
   /** @nullable */
   modelId: string | null;
   /** @nullable */

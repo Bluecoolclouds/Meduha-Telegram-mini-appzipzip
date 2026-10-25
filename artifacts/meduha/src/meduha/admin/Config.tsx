@@ -7,6 +7,8 @@ import {
   useListAdminModels, useUpdateAdminChannel, useUpdateAdminModel,
 } from '@workspace/api-client-react';
 import type { AdminChannel, AdminModel, AdminModelInputKind, GenjutsuTariff, HiggsfieldCatalog, HiggsfieldCatalogEntry } from '@workspace/api-client-react';
+import PricingTools from './PricingTools';
+import { videoPolicyProblem } from './videoTariffs';
 import { Confirm, Empty, ErrorBox, Feedback, Modal, PageHead, Panel, Skeleton, Switch, adminQueryRequest, adminRequest, asArray, fmtInt, useFlash } from './ui';
 
 const req = { request: adminRequest };
@@ -125,6 +127,7 @@ function ModelDialog({ model, channels, onClose, onDone }: { model: AdminModel |
   const expectedGenjutsuScenario = genjutsuScenarioByUpstream[d.upstreamId.trim()];
   const selectedChannel = channels.find(channel => channel.id === d.channelId);
   const problems = [
+    videoPolicyProblem(d.upstreamId.trim(), limits),
     !d.channelId && 'Выбери канал.', !d.upstreamId.trim() && 'Укажи идентификатор модели у провайдера.', !d.displayName.trim() && 'Укажи отображаемое имя.',
     !intOk(d.creditPrice, 0) && 'Цена: целое число кредитов от 0.', d.estimatedCost.trim() !== '' && !intOk(d.estimatedCost, 0) && 'Оценка себестоимости: целое число от 0.',
     typeof limits === 'string' && limits,
@@ -151,9 +154,12 @@ function ModelDialog({ model, channels, onClose, onDone }: { model: AdminModel |
         <label className="adm-field"><span>Фиксированная цена, кредиты</span><input type="number" min={0} value={d.creditPrice} onChange={set('creditPrice')} data-testid="input-model-price" /><small>Используется для Genjutsu, только если список тарифов ниже пуст.</small></label>
         <label className="adm-field full"><span>Тарифы Genjutsu по длительности</span><textarea className="mono" value={d.genjutsuPricing} onChange={set('genjutsuPricing')} placeholder={'genjutsu,720p,8=24\nobject-swap,1080p,12=40'} data-testid="input-model-genjutsu-pricing" /><small>По одной строке: сценарий,качество,секунды=кредиты. Длительность — проверенная сервером и округлённая вверх, максимум 30 секунд. Если список пуст, для любой поддержанной комбинации используется указанная выше фиксированная цена. Заполненные тарифы не включают модель или расходование.</small></label>
         <label className="adm-field"><span>Оценка себестоимости</span><input type="number" min={0} step={1} inputMode="numeric" value={d.estimatedCost} onChange={set('estimatedCost')} placeholder="не указана" data-testid="input-model-cost" /><small>Справочное целое значение в единицах провайдера. Не рубли и не доллары, ничего не списывает.</small></label>
-        <label className="adm-field full"><span>Лимиты</span><textarea className="mono" value={d.limits} onChange={set('limits')} placeholder={'concurrencyLimit=2\ndailyCreditLimit=500'} data-testid="input-model-limits" /><small>По одному на строку: ключ=число. Проверяются только concurrencyLimit и dailyCreditLimit. Остальные ключи просто сохраняются как метаданные и не действуют, пока генерация не подключена.</small></label>
+        <label className="adm-field full"><span>Лимиты и параметры цены</span><textarea className="mono" value={d.limits} onChange={set('limits')} placeholder={'concurrencyLimit=2\ndailyCreditLimit=500'} data-testid="input-model-limits" /><small>По одному на строку: ключ=число. concurrencyLimit и dailyCreditLimit ограничивают расход. Для Seedance 2.5 videoCreditsPerUsd задаёт курс кредитов, videoMaxUsd — предел одной сметы в USD. Оба параметра цены заполняются вместе; они не включают списания. Другие ключи остаются метаданными.</small></label>
         <label className="adm-check"><input type="checkbox" checked={d.enabled} onChange={e => setD(v => ({ ...v, enabled: e.target.checked }))} data-testid="checkbox-model-enabled" />Включена в конфигурации</label>
       </div>
+      {d.kind === 'video' && selectedChannel?.adapter === 'higgsfield' && <PricingTools key={d.upstreamId} upstreamId={d.upstreamId.trim()} limits={limits} tariffs={genjutsuPricing} scenario={expectedGenjutsuScenario}
+        onLimits={next => setD(value => ({ ...value, limits: limitsToText(next) }))}
+        onTariffs={next => setD(value => ({ ...value, genjutsuPricing: genjutsuPricingToText(next) }))}/>}
       {touched && problems.length > 0 && <div className="adm-feedback bad" role="alert">{problems.join(' ')}</div>}
       <Feedback error={m.error} />
       <div className="adm-actions" style={{ justifyContent: 'flex-end' }}><button type="button" className="adm-btn" onClick={onClose} disabled={m.isPending}>Отмена</button><button className="adm-btn primary" disabled={m.isPending} data-testid="button-model-save">{m.isPending ? 'Сохраняем…' : m.error ? 'Повторить' : 'Сохранить'}</button></div>

@@ -18,6 +18,11 @@ export interface VideoGenerationInput {
      * @maximum 100000000
      */
   expectedCreditPrice: number;
+  /**
+     * @minLength 1
+     * @maxLength 8192
+     */
+  priceQuote?: string;
   parameters: VideoGenerationInputParameters;
   references: VideoGenerationInputReferences;
 }
