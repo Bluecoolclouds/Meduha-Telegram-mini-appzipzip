@@ -11,11 +11,17 @@ Catalog completeness also depends on checking the family and workflow totals pub
 
 **How to apply:** Read official catalog and model-reference pages server-side for refreshes. Distinguish documented workflows from account-specific availability, compare category totals with links, exclude entries without an exact endpoint ID from model import, and never submit a paid generation to discover models.
 
-For photo and video scenarios, the user designated the `open.higgsfield.ai` Playground pages as the reference. For video coverage, compare the Explore Video catalogue as well as the modes within each model's Playground; a model card alone does not establish support for all its modes. A workflow's catalogue slug is not necessarily its submission endpoint: Product shots, Graphic ads and Marketplace design use Marketing Studio with different official preset IDs.
+For photo and video scenarios, use the `open.higgsfield.ai` Explore catalogue, model API Reference pages and Playground modes as the reference. The user's Grok Imagine and AI Influencer links are examples, not a restriction to those two models: discover the other photo models through Explore too. For video coverage, compare the Explore Video catalogue as well as the modes within each model's Playground; a model card alone does not establish support for all its modes. A workflow's catalogue slug is not necessarily its submission endpoint: Product shots, Graphic ads and Marketplace design use Marketing Studio with different official preset IDs.
 
-**Why:** the official Playground embeds both the input schema and the SDK example, and those workflows share a model endpoint while applying conditional preset/enhancement requirements.
+**Why:** the user explicitly wants coverage beyond the two example links. The official Playground embeds both the input schema and the SDK example, and those workflows share a model endpoint while applying conditional preset/enhancement requirements.
 
-**How to apply:** verify the SDK submission endpoint as well as the input schema; preserve the official workflow preset and conditional reference limits instead of submitting the catalogue slug or silently reducing a workflow to a bare model request.
+**How to apply:** verify the SDK submission endpoint as well as the input schema; preserve the official workflow preset and conditional reference limits instead of submitting the catalogue slug or silently reducing a workflow to a bare model request. The user's Seedance and Kling video links are examples too, not a restriction of video coverage.
+
+Do not present a single-model alternative as a complete composite workflow. In particular, a generic video-edit endpoint is not Katana, and a text-to-video request is not batch content production or automatic publication.
+
+**Why:** model availability does not implement Meduha's multi-step orchestration. When only separate steps are connected, calling the whole workflow connected would promise behavior that does not exist.
+
+**How to apply:** label individual generation stages and alternatives explicitly; keep the full workflow's limitations visible until its orchestration is actually implemented.
 
 Documentation links can switch between relative paths and same-origin absolute URLs without any change in model availability. Empty discovery after a documentation layout change is not evidence that models disappeared.
 

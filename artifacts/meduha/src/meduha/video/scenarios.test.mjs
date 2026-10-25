@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import { searchVideoScenarios, scenarioProvider, videoScenarioProviders, videoScenarioProviderLabel, videoScenarios, scenarioDraftHref } from './scenarios.ts';
 import { formatScenarioPrice, scenarioCreditPrice } from './prices.ts';
+import { isDirectVideoScenario, videoScenarioGenerationHref, videoScenarioModel, videoScenarioParameters, videoScenarioNotice } from './scenarioGeneration.ts';
+
+const catalogue = JSON.parse(readFileSync(new URL('../../../../api-server/src/lib/video-catalog.json', import.meta.url), 'utf8'));
 
 test('catalog prices match exact upstream endpoints and use the lowest configured price', () => {
   const scenario = videoScenarios.find(s => s.id === 'text-to-video');
@@ -72,4 +76,66 @@ test('scenario navigation safely preserves brief and identifies selected scenari
   assert.equal(url.searchParams.get('scenario'), scenario.id);
   assert.equal(url.searchParams.get('preset'), scenario.title);
   assert.match(url.searchParams.get('prompt'), /Мой товар & блог #1/);
+});
+
+test('direct video scenarios open actual documented generators, not draft-only workspaces', () => {
+  for (const scenario of videoScenarios.filter(item => isDirectVideoScenario(item.id))) {
+    const url = new URL(scenarioDraftHref(scenario, 'Мой ролик & сцена #1'), 'https://example.com');
+    assert.equal(url.searchParams.get('editor'), null);
+    assert.equal(url.searchParams.get('videoIdea'), scenario.id);
+    assert.equal(url.searchParams.get('videoModel'), videoScenarioModel(scenario.id));
+    assert.match(url.searchParams.get('ideaPrompt'), /Мой ролик & сцена #1/);
+    assert.ok(catalogue.models.some(model => model.id === url.searchParams.get('videoModel')));
+  }
+});
+
+test('scenario context survives all documented video modes without changing parameter schemas', () => {
+  const scenario = videoScenarios.find(item => item.id === 'image-to-video');
+  assert.equal(catalogue.models.length, 75);
+  assert.equal(new Set(catalogue.families.flatMap(group => group.modes)).size, 75);
+  assert.equal(catalogue.families.flatMap(group => group.modes).length, 75);
+  for (const model of catalogue.models) {
+    const context = { prompt: 'My custom motion & camera', ratio: '16:9', duration: '5 сек', draftId: 'draft-123' };
+    const url = new URL(videoScenarioGenerationHref(scenario, context, model.id), 'https://example.com');
+    assert.equal(url.searchParams.get('videoModel'), model.id);
+    assert.equal(url.searchParams.get('videoIdea'), scenario.id);
+    assert.equal(url.searchParams.get('ideaPrompt'), context.prompt);
+    assert.equal(url.searchParams.get('videoDraft'), 'draft-123');
+    const seed = videoScenarioParameters({ scenario, ...context }, model.schema);
+    assert.equal(seed.parameters.prompt, context.prompt);
+    for (const key of Object.keys(seed.parameters)) assert.ok(key in model.schema.properties);
+  }
+});
+
+test('unsupported duration and ratio are reported, not silently rounded or forced into an API payload', () => {
+  const scenario = videoScenarios.find(item => item.id === 'cinema');
+  const model = catalogue.models.find(item => item.id === videoScenarioModel(scenario.id));
+  const result = videoScenarioParameters({ scenario, prompt: scenario.prompt, duration: '99 сек', ratio: 'wrong' }, model.schema);
+  assert.deepEqual(result.parameters, { prompt: scenario.prompt });
+  assert.deepEqual(result.ignored, ['Формат кадра', 'Длительность']);
+  const valid = videoScenarioParameters({ scenario, prompt: scenario.prompt, duration: '5 сек', ratio: '16:9' }, model.schema);
+  assert.equal(valid.parameters.duration, 5);
+  assert.equal(valid.parameters.aspect_ratio, '16:9');
+});
+
+test('composite scenarios label individual stages and do not pretend Katana has a public endpoint', () => {
+  for (const id of ['katana', 'ai-blogger', 'content-factory']) {
+    const scenario = videoScenarios.find(item => item.id === id);
+    assert.equal(isDirectVideoScenario(id), false);
+    assert.ok(catalogue.models.some(model => model.id === videoScenarioModel(id)));
+    assert.equal(new URL(scenarioDraftHref(scenario), 'https://example.com').searchParams.get('scenario'), id);
+    assert.match(videoScenarioNotice(id), /не|Не/);
+  }
+  assert.equal(videoScenarioModel('genjutsu'), null, 'the existing priced editor must not be replaced');
+  assert.equal(videoScenarioModel('object-swap'), null);
+  assert.equal(videoScenarioModel('restyle'), null);
+});
+
+test('all Seedance 2.5 modes expose the officially documented output format', () => {
+  const modes = catalogue.models.filter(model => model.id.startsWith('bytedance/seedance-2.5/'));
+  assert.equal(modes.length, 5);
+  for (const model of modes) {
+    assert.deepEqual(model.schema.properties.output_format.enum, ['mp4', 'mov']);
+    assert.equal(model.schema.properties.output_format.default, 'mp4');
+  }
 });

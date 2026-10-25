@@ -47,7 +47,26 @@ export function searchPhotoIdeas(query: string): PhotoIdea[] {
   }).filter(row => row.score > 0).sort((a, b) => b.score - a.score || a.index - b.index).map(row => row.idea);
 }
 
-export function photoIdeaHref(idea: PhotoIdea): string {
-  const query = new URLSearchParams({ type: 'photo', editor: '1', preset: idea.title, prompt: idea.prompt });
+const categoryModels: Record<PhotoCategory, string> = {
+  portrait: 'higgsfield-ai/soul/v2/standard',
+  editorial: 'higgsfield-ai/soul/v2/standard',
+  product: 'marketing-studio/image',
+  cinema: 'xai/grok-imagine-image-2.0',
+  fantasy: 'xai/grok-imagine-image-2.0',
+  travel: 'xai/grok-imagine-image-2.0',
+  social: 'recraft/v4.1/text-to-image',
+};
+
+export const photoIdeaModel = (idea: PhotoIdea): string => categoryModels[idea.category];
+
+/** Use the actual model's input field; AI Influencer accepts a brief, not a prompt. */
+export function photoIdeaParameters(idea: PhotoIdea, schema: { properties?: Record<string, unknown> }): Record<string, unknown> {
+  if (schema.properties?.prompt) return { prompt: idea.prompt };
+  if (schema.properties?.brief) return { brief: idea.prompt };
+  return {};
+}
+
+export function photoIdeaHref(idea: PhotoIdea, modelId = photoIdeaModel(idea)): string {
+  const query = new URLSearchParams({ type: 'photo', photoModel: modelId, photoIdea: idea.id });
   return `/create?${query.toString()}`;
 }

@@ -73,7 +73,7 @@ function PhotoIdeaSheet({ idea, onClose, onContinue }: { idea: PhotoIdea; onClos
     <p className="vs-sub">{idea.subtitle}</p>
     <h3 className="vs-h"><Check size={15}/>Текст идеи</h3>
     <p className="photo-prompt-preview">{idea.prompt}</p>
-    <div className="vs-disclose"><strong>Это шаблон идеи, не готовый результат.</strong> Генерация фото пока не подключена. Описание можно изменить в редакторе и сохранить как черновик.</div>
-    <button data-testid={`button-use-photo-idea-${idea.id}`} className="m-generate" onClick={onContinue}>Открыть редактор<ArrowRight size={16}/></button>
+    <div className="vs-disclose"><strong>Это сценарий, не готовый результат.</strong> Откроется студия генерации с этим описанием. Можно выбрать модель и добавить фото-референсы. Запуск доступен только после входа и включения модели администратором; цена показывается до отправки.</div>
+    <button data-testid={`button-use-photo-idea-${idea.id}`} className="m-generate" onClick={onContinue}>Настроить генерацию<ArrowRight size={16}/></button>
   </Sheet>;
 }

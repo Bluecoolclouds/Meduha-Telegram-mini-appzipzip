@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, FileImage, Film, ImagePlus, Save, X } from 'lucide-react';
-import { Link, useSearch } from 'wouter';
+import { Link, useLocation, useSearch } from 'wouter';
 import { Frame, useToast } from '../shared';
 import { loadDrafts, packContentPlanPrompt, saveDrafts, unpackContentPlanPrompt, useDraftList, type ContentPlanSettings, type Draft } from '../studio';
 import { useMeduhaSession } from '../session';
@@ -10,21 +10,23 @@ import SeedanceGenerationPanel from './SeedanceGenerationPanel';
 import ExamplePreview from './genjutsu/ExamplePreview';
 import './genjutsu/genjutsu.css';
 import './scenario-workspace.css';
+import { isDirectVideoScenario, videoScenarioGenerationHref, videoScenarioModel, videoScenarioNotice } from './scenarioGeneration';
+import { VideoModelPage } from './VideoStudio';
 
 type ScenarioGuide = { requirements: string; explanation: string };
 const examples = new Set(['ai-blogger', 'text-to-video', 'cinema']);
 const publicGuides: Record<string, ScenarioGuide> = {
   'ai-blogger': {
     requirements: 'Опиши внешность и характер персонажа. Фото лица необязательно — используй его только с разрешением. Для видео потребуется отдельный этап.',
-    explanation: 'Можно подготовить описание персонажа и сохранить идею. Создание изображения или видео пока не подключено.',
+    explanation: 'Изображение персонажа и ролик создаются отдельными шагами в студиях ниже. Автоматическая цепочка не запускается.',
   },
   katana: {
     requirements: 'Одно видео-референс с разрешением на использование и до пяти фото героев или предметов.',
-    explanation: 'Здесь можно подготовить бриф монтажа. Запуск сценария пока не подключён.',
+    explanation: 'Публичный REST endpoint Катаны в каталоге не найден. Ниже доступна альтернативная обработка исходного видео выбранной моделью, а не автоматическое повторение монтажа.',
   },
   'content-factory': {
     requirements: 'Укажи продукт, аудиторию, площадку, количество идей и формат публикаций.',
-    explanation: 'Можно подготовить контент-план. Пакетное создание материалов и автопубликация пока не подключены.',
+    explanation: 'Можно подготовить контент-план и отдельно создать один ролик по брифу. Пакетное создание материалов и автопубликация пока не подключены.',
   },
   'text-to-video': {
     requirements: 'Текстовое описание сцены. Длительность — от 4 до 30 секунд.',
@@ -32,15 +34,21 @@ const publicGuides: Record<string, ScenarioGuide> = {
   },
   'image-to-video': {
     requirements: 'Исходное изображение и описание движения в кадре.',
-    explanation: 'Можно подготовить идею по исходному кадру. Создание видео пока не подключено.',
+    explanation: 'Открой студию генерации по этому черновику. Исходное фото нужно загрузить в поле выбранной видеомодели.',
   },
   cinema: {
     requirements: 'Описание сцены. Фото-референсы и дополнительные настройки — по желанию.',
-    explanation: 'Можно подготовить описание сцены и сохранить идею. Создание видео пока не подключено.',
+    explanation: 'Открой студию генерации по этому черновику: там доступны параметры камеры, света и сцены выбранной модели.',
   },
 };
 
-export default function ScenarioWorkspace({ scenario, draftId }: { scenario: VideoScenario; draftId: string }) {
+export default function ScenarioWorkspace(props: { scenario: VideoScenario; draftId: string }) {
+  if (isDirectVideoScenario(props.scenario.id) && !props.draftId) return <VideoModelPage catalogId={videoScenarioModel(props.scenario.id)!} scenarioId={props.scenario.id}/>;
+  return <DraftScenarioWorkspace {...props}/>;
+}
+
+function DraftScenarioWorkspace({ scenario, draftId }: { scenario: VideoScenario; draftId: string }) {
+  const [, navigate] = useLocation();
   const meduha = useMeduhaSession();
   const localDrafts = useDraftList();
   const rows = meduha.phase === 'authenticated' ? (meduha.bootstrap?.drafts ?? []) : localDrafts;
@@ -140,6 +148,13 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
   };
 
   const textToVideo = scenario.id === 'text-to-video';
+  const openGeneration = () => {
+    if (files.length && !window.confirm('Выбранные файлы брифа ещё не загружены. После перехода их нужно будет заново добавить в студии генерации. Продолжить?')) return;
+    const generationPrompt = scenario.id === 'content-factory'
+      ? `${prompt.trim()}\n\nКонтекст контент-плана: ${JSON.stringify(plan)}\nСоздать один ролик по этому брифу, не серию публикаций.`
+      : prompt.trim();
+    navigate(videoScenarioGenerationHref(scenario, { prompt: generationPrompt, ratio, duration, draftId: currentDraftId || undefined }));
+  };
   const promptLabel = scenario.id === 'katana' ? 'Как должен выглядеть монтаж?'
     : scenario.id === 'content-factory' ? 'Что будем продвигать?'
       : scenario.id === 'ai-blogger' ? 'Опиши персонажа'
@@ -236,11 +251,17 @@ export default function ScenarioWorkspace({ scenario, draftId }: { scenario: Vid
           <p>{guide.requirements} {spec ? uploadHint : ''}</p>
         </details>
 
+        {videoScenarioModel(scenario.id) && <div className="gj-scenario-unavailable" data-testid="panel-scenario-generation">
+          <strong>{isDirectVideoScenario(scenario.id) ? 'Генерация по этому черновику' : 'Отдельный этап генерации'}</strong>
+          <span>{videoScenarioNotice(scenario.id)} Файлы брифа не отправляются автоматически — добавь исходники в студии. Цена и доступность будут показаны до запуска.</span>
+          {scenario.id === 'ai-blogger' && <Link className="gj-scenario-save" href="/create?type=photo&photoModel=higgsfield%2Fai-influencer" data-testid="link-blogger-character">Сначала создать изображение персонажа</Link>}
+          <button type="button" className="gj-scenario-save" data-testid="button-scenario-generation" onClick={openGeneration}>{scenario.id === 'content-factory' ? 'Создать один ролик по плану' : scenario.id === 'katana' ? 'Альтернатива: обработка видео через API' : 'Открыть студию генерации'}</button>
+        </div>}
         {textToVideo
           ? <SeedanceGenerationPanel authenticated={meduha.phase === 'authenticated'} userId={meduha.account?.id} prompt={prompt.trim()} duration={duration} ratio={ratio}
               balance={meduha.bootstrap?.account.credits ?? meduha.account?.credits} refreshBootstrap={meduha.refreshBootstrap} notify={notify}/>
           : <div className="gj-scenario-unavailable" role="status" data-testid={`status-generation-${scenario.id}`}>
-              <strong><span className="gj-status-dot"/>Запуск из Meduha пока не подключён</strong>
+              <strong><span className="gj-status-dot"/>{videoScenarioModel(scenario.id) ? 'Сохранение брифа не запускает генерацию' : 'Запуск из Meduha пока не подключён'}</strong>
               <span>{missingRequiredMedia ? 'Для этого сценария нужны исходные материалы. ' : ''}{guide.explanation} Сохранение идеи не запускает генерацию и не списывает кредиты.</span>
             </div>}
 

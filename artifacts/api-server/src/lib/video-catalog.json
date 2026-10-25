@@ -389,6 +389,11 @@
             "type": "string",
             "format": "uri"
           },
+          "output_format": {
+            "enum": ["mp4", "mov"],
+            "type": "string",
+            "default": "mp4"
+          },
           "generate_audio": {
             "type": "boolean",
             "default": true
@@ -495,6 +500,11 @@
             "type": "string",
             "default": "high"
           },
+          "output_format": {
+            "enum": ["mp4", "mov"],
+            "type": "string",
+            "default": "mp4"
+          },
           "generate_audio": {
             "type": "boolean",
             "default": true
@@ -572,6 +582,11 @@
             ],
             "type": "string",
             "default": "high"
+          },
+          "output_format": {
+            "enum": ["mp4", "mov"],
+            "type": "string",
+            "default": "mp4"
           },
           "generate_audio": {
             "type": "boolean",
@@ -656,6 +671,11 @@
             ],
             "type": "string",
             "default": "high"
+          },
+          "output_format": {
+            "enum": ["mp4", "mov"],
+            "type": "string",
+            "default": "mp4"
           },
           "generate_audio": {
             "type": "boolean",

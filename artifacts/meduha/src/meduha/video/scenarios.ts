@@ -1,3 +1,5 @@
+import { isDirectVideoScenario, videoScenarioGenerationHref } from './scenarioGeneration.ts';
+
 export type VideoScenario = {
   id: string;
   title: string;
@@ -22,7 +24,7 @@ export const videoScenarios: VideoScenario[] = [
     providerLabel: 'Сценарий персонажа', endpoint: 'higgsfield/ai-influencer',
     source: 'https://open.higgsfield.ai/models/higgsfield/ai-influencer/api-reference',
     requirements: 'Описание персонажа; при необходимости — фото с разрешением на использование лица. Для анимации нужен отдельный видеореференс.',
-    explanation: 'AI Influencer создаёт изображение-лист персонажа, а не готовое видео. Движение добавляется отдельным шагом через Genjutsu. API описан; этот процесс в Meduha ещё не подключён.',
+    explanation: 'Создание персонажа и ролика доступны отдельными шагами. Модель персонажа создаёт изображение-лист, а не готовое видео; для ролика нужно добавить готовое фото в видеостудии. Автоматическая цепочка не запускается.',
     prompt: 'Персонаж для ИИ-блога: внешность, характер, одежда и тема канала. Идея первого ролика:',
     keywords: ['блогер', 'блог', 'инфлюенсер', 'influencer', 'персонаж', 'аватар', 'ведущий', 'лицо', 'ugc', 'двойник', 'человек'],
   },
@@ -40,7 +42,7 @@ export const videoScenarios: VideoScenario[] = [
     image: 'perfume', category: 'business', availability: 'workflow', providerLabel: 'Составной сценарий',
     source: 'https://higgsfield.ai/higgsfield-api',
     requirements: 'Описание продукта, аудитория, площадка, количество идей и нужные форматы.',
-    explanation: 'Это цепочка: идеи → сценарии → персонаж или товар → ролики. Пакетная генерация и автопубликация в Meduha не подключены.',
+    explanation: 'Это цепочка: идеи → сценарии → персонаж или товар → ролики. По брифу можно отдельно открыть создание одного ролика. Пакетная генерация и автопубликация не подключены.',
     prompt: 'Контент-план: продукт, аудитория, площадка, ключевое сообщение. Подготовить серию идей для коротких роликов:',
     keywords: ['контент', 'завод', 'фабрика', 'серия', 'массово', 'пакет', 'реклама', 'продажи', 'маркетинг', 'товар', 'бизнес', 'публикации', 'reels', 'рилс', 'shorts', 'tiktok'],
   },
@@ -58,9 +60,9 @@ export const videoScenarios: VideoScenario[] = [
     id: 'text-to-video', title: 'Видео из текста', subtitle: 'Опиши сцену — создай видео',
     image: 'mountain', category: 'creation', availability: 'documented',
     providerLabel: 'Seedance 2.5', endpoint: 'bytedance/seedance-2.5/text-to-video',
-    source: 'https://console.higgsfield.ai/models/bytedance/seedance-2.5/text-to-video/api-reference',
+    source: 'https://open.higgsfield.ai/models/bytedance/seedance-2.5/text-to-video/api-reference',
     requirements: 'Текстовое описание. API поддерживает 4–30 секунд, 480p, 720p и 1080p.',
-    explanation: 'Видео из текста запускается через подключённую панель Seedance 2.5. Доступный тариф и состояние модели видны в панели до запуска.',
+    explanation: 'Открывает студию генерации с описанием сцены и выбором видеомодели. Доступность, настройки и цена проверяются до запуска.',
     prompt: 'Кинематографичная сцена: место, герой, действие, свет и движение камеры.',
     keywords: ['текст', 'описание', 'промпт', 'prompt', 'seedance', 'сгенерировать', 'создать', 'закат', 'сцена'],
   },
@@ -70,7 +72,7 @@ export const videoScenarios: VideoScenario[] = [
     providerLabel: 'Seedance 2.5 · Image to Video', endpoint: 'bytedance/seedance-2.5/image-to-video',
     source: 'https://open.higgsfield.ai/models/bytedance/seedance-2.5/image-to-video/api-reference',
     requirements: 'Начальное изображение и описание движения. Конечное изображение — необязательный параметр API.',
-    explanation: 'Документирован отдельный image-to-video API. Проба text-to-video не проверяет этот endpoint. В Meduha пока доступна подготовка идеи, не генерация.',
+    explanation: 'Открывает отдельный режим генерации видео по исходному изображению. Загрузи фото и опиши движение в студии; обязательные исходники зависят от выбранной модели.',
     prompt: 'Оживить исходное фото: что двигается в кадре, как движется камера, какое настроение сохранить.',
     keywords: ['оживить', 'фото', 'изображение', 'картинка', 'кадр', 'image', 'анимировать', 'photo'],
   },
@@ -100,7 +102,7 @@ export const videoScenarios: VideoScenario[] = [
     providerLabel: 'Cinema Studio 4.0', endpoint: 'higgsfield/cinema-studio/4.0',
     source: 'https://docs.higgsfield.ai/docs/models/cinema-studio-4/generate',
     requirements: 'Описание сцены. Референсы и параметры режиссуры — необязательные настройки API.',
-    explanation: 'Документирован API создания нового видео с управлением эпохой, жанром, светом и темпом. Это не endpoint монтажа готового фильма. В Meduha пока можно подготовить бриф.',
+    explanation: 'Открывает студию генерации новой киносцены с управлением эпохой, жанром, светом и темпом. Это создание нового видео, не монтаж готового фильма.',
     prompt: 'Киносцена: жанр, эпоха, герой, действие, освещение, темп и движение камеры.',
     keywords: ['кино', 'фильм', 'cinema', 'режиссёр', 'режиссер', 'камера', 'свет', 'нуар', 'трейлер', 'кинематографичный'],
   },
@@ -140,6 +142,7 @@ export function searchVideoScenarios(query: string): VideoScenario[] {
 
 export function scenarioDraftHref(scenario: VideoScenario, idea = ''): string {
   const prompt = `${scenario.prompt}${idea.trim() ? `\n\nМоя задача: ${idea.trim().slice(0, 1500)}` : ''}`;
+  if (isDirectVideoScenario(scenario.id)) return videoScenarioGenerationHref(scenario, { prompt });
   const query = new URLSearchParams({ type: 'video', editor: '1', preset: scenario.title, scenario: scenario.id, prompt });
   return `/create?${query.toString()}`;
 }

@@ -19,6 +19,7 @@ import RecipeBanner from '../templates/recipe/RecipeBanner';
 import SaveAsTemplate from '../templates/recipe/SaveAsTemplate';
 import { fieldOfPointer, pointerOf, type RecipeView } from '../templates/recipe/model';
 import { familyOf, familyPrice, filterFamilies, groupFamilies, modeKind, modeLabelIn, photoModelHref, type Group } from './families';
+import { photoIdeas, photoIdeaHref, photoIdeaParameters, type PhotoIdea } from './ideas';
 
 const read = { credentials: 'same-origin' as const };
 const mutateReq = { credentials: 'same-origin' as const, headers: { 'X-Meduha-Request': '1' } };
@@ -128,18 +129,21 @@ export function PhotoModelPage({ catalogId }: { catalogId: string }) {
   const authed = session.phase === 'authenticated';
   const catalog = useGetPhotoCatalog({ request: read });
   const source = useRecipeSource();
+  const ideaId = new URLSearchParams(useSearch()).get('photoIdea');
+  const idea = source.active ? undefined : photoIdeas.find(item => item.id === ideaId);
   const [selected, setSelected] = useState(catalogId);
   const model = catalog.data?.models.find(m => m.id === selected);
   const siblings = catalog.data ? familyOf(catalogId).modes.map(x => catalog.data!.models.find(m => m.id === x.id)).filter((m): m is PhotoCatalogModel => !!m) : [];
-  const pick = (id: string) => { setSelected(id); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}${photoModelHref(id)}${source.carry}`); };
+  const pick = (id: string) => { setSelected(id); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}${idea ? photoIdeaHref(idea, id) : `${photoModelHref(id)}${source.carry}`}`); };
   if (catalog.isLoading || (source.active && source.phase === 'loading')) return <Frame active="Create"><div className="ps-page"><div className="ps-card ps-skel" style={{ height: 120 }}/><div className="ps-card ps-skel" style={{ height: 260, marginTop: 12 }}/></div></Frame>;
+  if (ideaId && !idea && !source.active) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><strong>Фото-сценарий не найден</strong><p>Выбери сценарий из актуальной подборки.</p><Link className="ps-btn" href="/create?type=photo&ideas=1">К фотоидеям</Link></div></div></Frame>;
   if (catalog.isError || !model) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><img src={mood('curious')} alt=""/><strong>{catalog.isError ? 'Каталог не загрузился' : 'Модель не найдена'}</strong><p>{catalog.isError ? meduhaErrorMessage(catalog.error) : 'Возможно, она убрана из каталога.'}</p>{catalog.isError && <button className="ps-btn" onClick={() => catalog.refetch()}><RefreshCw size={14}/>Повторить</button>}<Link className="ps-btn" href="/create?type=photo">К каталогу</Link></div></div></Frame>;
   const recipeView = source.view && source.view.recipe.kind === 'photo' && source.view.recipe.catalogId === model.id ? source.view : null;
-  const suffix = source.storeSuffix ?? (recipeView ? 'preview' : null);
-  return <ModelForm key={`${model.id}:${suffix ?? ''}`} suffix={suffix} source={source} recipeView={recipeView} model={model} catalog={catalog.data!} authed={authed} navigate={navigate} siblings={siblings} onPick={pick}/>;
+  const suffix = source.storeSuffix ?? (recipeView ? 'preview' : idea ? `idea.${idea.id}` : null);
+  return <ModelForm key={`${model.id}:${suffix ?? ''}`} idea={idea} suffix={suffix} source={source} recipeView={recipeView} model={model} catalog={catalog.data!} authed={authed} navigate={navigate} siblings={siblings} onPick={pick}/>;
 }
 
-function ModelForm({ suffix, source, recipeView, model, catalog, authed, navigate, siblings, onPick }: { suffix: string | null; source: RecipeSource; recipeView: RecipeView | null; model: PhotoCatalogModel; catalog: PhotoCatalog; authed: boolean; navigate: (to: string) => void; siblings: PhotoCatalogModel[]; onPick: (id: string) => void }) {
+function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, navigate, siblings, onPick }: { idea?: PhotoIdea; suffix: string | null; source: RecipeSource; recipeView: RecipeView | null; model: PhotoCatalogModel; catalog: PhotoCatalog; authed: boolean; navigate: (to: string) => void; siblings: PhotoCatalogModel[]; onPick: (id: string) => void }) {
   const fam = familyOf(model.id);
   const schema = model.schema as Schema;
   const qc = useQueryClient();
@@ -147,7 +151,7 @@ function ModelForm({ suffix, source, recipeView, model, catalog, authed, navigat
   const storeId = suffix ? `${model.id}.${suffix}` : model.id;
   const stored = useMemo(() => (suffix === 'preview' ? null : loadStored(storeId)) ?? (recipeView ? hydratePhoto(recipeView, schema) : null), [storeId]); // eslint-disable-line react-hooks/exhaustive-deps
   const lockedDefaults = useMemo(() => { const d = defaults(schema); const out: Record<string, unknown> = {}; if (model.workflow) { for (const k of LOCKED_WORKFLOW) if (schema.properties?.[k]) out[k] = k === 'enhance_prompt' ? true : k === 'quality' ? 'high' : d[k]; } if (model.id === 'higgsfield-ai/soul/v2/image-to-image' && schema.properties?.enhance_prompt) out.enhance_prompt = true; return out; }, [schema, model.workflow, model.id]);
-  const [params, setParams] = useState<Record<string, unknown>>(() => ({ ...defaults(schema), ...(stored?.params || {}), ...lockedDefaults }));
+  const [params, setParams] = useState<Record<string, unknown>>(() => ({ ...defaults(schema), ...(idea ? photoIdeaParameters(idea, schema) : {}), ...(stored?.params || {}), ...lockedDefaults }));
   const [json, setJson] = useState<Record<string, string>>(() => stored?.json || {});
   const [refs, setRefs] = useState<Record<string, Ref[]>>(() => stored?.refs || {});
   const [uploading, setUploading] = useState<Record<string, number>>({});
@@ -227,9 +231,13 @@ function ModelForm({ suffix, source, recipeView, model, catalog, authed, navigat
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-photo-model-${model.id}`}>
     <a className="ps-back" href="/create?type=photo" onClick={go(navigate, '/create?type=photo')} data-testid="link-photo-catalogue"><ArrowLeft size={13}/>Все фотомодели</a>
     <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(photoModelArt(model))} alt=""/></span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{userSafeName(fam.title ?? displayName(model))}<span>.</span></h1><p>{userSafeName(blurb(model))}</p></div></div>
+    {idea && <>
+      <div className="ps-note" data-testid="status-photo-idea"><strong>{idea.title}</strong><p>Описание можно изменить. У каждой модели — отдельный черновик этого сценария: настройки и загруженные референсы сохраняются на этом устройстве и восстанавливаются при возвращении к модели.</p><Link href="/create?type=photo&ideas=1">Выбрать другой сценарий</Link></div>
+      <label className="ps-field"><span>Модель для этого сценария</span><select data-testid="select-photo-idea-model" value={model.id} onChange={event => onPick(event.target.value)}>{catalog.models.map(option => <option key={option.id} value={option.id}>{displayName(option)}</option>)}</select></label>
+    </>}
     {siblings.length > 1 && <div className="ps-modes" role="group" aria-label="Режим модели" data-testid="group-photo-modes">{siblings.map(m => { const on = m.id === model.id; return <button key={m.id} type="button" aria-pressed={on} className={on ? 'on' : ''} data-testid={`button-photo-mode-${m.id}`} onClick={() => { if (!on) onPick(m.id); }}>{modeLabelIn(m.id) || displayName(m)}</button>; })}</div>}
     {!authed && <div className="ps-alert" data-testid="status-login-required"><Lock size={15}/><span><strong>Нужен вход через Telegram</strong>Открой студию из Telegram, чтобы загружать фото и запускать генерацию. Настройки можно смотреть и менять уже сейчас.</span></div>}
-    {authed && !ready.ok && <div className="ps-alert muted" data-testid="status-model-unavailable"><Lock size={15}/><span><strong>Запуск пока недоступен</strong>{ready.reason}. Настройки сохраняются на этом устройстве.</span></div>}
+    {(authed || idea) && !ready.ok && <div className="ps-alert muted" data-testid="status-model-unavailable"><Lock size={15}/><span><strong>Запуск пока недоступен</strong>{ready.reason}. Настройки сохраняются на этом устройстве.</span></div>}
     <RecipeBanner source={source} mismatch={!!source.view && !recipeView}/>
     {model.workflow && schema.properties?.preset_id && <div className="ps-note">Сценарий использует официальный пресет и улучшение описания с высоким качеством — эти параметры зафиксированы.</div>}
     <div className="ps-form">{fields.map(k => <Field key={k} name={k} s={eff.props[k]} schema={schema} required={eff.required.has(k)} locked={k in lockedDefaults} value={values[k]} jsonText={json[k] ?? ''} error={touched || values[k] !== undefined || refs[k]?.length ? errors[k] : undefined} refs={refs[k] || []} uploading={uploading[k] || 0} authed={authed}

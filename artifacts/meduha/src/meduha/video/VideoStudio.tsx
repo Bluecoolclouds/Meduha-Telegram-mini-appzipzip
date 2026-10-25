@@ -14,6 +14,8 @@ import { useRecipeSource, type RecipeSource } from '../templates/recipe/useRecip
 import RecipeBanner from '../templates/recipe/RecipeBanner';
 import SaveAsTemplate from '../templates/recipe/SaveAsTemplate';
 import { hydrateVideo } from './recipeHydrate';
+import { videoScenarios } from './scenarios';
+import { videoScenarioGenerationHref, videoScenarioModel, videoScenarioNotice, videoScenarioParameters, type VideoScenarioContext } from './scenarioGeneration';
 import './video.css';
 import './catalogue.css';
 import '../photo/photo-studio.css';
@@ -105,12 +107,21 @@ export function VideoCatalogue() {
   </div></Frame>;
 }
 
-export function VideoModelPage({ catalogId }: { catalogId: string }) {
+export function VideoModelPage({ catalogId, scenarioId }: { catalogId: string; scenarioId?: string }) {
   const session = useMeduhaSession();
   const catalog = useVideoCatalog();
   const source = useRecipeSource();
+  const query = new URLSearchParams(useSearch());
+  const ideaId = query.get('videoIdea') ?? scenarioId;
+  const scenario = source.active ? undefined : videoScenarios.find(item => item.id === ideaId && videoScenarioModel(item.id));
+  const context: VideoScenarioContext | undefined = scenario ? {
+    scenario, prompt: query.get('ideaPrompt') ?? query.get('prompt') ?? scenario.prompt,
+    ratio: query.get('ideaRatio') ?? undefined, duration: query.get('ideaDuration') ?? undefined,
+    draftId: query.get('videoDraft')?.slice(0, 128) ?? undefined,
+  } : undefined;
   const model = catalog.data?.models.find(m => m.id === catalogId);
   if (catalog.isLoading) return <Frame active="Create"><div className="ps-page"><div className="ps-card vst-skel" style={{ height: 120 }}/><div className="ps-card vst-skel" style={{ height: 300, marginTop: 12 }}/></div></Frame>;
+  if (ideaId && !scenario && !source.active) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><strong>Видео-сценарий не найден</strong><Link className="ps-btn" href="/create?type=video&ideas=1">К видеосценариям</Link></div></div></Frame>;
   if (catalog.isError || !model) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><img src={mood('curious')} alt=""/><strong>{catalog.isError ? 'Каталог не загрузился' : 'Модель не найдена'}</strong><p>{catalog.isError ? videoErrorText(catalog.error) : 'Возможно, она убрана из каталога.'}</p>{catalog.isError && <button className="ps-btn" data-testid="button-video-model-retry" onClick={() => catalog.refetch()}><RefreshCw size={14}/>Повторить</button>}<Link className="ps-btn" href="/create?type=video" data-testid="link-video-catalogue-missing">К каталогу</Link></div></div></Frame>;
   const family = catalog.data!.families.find(f => f.id === model.familyId) ?? catalog.data!.families.find(f => f.modes.includes(model.id)) ?? { id: model.id, name: userSafeModelText(model.name), description: '', source: model.source, modes: [model.id] };
   const siblings = family.modes.map(id => catalog.data!.models.find(m => m.id === id)).filter((m): m is VideoModel => !!m);
@@ -118,8 +129,8 @@ export function VideoModelPage({ catalogId }: { catalogId: string }) {
   if (!scope || (source.active && source.phase === 'loading')) return <Frame active="Create"><div className="ps-page"><RecipeBanner source={source}/><div className="ps-card vst-skel" style={{ height: 300 }}/></div></Frame>;
   const recipeView = source.view && source.view.recipe.kind === 'video' && source.view.recipe.catalogId === model.id ? source.view : null;
   // Recipe edits are scoped to account + repeat id; guest previews of a public source are never persisted under the account scope.
-  const formScope = source.storeSuffix ? `${scope}.${source.storeSuffix}` : recipeView ? `preview.${source.templateId ?? 'x'}` : scope;
-  return <ModelForm key={`${formScope}:${model.id}:${recipeView?.id ?? ''}`} scope={formScope} source={source} recipeView={recipeView} model={model} family={family} siblings={siblings} catalog={catalog.data!} authed={session.phase === 'authenticated'}/>;
+  const formScope = source.storeSuffix ? `${scope}.${source.storeSuffix}` : recipeView ? `preview.${source.templateId ?? 'x'}` : context ? `${scope}.scenario.${context.scenario.id}.${context.draftId ?? 'new'}` : scope;
+  return <ModelForm key={`${formScope}:${model.id}:${recipeView?.id ?? ''}`} context={context} scope={formScope} source={source} recipeView={recipeView} model={model} family={family} siblings={siblings} catalog={catalog.data!} authed={session.phase === 'authenticated'}/>;
 }
 
 type Stored = { params: Record<string, unknown>; json: Record<string, string>; refs: Record<string, Ref[]>; items: Record<string, string[]>; pending?: { fp: string; key: string } };
@@ -130,7 +141,7 @@ const labels: Record<string, string> = { prompt: 'Описание', negative_pr
 const label = (k: string, s?: Schema) => labels[k] || s?.title || k;
 const fieldOrder = (k: string) => k === 'prompt' ? 0 : /url/.test(k) ? 1 : k === 'negative_prompt' ? 2 : 3;
 
-function ModelForm({ scope, source, recipeView, model, family, siblings, catalog, authed }: { scope: string; source: RecipeSource; recipeView: import('../templates/recipe/model').RecipeView | null; model: VideoModel; family: VideoFamily; siblings: VideoModel[]; catalog: VideoCatalog; authed: boolean }) {
+function ModelForm({ context, scope, source, recipeView, model, family, siblings, catalog, authed }: { context?: VideoScenarioContext; scope: string; source: RecipeSource; recipeView: import('../templates/recipe/model').RecipeView | null; model: VideoModel; family: VideoFamily; siblings: VideoModel[]; catalog: VideoCatalog; authed: boolean }) {
   const [, navigate] = useLocation();
   const qc = useQueryClient();
   const { toast, notify } = useToast();
@@ -143,7 +154,8 @@ function ModelForm({ scope, source, recipeView, model, family, siblings, catalog
   const init = useMemo(() => defaults(schema, roots), [schema, roots]);
   // Saved local edits win over the recipe so a refresh never overwrites them.
   const stored = useMemo(() => loadStored(scope, model.id) ?? (recipeView ? hydrateVideo(recipeView, fileFields, new Set(Object.keys(init.json)), Array.from(new Set(fileFields.map(f => splitPath(f.path).parent).filter((x): x is string => !!x)))) : null), [scope, model.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  const [params, setParams] = useState<Record<string, unknown>>(() => ({ ...init.params, ...(stored?.params || {}) }));
+  const seed = context ? videoScenarioParameters(context, schema) : { parameters: {}, ignored: [] };
+  const [params, setParams] = useState<Record<string, unknown>>(() => ({ ...init.params, ...seed.parameters, ...(stored?.params || {}) }));
   const [json, setJson] = useState<Record<string, string>>(() => ({ ...init.json, ...(stored?.json || {}) }));
   const [refs, setRefs] = useState<Record<string, Ref[]>>(() => stored?.refs || {});
   const [items, setItems] = useState<Record<string, string[]>>(() => stored?.items || {});
@@ -264,14 +276,22 @@ function ModelForm({ scope, source, recipeView, model, family, siblings, catalog
     });
   };
   const fileOf = (k: string) => topFiles.find(f => splitPath(f.path).root === k);
+  const pickModel = (id: string) => navigate(context
+    ? videoScenarioGenerationHref(context.scenario, context, id)
+    : `${videoModelHref(id)}${source.carry}`, { replace: true });
 
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-video-model-${model.id}`}>
     <Link className="ps-back" href="/create?type=video" data-testid="link-video-catalogue"><ArrowLeft size={13}/>Все видеомодели</Link>
     <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(familyArt(family.id))} alt=""/></span><div><span className="ps-mode">{modeLabel(model.mode)}{model.workflow ? ' · сценарий' : ''}</span><h1>{userSafeModelText(family.name)}<span>.</span></h1><p>{userSafeModelText(family.description || model.name)}</p></div></div>
-    {siblings.length > 1 && <div className="ps-modes" role="group" aria-label="Режим модели" data-testid="group-video-modes">{siblings.map(m => { const on = m.id === model.id; return <button key={m.id} type="button" aria-pressed={on} className={on ? 'on' : ''} data-testid={`button-video-mode-${m.id}`} onClick={() => { if (!on) navigate(videoModelHref(m.id), { replace: true }); }}>{modeLabel(m.mode)}</button>; })}</div>}
+    {context && <>
+      <div className="ps-note" data-testid="status-video-idea"><strong>{context.scenario.title}</strong><p>{videoScenarioNotice(context.scenario.id)}</p><p>У каждого режима — свой черновик: при возвращении восстановятся его текст, настройки и загруженные исходники.</p><Link href="/create?type=video&ideas=1">Выбрать другой сценарий</Link></div>
+      <label className="ps-field"><span>Модель и режим для этого сценария</span><select data-testid="select-video-idea-model" value={model.id} onChange={event => pickModel(event.target.value)}>{catalog.families.map(group => <optgroup key={group.id} label={userSafeModelText(group.name)}>{group.modes.map(id => catalog.models.find(item => item.id === id)).filter((item): item is VideoModel => !!item).map(option => <option key={option.id} value={option.id}>{userSafeModelText(option.name)} · {modeLabel(option.mode)}{option.quoteScenario ? ' · отдельный расчёт' : ''}</option>)}</optgroup>)}</select></label>
+      {!stored && seed.ignored.length > 0 && <div className="ps-note" data-testid="status-video-seed-settings">{seed.ignored.join(', ')} из брифа не поддерживаются этим режимом. Проверь показанные настройки модели — исходные значения не подменяются ближайшими.</div>}
+    </>}
+    {siblings.length > 1 && <div className="ps-modes" role="group" aria-label="Режим модели" data-testid="group-video-modes">{siblings.map(m => { const on = m.id === model.id; return <button key={m.id} type="button" aria-pressed={on} className={on ? 'on' : ''} data-testid={`button-video-mode-${m.id}`} onClick={() => { if (!on) pickModel(m.id); }}>{modeLabel(m.mode)}</button>; })}</div>}
     {!authed && <div className="ps-alert" data-testid="status-video-login-required"><Lock size={15}/><span><strong>Нужен вход через Telegram</strong>Открой студию из Telegram, чтобы загружать файлы и запускать генерацию. Настройки можно смотреть и менять уже сейчас.</span></div>}
     <RecipeBanner source={source} mismatch={!!source.view && !recipeView}/>
-    {model.quoteScenario && <Link className="vs-free" href={`${quoteHref(model.quoteScenario)}${source.carry}`} data-testid="link-video-quote-editor"><span><strong>Открыть редактор с расчётом цены</strong><small>Цена рассчитывается после проверки длительности загруженного видео. Обычный запуск здесь отключён</small></span><ArrowRight size={15}/></Link>}
+    {model.quoteScenario && <Link className="vs-free" href={`${quoteHref(model.quoteScenario)}${source.carry}${context ? `&q=${encodeURIComponent(String(values.prompt ?? context.prompt))}` : ''}`} data-testid="link-video-quote-editor"><span><strong>Открыть редактор с расчётом цены</strong><small>Цена рассчитывается после проверки длительности загруженного видео. Обычный запуск здесь отключён. Исходники нужно добавить в отдельном редакторе; настройки этого режима сохранятся здесь.</small></span><ArrowRight size={15}/></Link>}
     {!ready.ok && !model.quoteScenario && <div className="ps-alert muted" data-testid="status-video-model-unavailable"><Lock size={15}/><span><strong>Запуск недоступен</strong>{ready.reason}. Настройки этого режима сохраняются на устройстве.</span></div>}
     {conditions.length > 0 && <div className="ps-note" data-testid="text-video-conditions"><strong>Правила модели</strong>{conditions.map(c => <span key={c}>{c}</span>)}</div>}
     <div className="ps-form">{fields.map(k => {
