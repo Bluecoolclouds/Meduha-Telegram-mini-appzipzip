@@ -18,7 +18,7 @@ const examples: Record<string, { thumb?: string; video?: string; image?: string 
   cinema: { thumb: `${CDN}24fc2ccb2207a9d37b094f6da28c9055d73e98a02dddfa8d3b1c7d17b05865d8-thumbnail.webp`, video: `${CDN}cf76b0c05e5ac8154b16bd24238d7527c837452db713691fa6d9db4bea7a7b3d-video.mp4` },
 };
 
-export default function ExamplePreview({ scenario, showDemo = true }: { scenario: string; showDemo?: boolean }) {
+export default function ExamplePreview({ scenario, showDemo = true, heading }: { scenario: string; showDemo?: boolean; heading?: string }) {
   const item = videoScenarios.find(value => value.id === scenario);
   const ex = showDemo ? examples[scenario] : undefined;
   const hasGenjutsuLibrary = scenario === 'genjutsu' || scenario === 'object-swap' || scenario === 'restyle';
@@ -57,7 +57,7 @@ export default function ExamplePreview({ scenario, showDemo = true }: { scenario
   };
 
   return <section className="gj-ex" data-testid={hasGenjutsuLibrary ? 'card-genjutsu-example' : 'card-scenario-example'}>
-    <div className="gj-ex-head"><strong>{isStill ? 'Пример образа' : 'Пример результата'}</strong><small>{ex ? 'Демо' : 'Пока без демо'}</small></div>
+    <div className="gj-ex-head">{heading ? <h1 className="gj-ex-title">{heading}</h1> : <strong>{isStill ? 'Пример образа' : 'Пример результата'}</strong>}<small>{ex ? 'Демо' : 'Пока без демо'}</small></div>
     <div className={`gj-ex-media${isStill ? ' still' : ''}${!ex ? ' unavailable' : ''}`}>
       {ex?.video && <video ref={video} src={ex.video} poster={ex.thumb} preload="none" playsInline muted controls={started && !failed}
         aria-label={`Демо ${title}`} data-testid={legacyTestIds ? 'video-genjutsu-example' : `video-example-${scenario}`} onError={() => setFailed(true)}/>}
