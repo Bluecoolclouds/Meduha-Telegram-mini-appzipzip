@@ -9,6 +9,7 @@ import { hideProviderBrand } from '../publicText';
 import { ScenarioCarousel, PromoBanner } from '../video/ScenarioHero';
 import { photoModelArt, photoProvider, photoProviderLabel } from './modelArt';
 import { photoModelPreview } from './modelPreviews';
+import { photoModelCover } from '../scenarioCovers';
 import ExamplePreview from '../video/genjutsu/ExamplePreview';
 import '../video/video.css';
 import '../video/catalogue.css';
@@ -82,7 +83,7 @@ export function PhotoCatalogue() {
   const hero = groupFamilies(models).slice(0, 5).map(g => ({ id: g.family.id, title: title(g), subtitle: blurb(g.initial), image: photoModelArt(g.initial), providerLabel: photoProviderLabel(photoProvider(g.initial)), g }));
   const modes = [['all', 'Все'], ['text', 'Текст → фото'], ['image', 'Фото → фото'], ['workflow', 'Сценарии']] as const;
   return <Frame active="Create"><div className="vs-page" data-testid="catalogue-photo-models">
-    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} label={h => priceLabel(h.g.members)} eyebrow={h => `${kinds(h.g)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.g))}/>}
+    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => photoModelCover(h.g.initial.id)} label={h => priceLabel(h.g.members)} eyebrow={h => `${kinds(h.g)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.g))}/>}
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">
@@ -109,7 +110,7 @@ export function PhotoCatalogue() {
     {catalog.isLoading ? <div className="vs-grid">{[0, 1, 2, 3].map(i => <div key={i} className="vs-card" style={{ height: 230, opacity: .5 }}/>)}</div>
       : catalog.isError ? <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Каталог не загрузился</strong><p>{meduhaErrorMessage(catalog.error)}</p><div className="vs-empty-actions"><button onClick={() => catalog.refetch()}><RefreshCw size={12}/> Повторить</button></div></div>
       : shown.length ? <div className="vs-grid">{shown.map((g, i) => <button key={g.family.id} data-testid={`card-photo-model-${g.family.id}`} className={`vs-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }} onClick={() => navigate(href(g))}>
-        <span className="vs-card-img"><img src={asset(photoModelArt(g.initial))} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
+        <span className="vs-card-img"><img src={photoModelCover(g.initial.id)} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
         <span className="vs-card-body"><strong>{title(g)}<em> · {g.members.length > 1 ? `${g.members.length} режима` : modeLabel(g.initial)}</em></strong><small>{blurb(g.initial)}</small>
           <span className="vs-card-foot"><span className="vs-prov">{photoProviderLabel(photoProvider(g.initial))}</span><span className="vs-price" data-testid={`text-price-${g.family.id}`}>{priceLabel(g.matched)}</span></span></span>
       </button>)}</div>

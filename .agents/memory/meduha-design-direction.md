@@ -126,9 +126,9 @@ Keep the upstream provider's identity out of all customer-facing Meduha screens,
 
 All photo- and video-model screens should follow the Genjutsu example: a large demo image or playable video above the controls, with the model name at the top inside that media block. Do not add a separate duplicate title card below it.
 
-**Why:** the user clarified «именно тут вроде видео было», requested the name inside the block, asked to apply it to every video scenario using each model's own Playground, and then requested the same for photos.
+**Why:** the user clarified «именно тут вроде видео было», requested the name inside the block, asked to apply it to every video scenario using each model's own Playground, and then requested the same for photos. They also clarified that the selected media must replace the photo/video scenario covers, not only the media inside the editor.
 
-**How to apply:** reuse the existing preview in place and use the primary demo video or example-cover image from the corresponding Playground, not recommendation-card media or an unrelated model's fallback. Shared examples are valid when the source pages themselves share them. Keep demos labelled, lazy-load photos, load clips only on play, and preserve model selection, routes, generation settings and billing behavior.
+**How to apply:** reuse the existing preview in place and use the primary demo video or example-cover image from the corresponding Playground, not recommendation-card media or an unrelated model's fallback. Apply that media to catalogue cards, scenario/idea covers, carousel slides, their backgrounds and thumbnails, and idea-detail images as well. Use video posters in lists without loading the clips. Shared examples are valid when the source pages themselves share them. Keep demos labelled, lazy-load photos, load clips only on play, and preserve model selection, routes, generation settings and billing behavior.
 
 Keep the homepage «Вдохновляйся» artist showcase hidden until there are real artists to feature.
 

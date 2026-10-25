@@ -3,8 +3,27 @@ import assert from 'node:assert/strict';
 import { photoIdeaHref, photoIdeaModel, photoIdeaParameters, photoIdeas, searchPhotoIdeas } from './ideas.ts';
 import { readFileSync } from 'node:fs';
 import { photoModelPreview } from './modelPreviews.ts';
+import { photoIdeaCover, photoModelCover, videoModelCover, videoScenarioCover } from '../scenarioCovers.ts';
+import { videoScenarios } from '../video/scenarios.ts';
 
 const catalog = JSON.parse(readFileSync(new URL('../../../../api-server/src/lib/photo-catalog.json', import.meta.url)));
+
+test('catalogue covers use matching photo examples and video posters, not illustration keys or video files', () => {
+  for (const model of catalog.models) assert.equal(photoModelCover(model.id), photoModelPreview(model.id).image);
+  for (const idea of photoIdeas) assert.equal(photoIdeaCover(idea), photoModelCover(photoIdeaModel(idea)));
+  const videoManifest = JSON.parse(readFileSync(new URL('../video/model-preview-media.json', import.meta.url)));
+  for (const [id, media] of Object.entries(videoManifest.models)) assert.equal(videoModelCover(id), media.thumb);
+  for (const scenario of videoScenarios) {
+    const cover = videoScenarioCover(scenario.id);
+    assert.ok(cover.startsWith('https:'), `Missing cover for ${scenario.id}`);
+    assert.ok(!cover.includes('.mp4'), `Cover must not load a video: ${scenario.id}`);
+  }
+  assert.equal(videoScenarioCover('genjutsu'), videoModelCover('higgsfield/genjutsu/motion-transfer/v1.0'));
+  assert.equal(videoScenarioCover('ai-blogger'), photoModelCover('higgsfield/ai-influencer'));
+  for (const cover of [photoModelCover('unknown'), videoModelCover('unknown'), videoScenarioCover('unknown')]) {
+    assert.ok(cover.startsWith('data:image/svg+xml,'), 'Unknown models need a neutral placeholder');
+  }
+});
 
 test('all 20 photo modes use the primary image from their own verified Playground', () => {
   const manifest = JSON.parse(readFileSync(new URL('./model-preview-media.json', import.meta.url)));

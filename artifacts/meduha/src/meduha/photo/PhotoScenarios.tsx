@@ -8,6 +8,8 @@ import '../video/video.css';
 import '../video/catalogue.css';
 import './photo.css';
 
+import { photoIdeaCover } from '../scenarioCovers';
+
 export default function PhotoScenarios() {
   const search = useSearch();
   const [, navigate] = useLocation();
@@ -30,7 +32,7 @@ export default function PhotoScenarios() {
   return <Frame active="Create">
     <div className="vs-page photo-page" data-testid="catalogue-photo">
       <div className="photo-heading"><span className="photo-kicker"><ImageIcon size={12}/> СТУДИЯ ФОТОИДЕЙ</span><h1>Какой будет<br/>твой кадр<span>.</span></h1><p>Выбери направление — доработай текст и сохрани идею.</p></div>
-      <ScenarioCarousel items={photoIdeas.slice(0, 5)} image={asset} label={() => 'Идея для фото'} eyebrow={() => 'Подборка · фотоидеи'} onOpen={(idea: PhotoIdea) => setSelected(idea)} paused={selected !== null}/>
+      <ScenarioCarousel items={photoIdeas.slice(0, 5)} image={asset} cover={photoIdeaCover} label={() => 'Идея для фото'} eyebrow={() => 'Подборка · фотоидеи'} onOpen={(idea: PhotoIdea) => setSelected(idea)} paused={selected !== null}/>
       <Link href="/create?type=photo&editor=1" className="vs-promo" data-testid="link-photo-promo">
         <span className="vs-promo-icon"><ImageIcon size={17}/></span>
         <span className="vs-promo-text"><strong>Уже знаешь, что хочешь?</strong><small>Запиши свою идею без готового сценария</small></span>
@@ -54,7 +56,7 @@ export default function PhotoScenarios() {
       <h2 className="vs-section">{searching ? 'Подходящие фотоидеи' : category === 'all' ? 'Все фотоидеи' : photoCategories.find(item => item.id === category)?.label}</h2>
       <span className="vs-sr" aria-live="polite">{results.length ? `Найдено фотоидей: ${results.length}` : 'Ничего не нашлось'}</span>
       {results.length ? <div className="vs-grid photo-grid">{results.map((idea, index) => <button key={idea.id} data-testid={`card-photo-idea-${idea.id}`} className={`vs-card photo-card${searching && index === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }} onClick={() => setSelected(idea)}>
-        <span className="vs-card-img"><img src={asset(idea.image)} alt="" loading="lazy"/>{searching && index === 0 && <span className="vs-best">Ближе всего</span>}</span>
+        <span className="vs-card-img"><img src={photoIdeaCover(idea)} alt="" loading="lazy"/>{searching && index === 0 && <span className="vs-best">Ближе всего</span>}</span>
         <span className="vs-card-body"><strong>{idea.title}</strong><small>{idea.subtitle}</small><span className="vs-card-foot"><span className="photo-tag">{photoCategories.find(item => item.id === idea.category)?.label}</span><span className="photo-tag">Идея для фото</span></span></span>
       </button>)}</div> : <div className="vs-empty photo-empty" data-testid="empty-photo-ideas">
         <img src={mood('curious')} alt=""/><strong>Пока нет такой идеи</strong><p>Попробуй другое слово или сбрось фильтры, чтобы вернуться ко всей подборке.</p>
@@ -68,7 +70,7 @@ export default function PhotoScenarios() {
 
 function PhotoIdeaSheet({ idea, onClose, onContinue }: { idea: PhotoIdea; onClose: () => void; onContinue: () => void }) {
   return <Sheet title={idea.title} onClose={onClose} className="vs-sheet photo-sheet">
-    <img className="vs-sheet-img" src={asset(idea.image)} alt={`Пример для идеи «${idea.title}»`}/>
+    <img className="vs-sheet-img" src={photoIdeaCover(idea)} alt={`Демо модели для идеи «${idea.title}»`}/>
     <div className="vs-sheet-tags"><span className="vs-status documented"><ImageIcon size={11}/>Фотоидея</span><span className="vs-provider">{photoCategories.find(item => item.id === idea.category)?.label}</span></div>
     <p className="vs-sub">{idea.subtitle}</p>
     <h3 className="vs-h"><Check size={15}/>Текст идеи</h3>

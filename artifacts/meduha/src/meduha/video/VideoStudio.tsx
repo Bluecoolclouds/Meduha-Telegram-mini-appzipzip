@@ -18,6 +18,7 @@ import { videoScenarios } from './scenarios';
 import { genjutsuPreviewScenario, videoScenarioGenerationHref, videoScenarioModel, videoScenarioNotice, videoScenarioParameters, type VideoScenarioContext } from './scenarioGeneration';
 import ExamplePreview from './genjutsu/ExamplePreview';
 import { videoModelPreview } from './modelPreviews';
+import { videoModelCover } from '../scenarioCovers';
 import './genjutsu/genjutsu.css';
 import './video.css';
 import './catalogue.css';
@@ -70,7 +71,7 @@ export function VideoCatalogue() {
   const hero = all.slice(0, 5).map(g => ({ id: g.family.id, title: userSafeModelText(g.family.name), subtitle: blurb(g.family, g.members), image: familyArt(g.family.id), providerLabel: providerLabel(providerOf(g.members[0])), g }));
   const modes = [['all', 'Все'], ['text', 'Из текста'], ['image', 'Из фото'], ['video', 'Из видео']] as const;
   return <Frame active="Create"><div className="vs-page" data-testid="catalogue-video-models">
-    {catalog.isLoading ? <div className="vs-hero vst-skel" style={{ height: 268 }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} label={h => priceLabel(h.g.members)} eyebrow={h => `${h.g.members.length > 1 ? `${h.g.members.length} режимов` : modeLabel(h.g.members[0].mode)} · ${h.providerLabel}`} onOpen={h => open(h.g.family.modes[0])}/>}
+    {catalog.isLoading ? <div className="vs-hero vst-skel" style={{ height: 268 }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => videoModelCover(h.g.members[0].id)} label={h => priceLabel(h.g.members)} eyebrow={h => `${h.g.members.length > 1 ? `${h.g.members.length} режимов` : modeLabel(h.g.members[0].mode)} · ${h.providerLabel}`} onOpen={h => open(h.g.family.modes[0])}/>}
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">
@@ -98,7 +99,7 @@ export function VideoCatalogue() {
       : catalog.isError ? <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Каталог не загрузился</strong><p>{videoErrorText(catalog.error)}</p><div className="vs-empty-actions"><button data-testid="button-video-catalog-retry" onClick={() => catalog.refetch()}><RefreshCw size={12}/> Повторить</button><Link href="/create?type=video&ideas=1">Видеоидеи</Link></div></div>
       : shown.length ? <div className="vs-grid">{shown.map((g, i) => <article key={g.family.id} data-testid={`card-video-family-${g.family.id}`} className={`vs-card vst-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}>
         <button type="button" className="vst-open" data-testid={`button-open-video-family-${g.family.id}`} onClick={() => open(g.family.modes[0])}>
-          <span className="vs-card-img"><img src={asset(familyArt(g.family.id))} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
+          <span className="vs-card-img"><img src={videoModelCover(g.members[0].id)} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
           <span className="vs-card-body"><strong>{userSafeModelText(g.family.name)}<em> · {g.members.length > 1 ? `${g.members.length} режимов` : modeLabel(g.members[0].mode)}</em></strong><small>{blurb(g.family, g.members)}</small></span>
         </button>
         <span className="vs-card-foot vst-foot"><span className="vs-prov">{providerLabel(providerOf(g.members[0]))}</span><span className="vs-price" data-testid={`text-video-price-${g.family.id}`}>{priceLabel(g.members)}</span></span>

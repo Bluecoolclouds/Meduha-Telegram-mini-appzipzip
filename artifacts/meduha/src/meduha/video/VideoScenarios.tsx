@@ -10,8 +10,7 @@ import './video.css';
 import './catalogue.css';
 import { isGenjutsuScenario } from './genjutsu/intent';
 
-const imageFallback: Record<string, string> = { landscape: 'mountain', art: 'wave' };
-export const scenarioImage = (name: string) => asset(imageFallback[name] ?? name);
+import { videoScenarioCover } from '../scenarioCovers';
 
 const chips: { id: 'all' | VideoScenario['category']; label: string }[] = [
   { id: 'all', label: 'Все' }, { id: 'characters', label: 'Персонажи' }, { id: 'editing', label: 'Монтаж и замена' },
@@ -39,7 +38,7 @@ export default function VideoScenarios() {
 
   return <Frame active="Create">
     <div className="vs-page">
-    <ScenarioCarousel items={videoScenarios.slice(0, 5)} image={scenarioImage} label={(scenario: VideoScenario) => priceLabel(scenario)} onOpen={(scenario: VideoScenario) => openScenario(scenario)}/>
+    <ScenarioCarousel items={videoScenarios.slice(0, 5)} image={asset} cover={scenario => videoScenarioCover(scenario.id)} label={(scenario: VideoScenario) => priceLabel(scenario)} onOpen={(scenario: VideoScenario) => openScenario(scenario)}/>
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">
@@ -65,7 +64,7 @@ export default function VideoScenarios() {
     <span className="vs-sr" aria-live="polite">{searching ? (results.length ? `Найдено: ${results.length}` : 'Ничего не нашлось') : ''}</span>
     {results.length ? <div className="vs-grid">{results.map((s, i) => { return (
       <button key={s.id} data-testid={`card-scenario-${s.id}`} className={`vs-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }} onClick={() => openScenario(s)}>
-        <span className="vs-card-img"><img src={scenarioImage(s.image)} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
+        <span className="vs-card-img"><img src={videoScenarioCover(s.id)} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
         <span className="vs-card-body"><strong>{s.title}{s.id === 'genjutsu' && <em> · Genjutsu</em>}</strong><small>{s.subtitle}</small>
           <span className="vs-card-foot"><span className="vs-prov">{s.providerLabel}</span><span className="vs-price" data-testid={`text-price-${s.id}`}>{priceLabel(s)}</span></span></span>
               </button>); })}</div>
