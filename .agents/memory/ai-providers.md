@@ -56,3 +56,9 @@ Keep every installed model in the catalog while documentation or account-access 
 **Why:** The user explicitly required preserving installed models and user choices; incomplete verification does not authorize a smaller catalog.
 
 **How to apply:** Preserve existing catalog entries, picker choices and enablement settings. Catalog visibility does not authorize enabling paid generation. Restrict the model set only when the user explicitly asks.
+
+Do not treat a provider's HTTP 401 as proof that the saved `higgsapi` secret is missing, or immediately repeat secret-entry requests.
+
+**Why:** The user corrected repeated requests after already supplying the project's secret.
+
+**How to apply:** First verify secret existence, the running server's configured status, unchanged credential forwarding and a non-generating authentication check. Distinguish a missing configuration from an upstream rejection; never print credentials or use billable generation to diagnose authentication.
