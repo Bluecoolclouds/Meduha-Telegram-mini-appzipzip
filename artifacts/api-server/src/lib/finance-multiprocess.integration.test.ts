@@ -98,7 +98,7 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
   test('isolated finance operations stay consistent across independent API processes', async t => {
     const schema = `finance_mp_${randomUUID().replaceAll('-', '')}`;
     const ids = {
-      accounts: [randomUUID(), randomUUID(), randomUUID(), randomUUID()],
+      accounts: [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()],
       channel: randomUUID(),
       model: randomUUID(),
     };
@@ -443,6 +443,82 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
         assert.deepEqual(rows.map(row => [row.day, Number(row.used)]), [
           ['2026-08-31', 10],
           ['2026-09-01', 10],
+        ]);
+      });
+
+      await t.test('refund of yesterday settlement restores balance without reopening today account budget', async () => {
+        await setLimits({ globalDaily: 100, accountDaily: 10, channelDaily: 100, modelDaily: 100 });
+        const account = ids.accounts[4];
+        const yesterday = '2026-09-04';
+        const today = '2026-09-05';
+        const beforeMidnight = `${yesterday}T23:59:59.999Z`;
+        const afterMidnight = `${today}T00:00:00.001Z`;
+
+        const [yesterdayHold] = await runWorker([
+          { type: 'reserve', input: input(account, key(), false) },
+        ], { schema, now: beforeMidnight });
+        assert.equal(yesterdayHold.status, 'ok', JSON.stringify(yesterdayHold));
+        const [yesterdaySettlement] = await runWorker([{
+          type: 'settle',
+          reservationId: yesterdayHold.result.reservation.id,
+          actorId,
+          idempotencyKey: key(),
+        }], { schema, now: beforeMidnight });
+        assert.equal(yesterdaySettlement.status, 'ok', JSON.stringify(yesterdaySettlement));
+        assert.equal(yesterdaySettlement.result.ledgerEntry.budgetDay, yesterday);
+
+        const [todayHold] = await runWorker([
+          { type: 'reserve', input: input(account, key(), false) },
+        ], { schema, now: afterMidnight });
+        assert.equal(todayHold.status, 'ok', JSON.stringify(todayHold));
+        const [todaySettlement] = await runWorker([{
+          type: 'settle',
+          reservationId: todayHold.result.reservation.id,
+          actorId,
+          idempotencyKey: key(),
+        }], { schema, now: afterMidnight });
+        assert.equal(todaySettlement.status, 'ok', JSON.stringify(todaySettlement));
+        assert.equal(todaySettlement.result.ledgerEntry.budgetDay, today);
+        assert.equal(todaySettlement.result.wallet.balance, 80);
+
+        const refundKey = key();
+        const refundOperation = {
+          type: 'refund' as const,
+          reservationId: yesterdayHold.result.reservation.id,
+          actorId,
+          idempotencyKey: refundKey,
+        };
+        const [refund] = await runWorker([refundOperation], { schema, now: afterMidnight });
+        assert.equal(refund.status, 'ok', JSON.stringify(refund));
+        assert.equal(refund.result.ledgerEntry.budgetDay, yesterday);
+        assert.equal(refund.result.ledgerEntry.delta, 10);
+        assert.equal(refund.result.ledgerEntry.budgetDelta, -10);
+        assert.equal(refund.result.wallet.balance, 90);
+        assert.equal(refund.result.wallet.reserved, 0);
+        assert.equal(refund.result.wallet.available, 90);
+
+        const [replayedRefund] = await runWorker([refundOperation], { schema, now: afterMidnight });
+        assert.equal(replayedRefund.status, 'ok', JSON.stringify(replayedRefund));
+        assert.equal(replayedRefund.result.replayed, true);
+        assert.equal(replayedRefund.result.ledgerEntry.id, refund.result.ledgerEntry.id);
+        assert.equal(replayedRefund.result.wallet.balance, 90);
+        assert.equal(await countLedger(refundKey), 1);
+
+        const blockedToday = await runWorker([
+          { type: 'reserve', input: input(account, key(), false) },
+        ], { schema, now: afterMidnight });
+        assert.equal(blockedToday[0].code, 'DAILY_LIMIT_EXCEEDED');
+
+        const { rows: budgetRows } = await pool.query(
+          `SELECT budget_day::text AS day, sum(budget_delta)::int AS used
+           FROM "${schema}".meduha_finance_ledger
+           WHERE account_id=$1 AND budget_day BETWEEN $2::date AND $3::date
+           GROUP BY budget_day ORDER BY budget_day`,
+          [account, yesterday, today],
+        );
+        assert.deepEqual(budgetRows.map(row => [row.day, Number(row.used)]), [
+          [yesterday, 0],
+          [today, 10],
         ]);
       });
 
