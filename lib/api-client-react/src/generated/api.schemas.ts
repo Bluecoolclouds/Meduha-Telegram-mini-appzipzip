@@ -705,6 +705,16 @@ export interface PhotoQuote {
   referenceCount: number;
   resolution: string;
   quality: string;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  modelDailyLimit: number | null;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  modelDailyRemaining: number | null;
 }
 
 export type PhotoGenerationInput = PhotoQuoteInput & {

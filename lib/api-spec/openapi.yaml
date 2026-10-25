@@ -1579,7 +1579,7 @@ components:
             items: { type: string, format: uuid }
     PhotoQuote:
       type: object
-      required: [token, creditPrice, expiresAt, images, referenceCount, resolution, quality]
+      required: [token, creditPrice, expiresAt, images, referenceCount, resolution, quality, modelDailyLimit, modelDailyRemaining]
       properties:
         token: { type: string }
         creditPrice: { type: integer, minimum: 1 }
@@ -1588,6 +1588,8 @@ components:
         referenceCount: { type: integer }
         resolution: { type: string }
         quality: { type: string }
+        modelDailyLimit: { type: ["integer", "null"], minimum: 0 }
+        modelDailyRemaining: { type: ["integer", "null"], minimum: 0 }
     PhotoGenerationInput:
       allOf:
         - { $ref: "#/components/schemas/PhotoQuoteInput" }

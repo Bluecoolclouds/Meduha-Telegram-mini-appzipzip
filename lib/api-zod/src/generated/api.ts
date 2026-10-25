@@ -116,6 +116,10 @@ export const QuotePhotoGenerationBody = zod.object({
 })
 
 
+export const quotePhotoGenerationResponseModelDailyLimitMin = 0;
+
+export const quotePhotoGenerationResponseModelDailyRemainingMin = 0;
+
 
 
 export const QuotePhotoGenerationResponse = zod.object({
@@ -125,7 +129,9 @@ export const QuotePhotoGenerationResponse = zod.object({
   "images": zod.number().int(),
   "referenceCount": zod.number().int(),
   "resolution": zod.string(),
-  "quality": zod.string()
+  "quality": zod.string(),
+  "modelDailyLimit": zod.number().int().min(quotePhotoGenerationResponseModelDailyLimitMin).nullable(),
+  "modelDailyRemaining": zod.number().int().min(quotePhotoGenerationResponseModelDailyRemainingMin).nullable()
 })
 
 

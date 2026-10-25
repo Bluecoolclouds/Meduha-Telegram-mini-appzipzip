@@ -23,6 +23,7 @@ import SaveAsTemplate from '../templates/recipe/SaveAsTemplate';
 import { fieldOfPointer, pointerOf, type RecipeView } from '../templates/recipe/model';
 import { familyOf, filterFamilies, groupFamilies, modeKind, modeLabelIn, photoModelHref, type Group } from './families';
 import { photoIdeas, photoIdeaHref, photoIdeaParameters, type PhotoIdea } from './ideas';
+import { exceedsModelDailyBudget } from './photoBudget';
 
 const read = { credentials: 'same-origin' as const };
 const mutateReq = { credentials: 'same-origin' as const, headers: { 'X-Meduha-Request': '1' } };
@@ -287,6 +288,7 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
       onFiles={(f, max, idx) => void addFiles(k, f, max, idx)} onRemove={i => setRefs(r => ({ ...r, [k]: (r[k] || []).filter((_, j) => j !== i) }))}/>)}</div>
     <div className="ps-submit">
       <div className="ps-cost" data-testid="text-photo-cost" aria-live="polite">{activeQuote && !expired ? <><Zap size={13} fill="currentColor"/><strong>{activeQuote.creditPrice}</strong> кредитов за весь запрос<small>{activeQuote.images} изображ. · {activeQuote.resolution} · качество: {activeQuote.quality} · референсов: {activeQuote.referenceCount}</small></> : <small>{expired ? 'Смета истекла — рассчитай цену заново' : 'Итоговая цена появится после расчёта по твоим настройкам'}</small>}</div>
+      {activeQuote && !expired && exceedsModelDailyBudget(activeQuote.creditPrice, activeQuote.modelDailyRemaining) && <div className="ps-alert" role="status" data-testid="status-photo-model-limit"><Lock size={15}/><span><strong>Пакет превышает дневной лимит модели</strong>В пакете {activeQuote.creditPrice} кр., а с учётом текущих резервов и расхода сегодня осталось {activeQuote.modelDailyRemaining} кр. Уменьши число изображений в пакете. Остаток может измениться до подтверждения.</span></div>}
       <p className="ps-note">Расчёт не запускает генерацию и не резервирует кредиты. Смета действует 5 минут. Только отдельное подтверждение отправит запрос в очередь.</p>
       {activeQuote && !expired ? <>
         <button className="m-generate" data-testid="button-photo-generate" disabled={!canSubmit} onClick={submit}><Sparkles size={16}/>{create.isPending ? 'Отправляем…' : `Подтвердить и создать за ${activeQuote.creditPrice} кр.`}</button>

@@ -75,6 +75,11 @@ export type FinanceWallet = {
   pagination: { limit: number; offset: number; totalLedger: number; totalReservations: number };
 };
 
+export type ModelDailyBudget = {
+  dailyCreditLimit: number | null;
+  dailyRemaining: number | null;
+};
+
 export type FinanceSettings = {
   spendingEnabled: boolean;
   dailyCreditLimit: number;
@@ -328,6 +333,28 @@ async function walletWithClient(client: PoolClient, accountId: string, limit = 5
       totalReservations: Number(reservationCount.rows[0].total),
     },
   };
+}
+
+export async function getModelDailyBudget(modelId: string): Promise<ModelDailyBudget> {
+  requiredString(modelId, 'modelId');
+  return readSnapshot(async client => {
+    const day = utcDay();
+    const { rows } = await client.query(
+      `SELECT m.limits,
+         COALESCE((SELECT SUM(amount) FROM meduha_credit_reservations
+           WHERE model_id = m.id AND status = 'held'), 0)::bigint AS held,
+         COALESCE((SELECT SUM(l.budget_delta) FROM meduha_finance_ledger l
+           JOIN meduha_credit_reservations r ON r.id = l.reservation_id
+           WHERE l.budget_day = $2 AND r.model_id = m.id), 0)::bigint AS settled_net
+       FROM meduha_ai_models m WHERE m.id = $1`,
+      [modelId, day],
+    );
+    if (!rows[0]) fail('INVALID_INPUT', 'Configured model does not exist');
+    const dailyCreditLimit = optionalModelLimit(rows[0].limits, 'dailyCreditLimit');
+    if (dailyCreditLimit === null) return { dailyCreditLimit: null, dailyRemaining: null };
+    const used = accountDailyBudgetUsed(Number(rows[0].held), Number(rows[0].settled_net));
+    return { dailyCreditLimit, dailyRemaining: Math.max(0, dailyCreditLimit - used) };
+  });
 }
 
 async function readSnapshot<T>(run: (client: PoolClient) => Promise<T>): Promise<T> {

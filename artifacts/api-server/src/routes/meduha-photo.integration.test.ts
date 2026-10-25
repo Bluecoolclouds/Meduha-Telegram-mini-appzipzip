@@ -96,14 +96,17 @@ test('private photo lifecycle: auth, schema, batch credit holds, replay, complet
   const withQuote = async <T extends Record<string, any>>(body: T) => {
     const response = await quote(body);
     assert.equal(response.status, 200, await response.clone().text());
-    const result = await response.json() as { token: string; creditPrice: number };
-    return { ...body, expectedCreditPrice: result.creditPrice, priceQuote: result.token };
+    const result = await response.json() as { token: string; creditPrice: number; modelDailyLimit: number | null; modelDailyRemaining: number | null };
+    return {
+      ...body, expectedCreditPrice: result.creditPrice, priceQuote: result.token,
+      modelDailyLimit: result.modelDailyLimit, modelDailyRemaining: result.modelDailyRemaining,
+    };
   };
   try {
     await pool.query(`INSERT INTO meduha_accounts (id,first_name,credits) VALUES ($1,'Photo fixture',200),($2,'Other photo fixture',0)`, [accountId, otherId]);
     await pool.query(`INSERT INTO meduha_sessions (token_hash,user_id,expires_at) VALUES ($1,$2,now()+interval '1 hour')`, [createHash('sha256').update(token).digest('hex'), accountId]);
     await pool.query(`INSERT INTO meduha_ai_channels (id,name,base_url,adapter,enabled,concurrency_limit,daily_credit_limit) VALUES ($1,'Photo fixture','https://api.higgsfield.ai','higgsfield',true,10,10000)`, [channelId]);
-    await pool.query(`INSERT INTO meduha_ai_models (id,channel_id,upstream_id,display_name,kind,enabled,credit_price,limits) VALUES ($1,$2,'higgsfield-ai/soul/standard','Soul fixture','photo',true,5,'{"concurrencyLimit":10,"dailyCreditLimit":10000}')`, [modelId, channelId]);
+    await pool.query(`INSERT INTO meduha_ai_models (id,channel_id,upstream_id,display_name,kind,enabled,credit_price,limits) VALUES ($1,$2,'higgsfield-ai/soul/standard','Soul fixture','photo',true,5,'{"concurrencyLimit":10,"dailyCreditLimit":100}')`, [modelId, channelId]);
     await updateFinanceSettings({ spendingEnabled: true, dailyCreditLimit: 10000, perAccountDailyCreditLimit: 10000, maxActiveReservations: 20 }, 'photo-test');
     const request = { idempotencyKey: randomUUID(), catalogId: 'higgsfield-ai/soul/standard', modelId, parameters: { prompt: 'Portrait', batch_size: 4, resolution: '1080p' }, references: {} };
     assert.equal((await quote(request, false)).status, 401);
@@ -113,6 +116,8 @@ test('private photo lifecycle: auth, schema, batch credit holds, replay, complet
     estimateFails = false;
     const body = await withQuote(request);
     assert.equal(body.expectedCreditPrice, 20);
+    assert.equal(body.modelDailyLimit, 100);
+    assert.equal(body.modelDailyRemaining, 100, 'a non-billable quote accounts for model capacity without reserving it');
     assert.equal((await getWallet(accountId)).reserved, 0, 'estimate reserves nothing');
     assert.equal(Number((await pool.query(`SELECT count(*) FROM meduha_generation_jobs WHERE account_id=$1`, [accountId])).rows[0].count), 0, 'estimate never queues a job');
     const low = await withQuote({ ...request, idempotencyKey: randomUUID(), parameters: { ...request.parameters, resolution: '720p' } });
@@ -134,6 +139,8 @@ test('private photo lifecycle: auth, schema, batch credit holds, replay, complet
     assert.equal(accepted[0].job.id, accepted[1].job.id);
     assert.equal(accepted[0].job.creditPrice, 20);
     assert.equal((await getWallet(accountId)).reserved, 20);
+    const duringHold = await withQuote({ ...request, idempotencyKey: randomUUID(), parameters: { prompt: 'Check held model budget' } });
+    assert.equal(duringHold.modelDailyRemaining, 80, 'active model reservations reduce the non-billable quote remainder');
     assert.equal((await call({ ...body, parameters: { prompt: 'Different', batch_size: 4 } })).status, 409);
     let submits = 0, stored = 0;
     await runGenerationWorkerOnce({
@@ -144,6 +151,9 @@ test('private photo lifecycle: auth, schema, batch credit holds, replay, complet
     assert.equal(submits, 1); assert.equal(stored, 1);
     assert.equal((await getWallet(accountId)).balance, 180);
     assert.equal((await getWallet(accountId)).reserved, 0);
+    const afterSpend = await withQuote({ ...request, idempotencyKey: randomUUID(), parameters: { prompt: 'Check remaining model budget' } });
+    assert.equal(afterSpend.modelDailyLimit, 100);
+    assert.equal(afterSpend.modelDailyRemaining, 80, 'today’s settled model spend reduces the quoted remaining capacity');
     const saved = await pool.query(`SELECT j.*,m.display_name FROM meduha_generation_jobs j JOIN meduha_ai_models m ON m.id=j.model_id WHERE j.id=$1`, [accepted[0].job.id]);
     const output = publicJob(saved.rows[0]);
     assert.equal(output.mediaKind, 'photo'); assert.equal(output.resultUrls.length, 4);

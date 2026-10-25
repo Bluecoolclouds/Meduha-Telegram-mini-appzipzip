@@ -5,7 +5,7 @@ import { db, meduhaAiChannels, meduhaAiModels, pool } from '@workspace/db';
 import { CreatePhotoGenerationBody, QuotePhotoGenerationBody } from '@workspace/api-zod';
 import { currentAccount } from './meduha';
 import { publicJob } from './meduha-generations';
-import { FinanceError, getFinanceSettings, reserveCredits } from '../lib/finance';
+import { FinanceError, getFinanceSettings, getModelDailyBudget, reserveCredits } from '../lib/finance';
 import { higgsfieldCredentials } from '../lib/higgsfield';
 import { generationImageFile } from '../lib/photo-storage';
 import { photoModels, PhotoInputError, photoProviderInput, stablePhotoInput, validatePhotoInput, verifyPhotoReferences, type PhotoMetadata } from '../lib/photo';
@@ -118,7 +118,12 @@ export function createPhotoRouter(dependencies: {
         requestHash: photoRequestHash(metadata), pricingFingerprint: photoPricingFingerprint(model.price),
         creditPrice, expiresAt, usdMicros,
       });
-      res.set('Cache-Control', 'no-store').json({ token, creditPrice, expiresAt, ...photoQuoteSummary(metadata) });
+      const modelBudget = await getModelDailyBudget(model.id);
+      res.set('Cache-Control', 'no-store').json({
+        token, creditPrice, expiresAt, ...photoQuoteSummary(metadata),
+        modelDailyLimit: modelBudget.dailyCreditLimit,
+        modelDailyRemaining: modelBudget.dailyRemaining,
+      });
     } catch (error) {
       if (error instanceof PhotoInputError) fail(res, 'INVALID_INPUT', error.message, 400);
       else if (error instanceof PhotoPricingError) fail(res, error.code, error.message, error.status);
