@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "gjnYoL5GoEWrN__itvjIt"
+uri = "file://reports/pricing-audit-2026-10-26.csv"
+type = "table"
+title = "Проверка цен: 95 фото- и видеорежимов"
+description = "Цены в кредитах, проверенные сметы, настройки и найденные расхождения. Генерация не запускалась."
+logical_id = "5f0655b7-08d0-4a7f-942c-34ae118f8cc5"
+content_hash = "sha256:87b32f361f12d9f47a1c2718e79b88dedde53464d1942e9ae8b91247dffd028f"
+size = 42169
+mtime_ms = 1792969110349
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:8a1bf598-9c53-4d71-b052-9d0a4fd7bfc8/5f0655b7-08d0-4a7f-942c-34ae118f8cc5/eb786ea7-b65b-4905-9dd6-ecbbf4d015e8"
+storage_version_token = "1792969122703845"
+content_type = "text/csv"

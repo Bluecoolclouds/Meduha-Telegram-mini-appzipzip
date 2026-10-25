@@ -26,3 +26,9 @@ For Kling, input limits come from the model's Input Schema, not examples in pric
 **Why:** The Kling 3.0 Standard pricing pages mention one-second examples and a promotional 50% discount, while both API input schemas require 3–15 seconds. The image-to-video page gives a rate range without verifying how every setting selects a rate.
 
 **How to apply:** Validate the schema's duration limits, show undiscounted rates only as references, and use the complete request's authenticated estimate for exact pricing. Do not invent a sound-to-price mapping.
+
+A successful estimate HTTP response is not necessarily a numerical quote. Some models return a pricing description instead of `usd`; published precision and account quote rounding can also differ.
+
+**Why:** Authenticated price auditing exposed both response forms and small rounded estimates above published photo reference maxima. Treating HTTP 200 as a price or replacing descriptive responses with public table numbers would conceal an unsupported billing contract.
+
+**How to apply:** Check the estimate payload for each endpoint and distinguish numerical quotes from descriptive pricing. Preserve fail-closed behavior, explicitly report reference/rounding mismatches, and do not raise financial limits or invent final token usage while auditing prices.
