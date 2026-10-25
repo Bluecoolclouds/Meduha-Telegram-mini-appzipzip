@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { searchVideoScenarios, scenarioProvider, videoScenarioProviders, videoScenarioProviderLabel, videoScenarios, scenarioDraftHref } from './scenarios.ts';
 import { formatScenarioPrice, scenarioCreditPrice } from './prices.ts';
-import { isDirectVideoScenario, videoScenarioGenerationHref, videoScenarioModel, videoScenarioParameters, videoScenarioNotice } from './scenarioGeneration.ts';
+import { genjutsuPreviewScenario, isDirectVideoScenario, videoScenarioGenerationHref, videoScenarioModel, videoScenarioParameters, videoScenarioNotice } from './scenarioGeneration.ts';
 
 const catalogue = JSON.parse(readFileSync(new URL('../../../../api-server/src/lib/video-catalog.json', import.meta.url), 'utf8'));
 
@@ -138,4 +138,14 @@ test('all Seedance 2.5 modes expose the officially documented output format', ()
     assert.deepEqual(model.schema.properties.output_format.enum, ['mp4', 'mov']);
     assert.equal(model.schema.properties.output_format.default, 'mp4');
   }
+});
+
+test('every Genjutsu variant retains its original large video example', () => {
+  const models = catalogue.models.filter(model => model.id.includes('genjutsu'));
+  assert.equal(models.length, 7);
+  for (const model of models) {
+    const expected = model.id.includes('object-swap') ? 'object-swap' : model.id.includes('restyle') ? 'restyle' : 'genjutsu';
+    assert.equal(genjutsuPreviewScenario(model.id), expected);
+  }
+  for (const model of catalogue.models.filter(model => !model.id.includes('genjutsu'))) assert.equal(genjutsuPreviewScenario(model.id), null);
 });

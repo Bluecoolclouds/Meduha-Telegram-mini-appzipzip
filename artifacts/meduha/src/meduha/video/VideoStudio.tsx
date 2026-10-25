@@ -15,7 +15,9 @@ import RecipeBanner from '../templates/recipe/RecipeBanner';
 import SaveAsTemplate from '../templates/recipe/SaveAsTemplate';
 import { hydrateVideo } from './recipeHydrate';
 import { videoScenarios } from './scenarios';
-import { videoScenarioGenerationHref, videoScenarioModel, videoScenarioNotice, videoScenarioParameters, type VideoScenarioContext } from './scenarioGeneration';
+import { genjutsuPreviewScenario, videoScenarioGenerationHref, videoScenarioModel, videoScenarioNotice, videoScenarioParameters, type VideoScenarioContext } from './scenarioGeneration';
+import ExamplePreview from './genjutsu/ExamplePreview';
+import './genjutsu/genjutsu.css';
 import './video.css';
 import './catalogue.css';
 import '../photo/photo-studio.css';
@@ -276,13 +278,15 @@ function ModelForm({ context, scope, source, recipeView, model, family, siblings
     });
   };
   const fileOf = (k: string) => topFiles.find(f => splitPath(f.path).root === k);
+  const previewScenario = genjutsuPreviewScenario(model.id);
   const pickModel = (id: string) => navigate(context
     ? videoScenarioGenerationHref(context.scenario, context, id)
     : `${videoModelHref(id)}${source.carry}`, { replace: true });
 
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-video-model-${model.id}`}>
     <Link className="ps-back" href="/create?type=video" data-testid="link-video-catalogue"><ArrowLeft size={13}/>Все видеомодели</Link>
-    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(familyArt(family.id))} alt=""/></span><div><span className="ps-mode">{modeLabel(model.mode)}{model.workflow ? ' · сценарий' : ''}</span><h1>{userSafeModelText(family.name)}<span>.</span></h1><p>{userSafeModelText(family.description || model.name)}</p></div></div>
+    {previewScenario && <ExamplePreview scenario={previewScenario}/>}
+    <div className="ps-model-head">{!previewScenario && <span className="ps-art" aria-hidden="true"><img src={asset(familyArt(family.id))} alt=""/></span>}<div><span className="ps-mode">{modeLabel(model.mode)}{model.workflow ? ' · сценарий' : ''}</span><h1>{userSafeModelText(family.name)}<span>.</span></h1><p>{userSafeModelText(family.description || model.name)}</p></div></div>
     {context && <>
       <div className="ps-note" data-testid="status-video-idea"><strong>{context.scenario.title}</strong><p>{videoScenarioNotice(context.scenario.id)}</p><p>У каждого режима — свой черновик: при возвращении восстановятся его текст, настройки и загруженные исходники.</p><Link href="/create?type=video&ideas=1">Выбрать другой сценарий</Link></div>
       <label className="ps-field"><span>Модель и режим для этого сценария</span><select data-testid="select-video-idea-model" value={model.id} onChange={event => pickModel(event.target.value)}>{catalog.families.map(group => <optgroup key={group.id} label={userSafeModelText(group.name)}>{group.modes.map(id => catalog.models.find(item => item.id === id)).filter((item): item is VideoModel => !!item).map(option => <option key={option.id} value={option.id}>{userSafeModelText(option.name)} · {modeLabel(option.mode)}{option.quoteScenario ? ' · отдельный расчёт' : ''}</option>)}</optgroup>)}</select></label>

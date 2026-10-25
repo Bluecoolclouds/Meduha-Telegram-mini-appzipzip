@@ -13,6 +13,15 @@ const models: Record<string, string> = {
 export const videoScenarioModel = (id: string): string | null => models[id] ?? null;
 export const isDirectVideoScenario = (id: string): boolean => ['text-to-video', 'image-to-video', 'cinema'].includes(id);
 
+/** The same existing examples apply to the standard, light and workflow variants. */
+export function genjutsuPreviewScenario(modelId: string): 'genjutsu' | 'object-swap' | 'restyle' | null {
+  if (modelId === 'workflows/genjutsu') return 'genjutsu';
+  if (modelId === 'workflows/genjutsu/object-swap') return 'object-swap';
+  if (/^higgsfield\/genjutsu(?:-light)?\/motion-transfer\/v1\.0$/.test(modelId)) return 'genjutsu';
+  if (/^higgsfield\/genjutsu(?:-light)?\/object-swap\/v1\.0$/.test(modelId)) return 'object-swap';
+  return modelId === 'higgsfield/genjutsu/restyle/v1.0' ? 'restyle' : null;
+}
+
 export type VideoScenarioSeed = { prompt?: string; ratio?: string; duration?: string; draftId?: string };
 export type VideoScenarioContext = VideoScenarioSeed & { scenario: VideoScenario; prompt: string };
 

@@ -124,6 +124,12 @@ Keep the upstream provider's identity out of all customer-facing Meduha screens,
 
 **How to apply:** use neutral Meduha/model wording in public screens and keep provider names only in internal configuration and technical implementation where required.
 
+Genjutsu's model screen should retain the large playable video example above its controls, not just a small static model thumbnail.
+
+**Why:** the user clarified «именно тут вроде видео было»: restore the media in that block, rather than treating a redirect to another editor as the requested restoration.
+
+**How to apply:** reuse the existing scenario video preview in place; preserve model selection, routes, generation settings and billing behavior.
+
 Keep the homepage «Вдохновляйся» artist showcase hidden until there are real artists to feature.
 
 **Why:** the user said «у нас их пока нет» and requested hiding that block.
