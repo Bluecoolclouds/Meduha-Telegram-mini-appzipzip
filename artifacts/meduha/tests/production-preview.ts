@@ -10,10 +10,19 @@ import type { Page } from '@playwright/test';
 export async function useProductionPreview(page: Page, baseURL: string) {
   const root = fileURLToPath(new URL('../dist/public/', import.meta.url));
   const origin = new URL(baseURL).origin;
+  let failNextJavaScriptChunk = false;
   await page.route('**/*', async route => {
     const request = route.request();
     const url = new URL(request.url());
     if (url.origin !== origin || url.pathname.startsWith('/api/')) return route.continue();
+    if (
+      failNextJavaScriptChunk &&
+      request.resourceType() === 'script' &&
+      url.pathname.endsWith('.js')
+    ) {
+      failNextJavaScriptChunk = false;
+      return route.fulfill({ status: 404, body: 'Simulated unavailable stale screen chunk' });
+    }
     const file = path.resolve(root, `.${decodeURIComponent(url.pathname)}`);
     if (file !== path.resolve(root) && !file.startsWith(root)) return route.abort();
     const info = await stat(file).catch(() => null);
@@ -21,4 +30,9 @@ export async function useProductionPreview(page: Page, baseURL: string) {
     if (request.isNavigationRequest()) return route.fulfill({ path: path.join(root, 'index.html') });
     return route.fulfill({ status: 404, body: 'Build asset not found' });
   });
+  return {
+    failNextChunk: () => {
+      failNextJavaScriptChunk = true;
+    },
+  };
 }

@@ -35,7 +35,42 @@ function toError(value: unknown): Error {
   }
 }
 
+function isChunkLoadError(error: Error): boolean {
+  return (
+    error.name === 'ChunkLoadError' ||
+    /chunkloaderror|loading (?:css )?chunk .+ failed|failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|failed to load module script/i.test(
+      error.message,
+    )
+  );
+}
+
 function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
+  if (isChunkLoadError(error)) {
+    return (
+      <div className="m-startup" role="alert" data-testid="chunk-load-recovery">
+        <div className="m-startup-capsule">
+          <div>
+            <strong>Экран не загрузился</strong>
+            <small>
+              Похоже, приложение обновилось, пока было открыто. Сохранённые
+              черновики останутся на устройстве или в аккаунте. Несохранённый
+              текст не сохраняется автоматически и может быть потерян.
+              Генерации и платежи автоматически не повторяются.
+            </small>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="m-startup-action"
+          data-testid="button-refresh-after-chunk-error"
+          onClick={() => window.location.reload()}
+        >
+          <span aria-hidden="true">↻</span> Обновить приложение
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-6">
       <div className="max-w-lg w-full text-center">
