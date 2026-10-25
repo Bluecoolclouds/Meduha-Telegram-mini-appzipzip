@@ -103,7 +103,7 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
   const status = useGetMeduhaAdminStatus({ request: adminQueryRequest, query: { queryKey: getGetMeduhaAdminStatusQueryKey() } });
   if (q.isLoading) return <Panel title="Пользователь"><Skeleton rows={8} /></Panel>;
   if (q.isError || !q.data) return <Panel title="Пользователь"><ErrorBox error={q.error ?? new Error('Нет данных')} onRetry={() => void q.refetch()} /></Panel>;
-  const u = q.data; const w = wq.data ?? u.wallet; const reservations = asArray<FinanceReservation>(w?.reservations); const ledger = asArray<FinanceLedgerEntry>(w?.ledger); const isSelf = !!status.data?.adminId && status.data.adminId === u.id; const wTotal = Math.max(w?.pagination?.totalLedger ?? 0, w?.pagination?.totalReservations ?? 0); const works = asArray<AdminJob>(u.works);
+  const u = q.data; const w = wq.data ?? u.wallet; const walletStale = wq.isError || wq.failureCount > 0; const reservations = asArray<FinanceReservation>(w?.reservations); const ledger = asArray<FinanceLedgerEntry>(w?.ledger); const isSelf = !!status.data?.adminId && status.data.adminId === u.id; const wTotal = Math.max(w?.pagination?.totalLedger ?? 0, w?.pagination?.totalReservations ?? 0); const works = asArray<AdminJob>(u.works);
   return <div>
     <Panel title={`${u.firstName} ${u.lastName ?? ''}`.trim()} meta={<span className="mono">{u.username ? `@${u.username} · ` : ''}ID {u.id}</span>} actions={<span className={`adm-tag ${u.blocked ? 'bad' : 'ok'}`}>{u.blocked ? 'Заблокирован' : 'Активен'}</span>}>
       <div className="adm-figures" style={{ margin: 16, marginBottom: 12 }}>
@@ -117,7 +117,10 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
             <strong style={{ fontSize: 13 }}>Дневной лимит · {w?.dailyUsage?.utcDay ?? '—'} UTC</strong>
             <button className="adm-btn sm" disabled={wq.isFetching} onClick={() => void wq.refetch()} data-testid="button-refresh-daily-usage">{wq.isFetching ? 'Обновляем…' : 'Обновить'}</button>
           </div>
-          {wq.isError ? <ErrorBox error={wq.error} onRetry={() => void wq.refetch()} /> : w?.dailyUsage ? <>
+          {walletStale && w?.dailyUsage && <div className="adm-feedback bad" role="alert" data-testid="daily-usage-stale">
+            Не удалось обновить кошелёк. Показаны последние подтверждённые данные; они могут быть устаревшими.
+          </div>}
+          {wq.isError && !w?.dailyUsage ? <ErrorBox error={wq.error} onRetry={() => void wq.refetch()} /> : w?.dailyUsage ? <>
             <dl className="adm-review" style={{ margin: '12px 0', gridTemplateColumns: 'minmax(0, 1fr) auto' }}>
               <dt>Активные резервы</dt><dd className="num" data-testid="text-daily-reserves">{fmtInt(w.dailyUsage.activeReserves)} кр.</dd>
               <dt>Чистые списания за день</dt><dd className="num" data-testid="text-daily-net-spent">{fmtInt(w.dailyUsage.netSpent)} кр.</dd>
@@ -142,7 +145,6 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
       </tbody></table></div>}
     </Panel>
     <Panel title="Операции пользователя" meta={`${fmtInt(w?.pagination?.totalLedger)} всего`}>{ledger.length === 0 ? <Empty title="Операций нет">Текущий баланс — начальный, журнал ведётся с первой операции.</Empty> : <LedgerTable items={ledger} hideAccount />}</Panel>
-    {wq.isError && <ErrorBox error={wq.error} onRetry={() => void wq.refetch()} />}
     {wTotal > WPAGE && <div className="adm-panel"><Pager total={wTotal} limit={WPAGE} offset={wOffset} onChange={setWOffset} /></div>}
     <Panel title="Работы" meta="Записи meduha_works, генерация не подключена">{works.length === 0 ? <Empty title="Работ нет" /> : <div className="adm-table-wrap"><table className="adm-table"><tbody>{works.map(j => <tr key={j.id}><td>{j.title}</td><td>{j.type}</td><td>{j.status}</td><td className="num">{fmtDate(j.createdAt)}</td></tr>)}</tbody></table></div>}</Panel>
     {op && <CreditOp mode={op.mode} reservation={op.reservation} user={u} onClose={() => setOp(null)} onDone={onDone} />}

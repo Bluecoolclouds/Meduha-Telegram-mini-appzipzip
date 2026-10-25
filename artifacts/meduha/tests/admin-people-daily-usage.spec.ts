@@ -129,8 +129,21 @@ async function mutateReservationThroughAPI(
 test('account daily usage refreshes through the real admin API and an isolated account', async ({ page }) => {
   test.setTimeout(75_000);
   const account = fixture.testAccount!;
+  let walletFailuresRemaining = 0;
   await page.route('**/api/meduha/admin/**', async route => {
     const incoming = new URL(route.request().url());
+    if (walletFailuresRemaining > 0
+      && incoming.pathname === '/api/meduha/admin/wallet'
+      && incoming.searchParams.get('userId') === account.id
+      && route.request().method() === 'GET') {
+      walletFailuresRemaining -= 1;
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Temporary wallet read failure' }),
+      });
+      return;
+    }
     const upstream = await route.fetch({
       url: `${fixture.url}${incoming.pathname}${incoming.search}`,
     });
@@ -188,7 +201,29 @@ test('account daily usage refreshes through the real admin API and an isolated a
 
   const manuallyRefreshedReservation = await mutateReservationThroughAPI(page, account.id, 'reserve', 5);
   await expect(page.getByTestId('text-daily-reserves')).toHaveText('0 кр.', { timeout: 1_000 });
+  walletFailuresRemaining = 1;
+  const failedManualWallet = page.waitForResponse(response =>
+    new URL(response.url()).pathname === '/api/meduha/admin/wallet'
+      && new URL(response.url()).searchParams.get('userId') === account.id
+      && response.request().method() === 'GET'
+      && response.status() === 503,
+  );
+  const recoveredManualWallet = page.waitForResponse(async response => {
+    if (new URL(response.url()).pathname !== '/api/meduha/admin/wallet'
+      || new URL(response.url()).searchParams.get('userId') !== account.id
+      || response.request().method() !== 'GET'
+      || response.status() !== 200) return false;
+    const body = await response.json() as { dailyUsage?: { activeReserves?: number } };
+    return body.dailyUsage?.activeReserves === 5;
+  });
   await page.getByTestId('button-refresh-daily-usage').click();
+  await failedManualWallet;
+  await expect(page.getByTestId('daily-usage-stale')).toBeVisible();
+  await assertDailyUsage(page, {
+    reserves: 0, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit,
+  });
+  await recoveredManualWallet;
+  await expect(page.getByTestId('daily-usage-stale')).toHaveCount(0);
   await assertDailyUsage(page, {
     reserves: 5, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit - 5,
   });
@@ -228,15 +263,34 @@ test('account daily usage refreshes through the real admin API and an isolated a
     reserves: 4, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit - 4,
   });
 
-  const focusedWalletResponse = page.waitForResponse(response =>
+  walletFailuresRemaining = 1;
+  const failedFocusedWallet = page.waitForResponse(response =>
     new URL(response.url()).pathname === '/api/meduha/admin/wallet'
       && new URL(response.url()).searchParams.get('userId') === account.id
       && response.request().method() === 'GET'
-      && response.status() === 200,
+      && response.status() === 503,
   );
+  const recoveredFocusedWallet = page.waitForResponse(async response => {
+    if (new URL(response.url()).pathname !== '/api/meduha/admin/wallet'
+      || new URL(response.url()).searchParams.get('userId') !== account.id
+      || response.request().method() !== 'GET'
+      || response.status() !== 200) return false;
+    const body = await response.json() as {
+      dailyUsage?: { activeReserves?: number; netSpent?: number; remaining?: number };
+    };
+    return body.dailyUsage?.activeReserves === 3
+      && body.dailyUsage.netSpent === 4
+      && body.dailyUsage.remaining === account.dailyLimit - 7;
+  });
   await page.bringToFront();
   await setPageVisibility(page, 'visible');
-  const refreshedWallet = await focusedWalletResponse;
+  await failedFocusedWallet;
+  await expect(page.getByTestId('daily-usage-stale')).toBeVisible();
+  await assertDailyUsage(page, {
+    reserves: 4, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit - 4,
+  });
+  const refreshedWallet = await recoveredFocusedWallet;
+  await expect(page.getByTestId('daily-usage-stale')).toHaveCount(0);
   const refreshedBody = await refreshedWallet.json() as {
     dailyUsage: { activeReserves: number; netSpent: number; remaining: number };
   };
