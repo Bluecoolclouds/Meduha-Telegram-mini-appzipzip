@@ -18,3 +18,4 @@
 - [Pricing reference](pricing-reference.md) — user chose Higgsfield-style USD prices; distinguish monthly from annual pricing and do not copy website-only benefits.
 - [Account spending limits](account-spending-limits.md) — zero fails closed; holds carry across UTC days; lowering the cap does not cancel authorized work.
 - [API contracts after merges](post-merge-api-contracts.md) — merged API sources may outpace compiled shared declarations; rebuild before diagnosing missing UI fields.
+- [Workflow port ownership](workflow-port-ownership.md) — a failed workflow can coexist with an older live server; identify the port owner before restarting.
