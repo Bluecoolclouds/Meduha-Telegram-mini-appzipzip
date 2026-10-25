@@ -124,11 +124,11 @@ Keep the upstream provider's identity out of all customer-facing Meduha screens,
 
 **How to apply:** use neutral Meduha/model wording in public screens and keep provider names only in internal configuration and technical implementation where required.
 
-Genjutsu's model screen should retain the large playable video example above its controls, with the model name at the top inside that video block. Do not add a separate duplicate title card below the video.
+All video-model screens should follow the Genjutsu example: a large playable video above the controls, with the model name at the top inside that video block. Do not add a separate duplicate title card below it.
 
-**Why:** the user clarified «именно тут вроде видео было», then asked to remove the separate name block and put the name at the top of the video block: restore the media in place, not through a redirect.
+**Why:** the user clarified «именно тут вроде видео было», requested the name inside the video block, then asked to apply this to every video scenario using media from each model's own Playground page.
 
-**How to apply:** reuse the existing scenario video preview in place; preserve model selection, routes, generation settings and billing behavior.
+**How to apply:** reuse the existing preview in place and use the primary demo from the corresponding Playground, not recommendation-card media or an unrelated model's fallback. Shared examples are valid when the source pages themselves share them. Keep demos labelled, load clips only on play, and preserve model selection, routes, generation settings and billing behavior.
 
 Keep the homepage «Вдохновляйся» artist showcase hidden until there are real artists to feature.
 

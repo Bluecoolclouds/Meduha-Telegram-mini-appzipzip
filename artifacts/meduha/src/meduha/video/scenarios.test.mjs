@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { searchVideoScenarios, scenarioProvider, videoScenarioProviders, videoScenarioProviderLabel, videoScenarios, scenarioDraftHref } from './scenarios.ts';
 import { formatScenarioPrice, scenarioCreditPrice } from './prices.ts';
 import { genjutsuPreviewScenario, isDirectVideoScenario, videoScenarioGenerationHref, videoScenarioModel, videoScenarioParameters, videoScenarioNotice } from './scenarioGeneration.ts';
+import { videoModelPreview } from './modelPreviews.ts';
 
 const catalogue = JSON.parse(readFileSync(new URL('../../../../api-server/src/lib/video-catalog.json', import.meta.url), 'utf8'));
 
@@ -148,4 +149,19 @@ test('every Genjutsu variant retains its original large video example', () => {
     assert.equal(genjutsuPreviewScenario(model.id), expected);
   }
   for (const model of catalogue.models.filter(model => !model.id.includes('genjutsu'))) assert.equal(genjutsuPreviewScenario(model.id), null);
+});
+
+test('every video mode uses verified media from its own Playground page', () => {
+  const manifest = JSON.parse(readFileSync(new URL('./model-preview-media.json', import.meta.url), 'utf8'));
+  assert.deepEqual(Object.keys(manifest.models).sort(), catalogue.models.map(model => model.id).sort());
+  for (const model of catalogue.models) {
+    const entry = manifest.models[model.id];
+    assert.equal(entry.source, model.source);
+    assert.match(entry.video, /^https:\/\/d28lhcrx5qdowv\.cloudfront\.net\/media\/explore\/media\/[a-f0-9]{64}-video\.mp4$/);
+    assert.match(entry.thumb, /^https:\/\/d28lhcrx5qdowv\.cloudfront\.net\/media\/explore\/media\/[a-f0-9]{64}-thumbnail\.webp$/);
+    assert.deepEqual(videoModelPreview(model.id), { video: entry.video, thumb: entry.thumb });
+  }
+  assert.equal(videoModelPreview('not-a-model'), null);
+  assert.equal(videoModelPreview('constructor'), null);
+  assert.equal(videoModelPreview('__proto__'), null);
 });

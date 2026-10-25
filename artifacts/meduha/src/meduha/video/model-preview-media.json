@@ -1,0 +1,379 @@
+{
+  "models": {
+    "bytedance/seedance-2.5/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e49233cbd94028feaafc895fc1350b276278a66ab9672b5a9cf7045c2b2fd239-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/74c63b88a889cb7f0f4389b8ae945592ff66d7cbcf41b48f9132fa341803a090-thumbnail.webp"
+    },
+    "bytedance/seedance-2.5/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e49233cbd94028feaafc895fc1350b276278a66ab9672b5a9cf7045c2b2fd239-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/74c63b88a889cb7f0f4389b8ae945592ff66d7cbcf41b48f9132fa341803a090-thumbnail.webp"
+    },
+    "bytedance/seedance-2.5/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e49233cbd94028feaafc895fc1350b276278a66ab9672b5a9cf7045c2b2fd239-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/74c63b88a889cb7f0f4389b8ae945592ff66d7cbcf41b48f9132fa341803a090-thumbnail.webp"
+    },
+    "bytedance/seedance-2.5/video-edit": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-edit/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e49233cbd94028feaafc895fc1350b276278a66ab9672b5a9cf7045c2b2fd239-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/74c63b88a889cb7f0f4389b8ae945592ff66d7cbcf41b48f9132fa341803a090-thumbnail.webp"
+    },
+    "bytedance/seedance-2.5/video-extend": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-extend/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e49233cbd94028feaafc895fc1350b276278a66ab9672b5a9cf7045c2b2fd239-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/74c63b88a889cb7f0f4389b8ae945592ff66d7cbcf41b48f9132fa341803a090-thumbnail.webp"
+    },
+    "higgsfield/genjutsu-light/motion-transfer/v1.0": {
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu-light/motion-transfer/v1.0/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/413e2fe3e34610d5f950e9f081896991d1891cf16836f7dd91b72cc421d8f5d0-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b45d8eab4977465dbdec65d0df6ce0996d656d303da0147e369b54b10e287903-thumbnail.webp"
+    },
+    "higgsfield/genjutsu-light/object-swap/v1.0": {
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu-light/object-swap/v1.0/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/413e2fe3e34610d5f950e9f081896991d1891cf16836f7dd91b72cc421d8f5d0-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b45d8eab4977465dbdec65d0df6ce0996d656d303da0147e369b54b10e287903-thumbnail.webp"
+    },
+    "higgsfield/genjutsu/motion-transfer/v1.0": {
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu/motion-transfer/v1.0/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/478325c2a854b75ffc4d59b5704be94f4db14c810039f5d3aa11bcca31c56894-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e88805fcb31442389587a2953675fd723ee8d4cb5a317e6280b5d1cca979e152-thumbnail.webp"
+    },
+    "higgsfield/genjutsu/object-swap/v1.0": {
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu/object-swap/v1.0/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c173ad701aac89bc22c0464a059f71720eb4134b1b44fc7909bd98d1b117e708-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/06e2dd26db64fd455b6bf9e0eb4ef71d3857e7db4fa0d190a51510ea08a97f61-thumbnail.webp"
+    },
+    "higgsfield/genjutsu/restyle/v1.0": {
+      "source": "https://open.higgsfield.ai/models/higgsfield/genjutsu/restyle/v1.0/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/478325c2a854b75ffc4d59b5704be94f4db14c810039f5d3aa11bcca31c56894-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e88805fcb31442389587a2953675fd723ee8d4cb5a317e6280b5d1cca979e152-thumbnail.webp"
+    },
+    "kling-video/v4.0/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/195dfe3aac041fd17b2aec175dad7030e8b93f369c1cdbc4dfb88970cf1071d4-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7de2a29f334ba3edb529879d311f020c21e05de0a5814af00bd9e91bce33635e-thumbnail.webp"
+    },
+    "kling-video/v4.0/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/195dfe3aac041fd17b2aec175dad7030e8b93f369c1cdbc4dfb88970cf1071d4-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7de2a29f334ba3edb529879d311f020c21e05de0a5814af00bd9e91bce33635e-thumbnail.webp"
+    },
+    "kling-video/v4.0/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/195dfe3aac041fd17b2aec175dad7030e8b93f369c1cdbc4dfb88970cf1071d4-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7de2a29f334ba3edb529879d311f020c21e05de0a5814af00bd9e91bce33635e-thumbnail.webp"
+    },
+    "kling-video/v4.0/video-edit": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v4.0/video-edit/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/195dfe3aac041fd17b2aec175dad7030e8b93f369c1cdbc4dfb88970cf1071d4-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7de2a29f334ba3edb529879d311f020c21e05de0a5814af00bd9e91bce33635e-thumbnail.webp"
+    },
+    "minimax/h3/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/minimax/h3/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c4d27237ec0cc455ecdfbfdec058e8c3dc052bd7f34e1433d712dd01ef69fd50-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/296b62f0b8633787bdf0892549bbd0bf5c19956ffa0a340e810249d354b6e6db-thumbnail.webp"
+    },
+    "minimax/h3/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/minimax/h3/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c4d27237ec0cc455ecdfbfdec058e8c3dc052bd7f34e1433d712dd01ef69fd50-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/296b62f0b8633787bdf0892549bbd0bf5c19956ffa0a340e810249d354b6e6db-thumbnail.webp"
+    },
+    "minimax/h3/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/minimax/h3/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c4d27237ec0cc455ecdfbfdec058e8c3dc052bd7f34e1433d712dd01ef69fd50-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/296b62f0b8633787bdf0892549bbd0bf5c19956ffa0a340e810249d354b6e6db-thumbnail.webp"
+    },
+    "alibaba/wan-3.0-prime/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
+    },
+    "alibaba/wan-3.0-prime/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
+    },
+    "alibaba/wan-3.0-prime/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
+    },
+    "bytedance/seedance-2.0/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c9292e8f1a5fcfb83a07cc45aea0e18593f2745e0d01bf32d3120c8327972fa4-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5baa5f54b7a9d5b5f8921679a96af443de10655aa0b88fc0268b424bfb73ec4-thumbnail.webp"
+    },
+    "bytedance/seedance-2.0/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c9292e8f1a5fcfb83a07cc45aea0e18593f2745e0d01bf32d3120c8327972fa4-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5baa5f54b7a9d5b5f8921679a96af443de10655aa0b88fc0268b424bfb73ec4-thumbnail.webp"
+    },
+    "bytedance/seedance-2.0/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3f79179482a6cc871a92f4d4c242230817b48ecf90079c9e2e551057251664e1-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/5d978a3db6a8f758a02a658956c68d1bd43b82da96be75c83369d0bb33e48eb4-thumbnail.webp"
+    },
+    "higgsfield/cinema-studio/4.0": {
+      "source": "https://open.higgsfield.ai/models/higgsfield/cinema-studio/4.0/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/cf76b0c05e5ac8154b16bd24238d7527c837452db713691fa6d9db4bea7a7b3d-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/24fc2ccb2207a9d37b094f6da28c9055d73e98a02dddfa8d3b1c7d17b05865d8-thumbnail.webp"
+    },
+    "workflows/genjutsu": {
+      "source": "https://open.higgsfield.ai/models/workflows/genjutsu/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/478325c2a854b75ffc4d59b5704be94f4db14c810039f5d3aa11bcca31c56894-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e88805fcb31442389587a2953675fd723ee8d4cb5a317e6280b5d1cca979e152-thumbnail.webp"
+    },
+    "workflows/genjutsu/object-swap": {
+      "source": "https://open.higgsfield.ai/models/workflows/genjutsu/object-swap/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/478325c2a854b75ffc4d59b5704be94f4db14c810039f5d3aa11bcca31c56894-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e88805fcb31442389587a2953675fd723ee8d4cb5a317e6280b5d1cca979e152-thumbnail.webp"
+    },
+    "kling-video/v3.0/std/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/std/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3.0/pro/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/pro/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3.0/4k/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/4k/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3.0/std/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/std/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3.0/pro/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/pro/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3.0/4k/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0/4k/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3.0-turbo/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0-turbo/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3.0-turbo/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3.0-turbo/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3/motion-control/std": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3/motion-control/std/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "kling-video/v3/motion-control/pro": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v3/motion-control/pro/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
+    },
+    "alibaba/wan-3.0/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a022d4de4edead66bb7ec9f2df05fc0ab6e86bf2950085e0001e13977c91d9a8-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
+    },
+    "alibaba/wan-3.0/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a022d4de4edead66bb7ec9f2df05fc0ab6e86bf2950085e0001e13977c91d9a8-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
+    },
+    "alibaba/wan-3.0/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/wan-3.0/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/6cf6ae3723d81364d30b9db77a18ca1de2ae0254acf973db4f95449990b6b1e0-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
+    },
+    "lightricks/ltx-2.5/text-to-video/fast": {
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/fast/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c998c7723a9c434adadb0d4b9400f0012233280ffb34fa3f3f57bba7bfbc34b8-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/be3cb0f51bee496d68b2633ad74bc11a376bda1b53ed60fbbacbca22aef65bd8-thumbnail.webp"
+    },
+    "lightricks/ltx-2.5/image-to-video/fast": {
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/image-to-video/fast/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c998c7723a9c434adadb0d4b9400f0012233280ffb34fa3f3f57bba7bfbc34b8-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/be3cb0f51bee496d68b2633ad74bc11a376bda1b53ed60fbbacbca22aef65bd8-thumbnail.webp"
+    },
+    "lightricks/ltx-2.5/text-to-video/pro": {
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/pro/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/8e43510a30ca041b2bc3ad27268a39e22545c6a2e6b115156a7a078e39f83b4e-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/128fa773540ff3eb16569c218f41584024016e24d738b466a84725186ddfb856-thumbnail.webp"
+    },
+    "lightricks/ltx-2.5/image-to-video/pro": {
+      "source": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/image-to-video/pro/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/8e43510a30ca041b2bc3ad27268a39e22545c6a2e6b115156a7a078e39f83b4e-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/128fa773540ff3eb16569c218f41584024016e24d738b466a84725186ddfb856-thumbnail.webp"
+    },
+    "xai/grok-imagine-video/v1.5/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/xai/grok-imagine-video/v1.5/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/4b6bdf531404f58760063165002ea79a92bad7fb30ad47ad2f560cb0088830b9-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/8be68e2417b7a5834ad70ae5011fe76f38e3a16d8d7df74a0a329ffcd2e06b91-thumbnail.webp"
+    },
+    "wan/v2.7/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/wan/v2.7/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/f23e4ba931b1d9bb586d44dcadc066537963180379e2aa142317c0fb43240822-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7254bd5404ad90ce9323317e02d70db51d78b1bcf0fba165b326784f1c7f06b6-thumbnail.webp"
+    },
+    "wan/v2.7/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/wan/v2.7/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/f23e4ba931b1d9bb586d44dcadc066537963180379e2aa142317c0fb43240822-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7254bd5404ad90ce9323317e02d70db51d78b1bcf0fba165b326784f1c7f06b6-thumbnail.webp"
+    },
+    "wan/v2.7/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/wan/v2.7/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/f23e4ba931b1d9bb586d44dcadc066537963180379e2aa142317c0fb43240822-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7254bd5404ad90ce9323317e02d70db51d78b1bcf0fba165b326784f1c7f06b6-thumbnail.webp"
+    },
+    "alibaba/happy-horse/v1.1/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/595cde9ce26a47e33706b23a6eda4638d6104c8f4a3971943a9101b5eb95bf2b-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a9f29388208cd195e6020ecd329ac02a4f3931c69cbbde290a369dc9a9d88832-thumbnail.webp"
+    },
+    "alibaba/happy-horse/v1.1/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/595cde9ce26a47e33706b23a6eda4638d6104c8f4a3971943a9101b5eb95bf2b-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a9f29388208cd195e6020ecd329ac02a4f3931c69cbbde290a369dc9a9d88832-thumbnail.webp"
+    },
+    "alibaba/happy-horse/v1.1/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a05672d3683a4e143b1e0d973170a7bd98ce36bcac9e98208f23b3fdd4d01a15-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b04463278ae2111651340c77a3310edece7fcb646a9512b823970b04c69a23c8-thumbnail.webp"
+    },
+    "alibaba/happy-horse/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
+    },
+    "alibaba/happy-horse/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
+    },
+    "alibaba/happy-horse/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/alibaba/happy-horse/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
+    },
+    "pixverse/v6/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/pixverse/v6/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/1b8ec05136532b0b87cf7d1bc78e3420350f9a3ae73c600d05666de6c6765fb3-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ad86ec99104e2e71f2d6f4627d0a072e7812f1f5f07eee1cf744e1d977880455-thumbnail.webp"
+    },
+    "pixverse/v6/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/pixverse/v6/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/1b8ec05136532b0b87cf7d1bc78e3420350f9a3ae73c600d05666de6c6765fb3-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ad86ec99104e2e71f2d6f4627d0a072e7812f1f5f07eee1cf744e1d977880455-thumbnail.webp"
+    },
+    "kling-video/o3/first-last-frame": {
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/first-last-frame/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+    },
+    "kling-video/o3/image-reference": {
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/image-reference/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+    },
+    "kling-video/o3/video-reference": {
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/video-reference/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+    },
+    "kling-video/o3/video-edit": {
+      "source": "https://open.higgsfield.ai/models/kling-video/o3/video-edit/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+    },
+    "kling-video/v2.6/pro/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.6/pro/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5637fe80128b2d7428b22a4c7e0446da2b943693257bc7edd4b880ded21e4d9-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7b096f580b7f17abc25e2edd00b9607fa30063c8d54dfd56aaa2578a20e443d3-thumbnail.webp"
+    },
+    "kling-video/v2.6/pro/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.6/pro/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5637fe80128b2d7428b22a4c7e0446da2b943693257bc7edd4b880ded21e4d9-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7b096f580b7f17abc25e2edd00b9607fa30063c8d54dfd56aaa2578a20e443d3-thumbnail.webp"
+    },
+    "kling-video/motion-control/std": {
+      "source": "https://open.higgsfield.ai/models/kling-video/motion-control/std/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5637fe80128b2d7428b22a4c7e0446da2b943693257bc7edd4b880ded21e4d9-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7b096f580b7f17abc25e2edd00b9607fa30063c8d54dfd56aaa2578a20e443d3-thumbnail.webp"
+    },
+    "kling-video/motion-control/pro": {
+      "source": "https://open.higgsfield.ai/models/kling-video/motion-control/pro/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/955771bc12986336652834f5402b8d6ed8d4cd626dfc9c702adffdffcd243351-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/355c22de1154894534372969d96a7536a1cb29c67f4bc1da2b116332ff955732-thumbnail.webp"
+    },
+    "kling-video/omni/first-last-frame": {
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/first-last-frame/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+    },
+    "kling-video/omni/image-reference": {
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/image-reference/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+    },
+    "kling-video/omni/video-reference": {
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/video-reference/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+    },
+    "kling-video/omni/video-edit": {
+      "source": "https://open.higgsfield.ai/models/kling-video/omni/video-edit/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+    },
+    "wan/v2.6/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/wan/v2.6/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3e403a0b1e95acc0b18e66b1c5965f50f38ad8cd30a3204648aef6c00b1ee12b-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
+    },
+    "wan/v2.6/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/wan/v2.6/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3e403a0b1e95acc0b18e66b1c5965f50f38ad8cd30a3204648aef6c00b1ee12b-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
+    },
+    "wan/v2.6/reference-to-video": {
+      "source": "https://open.higgsfield.ai/models/wan/v2.6/reference-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3e403a0b1e95acc0b18e66b1c5965f50f38ad8cd30a3204648aef6c00b1ee12b-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
+    },
+    "minimax/hailuo-2.3/standard/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/10d1c1a05b8e65b8e0f8c5f1a9aa9366961361a5447102e526eee3937f6b4b89-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/60fabab44d6ffdf2f90155967c67662d3f7107439bfde9cc279ff003efdc36b7-thumbnail.webp"
+    },
+    "minimax/hailuo-2.3/standard/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/10d1c1a05b8e65b8e0f8c5f1a9aa9366961361a5447102e526eee3937f6b4b89-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/60fabab44d6ffdf2f90155967c67662d3f7107439bfde9cc279ff003efdc36b7-thumbnail.webp"
+    },
+    "kling-video/v2.5-turbo/standard/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/standard/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/16b1d5144f943383322d4f0a1f9da59a4343a5b1249f521b561089fbcc8ad127-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/cef30e93329405204ca05fcd12e723d2328a9f6ae31639ba6116b52b8fad7102-thumbnail.webp"
+    },
+    "kling-video/v2.5-turbo/pro/image-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/image-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/16b1d5144f943383322d4f0a1f9da59a4343a5b1249f521b561089fbcc8ad127-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/29fcd3a6b134ff8cb0bd22b477251372b4bb0d858912ea5441b5f08b19b445ff-thumbnail.webp"
+    },
+    "kling-video/v2.5-turbo/pro/text-to-video": {
+      "source": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/text-to-video/playground",
+      "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/16b1d5144f943383322d4f0a1f9da59a4343a5b1249f521b561089fbcc8ad127-video.mp4",
+      "thumb": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/cef30e93329405204ca05fcd12e723d2328a9f6ae31639ba6116b52b8fad7102-thumbnail.webp"
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { scenarioDraftHref, videoScenarios } from '../src/meduha/video/scenarios';
 import { videoScenarioGenerationHref } from '../src/meduha/video/scenarioGeneration';
 import catalogue from '../../api-server/src/lib/video-catalog.json' with { type: 'json' };
+import previewMedia from '../src/meduha/video/model-preview-media.json' with { type: 'json' };
 
 test.use({ viewport: { width: 390, height: 844 } });
 
@@ -100,4 +101,31 @@ test('saved draft identities and unsupported settings stay explicit; unknown sce
   expect(new URL(page.url()).searchParams.get('videoDraft')).toBe(context.draftId);
   await page.goto('/create?type=video&videoModel=bytedance%2Fseedance-2.5%2Ftext-to-video&videoIdea=unknown');
   await expect(page.getByText('Видео-сценарий не найден', { exact: true })).toBeVisible();
+});
+
+test('model headers use the matching official demo in all 75 modes and fetch video only on play', async ({ page }) => {
+  test.setTimeout(150_000);
+  const requestedClips: string[] = [];
+  page.on('request', request => {
+    if (request.url().includes('cloudfront.net/media/explore/media/') && new URL(request.url()).pathname.endsWith('.mp4')) requestedClips.push(request.url());
+  });
+  const scenario = videoScenarios.find(item => item.id === 'text-to-video')!;
+  await page.goto(scenarioDraftHref(scenario));
+  for (const model of catalogue.models) {
+    await page.getByTestId('select-video-idea-model').selectOption(model.id);
+    const form = page.getByTestId(`page-video-model-${model.id}`);
+    const demo = form.locator('.gj-ex-media video');
+    const expected = previewMedia.models[model.id as keyof typeof previewMedia.models];
+    await expect(form.locator('.gj-ex-head h1')).toHaveCount(1);
+    await expect(form.locator('.ps-model-head')).toHaveCount(0);
+    await expect(demo).toHaveAttribute('src', expected.video);
+    await expect(demo).toHaveAttribute('poster', expected.thumb);
+    await expect(demo).toHaveAttribute('preload', 'none');
+    await expect(demo).not.toHaveAttribute('autoplay', /.*/);
+  }
+  expect(requestedClips).toEqual([]);
+  await page.getByTestId('select-video-idea-model').selectOption('bytedance/seedance-2.5/text-to-video');
+  await page.getByTestId('button-play-example-bytedance/seedance-2.5/text-to-video').click();
+  await expect.poll(() => page.locator('.gj-ex-media video').evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 20_000 }).toBeGreaterThan(0);
+  expect(requestedClips.length).toBeGreaterThan(0);
 });
