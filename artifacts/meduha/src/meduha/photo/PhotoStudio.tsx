@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Download, Lock, RefreshCw, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X, Zap } from 'lucide-react';
 import { Link, useLocation, useSearch } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
-import { getGetPhotoCatalogQueryKey, getGetMeduhaBootstrapQueryKey, getGetMeduhaWalletQueryKey, getListMeduhaGenerationsQueryKey, useCreatePhotoGeneration, useGetPhotoCatalog, useListMeduhaGenerations } from '@workspace/api-client-react';
-import type { GenerationJob, PhotoCatalog, PhotoCatalogModel, PhotoGenerationInput } from '@workspace/api-client-react';
+import { getGetPhotoCatalogQueryKey, getGetMeduhaBootstrapQueryKey, getGetMeduhaWalletQueryKey, getListMeduhaGenerationsQueryKey, useCreatePhotoGeneration, useQuotePhotoGeneration, useGetPhotoCatalog, useListMeduhaGenerations } from '@workspace/api-client-react';
+import type { GenerationJob, PhotoCatalog, PhotoCatalogModel, PhotoGenerationInput, PhotoQuote } from '@workspace/api-client-react';
 import { Frame, asset, mood, useToast } from '../shared';
 import { hideProviderBrand } from '../publicText';
 import { ScenarioCarousel, PromoBanner } from '../video/ScenarioHero';
@@ -12,13 +12,13 @@ import '../video/video.css';
 import '../video/catalogue.css';
 import { meduhaErrorMessage, useMeduhaSession } from '../session';
 import { uploadMedia, validateFile } from '../templates/manage/api';
-import { batchMultiplier, defaults, effective, fieldKind, isFileArray, isNullable, jsonExample, mediaUuid, validate, type Schema } from './schema';
+import { defaults, effective, fieldKind, isFileArray, isNullable, jsonExample, mediaUuid, validate, type Schema } from './schema';
 import './photo-studio.css';
 import { useRecipeSource, type RecipeSource } from '../templates/recipe/useRecipeSource';
 import RecipeBanner from '../templates/recipe/RecipeBanner';
 import SaveAsTemplate from '../templates/recipe/SaveAsTemplate';
 import { fieldOfPointer, pointerOf, type RecipeView } from '../templates/recipe/model';
-import { familyOf, familyPrice, filterFamilies, groupFamilies, modeKind, modeLabelIn, photoModelHref, type Group } from './families';
+import { familyOf, filterFamilies, groupFamilies, modeKind, modeLabelIn, photoModelHref, type Group } from './families';
 import { photoIdeas, photoIdeaHref, photoIdeaParameters, type PhotoIdea } from './ideas';
 
 const read = { credentials: 'same-origin' as const };
@@ -49,6 +49,7 @@ const order = ['prompt', 'brief', 'image_url', 'image_urls', 'item_image_urls'];
 type Ready = { ok: boolean; reason: string };
 export function readiness(c: PhotoCatalog | undefined, m: PhotoCatalogModel): Ready {
   if (!c) return { ok: false, reason: 'Каталог загружается' };
+  if (m.pricingBlockedReason) return { ok: false, reason: m.pricingBlockedReason };
   if (!c.providerConfigured) return { ok: false, reason: 'Провайдер не настроен' };
   if (!c.storageConfigured) return { ok: false, reason: 'Хранилище не настроено' };
   if (!c.spendingEnabled) return { ok: false, reason: 'Списания выключены' };
@@ -73,7 +74,7 @@ export function PhotoCatalogue() {
   const activeFilters = (mode !== 'all' ? 1 : 0) + (provider !== 'all' ? 1 : 0);
   const update = (v: string) => { setQ(v); const p = new URLSearchParams({ type: 'photo' }); if (v.trim()) p.set('q', v.trim()); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}/create?${p}`); };
   const href = (g: Group<PhotoCatalogModel>) => photoModelHref(g.initial.id);
-  const priceLabel = (list: PhotoCatalogModel[]) => { const ok = list.filter(m => readiness(catalog.data, m).ok); if (!ok.length) return readiness(catalog.data, list[0]).reason; const pr = familyPrice(ok, m => m.creditPrice ?? null)!; const per = ok.some(m => (m.schema.properties as Schema | undefined)?.batch_size); return `${pr.from ? 'от ' : ''}${pr.value} кр.${per ? ' за фото' : ''}`; };
+  const priceLabel = (list: PhotoCatalogModel[]) => { const ok = list.filter(m => readiness(catalog.data, m).ok); if (!ok.length) return readiness(catalog.data, list[0]).reason; return 'Цена по настройкам'; };
   const title = (g: Group<PhotoCatalogModel>) => g.family.title ?? displayName(g.initial);
   const kinds = (g: Group<PhotoCatalogModel>) => Array.from(new Set(g.members.map(modeLabel))).join(' · ');
   const hero = groupFamilies(models).slice(0, 5).map(g => ({ id: g.family.id, title: title(g), subtitle: blurb(g.initial), image: photoModelArt(g.initial), providerLabel: photoProviderLabel(photoProvider(g.initial)), g }));
@@ -158,6 +159,16 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
   const [touched, setTouched] = useState(false);
   const idem = useRef<{ fp: string; key: string } | null>(null);
   const create = useCreatePhotoGeneration({ request: mutateReq });
+  const quoteRequest = useQuotePhotoGeneration({ request: mutateReq });
+  const [quote, setQuote] = useState<{ fp: string; key: string; value: PhotoQuote } | null>(null);
+  const [quoteError, setQuoteError] = useState('');
+  const [now, setNow] = useState(Date.now);
+  const requestLock = useRef(false);
+  useEffect(() => {
+    if (!quote) return;
+    const timer = window.setTimeout(() => setNow(Date.now()), Math.max(0, quote.value.expiresAt - Date.now()) + 20);
+    return () => window.clearTimeout(timer);
+  }, [quote]);
 
   useEffect(() => { if (suffix === 'preview') return; try { localStorage.setItem(storeKey(storeId), JSON.stringify({ params, json, refs })); if (!suffix) localStorage.setItem('meduha.photo.last', model.id); } catch { /* storage full */ } }, [params, json, refs, model.id, storeId, suffix]);
 
@@ -186,18 +197,36 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
   }
   const busyUpload = Object.values(uploading).some(n => n > 0);
   const ready = readiness(catalog, model);
-  const { field: batchField, n: batchN } = batchMultiplier(schema, values);
-  const total = model.creditPrice != null ? model.creditPrice * batchN : null;
 
   const payloadParams: Record<string, unknown> = {};
   for (const k of fields) { if (FILE_KEYS.has(k)) continue; const v = values[k]; if (v !== undefined && v !== '') payloadParams[k] = v; }
   const references: Record<string, string[]> = {};
   for (const [k, list] of Object.entries(refs)) if (list.length && eff.props[k]) references[k] = list.map(r => r.id);
-  const fp = JSON.stringify([model.id, payloadParams, references]);
+  const fp = JSON.stringify([model.id, model.modelId, model.creditPrice, authed, payloadParams, references]);
+  const currentFp = useRef(fp);
+  currentFp.current = fp;
   if (!idem.current || idem.current.fp !== fp) idem.current = { fp, key: uuid() };
+  const activeQuote = quote?.fp === fp && quote.key === idem.current.key ? quote.value : null;
+  const expired = !!activeQuote && activeQuote.expiresAt <= now;
 
   const invalid = Object.keys(errors).length > 0;
-  const canSubmit = authed && ready.ok && !invalid && !busyUpload && !create.isPending;
+  const canSubmit = authed && ready.ok && !invalid && !busyUpload && !create.isPending && !quoteRequest.isPending;
+
+  const calculate = () => {
+    setTouched(true);
+    if (!canSubmit || !model.modelId || requestLock.current) return;
+    requestLock.current = true;
+    setQuote(null); setQuoteError('');
+    const key = uuid();
+    idem.current = { fp, key };
+    quoteRequest.mutate({ data: { idempotencyKey: key, modelId: model.modelId, catalogId: model.id, parameters: payloadParams, references } }, {
+      onSuccess: value => {
+        if (currentFp.current === fp && idem.current?.key === key) { setQuote({ fp, key, value }); setNow(Date.now()); }
+      },
+      onError: error => { if (currentFp.current === fp) setQuoteError(meduhaErrorMessage(error)); },
+      onSettled: () => { requestLock.current = false; },
+    });
+  };
 
   const setP = (k: string, v: unknown) => setParams(p => { const n = { ...p }; if (v === undefined) delete n[k]; else n[k] = v; return n; });
   const addFiles = async (k: string, files: FileList | null, max: number, replaceIndex?: number) => {
@@ -219,12 +248,21 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
 
   const submit = () => {
     setTouched(true);
-    if (!canSubmit || !model.modelId || !idem.current) return;
+    if (!canSubmit || !model.modelId || !idem.current || !activeQuote || activeQuote.expiresAt <= Date.now() || requestLock.current) return;
+    requestLock.current = true;
     const key = idem.current.key;
-    const data: PhotoGenerationInput = { idempotencyKey: key, modelId: model.modelId, catalogId: model.id, expectedCreditPrice: total!, parameters: payloadParams, references };
+    const data: PhotoGenerationInput = { idempotencyKey: key, modelId: model.modelId, catalogId: model.id, expectedCreditPrice: activeQuote.creditPrice, priceQuote: activeQuote.token, parameters: payloadParams, references };
     create.mutate({ data }, {
-      onSuccess: () => { notify('Генерация запущена. Результат появится ниже'); idem.current = { fp, key: uuid() }; qc.invalidateQueries({ queryKey: getListMeduhaGenerationsQueryKey() }); qc.invalidateQueries({ queryKey: getGetPhotoCatalogQueryKey() }); qc.invalidateQueries({ queryKey: getGetMeduhaBootstrapQueryKey() }); qc.invalidateQueries({ queryKey: getGetMeduhaWalletQueryKey() }); },
-      onError: e => notify(`Не запустилось: ${meduhaErrorMessage(e)}. Повтор с теми же настройками не спишет дважды`),
+      onSuccess: () => { setQuote(null); notify('Генерация запущена. Результат появится ниже'); if (currentFp.current === fp) idem.current = { fp, key: uuid() }; qc.invalidateQueries({ queryKey: getListMeduhaGenerationsQueryKey() }); qc.invalidateQueries({ queryKey: getGetPhotoCatalogQueryKey() }); qc.invalidateQueries({ queryKey: getGetMeduhaBootstrapQueryKey() }); qc.invalidateQueries({ queryKey: getGetMeduhaWalletQueryKey() }); },
+      onError: e => {
+        const code = (e as { data?: { code?: string } })?.data?.code;
+        if (['STALE_PRICE_QUOTE', 'UNSAFE_PHOTO_PRICE', 'PRICE_CHANGED'].includes(code ?? '')) {
+          setQuote(null);
+          void qc.invalidateQueries({ queryKey: getGetPhotoCatalogQueryKey() });
+        }
+        notify(`Не запустилось: ${meduhaErrorMessage(e)}. Повтор с теми же настройками не спишет дважды`);
+      },
+      onSettled: () => { requestLock.current = false; },
     });
   };
 
@@ -237,15 +275,20 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
     </>}
     {siblings.length > 1 && <div className="ps-modes" role="group" aria-label="Режим модели" data-testid="group-photo-modes">{siblings.map(m => { const on = m.id === model.id; return <button key={m.id} type="button" aria-pressed={on} className={on ? 'on' : ''} data-testid={`button-photo-mode-${m.id}`} onClick={() => { if (!on) onPick(m.id); }}>{modeLabelIn(m.id) || displayName(m)}</button>; })}</div>}
     {!authed && <div className="ps-alert" data-testid="status-login-required"><Lock size={15}/><span><strong>Нужен вход через Telegram</strong>Открой студию из Telegram, чтобы загружать фото и запускать генерацию. Настройки можно смотреть и менять уже сейчас.</span></div>}
-    {(authed || idea) && !ready.ok && <div className="ps-alert muted" data-testid="status-model-unavailable"><Lock size={15}/><span><strong>Запуск пока недоступен</strong>{ready.reason}. Настройки сохраняются на этом устройстве.</span></div>}
+    {(authed || idea || model.pricingBlockedReason) && !ready.ok && <div className="ps-alert muted" data-testid="status-model-unavailable"><Lock size={15}/><span><strong>Запуск пока недоступен</strong>{ready.reason}. Настройки сохраняются на этом устройстве.</span></div>}
     <RecipeBanner source={source} mismatch={!!source.view && !recipeView}/>
     {model.workflow && schema.properties?.preset_id && <div className="ps-note">Сценарий использует официальный пресет и улучшение описания с высоким качеством — эти параметры зафиксированы.</div>}
     <div className="ps-form">{fields.map(k => <Field key={k} name={k} s={eff.props[k]} schema={schema} required={eff.required.has(k)} locked={k in lockedDefaults} value={values[k]} jsonText={json[k] ?? ''} error={touched || values[k] !== undefined || refs[k]?.length ? errors[k] : undefined} refs={refs[k] || []} uploading={uploading[k] || 0} authed={authed}
       onChange={v => setP(k, v)} onJson={t => setJson(j => ({ ...j, [k]: t }))}
       onFiles={(f, max, idx) => void addFiles(k, f, max, idx)} onRemove={i => setRefs(r => ({ ...r, [k]: (r[k] || []).filter((_, j) => j !== i) }))}/>)}</div>
     <div className="ps-submit">
-      <div className="ps-cost" data-testid="text-photo-cost">{total != null ? <><Zap size={13} fill="currentColor"/><strong>{total}</strong> кредитов{batchField && batchN > 1 ? <small>{model.creditPrice} × {batchN} изображения</small> : <small>фиксированная цена модели</small>}</> : <small>Цена не указана — запуск недоступен</small>}</div>
-      <button className="m-generate" data-testid="button-photo-generate" disabled={!canSubmit} onClick={submit}><Sparkles size={16}/>{create.isPending ? 'Отправляем…' : busyUpload ? 'Ждём загрузку фото…' : 'Создать'}</button>
+      <div className="ps-cost" data-testid="text-photo-cost" aria-live="polite">{activeQuote && !expired ? <><Zap size={13} fill="currentColor"/><strong>{activeQuote.creditPrice}</strong> кредитов за весь запрос<small>{activeQuote.images} изображ. · {activeQuote.resolution} · качество: {activeQuote.quality} · референсов: {activeQuote.referenceCount}</small></> : <small>{expired ? 'Смета истекла — рассчитай цену заново' : 'Итоговая цена появится после расчёта по твоим настройкам'}</small>}</div>
+      <p className="ps-note">Расчёт не запускает генерацию и не резервирует кредиты. Смета действует 5 минут. Только отдельное подтверждение отправит запрос в очередь.</p>
+      {activeQuote && !expired ? <>
+        <button className="m-generate" data-testid="button-photo-generate" disabled={!canSubmit} onClick={submit}><Sparkles size={16}/>{create.isPending ? 'Отправляем…' : `Подтвердить и создать за ${activeQuote.creditPrice} кр.`}</button>
+        <button className="ps-btn" disabled={create.isPending} onClick={() => setQuote(null)}>Отменить</button>
+      </> : <button className="m-generate" data-testid="button-photo-quote" disabled={!canSubmit} onClick={calculate}><Sparkles size={16}/>{quoteRequest.isPending ? 'Рассчитываем…' : busyUpload ? 'Ждём загрузку фото…' : 'Рассчитать стоимость'}</button>}
+      {quoteError && <p className="ps-err" role="alert">{quoteError}</p>}
       {touched && invalid && <p className="ps-err">Проверь отмеченные поля: {Object.keys(errors).map(k => fieldLabels[k] || k).join(', ')}</p>}
     </div>
     <SaveAsTemplate recipe={{ version: 1, kind: 'photo', catalogId: model.id, parameters: payloadParams, references: Object.fromEntries(Object.entries(references).map(([k, v]) => [pointerOf(k), v])) }}

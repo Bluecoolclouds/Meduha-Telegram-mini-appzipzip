@@ -5,19 +5,17 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { PhotoGenerationInputParameters } from './photoGenerationInputParameters';
-import type { PhotoGenerationInputReferences } from './photoGenerationInputReferences';
+import type { PhotoQuoteInput } from './photoQuoteInput';
 
-export interface PhotoGenerationInput {
-  idempotencyKey: string;
-  modelId: string;
-  /** @maxLength 200 */
-  catalogId: string;
+export type PhotoGenerationInput = PhotoQuoteInput & {
   /**
      * @minimum 1
      * @maximum 100000000
      */
   expectedCreditPrice: number;
-  parameters: PhotoGenerationInputParameters;
-  references: PhotoGenerationInputReferences;
-}
+  /**
+     * @minLength 1
+     * @maxLength 8192
+     */
+  priceQuote: string;
+};

@@ -6,4 +6,4 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type PhotoGenerationInputReferences = {[key: string]: string[]};
+export type PhotoQuoteInputReferences = {[key: string]: string[]};

@@ -1,4 +1,29 @@
 {
+  "pricing": {
+    "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention",
+    "reviewedAt": "2026-10-25",
+    "referenceMaxUsdMicros": {
+      "higgsfield-ai/soul/standard": 187500,
+      "higgsfield-ai/soul/v2/standard": 5700,
+      "higgsfield-ai/soul/v2/image-to-image": 5700,
+      "xai/grok-imagine-image-2.0": 80000,
+      "marketing-studio/image": 721900,
+      "marketing-studio/image/flare": 721900,
+      "marketing-studio/image/sunburst": 721900,
+      "higgsfield/ai-influencer": 50000,
+      "ideogram/v4.0": 30000,
+      "recraft/v4.1/text-to-image": 35000,
+      "recraft/v4.1/pro/text-to-image": 210000,
+      "recraft/v4.1/utility/text-to-image": 35000,
+      "recraft/v4.1/utility/pro/text-to-image": 210000,
+      "alibaba/qwen-image-3/text-to-image": 75000,
+      "alibaba/qwen-image-3/edit": 75000,
+      "z-image/turbo": 15000
+    },
+    "blockedEndpoints": {
+      "higgsfield/ads-studio/v1.0": "Стоимость Ads Studio сверяется по фактическим токенам. Достоверный максимум не установлен — запуск заблокирован."
+    }
+  },
   "models": [
     {
       "id": "higgsfield-ai/soul/standard",

@@ -92,7 +92,8 @@ export const GetPhotoCatalogResponse = zod.object({
   "workflow": zod.boolean(),
   "available": zod.boolean(),
   "modelId": zod.string().nullable(),
-  "creditPrice": zod.number().int().nullable()
+  "creditPrice": zod.number().int().nullable(),
+  "pricingBlockedReason": zod.string().nullish()
 })),
   "spendingEnabled": zod.boolean(),
   "storageConfigured": zod.boolean(),
@@ -100,22 +101,54 @@ export const GetPhotoCatalogResponse = zod.object({
 })
 
 
-export const createPhotoGenerationBodyCatalogIdMax = 200;
+export const quotePhotoGenerationBodyCatalogIdMax = 200;
 
-export const createPhotoGenerationBodyExpectedCreditPriceMax = 100000000;
+export const quotePhotoGenerationBodyReferencesMaxOne = 16;
 
-export const createPhotoGenerationBodyReferencesMaxOne = 16;
+
+
+export const QuotePhotoGenerationBody = zod.object({
+  "idempotencyKey": zod.string().uuid(),
+  "modelId": zod.string().uuid(),
+  "catalogId": zod.string().max(quotePhotoGenerationBodyCatalogIdMax),
+  "parameters": zod.record(zod.string(), zod.unknown()),
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(quotePhotoGenerationBodyReferencesMaxOne))
+})
+
+
+
+
+export const QuotePhotoGenerationResponse = zod.object({
+  "token": zod.string(),
+  "creditPrice": zod.number().int().min(1),
+  "expiresAt": zod.number().int(),
+  "images": zod.number().int(),
+  "referenceCount": zod.number().int(),
+  "resolution": zod.string(),
+  "quality": zod.string()
+})
+
+
+export const createPhotoGenerationBodyOneCatalogIdMax = 200;
+
+export const createPhotoGenerationBodyOneReferencesMaxOne = 16;
+
+export const createPhotoGenerationBodyTwoExpectedCreditPriceMax = 100000000;
+
+export const createPhotoGenerationBodyTwoPriceQuoteMax = 8192;
 
 
 
 export const CreatePhotoGenerationBody = zod.object({
   "idempotencyKey": zod.string().uuid(),
   "modelId": zod.string().uuid(),
-  "catalogId": zod.string().max(createPhotoGenerationBodyCatalogIdMax),
-  "expectedCreditPrice": zod.number().int().min(1).max(createPhotoGenerationBodyExpectedCreditPriceMax),
+  "catalogId": zod.string().max(createPhotoGenerationBodyOneCatalogIdMax),
   "parameters": zod.record(zod.string(), zod.unknown()),
-  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createPhotoGenerationBodyReferencesMaxOne))
-})
+  "references": zod.record(zod.string(), zod.array(zod.string().uuid()).max(createPhotoGenerationBodyOneReferencesMaxOne))
+}).and(zod.object({
+  "expectedCreditPrice": zod.number().int().min(1).max(createPhotoGenerationBodyTwoExpectedCreditPriceMax),
+  "priceQuote": zod.string().min(1).max(createPhotoGenerationBodyTwoPriceQuoteMax)
+}))
 
 export const CreatePhotoGenerationResponse = zod.object({
   "job": zod.object({

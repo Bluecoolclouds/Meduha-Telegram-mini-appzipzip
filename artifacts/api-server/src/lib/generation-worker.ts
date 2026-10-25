@@ -5,6 +5,7 @@ import { releaseReservation, settleReservation } from './finance';
 import { genjutsuProviderInput, type GenjutsuMetadata } from './genjutsu';
 import { GenerationVideoValidationError, storeGenerationVideo } from './objectStorage';
 import { photoProviderInput, type PhotoMetadata } from './photo';
+import { assertPhotoQuote, photoPricingBlockedReason, verifyPhotoQuote } from './photo-pricing';
 import { storeGenerationImages, PhotoResultValidationError } from './photo-storage';
 import { videoProviderInput, type VideoMetadata } from './video';
 
@@ -12,11 +13,13 @@ type GenerationJob = {
   id: string;
   account_id: string;
   model_id: string;
+  idempotency_key: string;
+  credit_price: number;
   channel_id: string;
   reservation_id: string;
   request_id: string | null;
   status: string;
-  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata; _photo?: PhotoMetadata; _video?: VideoMetadata };
+  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata; _photo?: PhotoMetadata; _photoQuote?: string; _video?: VideoMetadata };
   provider_status: string | null;
   result_url: string | null;
   resolution_outcome?: 'completed' | 'failed' | null;
@@ -293,6 +296,14 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
   if (!job) return;
   let responseRequestId: string | null = null;
   try {
+    if (job.input._photo) {
+      try {
+        if (!job.input._photoQuote || photoPricingBlockedReason(job.input._photo.endpoint)) throw new Error('Unsafe photo price');
+        // A queue delay does not invalidate consent already accepted at reservation.
+        const quote = verifyPhotoQuote(job.input._photoQuote, true);
+        assertPhotoQuote(quote, job.account_id, job.model_id, job.idempotency_key, job.input._photo, Number(job.credit_price));
+      } catch { throw new ProviderPreparationError('Нет подтверждённой безопасной сметы фото.'); }
+    }
     // REST submission has no retries: this POST is billable and a lost response is ambiguous.
     const send = submit ?? (async (input: GenerationJob['input']) => {
       if (input._photo) {

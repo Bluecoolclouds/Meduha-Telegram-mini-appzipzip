@@ -19,4 +19,6 @@ export interface PhotoCatalogModel {
   modelId: string | null;
   /** @nullable */
   creditPrice: number | null;
+  /** @nullable */
+  pricingBlockedReason?: string | null;
 }

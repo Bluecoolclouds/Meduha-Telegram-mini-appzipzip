@@ -46,6 +46,25 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/PhotoCatalog" }
+  /meduha/photo/quote:
+    post:
+      operationId: quotePhotoGeneration
+      tags: [meduha]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhotoQuoteInput" }
+      responses:
+        "200":
+          description: Non-billable request estimate, never queues generation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhotoQuote" }
+        "400": { description: Invalid input }
+        "401": { description: Telegram account required }
+        "409": { description: No safe price or model unavailable }
+        "503": { description: Estimate unavailable }
   /meduha/photo/generations:
     post:
       operationId: createPhotoGeneration
@@ -1533,6 +1552,7 @@ components:
         available: { type: boolean }
         modelId: { type: [string, "null"] }
         creditPrice: { type: [integer, "null"] }
+        pricingBlockedReason: { type: [string, "null"] }
     PhotoCatalog:
       type: object
       required: [models, spendingEnabled, storageConfigured, providerConfigured]
@@ -1543,14 +1563,13 @@ components:
         spendingEnabled: { type: boolean }
         storageConfigured: { type: boolean }
         providerConfigured: { type: boolean }
-    PhotoGenerationInput:
+    PhotoQuoteInput:
       type: object
-      required: [idempotencyKey, modelId, catalogId, expectedCreditPrice, parameters, references]
+      required: [idempotencyKey, modelId, catalogId, parameters, references]
       properties:
         idempotencyKey: { type: string, format: uuid }
         modelId: { type: string, format: uuid }
         catalogId: { type: string, maxLength: 200 }
-        expectedCreditPrice: { type: integer, minimum: 1, maximum: 100000000 }
         parameters: { type: object, additionalProperties: true }
         references:
           type: object
@@ -1558,6 +1577,25 @@ components:
             type: array
             maxItems: 16
             items: { type: string, format: uuid }
+    PhotoQuote:
+      type: object
+      required: [token, creditPrice, expiresAt, images, referenceCount, resolution, quality]
+      properties:
+        token: { type: string }
+        creditPrice: { type: integer, minimum: 1 }
+        expiresAt: { type: integer }
+        images: { type: integer }
+        referenceCount: { type: integer }
+        resolution: { type: string }
+        quality: { type: string }
+    PhotoGenerationInput:
+      allOf:
+        - { $ref: "#/components/schemas/PhotoQuoteInput" }
+        - type: object
+          required: [expectedCreditPrice, priceQuote]
+          properties:
+            expectedCreditPrice: { type: integer, minimum: 1, maximum: 100000000 }
+            priceQuote: { type: string, minLength: 1, maxLength: 8192 }
     GenerationModel:
       type: object
       required: [id, name, creditPrice, limits]

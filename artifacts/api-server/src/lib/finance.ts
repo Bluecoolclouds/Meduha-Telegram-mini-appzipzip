@@ -1,3 +1,5 @@
+import { assertPhotoQuote, photoPricingFingerprint, photoQuotedPrice, verifyPhotoQuote } from './photo-pricing';
+import type { PhotoMetadata } from './photo';
 import { randomUUID } from 'node:crypto';
 import { pool, type PoolClient } from '@workspace/db';
 import {
@@ -106,6 +108,7 @@ export type ReserveCreditsInput = {
   channelId?: string;
   genjutsuQuote?: Pick<GenjutsuQuoteClaims, 'scenario' | 'resolution' | 'duration' | 'creditPrice' | 'pricingFingerprint'>;
   photoBatch?: number;
+  photoQuote?: { token: string; metadata: PhotoMetadata; requestKey: string };
 };
 
 export type UpdateFinanceSettingsInput = {
@@ -448,6 +451,7 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
     modelId: input.modelId ?? null, channelId: input.channelId ?? null,
     ...(input.genjutsuQuote ? { genjutsuQuote: input.genjutsuQuote } : {}),
     ...(input.photoBatch !== undefined ? { photoBatch: input.photoBatch } : {}),
+    ...(input.photoQuote ? { photoQuote: input.photoQuote } : {}),
   };
   return runMutation('reserveCredits', payload, input.accountId, input.idempotencyKey, async client => {
     const balance = await lockAccount(client, input.accountId);
@@ -477,10 +481,15 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
           || genjutsuPricingFingerprint(creditPrice, model.genjutsu_pricing) !== input.genjutsuQuote.pricingFingerprint) {
           fail('STALE_PRICE_QUOTE', 'Цена или настройки модели изменились. Запроси новую котировку.');
         }
-      } else if (input.photoBatch !== undefined) {
-        integer(input.photoBatch, 'photoBatch', 1, 8);
-        if (model.kind !== 'photo' || input.amount !== creditPrice * input.photoBatch) {
-          fail('INVALID_INPUT', 'Photo reservation must equal the configured model price times batch size');
+      } else if (model.kind === 'photo' || input.photoQuote || input.photoBatch !== undefined) {
+        if (model.kind !== 'photo' || !input.photoQuote) fail('STALE_PRICE_QUOTE', 'Фото требует подтверждённой сметы.');
+        const { token, metadata, requestKey } = input.photoQuote;
+        const claims = verifyPhotoQuote(token);
+        assertPhotoQuote(claims, input.accountId, model.id, requestKey, metadata, input.amount);
+        if (model.upstream_id !== metadata.endpoint
+          || claims.pricingFingerprint !== photoPricingFingerprint(creditPrice)
+          || photoQuotedPrice(creditPrice, metadata, claims.usdMicros) !== input.amount) {
+          fail('STALE_PRICE_QUOTE', 'Цена изменилась. Рассчитай и подтверди новую стоимость.');
         }
       } else if (input.amount !== creditPrice) {
         fail('INVALID_INPUT', 'Reservation amount must equal the configured model credit price');

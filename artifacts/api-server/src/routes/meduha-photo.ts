@@ -2,13 +2,14 @@ import { Router, type Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { db, meduhaAiChannels, meduhaAiModels, pool } from '@workspace/db';
-import { CreatePhotoGenerationBody } from '@workspace/api-zod';
+import { CreatePhotoGenerationBody, QuotePhotoGenerationBody } from '@workspace/api-zod';
 import { currentAccount } from './meduha';
 import { publicJob } from './meduha-generations';
 import { FinanceError, getFinanceSettings, reserveCredits } from '../lib/finance';
 import { higgsfieldCredentials } from '../lib/higgsfield';
 import { generationImageFile } from '../lib/photo-storage';
-import { photoBatchSize, photoModels, PhotoInputError, stablePhotoInput, validatePhotoInput, verifyPhotoReferences, type PhotoMetadata } from '../lib/photo';
+import { photoModels, PhotoInputError, photoProviderInput, stablePhotoInput, validatePhotoInput, verifyPhotoReferences, type PhotoMetadata } from '../lib/photo';
+import { assertPhotoQuote, estimatePhotoRequest, photoPricingBlockedReason, photoPricingFingerprint, photoQuotedPrice, photoQuoteSummary, photoRequestHash, PhotoPricingError, signPhotoQuote, verifyPhotoQuote } from '../lib/photo-pricing';
 
 const fail = (res: Response, code: string, message: string, status = 409) => res.status(status).json({ code, error: message });
 export function photoProviderConfigured() {
@@ -47,11 +48,27 @@ export function createPhotoRouter(dependencies: {
   verifyReferences?: typeof verifyPhotoReferences;
   providerConfigured?: () => boolean;
   storageConfigured?: () => boolean;
+  estimate?: typeof estimatePhotoRequest;
+  providerInput?: (accountId: string, metadata: PhotoMetadata) => Promise<Record<string, unknown>>;
 } = {}) {
   const router = Router();
   const providerReady = dependencies.providerConfigured ?? photoProviderConfigured;
   const storageReady = dependencies.storageConfigured ?? (() => !!process.env.PRIVATE_OBJECT_DIR);
   const checkReferences = dependencies.verifyReferences ?? verifyPhotoReferences;
+  const estimate = dependencies.estimate ?? estimatePhotoRequest;
+  const providerInput = dependencies.providerInput ?? photoProviderInput;
+  const configuredModel = async (modelId: string, endpoint: string) => {
+    const [model] = await db.select({
+      id: meduhaAiModels.id, channelId: meduhaAiModels.channelId, upstreamId: meduhaAiModels.upstreamId,
+      price: meduhaAiModels.creditPrice, enabled: meduhaAiModels.enabled, channelEnabled: meduhaAiChannels.enabled,
+      kind: meduhaAiModels.kind, adapter: meduhaAiChannels.adapter,
+    }).from(meduhaAiModels).innerJoin(meduhaAiChannels, eq(meduhaAiChannels.id, meduhaAiModels.channelId))
+      .where(eq(meduhaAiModels.id, modelId)).limit(1);
+    if (!model || model.kind !== 'photo' || model.adapter !== 'higgsfield' || model.upstreamId !== endpoint || !model.enabled || !model.channelEnabled) {
+      throw new PhotoPricingError('MODEL_UNAVAILABLE', 'Эта модель отключена администратором.');
+    }
+    return model;
+  };
   router.get('/photo/catalog', async (_req, res) => {
     const [settings, rows] = await Promise.all([
       getFinanceSettings(),
@@ -68,11 +85,48 @@ export function createPhotoRouter(dependencies: {
         const candidates = rows.filter(row => row.upstreamId === model.endpoint);
         const configured = candidates.find(row => row.enabled && row.channelEnabled && row.price > 0) ?? candidates[0];
         return {
-          ...model, available: !!configured?.enabled && !!configured.channelEnabled && configured.price > 0,
+          ...model, available: !photoPricingBlockedReason(model.endpoint) && !!configured?.enabled && !!configured.channelEnabled && configured.price > 0,
+          pricingBlockedReason: photoPricingBlockedReason(model.endpoint),
           modelId: configured?.id ?? null, creditPrice: configured && configured.price > 0 ? configured.price : null,
         };
       }),
     });
+  });
+
+  router.post('/photo/quote', async (req, res) => {
+    const account = await currentAccount(req);
+    if (!account || account.blocked) { fail(res, 'SESSION_REQUIRED', 'Войди через Telegram, чтобы рассчитать цену.', 401); return; }
+    const parsed = QuotePhotoGenerationBody.safeParse(req.body);
+    if (!parsed.success) { fail(res, 'INVALID_INPUT', 'Проверь модель и настройки.', 400); return; }
+    const body = parsed.data;
+    const entry = photoModels.find(model => model.id === body.catalogId);
+    if (!entry) { fail(res, 'MODEL_UNAVAILABLE', 'Фотомодель не найдена.'); return; }
+    const metadata: PhotoMetadata = { catalogId: entry.id, endpoint: entry.endpoint, parameters: body.parameters, references: body.references };
+    try {
+      validatePhotoInput(metadata);
+      const blocked = photoPricingBlockedReason(entry.endpoint);
+      if (blocked) throw new PhotoPricingError('UNSAFE_PHOTO_PRICE', blocked);
+      const model = await configuredModel(body.modelId, entry.endpoint);
+      if (!providerReady() || !storageReady()) throw new PhotoPricingError('PROVIDER_NOT_CONFIGURED', 'Провайдер или хранилище ещё не настроены.');
+      if (!(await getFinanceSettings()).spendingEnabled) throw new PhotoPricingError('SPENDING_DISABLED', 'Запуск генераций временно отключён.');
+      await checkReferences(account.id, metadata);
+      const usdMicros = await estimate(entry.endpoint, await providerInput(account.id, metadata));
+      const creditPrice = photoQuotedPrice(model.price, metadata, usdMicros);
+      const expiresAt = Date.now() + 5 * 60_000;
+      const token = signPhotoQuote({
+        purpose: 'photo-price', accountId: account.id, modelId: model.id, idempotencyKey: body.idempotencyKey,
+        requestHash: photoRequestHash(metadata), pricingFingerprint: photoPricingFingerprint(model.price),
+        creditPrice, expiresAt, usdMicros,
+      });
+      res.set('Cache-Control', 'no-store').json({ token, creditPrice, expiresAt, ...photoQuoteSummary(metadata) });
+    } catch (error) {
+      if (error instanceof PhotoInputError) fail(res, 'INVALID_INPUT', error.message, 400);
+      else if (error instanceof PhotoPricingError) fail(res, error.code, error.message, error.status);
+      else {
+        req.log.error({ errorName: error instanceof Error ? error.name : 'UnknownError' }, 'Photo estimate failed');
+        fail(res, 'QUOTE_UNAVAILABLE', 'Не удалось получить смету. Генерация не запущена.', 503);
+      }
+    }
   });
 
   router.get('/generations/:id/images/:index', async (req, res) => {
@@ -127,6 +181,7 @@ export function createPhotoRouter(dependencies: {
       let job = prior.rows[0] as Record<string, any> | undefined;
       const matches = (row: Record<string, any>) => row.model_id === body.modelId
         && Number(row.credit_price) === body.expectedCreditPrice
+        && row.input._photoQuote === body.priceQuote
         && stablePhotoInput(row.input._photo) === stablePhotoInput(metadata);
       if (job && !matches(job)) { fail(res, 'IDEMPOTENCY_CONFLICT', 'Этот ключ уже использован для других параметров.'); return; }
       const sendJob = async () => {
@@ -134,26 +189,23 @@ export function createPhotoRouter(dependencies: {
         res.status(202).json({ job: publicJob(result.rows[0]) });
       };
       if (job && job.status !== 'awaiting_reservation') { await sendJob(); return; }
+      const claims = verifyPhotoQuote(body.priceQuote);
+      assertPhotoQuote(claims, account.id, body.modelId, body.idempotencyKey, metadata, body.expectedCreditPrice);
+      const blocked = photoPricingBlockedReason(entry.endpoint);
+      if (blocked) throw new PhotoPricingError('UNSAFE_PHOTO_PRICE', blocked);
       if (!job) {
         if (!providerReady() || !storageReady()) { fail(res, 'PROVIDER_NOT_CONFIGURED', 'Провайдер или хранилище ещё не настроены.'); return; }
-        const [model] = await db.select({
-          id: meduhaAiModels.id, channelId: meduhaAiModels.channelId, upstreamId: meduhaAiModels.upstreamId,
-          price: meduhaAiModels.creditPrice, enabled: meduhaAiModels.enabled, channelEnabled: meduhaAiChannels.enabled,
-          kind: meduhaAiModels.kind, adapter: meduhaAiChannels.adapter,
-        }).from(meduhaAiModels).innerJoin(meduhaAiChannels, eq(meduhaAiChannels.id, meduhaAiModels.channelId))
-          .where(eq(meduhaAiModels.id, body.modelId)).limit(1);
-        if (!model || model.kind !== 'photo' || model.adapter !== 'higgsfield' || model.upstreamId !== entry.endpoint || !model.enabled || !model.channelEnabled) {
-          fail(res, 'MODEL_UNAVAILABLE', 'Эта модель отключена администратором.'); return;
+        const model = await configuredModel(body.modelId, entry.endpoint);
+        const price = photoQuotedPrice(model.price, metadata, claims.usdMicros);
+        if (price !== body.expectedCreditPrice || claims.pricingFingerprint !== photoPricingFingerprint(model.price)) {
+          throw new PhotoPricingError('STALE_PRICE_QUOTE', 'Цена изменилась. Рассчитай и подтверди новую стоимость.');
         }
-        const price = model.price * photoBatchSize(body.parameters);
-        if (!Number.isSafeInteger(price) || price <= 0) { fail(res, 'MODEL_NOT_PRICED', 'Для модели ещё не задана цена.'); return; }
-        if (price !== body.expectedCreditPrice) { fail(res, 'PRICE_CHANGED', 'Цена изменилась. Обнови страницу и подтверди новую стоимость.'); return; }
         if (!(await getFinanceSettings()).spendingEnabled) { fail(res, 'SPENDING_DISABLED', 'Запуск генераций временно отключён.'); return; }
         await checkReferences(account.id, metadata);
         const input = {
           prompt: String(body.parameters.prompt ?? body.parameters.brief ?? ''),
           duration: 0, resolution: String(body.parameters.resolution ?? ''),
-          aspect_ratio: String(body.parameters.aspect_ratio ?? '1:1'), _photo: metadata,
+          aspect_ratio: String(body.parameters.aspect_ratio ?? '1:1'), _photo: metadata, _photoQuote: body.priceQuote,
         };
         await pool.query(
           `INSERT INTO meduha_generation_jobs (id, account_id, model_id, channel_id, credit_price, idempotency_key, status, input)
@@ -169,7 +221,7 @@ export function createPhotoRouter(dependencies: {
         const held = await reserveCredits({
           accountId: account.id, actorId: account.id, amount: Number(job.credit_price),
           modelId: body.modelId, reason: `${entry.name} · фото`,
-          photoBatch: photoBatchSize(body.parameters),
+          photoQuote: { token: body.priceQuote, metadata, requestKey: body.idempotencyKey },
           idempotencyKey: `generation-reserve:${account.id}:${body.idempotencyKey}`,
         });
         if (!held.reservation) throw new Error('No reservation');
@@ -178,6 +230,7 @@ export function createPhotoRouter(dependencies: {
       await sendJob();
     } catch (error) {
       if (error instanceof PhotoInputError) fail(res, 'INVALID_INPUT', error.message, 400);
+      else if (error instanceof PhotoPricingError) fail(res, error.code, error.message, error.status);
       else if (error instanceof FinanceError) {
         await pool.query(`UPDATE meduha_generation_jobs SET status='failed',error_message=$3,updated_at=now() WHERE account_id=$1 AND idempotency_key=$2 AND status='awaiting_reservation'`, [account.id, body.idempotencyKey, error.message]);
         fail(res, error.code, error.message);

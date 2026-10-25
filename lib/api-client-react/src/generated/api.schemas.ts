@@ -672,6 +672,8 @@ export interface PhotoCatalogModel {
   modelId: string | null;
   /** @nullable */
   creditPrice: number | null;
+  /** @nullable */
+  pricingBlockedReason?: string | null;
 }
 
 export interface PhotoCatalog {
@@ -681,23 +683,42 @@ export interface PhotoCatalog {
   providerConfigured: boolean;
 }
 
-export type PhotoGenerationInputParameters = { [key: string]: unknown };
+export type PhotoQuoteInputParameters = { [key: string]: unknown };
 
-export type PhotoGenerationInputReferences = {[key: string]: string[]};
+export type PhotoQuoteInputReferences = {[key: string]: string[]};
 
-export interface PhotoGenerationInput {
+export interface PhotoQuoteInput {
   idempotencyKey: string;
   modelId: string;
   /** @maxLength 200 */
   catalogId: string;
+  parameters: PhotoQuoteInputParameters;
+  references: PhotoQuoteInputReferences;
+}
+
+export interface PhotoQuote {
+  token: string;
+  /** @minimum 1 */
+  creditPrice: number;
+  expiresAt: number;
+  images: number;
+  referenceCount: number;
+  resolution: string;
+  quality: string;
+}
+
+export type PhotoGenerationInput = PhotoQuoteInput & {
   /**
      * @minimum 1
      * @maximum 100000000
      */
   expectedCreditPrice: number;
-  parameters: PhotoGenerationInputParameters;
-  references: PhotoGenerationInputReferences;
-}
+  /**
+     * @minLength 1
+     * @maxLength 8192
+     */
+  priceQuote: string;
+};
 
 export type GenerationModelLimits = {[key: string]: number};
 

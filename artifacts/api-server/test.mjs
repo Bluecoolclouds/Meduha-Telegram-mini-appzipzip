@@ -35,6 +35,12 @@ await build({
   bundle:true,platform:'node',format:'cjs',outdir:out,entryNames:'[name]',
   outExtension:{'.js':'.cjs'},external:['pg-native'],logLevel:'warning',
 });
+if (process.argv.includes('--photo')) {
+  const photoResult = spawnSync(process.execPath, [
+    '--test', path.join(out, 'meduha-photo.integration.test.cjs'),
+  ], { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } });
+  process.exit(photoResult.status ?? 1);
+}
 if (process.argv.includes('--feed-media')) {
   const mediaResult = spawnSync(process.execPath, [
     '--test', path.join(out, 'feed-media.test.cjs'), path.join(out, 'feed-media-route.test.cjs'),

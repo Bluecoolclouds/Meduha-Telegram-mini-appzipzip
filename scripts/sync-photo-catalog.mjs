@@ -1,5 +1,5 @@
 // Refresh public, documented input schemas only. Never submits a generation.
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const origin = 'https://open.higgsfield.ai';
@@ -56,5 +56,8 @@ for (const slug of pending) {
   }
   console.log(`${slug} → ${endpoint}`);
 }
-await writeFile(new URL('../artifacts/api-server/src/lib/photo-catalog.json', import.meta.url), JSON.stringify({ models }, null, 2) + '\n');
+const destination = new URL('../artifacts/api-server/src/lib/photo-catalog.json', import.meta.url);
+// Schema discovery must not erase the separately reviewed spending policy.
+const { pricing } = JSON.parse(await readFile(destination, 'utf8'));
+await writeFile(destination, JSON.stringify({ pricing, models }, null, 2) + '\n');
 console.log(`Saved ${models.length} verified photo modes.`);
