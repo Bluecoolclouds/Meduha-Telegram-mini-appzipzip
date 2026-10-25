@@ -8,11 +8,11 @@ When inspecting the running app through Chromium CDP, select a target with `type
 
 **How to apply:** Use this rule for direct browser checks when a testing subagent is unavailable; do not interpret an extension target's blank DOM as an application failure.
 
-Authorized Mini App UI tests need both a real server-backed fixture session and matching Telegram SDK launch context. A session cookie alone does not make an ordinary browser an authenticated Mini App.
+Authorized Mini App UI tests need both a real server-backed fixture session and matching Telegram SDK launch context. A session cookie alone does not make an ordinary browser an authenticated Mini App. When a UI test must simulate external/business responses, keep Telegram signature validation, session creation, and bootstrap on the real API router; gate stubbed endpoints on that fixture session.
 
-**Why:** the UI deliberately keeps ordinary browsers in guest mode; tests initially misdiagnosed a valid session as broken.
+**Why:** the UI deliberately keeps ordinary browsers in guest mode; a fabricated SDK user plus mocked session can make a browser appear authenticated without checking identity binding or session creation.
 
-**How to apply:** provide a test-only Telegram launch context matching the seeded account before page startup. Never weaken app authentication, use real users' sessions, or change the administrator to accommodate a browser test.
+**How to apply:** provide valid test-only signed Telegram launch data matching an isolated fixture account before page startup. Never weaken app authentication, use real users' sessions, or change the administrator to accommodate a browser test.
 
 Playback fixtures must outlast the test, or loop only in the test browser.
 
