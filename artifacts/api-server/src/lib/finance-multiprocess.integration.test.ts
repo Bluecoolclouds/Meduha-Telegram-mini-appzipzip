@@ -16,6 +16,7 @@ import {
 
 type WorkerOperation =
   | { type: 'reserve'; input: ReserveCreditsInput }
+  | { type: 'adjust'; input: Parameters<typeof adjustWallet>[0] }
   | { type: 'settle' | 'release' | 'refund'; reservationId: string; actorId: string; idempotencyKey: string }
   | { type: 'wallet'; accountId: string }
   | { type: 'account-limit'; limit: number; actorId: string }
@@ -76,6 +77,8 @@ async function executeWorker(): Promise<void> {
     try {
       if (operation.type === 'reserve') {
         results.push({ status: 'ok', result: await reserveCredits(operation.input) });
+      } else if (operation.type === 'adjust') {
+        results.push({ status: 'ok', result: await adjustWallet(operation.input) });
       } else if (operation.type === 'settle') {
         results.push({ status: 'ok', result: await settleReservation(operation) });
       } else if (operation.type === 'release') {
@@ -258,6 +261,89 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
         assert.equal(left[0].result.wallet.reserved, 10);
         assert.equal(left[0].result.wallet.available, 90);
         await mutate('release', left[0].result.reservation.id);
+      });
+
+      await t.test('a concurrent credit top-up and reservation preserve balance, held credits and idempotency', async () => {
+        for (let round = 0; round < 4; round++) {
+          const accountId = randomUUID();
+          await pool.query(
+            `INSERT INTO "${schema}".meduha_accounts (id, first_name, credits) VALUES ($1,'Race fixture',10)`,
+            [accountId],
+          );
+          const adjustment = {
+            accountId, actorId, delta: 25, reason: 'isolated top-up race', idempotencyKey: key(),
+          };
+          const reservation = input(accountId);
+          const [[topup], [held]] = await Promise.all([
+            runWorker([{ type: 'adjust', input: adjustment }], { schema }),
+            runWorker([{ type: 'reserve', input: reservation }], { schema }),
+          ]);
+          assert.equal(topup.status, 'ok', JSON.stringify(topup));
+          assert.equal(held.status, 'ok', JSON.stringify(held));
+          const [[snapshot], [topupReplay], [holdReplay]] = await Promise.all([
+            runWorker([{ type: 'wallet', accountId }], { schema }),
+            runWorker([{ type: 'adjust', input: adjustment }], { schema }),
+            runWorker([{ type: 'reserve', input: reservation }], { schema }),
+          ]);
+          assert.equal(snapshot.status, 'ok');
+          assert.equal(snapshot.result.balance, 35);
+          assert.equal(snapshot.result.reserved, 10);
+          assert.equal(snapshot.result.available, 25);
+          assert.equal(topupReplay.result.replayed, true);
+          assert.equal(holdReplay.result.replayed, true);
+          assert.equal(topupReplay.result.ledgerEntry.id, topup.result.ledgerEntry.id);
+          assert.equal(holdReplay.result.reservation.id, held.result.reservation.id);
+          assert.equal(await countLedger(adjustment.idempotencyKey), 1);
+          assert.equal(await countLedger(reservation.idempotencyKey), 1);
+          const released = await mutate('release', held.result.reservation.id);
+          assert.equal(released.wallet.balance, 35);
+          assert.equal(released.wallet.reserved, 0);
+          assert.equal(released.wallet.available, 35);
+        }
+      });
+
+      await t.test('one reservation cannot be settled and released by competing processes', async () => {
+        for (let round = 0; round < 4; round++) {
+          const accountId = randomUUID();
+          await pool.query(
+            `INSERT INTO "${schema}".meduha_accounts (id, first_name, credits) VALUES ($1,'Transition fixture',100)`,
+            [accountId],
+          );
+          const [held] = await runWorker([{ type: 'reserve', input: input(accountId) }], { schema });
+          assert.equal(held.status, 'ok', JSON.stringify(held));
+          const reservationId = held.result.reservation.id;
+          const operations = [
+            { type: 'settle' as const, reservationId, actorId, idempotencyKey: key() },
+            { type: 'release' as const, reservationId, actorId, idempotencyKey: key() },
+          ];
+          const outcomes = await Promise.all(operations.map(operation =>
+            runWorker([operation], { schema }).then(rows => rows[0]),
+          ));
+          const winner = outcomes.findIndex(result => result.status === 'ok');
+          assert.notEqual(winner, -1, JSON.stringify(outcomes));
+          assert.equal(outcomes.filter(result => result.status === 'ok').length, 1);
+          assert.equal(outcomes[1 - winner].code, 'INVALID_RESERVATION_STATE');
+          const settled = operations[winner].type === 'settle';
+          const [snapshot] = await runWorker([{ type: 'wallet', accountId }], { schema });
+          assert.equal(snapshot.result.balance, settled ? 90 : 100);
+          assert.equal(snapshot.result.available, snapshot.result.balance);
+          assert.equal(snapshot.result.reserved, 0);
+          const { rows: ledger } = await pool.query(
+            `SELECT kind, delta, reserved_delta, budget_delta FROM "${schema}".meduha_finance_ledger
+             WHERE reservation_id=$1`,
+            [reservationId],
+          );
+          assert.equal(ledger.length, 2, 'one reserve and exactly one terminal ledger entry');
+          assert.deepEqual(ledger.map(row => row.kind).sort(), ['reserve', settled ? 'settlement' : 'release'].sort());
+          assert.equal(ledger.reduce((sum, row) => sum + Number(row.delta), 0), settled ? -10 : 0);
+          assert.equal(ledger.reduce((sum, row) => sum + Number(row.reserved_delta), 0), 0);
+          assert.equal(ledger.reduce((sum, row) => sum + Number(row.budget_delta), 0), settled ? 10 : 0);
+          const [replayed] = await runWorker([operations[winner]], { schema });
+          assert.equal(replayed.result.replayed, true);
+          assert.equal(replayed.result.reservation.status, settled ? 'settled' : 'released');
+          assert.equal(await countLedger(operations[1 - winner].idempotencyKey), 0);
+          if (settled) await mutate('refund', reservationId);
+        }
       });
 
       await t.test('separate processes concurrently settle, release and refund different reservations', async () => {
