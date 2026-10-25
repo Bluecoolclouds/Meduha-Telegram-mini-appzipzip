@@ -50,3 +50,9 @@ Provider-owned character/element IDs are not proof that a Meduha user owns that 
 **Why:** users share the application's Higgsfield provider account; accepting arbitrary upstream IDs could expose private provider assets across accounts.
 
 **How to apply:** allow owned Meduha uploads as references. Reject nonempty upstream `elements` until a per-user ownership mapping exists; explain this restriction in the form instead of pretending the feature is connected.
+
+Keep every installed model in the catalog while documentation or account-access verification is incomplete. Report unverified support instead of silently filtering models out.
+
+**Why:** The user explicitly required preserving installed models and user choices; incomplete verification does not authorize a smaller catalog.
+
+**How to apply:** Preserve existing catalog entries, picker choices and enablement settings. Catalog visibility does not authorize enabling paid generation. Restrict the model set only when the user explicitly asks.
