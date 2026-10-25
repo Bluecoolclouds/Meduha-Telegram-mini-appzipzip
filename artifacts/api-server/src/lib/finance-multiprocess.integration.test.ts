@@ -274,12 +274,50 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
             accountId, actorId, delta: 25, reason: 'isolated top-up race', idempotencyKey: key(),
           };
           const reservation = input(accountId);
-          const [[topup], [held]] = await Promise.all([
+          const verifyWalletSnapshot = (wallet: any) => {
+            assert.equal(wallet.pagination.totalLedger, wallet.ledger.length);
+            assert.equal(wallet.pagination.totalReservations, wallet.reservations.length);
+            assert.equal(
+              new Set(wallet.ledger.map((entry: any) => entry.idempotencyKey)).size,
+              wallet.ledger.length,
+              'wallet snapshot must not contain duplicate ledger idempotency keys',
+            );
+            const balanceFromLedger = 10 + wallet.ledger.reduce(
+              (sum: number, entry: any) => sum + entry.delta,
+              0,
+            );
+            const reservedFromReservations = wallet.reservations
+              .filter((item: any) => item.status === 'held')
+              .reduce((sum: number, item: any) => sum + item.amount, 0);
+            const reservedFromLedger = wallet.ledger.reduce(
+              (sum: number, entry: any) => sum + entry.reservedDelta,
+              0,
+            );
+            assert.equal(wallet.balance, balanceFromLedger);
+            assert.equal(wallet.reserved, reservedFromReservations);
+            assert.equal(wallet.reserved, reservedFromLedger);
+            assert.equal(wallet.available, wallet.balance - wallet.reserved);
+          };
+
+          const concurrent = await Promise.all([
             runWorker([{ type: 'adjust', input: adjustment }], { schema }),
             runWorker([{ type: 'reserve', input: reservation }], { schema }),
+            ...Array.from({ length: 2 }, () => runWorker(
+              Array.from({ length: 8 }, () => ({ type: 'wallet' as const, accountId })),
+              { schema },
+            )),
           ]);
+          const [topup] = concurrent[0];
+          const [held] = concurrent[1];
           assert.equal(topup.status, 'ok', JSON.stringify(topup));
           assert.equal(held.status, 'ok', JSON.stringify(held));
+          verifyWalletSnapshot(topup.result.wallet);
+          verifyWalletSnapshot(held.result.wallet);
+          for (const read of concurrent.slice(2).flat()) {
+            assert.equal(read.status, 'ok', JSON.stringify(read));
+            verifyWalletSnapshot(read.result);
+          }
+
           const [[snapshot], [topupReplay], [holdReplay]] = await Promise.all([
             runWorker([{ type: 'wallet', accountId }], { schema }),
             runWorker([{ type: 'adjust', input: adjustment }], { schema }),
@@ -289,6 +327,7 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
           assert.equal(snapshot.result.balance, 35);
           assert.equal(snapshot.result.reserved, 10);
           assert.equal(snapshot.result.available, 25);
+          verifyWalletSnapshot(snapshot.result);
           assert.equal(topupReplay.result.replayed, true);
           assert.equal(holdReplay.result.replayed, true);
           assert.equal(topupReplay.result.ledgerEntry.id, topup.result.ledgerEntry.id);
