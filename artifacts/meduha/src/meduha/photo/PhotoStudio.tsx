@@ -24,6 +24,7 @@ import { fieldOfPointer, pointerOf, type RecipeView } from '../templates/recipe/
 import { familyOf, filterFamilies, groupFamilies, modeKind, modeLabelIn, photoModelHref, type Group } from './families';
 import { photoIdeas, photoIdeaHref, photoIdeaParameters, type PhotoIdea } from './ideas';
 import { exceedsModelDailyBudget } from './photoBudget';
+import { isPhotoDailyLimitError, PHOTO_DAILY_LIMIT_MESSAGE } from './photoSubmissionError';
 
 const read = { credentials: 'same-origin' as const };
 const mutateReq = { credentials: 'same-origin' as const, headers: { 'X-Meduha-Request': '1' } };
@@ -162,10 +163,11 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
   const [uploading, setUploading] = useState<Record<string, number>>({});
   const [touched, setTouched] = useState(false);
   const idem = useRef<{ fp: string; key: string } | null>(null);
-  const create = useCreatePhotoGeneration({ request: mutateReq });
+  const create = useCreatePhotoGeneration({ mutation: { retry: false }, request: mutateReq });
   const quoteRequest = useQuotePhotoGeneration({ request: mutateReq });
   const [quote, setQuote] = useState<{ fp: string; key: string; value: PhotoQuote } | null>(null);
   const [quoteError, setQuoteError] = useState('');
+  const [dailyLimitFailureFp, setDailyLimitFailureFp] = useState<string | null>(null);
   const [now, setNow] = useState(Date.now);
   const requestLock = useRef(false);
   useEffect(() => {
@@ -220,7 +222,7 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
     setTouched(true);
     if (!canSubmit || !model.modelId || requestLock.current) return;
     requestLock.current = true;
-    setQuote(null); setQuoteError('');
+    setQuote(null); setQuoteError(''); setDailyLimitFailureFp(null);
     const key = uuid();
     idem.current = { fp, key };
     quoteRequest.mutate({ data: { idempotencyKey: key, modelId: model.modelId, catalogId: model.id, parameters: payloadParams, references } }, {
@@ -259,6 +261,13 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
     create.mutate({ data }, {
       onSuccess: () => { setQuote(null); notify('Генерация запущена. Результат появится ниже'); if (currentFp.current === fp) idem.current = { fp, key: uuid() }; qc.invalidateQueries({ queryKey: getListMeduhaGenerationsQueryKey() }); qc.invalidateQueries({ queryKey: getGetPhotoCatalogQueryKey() }); qc.invalidateQueries({ queryKey: getGetMeduhaBootstrapQueryKey() }); qc.invalidateQueries({ queryKey: getGetMeduhaWalletQueryKey() }); },
       onError: e => {
+        if (isPhotoDailyLimitError(e)) {
+          if (currentFp.current === fp && idem.current?.key === key) {
+            setQuote(null);
+            setDailyLimitFailureFp(fp);
+          }
+          return;
+        }
         const code = (e as { data?: { code?: string } })?.data?.code;
         if (['STALE_PRICE_QUOTE', 'UNSAFE_PHOTO_PRICE', 'PRICE_CHANGED'].includes(code ?? '')) {
           setQuote(null);
@@ -289,6 +298,7 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
     <div className="ps-submit">
       <div className="ps-cost" data-testid="text-photo-cost" aria-live="polite">{activeQuote && !expired ? <><Zap size={13} fill="currentColor"/><strong>{activeQuote.creditPrice}</strong> кредитов за весь запрос<small>{activeQuote.images} изображ. · {activeQuote.resolution} · качество: {activeQuote.quality} · референсов: {activeQuote.referenceCount}</small></> : <small>{expired ? 'Смета истекла — рассчитай цену заново' : 'Итоговая цена появится после расчёта по твоим настройкам'}</small>}</div>
       {activeQuote && !expired && exceedsModelDailyBudget(activeQuote.creditPrice, activeQuote.modelDailyRemaining) && <div className="ps-alert" role="status" data-testid="status-photo-model-limit"><Lock size={15}/><span><strong>Пакет превышает дневной лимит модели</strong>В пакете {activeQuote.creditPrice} кр., а с учётом текущих резервов и расхода сегодня осталось {activeQuote.modelDailyRemaining} кр. Уменьши число изображений в пакете. Остаток может измениться до подтверждения.</span></div>}
+      {dailyLimitFailureFp === fp && <div className="ps-alert" role="alert" data-testid="status-photo-daily-limit"><Lock size={15}/><span><strong>Дневного лимита не хватает</strong>{PHOTO_DAILY_LIMIT_MESSAGE}</span></div>}
       <p className="ps-note">Расчёт не запускает генерацию и не резервирует кредиты. Смета действует 5 минут. Только отдельное подтверждение отправит запрос в очередь.</p>
       {activeQuote && !expired ? <>
         <button className="m-generate" data-testid="button-photo-generate" disabled={!canSubmit} onClick={submit}><Sparkles size={16}/>{create.isPending ? 'Отправляем…' : `Подтвердить и создать за ${activeQuote.creditPrice} кр.`}</button>
