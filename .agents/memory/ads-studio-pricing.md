@@ -1,10 +1,16 @@
 ---
 name: Ads Studio pricing
-description: Official Ads Studio price semantics and the condition required before safe account pricing.
+description: User-selected actual-token billing for Ads Studio and the missing request-level usage contract.
 ---
 
-The official Ads Studio Playground lists prices per 1 million tokens and says the initial estimate is reconciled against actual token usage after completion. It does not document a maximum token usage or a provider-enforced final-cost cap. An administrator-set USD-to-credit rate and estimate ceiling therefore cannot establish a maximum final provider cost. Keep the endpoint blocked until the provider documents a hard cap or binding final-settlement limit; do not create a synthetic tariff or convert promotional pricing into the account tariff.
+The user selected billing “по фактическому” using the provided token formula, not a fixed $0.1071 per generation. Per million tokens: uncached text input $5, cached text input $1.25, text output $10, uncached image input $8, cached image input $2, image output $30. Cached tokens must not also be billed as uncached input.
 
-**Why:** A bounded preliminary estimate is not a bound on reconciled actual usage, so pricing from that estimate can understate the final provider cost.
+**Why:** The user explicitly chose actual-usage billing. The official Playground says the initial charge is an estimate reconciled on completion.
 
-**How to apply:** Recheck the official Ads Studio Playground and its linked billing contract before changing this policy. Keep the model in the catalog, blocked from quoting and generation, until the missing final-cost contract is confirmed.
+**How to apply:** Treat the quote as a preliminary reserve, not a fixed final charge. Verify authenticated per-request token counters or authoritative final billing data before implementing automatic reconciliation. Do not invent usage fields, substitute aggregate analytics, or treat missing usage as zero. A provider-enforced hard cap is a separate budget control, not a mandatory condition for every actual-usage integration. Actual-usage selection does not authorize paid test runs, unlimited debits or bypassing account limits.
+
+The reviewed public status schema and webhook examples do not specify the six token counters or a final charge field. Usage analytics explicitly says it is not a billing record.
+
+**Why:** A price formula alone does not provide the measured quantities needed to settle a particular request correctly.
+
+**How to apply:** Report this specific integration gap rather than repeatedly demanding a provider hard cap or another API key.
