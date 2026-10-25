@@ -11,6 +11,17 @@ test('motion-transfer example is imported from the shared package, not public as
   assert.doesNotMatch(exampleSource, /public\/templates\/motion-transfer\.json/);
 });
 
+test('public motion-transfer template matches the canonical studio example', async () => {
+  const canonicalExample = JSON.parse(
+    await readFile(new URL('../../../../../lib/studio-examples/motion-transfer.json', import.meta.url), 'utf8'),
+  );
+  const publicExample = JSON.parse(
+    await readFile(new URL('../../../public/templates/motion-transfer.json', import.meta.url), 'utf8'),
+  );
+
+  assert.deepEqual(publicExample, canonicalExample);
+});
+
 test('motion-transfer recipe keeps its settings and opens the Genjutsu scenario', () => {
   assert.equal(motionTransfer.id, 'example-genjutsu-motion-transfer');
   assert.equal(motionTransfer.kind, 'video');
