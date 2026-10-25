@@ -2017,12 +2017,13 @@ components:
         refundedAt: { type: [string, "null"], format: date-time }
     FinanceWallet:
       type: object
-      required: [accountId, balance, reserved, available, ledger, reservations, pagination]
+      required: [accountId, balance, reserved, available, dailyUsage, ledger, reservations, pagination]
       properties:
         accountId: { type: string }
         balance: { type: integer }
         reserved: { type: integer }
         available: { type: integer }
+        dailyUsage: { $ref: "#/components/schemas/AccountDailyCreditUsage" }
         ledger:
           type: array
           items: { $ref: "#/components/schemas/FinanceLedgerEntry" }
@@ -2037,6 +2038,16 @@ components:
             offset: { type: integer }
             totalLedger: { type: integer }
             totalReservations: { type: integer }
+    AccountDailyCreditUsage:
+      type: object
+      description: Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.
+      required: [utcDay, activeReserves, netSpent, perAccountDailyCreditLimit, remaining]
+      properties:
+        utcDay: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+        activeReserves: { type: integer, minimum: 0 }
+        netSpent: { type: integer }
+        perAccountDailyCreditLimit: { type: integer, minimum: 0 }
+        remaining: { type: integer, minimum: 0 }
     FinanceSettings:
       type: object
       required: [spendingEnabled, dailyCreditLimit, perAccountDailyCreditLimit, maxActiveReservations, updatedAt, updatedBy]

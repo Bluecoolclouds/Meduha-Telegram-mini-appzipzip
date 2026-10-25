@@ -1154,6 +1154,21 @@ export interface AdminJob {
   createdAt: string;
 }
 
+/**
+ * Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.
+ */
+export interface AccountDailyCreditUsage {
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  utcDay: string;
+  /** @minimum 0 */
+  activeReserves: number;
+  netSpent: number;
+  /** @minimum 0 */
+  perAccountDailyCreditLimit: number;
+  /** @minimum 0 */
+  remaining: number;
+}
+
 export type FinanceLedgerEntryKind = typeof FinanceLedgerEntryKind[keyof typeof FinanceLedgerEntryKind];
 
 
@@ -1226,6 +1241,7 @@ export interface FinanceWallet {
   balance: number;
   reserved: number;
   available: number;
+  dailyUsage: AccountDailyCreditUsage;
   ledger: FinanceLedgerEntry[];
   reservations: FinanceReservation[];
   pagination: FinanceWalletPagination;

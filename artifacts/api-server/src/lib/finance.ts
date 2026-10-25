@@ -63,6 +63,13 @@ export type FinanceWallet = {
   balance: number;
   reserved: number;
   available: number;
+  dailyUsage: {
+    utcDay: string;
+    activeReserves: number;
+    netSpent: number;
+    perAccountDailyCreditLimit: number;
+    remaining: number;
+  };
   ledger: FinanceLedgerEntry[];
   reservations: FinanceReservation[];
   pagination: { limit: number; offset: number; totalLedger: number; totalReservations: number };
@@ -254,6 +261,10 @@ function utcDay(date = new Date()): string {
   return date.toISOString().slice(0, 10);
 }
 
+function accountDailyBudgetUsed(held: number, settledNet: number): number {
+  return Math.max(0, held + settledNet);
+}
+
 async function ensureSettings(client: PoolClient): Promise<FinanceSettings> {
   await client.query(
     `INSERT INTO meduha_finance_settings (id, spending_enabled, daily_credit_limit, max_active_reservations)
@@ -264,6 +275,7 @@ async function ensureSettings(client: PoolClient): Promise<FinanceSettings> {
 }
 
 async function walletWithClient(client: PoolClient, accountId: string, limit = 50, offset = 0): Promise<FinanceWallet> {
+  const day = utcDay();
   const boundedLimit = Math.max(1, Math.min(100, integer(limit, 'limit', 0)));
   const boundedOffset = integer(offset, 'offset', 0);
   const { rows: accountRows } = await client.query('SELECT credits FROM meduha_accounts WHERE id = $1', [accountId]);
@@ -284,11 +296,29 @@ async function walletWithClient(client: PoolClient, accountId: string, limit = 5
     [accountId, boundedLimit, boundedOffset],
   );
   const reserved = Number(reservationSum.rows[0].total);
+  // Read within the caller's snapshot, without creating settings or mutating finance state.
+  // budget_day attributes refunds to the original settlement day, not their creation day.
+  const { rows: usageRows } = await client.query(
+    `SELECT
+       COALESCE((SELECT SUM(budget_delta) FROM meduha_finance_ledger
+         WHERE account_id = $1 AND budget_day = $2), 0)::bigint AS net_spent,
+       COALESCE((SELECT per_account_daily_credit_limit FROM meduha_finance_settings WHERE id = 1), 0) AS daily_limit`,
+    [accountId, day],
+  );
+  const netSpent = Number(usageRows[0].net_spent);
+  const perAccountDailyCreditLimit = Number(usageRows[0].daily_limit);
   return {
     accountId,
     balance,
     reserved,
     available: balance - reserved,
+    dailyUsage: {
+      utcDay: day,
+      activeReserves: reserved,
+      netSpent,
+      perAccountDailyCreditLimit,
+      remaining: Math.max(0, perAccountDailyCreditLimit - accountDailyBudgetUsed(reserved, netSpent)),
+    },
     ledger: ledgerPage.rows.map(mapLedger),
     reservations: reservationPage.rows.map(mapReservation),
     pagination: {
@@ -536,7 +566,7 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
 
     // Outstanding holds carry over into the next day until settled or released.
     // Settlement replaces a hold with budget_delta atomically under the same lock.
-    const accountBudgetUsed = Math.max(0, accountHeld + Number(totals[0].account_settled_net));
+    const accountBudgetUsed = accountDailyBudgetUsed(accountHeld, Number(totals[0].account_settled_net));
     if (accountBudgetUsed + input.amount > settings.perAccountDailyCreditLimit) {
       fail('DAILY_LIMIT_EXCEEDED', 'Дневной лимит кредитов аккаунта исчерпан. Новый день начинается в 00:00 UTC.');
     }

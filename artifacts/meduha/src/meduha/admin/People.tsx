@@ -99,7 +99,7 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
   const [confirmBlock, setConfirmBlock] = useState(false);
   const [wOffset, setWOffset] = useState(0);
   const wParams = { userId, limit: WPAGE, offset: wOffset };
-  const wq = useGetAdminWallet(wParams, { query: { enabled: !!userId, queryKey: getGetAdminWalletQueryKey(wParams) }, request: adminQueryRequest });
+  const wq = useGetAdminWallet(wParams, { query: { enabled: !!userId, queryKey: getGetAdminWalletQueryKey(wParams), refetchInterval: 30_000, refetchOnMount: 'always', refetchOnWindowFocus: 'always' }, request: adminQueryRequest });
   const status = useGetMeduhaAdminStatus({ request: adminQueryRequest, query: { queryKey: getGetMeduhaAdminStatusQueryKey() } });
   if (q.isLoading) return <Panel title="Пользователь"><Skeleton rows={8} /></Panel>;
   if (q.isError || !q.data) return <Panel title="Пользователь"><ErrorBox error={q.error ?? new Error('Нет данных')} onRetry={() => void q.refetch()} /></Panel>;
@@ -112,6 +112,21 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
         <div className="adm-figure"><span>Доступно</span><strong>{fmtInt(w?.available)}</strong></div>
       </div>
       <div className="adm-panel-body" style={{ paddingTop: 0 }}>
+        <section aria-label="Дневной лимит аккаунта" data-testid="account-daily-usage">
+          <div className="adm-actions" style={{ justifyContent: 'space-between' }}>
+            <strong style={{ fontSize: 13 }}>Дневной лимит · {w?.dailyUsage?.utcDay ?? '—'} UTC</strong>
+            <button className="adm-btn sm" disabled={wq.isFetching} onClick={() => void wq.refetch()} data-testid="button-refresh-daily-usage">{wq.isFetching ? 'Обновляем…' : 'Обновить'}</button>
+          </div>
+          {wq.isError ? <ErrorBox error={wq.error} onRetry={() => void wq.refetch()} /> : w?.dailyUsage ? <>
+            <dl className="adm-review" style={{ margin: '12px 0', gridTemplateColumns: 'minmax(0, 1fr) auto' }}>
+              <dt>Активные резервы</dt><dd className="num" data-testid="text-daily-reserves">{fmtInt(w.dailyUsage.activeReserves)} кр.</dd>
+              <dt>Чистые списания за день</dt><dd className="num" data-testid="text-daily-net-spent">{fmtInt(w.dailyUsage.netSpent)} кр.</dd>
+              <dt>Лимит аккаунта в день</dt><dd className="num" data-testid="text-daily-limit">{fmtInt(w.dailyUsage.perAccountDailyCreditLimit)} кр.</dd>
+              <dt>Остаток дневного лимита</dt><dd className="num" data-testid="text-daily-remaining">{fmtInt(w.dailyUsage.remaining)} кр.</dd>
+            </dl>
+            <p style={{ fontSize: 12, color: 'var(--ink-3)', margin: '0 0 16px' }}>Новый день начинается в 00:00 UTC. Учтены все активные резервы, включая прошлые дни; списания — за вычетом возвратов к этому дню. Остаток лимита не равен балансу: также действуют общие лимиты, ограничения модели и канала. Обновляется каждые 30 секунд.</p>
+          </> : <Skeleton rows={4} />}
+        </section>
         <div className="adm-actions">
           <button className="adm-btn primary sm" onClick={() => setOp({ mode: 'adjust' })} data-testid="button-user-adjust"><PlusCircle size={13} />Корректировка</button>
           <button className="adm-btn sm" onClick={() => setOp({ mode: 'reserve' })} data-testid="button-user-reserve"><MinusCircle size={13} />Резерв</button>

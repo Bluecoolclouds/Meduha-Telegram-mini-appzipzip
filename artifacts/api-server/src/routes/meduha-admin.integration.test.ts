@@ -12,6 +12,7 @@ import { createMeduhaRouter } from './meduha';
 import { isAdminSetupRequired, isTemplateAdmin } from '../lib/template-admin';
 import { ADMIN_ACCESS_CLEANUP_LOCK, cleanupExpiredMeduhaAdminAccess } from '../lib/meduha-admin-cleanup';
 import { runMeduhaAdminCleanupSafely } from '../lib/meduha-admin-cleanup-worker';
+import type { FinanceWallet } from '../lib/finance';
 
 const fixtureToken = '123456:admin-test-token-never-real';
 const catalogChannelName = `Higgsfield catalog fixture ${randomUUID()}`;
@@ -493,11 +494,13 @@ test('admin API auth, pairing, configuration, moderation, audit and finance inte
       'admin wallet pagination is bounded');
     const adminWalletResponse = await call(`/admin/wallet?userId=${encodeURIComponent(ordinaryId)}&limit=1&offset=1`, 'GET', undefined, adminCookie);
     assert.equal(adminWalletResponse.status, 200);
-    const adminWallet = await adminWalletResponse.json() as {
-      accountId: string; pagination: { limit: number; offset: number; totalLedger: number; totalReservations: number };
-    };
+    const adminWallet = await adminWalletResponse.json() as FinanceWallet;
     assert.equal(adminWallet.accountId, ordinaryId);
     assert.deepEqual(adminWallet.pagination, { limit: 1, offset: 1, totalLedger: 2, totalReservations: 0 });
+    assert.equal(adminWallet.dailyUsage.utcDay, new Date().toISOString().slice(0, 10));
+    assert.equal(adminWallet.dailyUsage.activeReserves, 0);
+    assert.equal(adminWallet.dailyUsage.netSpent, 0);
+    assert.equal(adminWallet.dailyUsage.remaining, adminWallet.dailyUsage.perAccountDailyCreditLimit);
     assert.equal((await call(`/admin/wallet?userId=${encodeURIComponent(ordinaryId)}`, 'GET', undefined, ordinaryCookie)).status, 403,
       'wallet by user ID is admin-only');
     assert.equal((await call('/admin/wallet', 'GET', undefined, adminCookie)).status, 400,
@@ -522,8 +525,15 @@ test('admin API auth, pairing, configuration, moderation, audit and finance inte
     const settleBody = { reason: 'route settlement fixture', idempotencyKey: randomUUID() };
     const settledResponse = await call(`/admin/credits/${held.reservation.id}/settle`, 'POST', settleBody, adminCookie);
     assert.equal(settledResponse.status, 200, 'settlement response remains serializable after commit');
-    const settled = await settledResponse.json() as { wallet: { balance: number }; ledgerEntry: { budgetDay: string } };
+    const settled = await settledResponse.json() as { wallet: FinanceWallet; ledgerEntry: { budgetDay: string } };
     assert.equal(settled.wallet.balance, 10);
+    assert.deepEqual(settled.wallet.dailyUsage, {
+      utcDay: settled.ledgerEntry.budgetDay, activeReserves: 0, netSpent: 4,
+      perAccountDailyCreditLimit: 4, remaining: 0,
+    });
+    const reloadedWallet = await call(`/admin/wallet?userId=${encodeURIComponent(ordinaryId)}`, 'GET', undefined, adminCookie);
+    assert.equal(reloadedWallet.status, 200);
+    assert.deepEqual((await reloadedWallet.json() as FinanceWallet).dailyUsage, settled.wallet.dailyUsage);
     const limitBlocked = await call('/admin/credits/reserve', 'POST', {
       userId: ordinaryId, amount: 1, reason: 'account daily cap', idempotencyKey: randomUUID(),
     }, adminCookie);
@@ -539,8 +549,10 @@ test('admin API auth, pairing, configuration, moderation, audit and finance inte
       reason: 'route refund fixture', idempotencyKey: randomUUID(),
     }, adminCookie);
     assert.equal(refundResponse.status, 200);
-    const refunded = await refundResponse.json() as { wallet: { balance: number }; ledgerEntry: { budgetDay: string } };
+    const refunded = await refundResponse.json() as { wallet: FinanceWallet; ledgerEntry: { budgetDay: string } };
     assert.equal(refunded.wallet.balance, 14);
+    assert.equal(refunded.wallet.dailyUsage.netSpent, 0);
+    assert.equal(refunded.wallet.dailyUsage.remaining, 4);
     assert.equal(refunded.ledgerEntry.budgetDay, settled.ledgerEntry.budgetDay);
     const releaseHoldResponse = await call('/admin/credits/reserve', 'POST', {
       userId: ordinaryId, amount: 2, reason: 'route release fixture', idempotencyKey: randomUUID(),

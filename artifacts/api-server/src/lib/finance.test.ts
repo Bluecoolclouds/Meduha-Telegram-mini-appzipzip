@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { pool } from '@workspace/db';
-import { GetMeduhaWalletResponse } from '@workspace/api-zod';
+import { GetAdminWalletResponse, GetMeduhaWalletResponse } from '@workspace/api-zod';
 import {
   adjustWallet,
   FinanceError,
@@ -380,6 +380,50 @@ test('real PostgreSQL finance ledger, reservations, idempotency, budgets and rol
         [idempotencyKey],
       );
       assert.equal(rows.length, 0);
+    });
+
+    await t.test('read-only daily usage matches reservation accounting, including carry-over and refunds', async () => {
+      const accountId = ids[2];
+      await updateFinanceSettings({ perAccountDailyCreditLimit: 20, dailyCreditLimit: 1_000, maxActiveReservations: 20 }, 'finance-test-admin');
+      const before = await getWallet(accountId);
+      const day = new Date().toISOString().slice(0, 10);
+      assert.deepEqual(before.dailyUsage, {
+        utcDay: day, activeReserves: 0, netSpent: 0, perAccountDailyCreditLimit: 20, remaining: 20,
+      });
+      const hold = await reserveCredits({ accountId, actorId: 'fixture-actor', amount: 8, reason: 'daily usage', idempotencyKey: key() });
+      // A hold from an earlier day must still count, independent of ledger pagination.
+      await pool.query(`UPDATE meduha_credit_reservations SET created_at = now() - INTERVAL '2 days' WHERE id = $1`, [hold.reservation!.id]);
+      const paged = await getWallet(accountId, 1, 100);
+      assert.equal(paged.reservations.length, 0);
+      assert.equal(paged.dailyUsage.activeReserves, 8);
+      assert.equal(paged.dailyUsage.remaining, 12);
+      const settingsBeforeRead = await getFinanceSettings();
+      assert.deepEqual((await getWallet(accountId)).dailyUsage, paged.dailyUsage);
+      assert.deepEqual(await getFinanceSettings(), settingsBeforeRead);
+      assert.equal((await getWallet(accountId)).balance, before.balance);
+      assert.equal(GetAdminWalletResponse.parse(JSON.parse(JSON.stringify(paged))).dailyUsage.remaining, 12);
+      assert.equal((await getWallet(ids[4])).dailyUsage.remaining, 20, 'other accounts are isolated');
+
+      const settled = await settleReservation({ reservationId: hold.reservation!.id, actorId: 'fixture-actor', idempotencyKey: key() });
+      assert.deepEqual(settled.wallet.dailyUsage, { ...before.dailyUsage, activeReserves: 0, netSpent: 8, remaining: 12 });
+      await updateFinanceSettings({ perAccountDailyCreditLimit: 3 }, 'finance-test-admin');
+      assert.equal((await getWallet(accountId)).dailyUsage.remaining, 0, 'lowered limits never produce negative capacity');
+      await updateFinanceSettings({ perAccountDailyCreditLimit: 0 }, 'finance-test-admin');
+      assert.equal((await getWallet(accountId)).dailyUsage.perAccountDailyCreditLimit, 0);
+      assert.equal((await getWallet(accountId)).dailyUsage.remaining, 0);
+      await updateFinanceSettings({ perAccountDailyCreditLimit: 20 }, 'finance-test-admin');
+      const refunded = await refundReservation({ reservationId: hold.reservation!.id, actorId: 'fixture-actor', idempotencyKey: key() });
+      assert.deepEqual(refunded.wallet.dailyUsage, before.dailyUsage);
+
+      const next = await reserveCredits({ accountId, actorId: 'fixture-actor', amount: 5, reason: 'previous budget day', idempotencyKey: key() });
+      await settleReservation({ reservationId: next.reservation!.id, actorId: 'fixture-actor', idempotencyKey: key() });
+      await pool.query(`UPDATE meduha_finance_ledger SET budget_day = $2::date - 1 WHERE reservation_id = $1 AND kind = 'settlement'`, [next.reservation!.id, day]);
+      assert.deepEqual((await getWallet(accountId)).dailyUsage, before.dailyUsage);
+      await refundReservation({ reservationId: next.reservation!.id, actorId: 'fixture-actor', idempotencyKey: key() });
+      assert.deepEqual((await getWallet(accountId)).dailyUsage, before.dailyUsage, 'refunds of yesterday do not increase today capacity');
+      const releaseHold = await reserveCredits({ accountId, actorId: 'fixture-actor', amount: 4, reason: 'release usage', idempotencyKey: key() });
+      const released = await releaseReservation({ reservationId: releaseHold.reservation!.id, actorId: 'fixture-actor', idempotencyKey: key() });
+      assert.deepEqual(released.wallet.dailyUsage, before.dailyUsage);
     });
 
     await t.test('kill switch and empty wallet retain explicit zero states', async () => {

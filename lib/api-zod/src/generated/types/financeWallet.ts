@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AccountDailyCreditUsage } from './accountDailyCreditUsage';
 import type { FinanceLedgerEntry } from './financeLedgerEntry';
 import type { FinanceReservation } from './financeReservation';
 import type { FinanceWalletPagination } from './financeWalletPagination';
@@ -14,6 +15,7 @@ export interface FinanceWallet {
   balance: number;
   reserved: number;
   available: number;
+  dailyUsage: AccountDailyCreditUsage;
   ledger: FinanceLedgerEntry[];
   reservations: FinanceReservation[];
   pagination: FinanceWalletPagination;

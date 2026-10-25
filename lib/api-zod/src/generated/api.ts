@@ -1463,11 +1463,27 @@ export const GetMeduhaWalletQueryParams = zod.object({
   "offset": zod.coerce.number().int().min(getMeduhaWalletQueryOffsetMin).max(getMeduhaWalletQueryOffsetMax).default(getMeduhaWalletQueryOffsetDefault)
 })
 
+export const getMeduhaWalletResponseDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getMeduhaWalletResponseDailyUsageActiveReservesMin = 0;
+
+export const getMeduhaWalletResponseDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const getMeduhaWalletResponseDailyUsageRemainingMin = 0;
+
+
+
 export const GetMeduhaWalletResponse = zod.object({
   "accountId": zod.string(),
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(getMeduhaWalletResponseDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(getMeduhaWalletResponseDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(getMeduhaWalletResponseDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(getMeduhaWalletResponseDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
@@ -2305,6 +2321,13 @@ export const GetAdminUserParams = zod.object({
 
 export const getAdminUserResponseOneCreditsMin = 0;
 
+export const getAdminUserResponseTwoWalletDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getAdminUserResponseTwoWalletDailyUsageActiveReservesMin = 0;
+
+export const getAdminUserResponseTwoWalletDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const getAdminUserResponseTwoWalletDailyUsageRemainingMin = 0;
+
 
 
 export const GetAdminUserResponse = zod.object({
@@ -2324,6 +2347,13 @@ export const GetAdminUserResponse = zod.object({
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(getAdminUserResponseTwoWalletDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(getAdminUserResponseTwoWalletDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(getAdminUserResponseTwoWalletDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(getAdminUserResponseTwoWalletDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
@@ -2388,11 +2418,27 @@ export const GetAdminWalletQueryParams = zod.object({
   "offset": zod.coerce.number().int().min(getAdminWalletQueryOffsetMin).max(getAdminWalletQueryOffsetMax).default(getAdminWalletQueryOffsetDefault)
 })
 
+export const getAdminWalletResponseDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getAdminWalletResponseDailyUsageActiveReservesMin = 0;
+
+export const getAdminWalletResponseDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const getAdminWalletResponseDailyUsageRemainingMin = 0;
+
+
+
 export const GetAdminWalletResponse = zod.object({
   "accountId": zod.string(),
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(getAdminWalletResponseDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(getAdminWalletResponseDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(getAdminWalletResponseDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(getAdminWalletResponseDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
@@ -2800,12 +2846,28 @@ export const AdjustAdminCreditsBody = zod.object({
   "idempotencyKey": zod.string().min(adjustAdminCreditsBodyIdempotencyKeyMin).max(adjustAdminCreditsBodyIdempotencyKeyMax)
 })
 
+export const adjustAdminCreditsResponseWalletDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const adjustAdminCreditsResponseWalletDailyUsageActiveReservesMin = 0;
+
+export const adjustAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const adjustAdminCreditsResponseWalletDailyUsageRemainingMin = 0;
+
+
+
 export const AdjustAdminCreditsResponse = zod.object({
   "wallet": zod.object({
   "accountId": zod.string(),
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(adjustAdminCreditsResponseWalletDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(adjustAdminCreditsResponseWalletDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(adjustAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(adjustAdminCreditsResponseWalletDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
@@ -2894,12 +2956,28 @@ export const ReserveAdminCreditsBody = zod.object({
   "channelId": zod.string().nullish()
 })
 
+export const reserveAdminCreditsResponseWalletDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const reserveAdminCreditsResponseWalletDailyUsageActiveReservesMin = 0;
+
+export const reserveAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const reserveAdminCreditsResponseWalletDailyUsageRemainingMin = 0;
+
+
+
 export const ReserveAdminCreditsResponse = zod.object({
   "wallet": zod.object({
   "accountId": zod.string(),
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(reserveAdminCreditsResponseWalletDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(reserveAdminCreditsResponseWalletDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(reserveAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(reserveAdminCreditsResponseWalletDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
@@ -2987,12 +3065,28 @@ export const SettleAdminCreditsBody = zod.object({
   "idempotencyKey": zod.string().min(settleAdminCreditsBodyIdempotencyKeyMin).max(settleAdminCreditsBodyIdempotencyKeyMax)
 })
 
+export const settleAdminCreditsResponseWalletDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const settleAdminCreditsResponseWalletDailyUsageActiveReservesMin = 0;
+
+export const settleAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const settleAdminCreditsResponseWalletDailyUsageRemainingMin = 0;
+
+
+
 export const SettleAdminCreditsResponse = zod.object({
   "wallet": zod.object({
   "accountId": zod.string(),
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(settleAdminCreditsResponseWalletDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(settleAdminCreditsResponseWalletDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(settleAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(settleAdminCreditsResponseWalletDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
@@ -3080,12 +3174,28 @@ export const ReleaseAdminCreditsBody = zod.object({
   "idempotencyKey": zod.string().min(releaseAdminCreditsBodyIdempotencyKeyMin).max(releaseAdminCreditsBodyIdempotencyKeyMax)
 })
 
+export const releaseAdminCreditsResponseWalletDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const releaseAdminCreditsResponseWalletDailyUsageActiveReservesMin = 0;
+
+export const releaseAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const releaseAdminCreditsResponseWalletDailyUsageRemainingMin = 0;
+
+
+
 export const ReleaseAdminCreditsResponse = zod.object({
   "wallet": zod.object({
   "accountId": zod.string(),
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(releaseAdminCreditsResponseWalletDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(releaseAdminCreditsResponseWalletDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(releaseAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(releaseAdminCreditsResponseWalletDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
@@ -3173,12 +3283,28 @@ export const RefundAdminCreditsBody = zod.object({
   "idempotencyKey": zod.string().min(refundAdminCreditsBodyIdempotencyKeyMin).max(refundAdminCreditsBodyIdempotencyKeyMax)
 })
 
+export const refundAdminCreditsResponseWalletDailyUsageUtcDayRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const refundAdminCreditsResponseWalletDailyUsageActiveReservesMin = 0;
+
+export const refundAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin = 0;
+
+export const refundAdminCreditsResponseWalletDailyUsageRemainingMin = 0;
+
+
+
 export const RefundAdminCreditsResponse = zod.object({
   "wallet": zod.object({
   "accountId": zod.string(),
   "balance": zod.number().int(),
   "reserved": zod.number().int(),
   "available": zod.number().int(),
+  "dailyUsage": zod.object({
+  "utcDay": zod.string().regex(refundAdminCreditsResponseWalletDailyUsageUtcDayRegExp),
+  "activeReserves": zod.number().int().min(refundAdminCreditsResponseWalletDailyUsageActiveReservesMin),
+  "netSpent": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(refundAdminCreditsResponseWalletDailyUsagePerAccountDailyCreditLimitMin),
+  "remaining": zod.number().int().min(refundAdminCreditsResponseWalletDailyUsageRemainingMin)
+}).describe('Read-only account capacity; includes all outstanding holds and net ledger charges attributed to the current UTC budget day.'),
   "ledger": zod.array(zod.object({
   "id": zod.string(),
   "accountId": zod.string(),

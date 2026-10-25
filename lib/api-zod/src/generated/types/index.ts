@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accountDailyCreditUsage';
 export * from './adminAuditEvent';
 export * from './adminAuditEventDetails';
 export * from './adminAuditPage';
