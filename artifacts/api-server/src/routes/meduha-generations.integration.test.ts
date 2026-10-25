@@ -124,6 +124,7 @@ test('generation queue claims a billable request once across independent worker 
     );
     await updateFinanceSettings({
       spendingEnabled: true, dailyCreditLimit: 100000, maxActiveReservations: 100,
+      perAccountDailyCreditLimit: 100000,
     }, 'generation-race-test');
     const held = await reserveCredits({
       accountId: userId,
@@ -212,6 +213,7 @@ test('generation queue claims a billable request once across independent worker 
     await updateFinanceSettings({
       spendingEnabled: previousSettings.spendingEnabled,
       dailyCreditLimit: previousSettings.dailyCreditLimit,
+      perAccountDailyCreditLimit: previousSettings.perAccountDailyCreditLimit,
       maxActiveReservations: previousSettings.maxActiveReservations,
     }, 'generation-race-test-cleanup');
   }
@@ -260,7 +262,7 @@ test('generation API checks configuration, reserves once, and never resubmits af
           '{"minDuration":4,"maxDuration":30,"concurrencyLimit":100,"dailyCreditLimit":100000}'::jsonb)`,
       [modelId, channelId],
     );
-    await updateFinanceSettings({ spendingEnabled: false, dailyCreditLimit: 100000, maxActiveReservations: 100 }, 'generation-test');
+    await updateFinanceSettings({ spendingEnabled: false, dailyCreditLimit: 100000, perAccountDailyCreditLimit: 100000, maxActiveReservations: 100 }, 'generation-test');
 
     const app = express();
     app.use(pinoHttp({ logger: pino({ level: 'silent' }) }));
@@ -527,6 +529,7 @@ test('generation API checks configuration, reserves once, and never resubmits af
     await updateFinanceSettings({
       spendingEnabled: previousSettings.spendingEnabled,
       dailyCreditLimit: previousSettings.dailyCreditLimit,
+      perAccountDailyCreditLimit: previousSettings.perAccountDailyCreditLimit,
       maxActiveReservations: previousSettings.maxActiveReservations,
     }, 'generation-test-cleanup');
   }

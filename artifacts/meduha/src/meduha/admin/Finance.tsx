@@ -23,19 +23,22 @@ function useInvalidateSettings() {
 function SettingsForm({ s, onDone }: { s: FinanceSettings; onDone: (m: string) => void }) {
   const upd = useUpdateAdminFinanceSettings({ request: adminRequest }); const invalidate = useInvalidateSettings();
   const [daily, setDaily] = useState(String(s.dailyCreditLimit)); const [maxActive, setMaxActive] = useState(String(s.maxActiveReservations));
+  const [accountDaily, setAccountDaily] = useState(String(s.perAccountDailyCreditLimit));
   const synced = useRef(s.updatedAt);
-  useEffect(() => { if (synced.current !== s.updatedAt) { synced.current = s.updatedAt; setDaily(String(s.dailyCreditLimit)); setMaxActive(String(s.maxActiveReservations)); } }, [s]);
+  useEffect(() => { if (synced.current !== s.updatedAt) { synced.current = s.updatedAt; setDaily(String(s.dailyCreditLimit)); setAccountDaily(String(s.perAccountDailyCreditLimit)); setMaxActive(String(s.maxActiveReservations)); } }, [s]);
   const ok = (v: string) => /^\d+$/.test(v.trim()) && Number(v) <= 2147483647;
-  const dirty = Number(daily) !== s.dailyCreditLimit || Number(maxActive) !== s.maxActiveReservations;
-  const submit = (e: FormEvent) => { e.preventDefault(); if (!ok(daily) || !ok(maxActive) || !dirty) return; upd.mutate({ data: { dailyCreditLimit: Number(daily), maxActiveReservations: Number(maxActive) } }, { onSuccess: () => { invalidate(); onDone('Лимиты сохранены'); } }); };
+  const valid = ok(daily) && ok(accountDaily) && ok(maxActive);
+  const dirty = Number(daily) !== s.dailyCreditLimit || Number(accountDaily) !== s.perAccountDailyCreditLimit || Number(maxActive) !== s.maxActiveReservations;
+  const submit = (e: FormEvent) => { e.preventDefault(); if (!valid || !dirty) return; upd.mutate({ data: { dailyCreditLimit: Number(daily), perAccountDailyCreditLimit: Number(accountDaily), maxActiveReservations: Number(maxActive) } }, { onSuccess: () => { invalidate(); onDone('Лимиты сохранены'); } }); };
   return <form className="adm-form adm-panel-body" onSubmit={submit} noValidate>
     <div className="adm-fields">
       <label className="adm-field"><span>Дневной лимит, кредиты</span><input type="number" min={0} value={daily} onChange={e => setDaily(e.target.value)} data-testid="input-finance-daily" /><small>Глобально за сутки UTC. 0 — расход невозможен.</small></label>
+      <label className="adm-field"><span>Дневной лимит на аккаунт, кредиты</span><input type="number" min={0} max={2147483647} step={1} value={accountDaily} onChange={e => setAccountDaily(e.target.value)} data-testid="input-finance-account-daily" /><small>Отдельно для каждого аккаунта: активные резервы и списания за сутки UTC. 0 — новые резервы запрещены. Сутки начинаются в 00:00 UTC; незавершённые резервы переносятся. Снижение лимита не отменяет уже разрешённые операции.</small></label>
       <label className="adm-field"><span>Макс. активных резервов</span><input type="number" min={0} value={maxActive} onChange={e => setMaxActive(e.target.value)} data-testid="input-finance-active" /><small>0 — резервы запрещены.</small></label>
     </div>
-    {(!ok(daily) || !ok(maxActive)) && <div className="adm-feedback bad">Нужны целые числа от 0.</div>}
+    {!valid && <div className="adm-feedback bad">Нужны целые числа от 0 до 2 147 483 647.</div>}
     <Feedback error={upd.error} />
-    <div className="adm-actions" style={{ justifyContent: 'space-between', alignItems: 'center' }}><small style={{ color: 'var(--ink-3)' }}>Изменено {fmtDate(s.updatedAt)}{s.updatedBy ? ` · ${shortId(s.updatedBy)}` : ''}</small><button className="adm-btn primary" disabled={!dirty || upd.isPending || !ok(daily) || !ok(maxActive)} data-testid="button-finance-save">{upd.isPending ? 'Сохраняем…' : upd.error ? 'Повторить' : 'Сохранить лимиты'}</button></div>
+    <div className="adm-actions" style={{ justifyContent: 'space-between', alignItems: 'center' }}><small style={{ color: 'var(--ink-3)' }}>Изменено {fmtDate(s.updatedAt)}{s.updatedBy ? ` · ${shortId(s.updatedBy)}` : ''}</small><button className="adm-btn primary" disabled={!dirty || upd.isPending || !valid} data-testid="button-finance-save">{upd.isPending ? 'Сохраняем…' : upd.error ? 'Повторить' : 'Сохранить лимиты'}</button></div>
   </form>;
 }
 

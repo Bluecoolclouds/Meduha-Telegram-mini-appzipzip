@@ -503,9 +503,17 @@ test('admin API auth, pairing, configuration, moderation, audit and finance inte
     assert.equal((await call('/admin/wallet', 'GET', undefined, adminCookie)).status, 400,
       'admin wallet requires a userId query parameter');
 
-    assert.equal((await call('/admin/finance', 'PATCH', {
-      spendingEnabled: true, dailyCreditLimit: 1_000_000, maxActiveReservations: 3,
-    }, adminCookie)).status, 200);
+    for (const invalid of [-1, 1.5, 2147483648, '10', null]) {
+      assert.equal((await call('/admin/finance', 'PATCH', { perAccountDailyCreditLimit: invalid }, adminCookie)).status, 400);
+    }
+    assert.equal((await call('/admin/finance', 'PATCH', { perAccountDailyCreditLimit: 10 }, ordinaryCookie)).status, 403);
+    const updatedFinance = await call('/admin/finance', 'PATCH', {
+      spendingEnabled: true, dailyCreditLimit: 1_000_000, perAccountDailyCreditLimit: 4, maxActiveReservations: 3,
+    }, adminCookie);
+    assert.equal(updatedFinance.status, 200);
+    assert.equal((await updatedFinance.json() as { perAccountDailyCreditLimit: number }).perAccountDailyCreditLimit, 4);
+    const reloadedFinance = await call('/admin/finance', 'GET', undefined, adminCookie);
+    assert.equal((await reloadedFinance.json() as { perAccountDailyCreditLimit: number }).perAccountDailyCreditLimit, 4);
     const reserveResponse = await call('/admin/credits/reserve', 'POST', {
       userId: ordinaryId, amount: 4, reason: 'route settlement fixture', idempotencyKey: randomUUID(),
     }, adminCookie);
@@ -516,6 +524,11 @@ test('admin API auth, pairing, configuration, moderation, audit and finance inte
     assert.equal(settledResponse.status, 200, 'settlement response remains serializable after commit');
     const settled = await settledResponse.json() as { wallet: { balance: number }; ledgerEntry: { budgetDay: string } };
     assert.equal(settled.wallet.balance, 10);
+    const limitBlocked = await call('/admin/credits/reserve', 'POST', {
+      userId: ordinaryId, amount: 1, reason: 'account daily cap', idempotencyKey: randomUUID(),
+    }, adminCookie);
+    assert.equal(limitBlocked.status, 409);
+    assert.equal((await limitBlocked.json() as { code: string }).code, 'DAILY_LIMIT_EXCEEDED');
     assert.match(settled.ledgerEntry.budgetDay, /^\d{4}-\d{2}-\d{2}$/);
     assert.equal((await call('/admin/ledger', 'GET', undefined, adminCookie)).status, 200, 'global ledger serializes SQL DATE fields');
     const replayResponse = await call(`/admin/credits/${held.reservation.id}/settle`, 'POST', settleBody, adminCookie);
@@ -601,9 +614,9 @@ test('admin API auth, pairing, configuration, moderation, audit and finance inte
       const previous = financeBefore[0];
       await pool.query(
         `UPDATE meduha_finance_settings SET spending_enabled=$1, daily_credit_limit=$2,
-          max_active_reservations=$3, updated_at=$4, updated_by=$5 WHERE id=1 AND updated_by=$6`,
+          max_active_reservations=$3, updated_at=$4, updated_by=$5, per_account_daily_credit_limit=$7 WHERE id=1 AND updated_by=$6`,
         [previous.spending_enabled, previous.daily_credit_limit, previous.max_active_reservations,
-          previous.updated_at, previous.updated_by, adminId],
+          previous.updated_at, previous.updated_by, adminId, previous.per_account_daily_credit_limit],
       );
     } else {
       await pool.query('DELETE FROM meduha_finance_settings WHERE id=1 AND updated_by=$1', [adminId]);

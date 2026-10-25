@@ -2213,9 +2213,15 @@ export const ImportHiggsfieldCatalogModelsResponse = zod.object({
 })
 
 
+export const getAdminFinanceSettingsResponsePerAccountDailyCreditLimitMin = 0;
+export const getAdminFinanceSettingsResponsePerAccountDailyCreditLimitMax = 2147483647;
+
+
+
 export const GetAdminFinanceSettingsResponse = zod.object({
   "spendingEnabled": zod.boolean(),
   "dailyCreditLimit": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(getAdminFinanceSettingsResponsePerAccountDailyCreditLimitMin).max(getAdminFinanceSettingsResponsePerAccountDailyCreditLimitMax),
   "maxActiveReservations": zod.number().int(),
   "updatedAt": zod.coerce.date(),
   "updatedBy": zod.string().nullable()
@@ -2224,6 +2230,9 @@ export const GetAdminFinanceSettingsResponse = zod.object({
 
 export const updateAdminFinanceSettingsBodyDailyCreditLimitMin = 0;
 
+export const updateAdminFinanceSettingsBodyPerAccountDailyCreditLimitMin = 0;
+export const updateAdminFinanceSettingsBodyPerAccountDailyCreditLimitMax = 2147483647;
+
 export const updateAdminFinanceSettingsBodyMaxActiveReservationsMin = 0;
 
 
@@ -2231,12 +2240,19 @@ export const updateAdminFinanceSettingsBodyMaxActiveReservationsMin = 0;
 export const UpdateAdminFinanceSettingsBody = zod.object({
   "spendingEnabled": zod.boolean().optional(),
   "dailyCreditLimit": zod.number().int().min(updateAdminFinanceSettingsBodyDailyCreditLimitMin).optional(),
+  "perAccountDailyCreditLimit": zod.number().int().min(updateAdminFinanceSettingsBodyPerAccountDailyCreditLimitMin).max(updateAdminFinanceSettingsBodyPerAccountDailyCreditLimitMax).optional().describe('Daily credits per account: active holds plus net settlements for the UTC day. Zero blocks new holds.'),
   "maxActiveReservations": zod.number().int().min(updateAdminFinanceSettingsBodyMaxActiveReservationsMin).optional()
 })
+
+export const updateAdminFinanceSettingsResponsePerAccountDailyCreditLimitMin = 0;
+export const updateAdminFinanceSettingsResponsePerAccountDailyCreditLimitMax = 2147483647;
+
+
 
 export const UpdateAdminFinanceSettingsResponse = zod.object({
   "spendingEnabled": zod.boolean(),
   "dailyCreditLimit": zod.number().int(),
+  "perAccountDailyCreditLimit": zod.number().int().min(updateAdminFinanceSettingsResponsePerAccountDailyCreditLimitMin).max(updateAdminFinanceSettingsResponsePerAccountDailyCreditLimitMax),
   "maxActiveReservations": zod.number().int(),
   "updatedAt": zod.coerce.date(),
   "updatedBy": zod.string().nullable()

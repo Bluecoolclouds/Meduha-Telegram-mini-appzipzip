@@ -1288,6 +1288,12 @@ export interface AdminFinanceSettingsUpdate {
   spendingEnabled?: boolean;
   /** @minimum 0 */
   dailyCreditLimit?: number;
+  /**
+     * Daily credits per account: active holds plus net settlements for the UTC day. Zero blocks new holds.
+     * @minimum 0
+     * @maximum 2147483647
+     */
+  perAccountDailyCreditLimit?: number;
   /** @minimum 0 */
   maxActiveReservations?: number;
 }
@@ -1372,6 +1378,11 @@ export interface AdminCreditTransitionInput {
 export interface FinanceSettings {
   spendingEnabled: boolean;
   dailyCreditLimit: number;
+  /**
+     * @minimum 0
+     * @maximum 2147483647
+     */
+  perAccountDailyCreditLimit: number;
   maxActiveReservations: number;
   updatedAt: string;
   /** @nullable */

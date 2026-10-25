@@ -71,6 +71,7 @@ export type FinanceWallet = {
 export type FinanceSettings = {
   spendingEnabled: boolean;
   dailyCreditLimit: number;
+  perAccountDailyCreditLimit: number;
   maxActiveReservations: number;
   updatedAt: Date;
   updatedBy: string | null;
@@ -114,6 +115,7 @@ export type ReserveCreditsInput = {
 export type UpdateFinanceSettingsInput = {
   spendingEnabled?: boolean;
   dailyCreditLimit?: number;
+  perAccountDailyCreditLimit?: number;
   maxActiveReservations?: number;
 };
 
@@ -234,6 +236,7 @@ function mapSettings(row: RawRow): FinanceSettings {
   return {
     spendingEnabled: row.spending_enabled,
     dailyCreditLimit: Number(row.daily_credit_limit),
+    perAccountDailyCreditLimit: Number(row.per_account_daily_credit_limit),
     maxActiveReservations: Number(row.max_active_reservations),
     updatedAt: asDate(row.updated_at)!,
     updatedBy: row.updated_by,
@@ -512,13 +515,17 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
         dailyCreditLimit: integer(Number(channel.daily_credit_limit), 'channel dailyCreditLimit', 0, MAX_CREDIT_BALANCE),
       };
     }
+    // Capture one day after acquiring the transaction lock. All checks in this
+    // reservation use it, even if the wall clock crosses midnight during SQL.
+    const day = utcDay();
     const { rows: totals } = await client.query(
       `SELECT
          COALESCE((SELECT SUM(amount) FROM meduha_credit_reservations WHERE status = 'held'), 0)::bigint AS global_held,
          COALESCE((SELECT SUM(amount) FROM meduha_credit_reservations WHERE account_id = $2 AND status = 'held'), 0)::bigint AS account_held,
          COALESCE((SELECT SUM(budget_delta) FROM meduha_finance_ledger WHERE budget_day = $1), 0)::bigint AS settled_net,
+         COALESCE((SELECT SUM(budget_delta) FROM meduha_finance_ledger WHERE budget_day = $1 AND account_id = $2), 0)::bigint AS account_settled_net,
          (SELECT COUNT(*) FROM meduha_credit_reservations WHERE status = 'held')::bigint AS active`,
-      [utcDay(), input.accountId],
+      [day, input.accountId],
     );
     const accountHeld = Number(totals[0].account_held);
     if (balance - accountHeld < input.amount) fail('INSUFFICIENT_CREDITS', 'Insufficient available credits');
@@ -527,7 +534,12 @@ export async function reserveCredits(input: ReserveCreditsInput): Promise<Financ
     const budgetUsed = Math.max(0, Number(totals[0].global_held) + Number(totals[0].settled_net));
     if (budgetUsed + input.amount > settings.dailyCreditLimit) fail('DAILY_LIMIT_EXCEEDED', 'Daily credit limit would be exceeded');
 
-    const day = utcDay();
+    // Outstanding holds carry over into the next day until settled or released.
+    // Settlement replaces a hold with budget_delta atomically under the same lock.
+    const accountBudgetUsed = Math.max(0, accountHeld + Number(totals[0].account_settled_net));
+    if (accountBudgetUsed + input.amount > settings.perAccountDailyCreditLimit) {
+      fail('DAILY_LIMIT_EXCEEDED', 'Дневной лимит кредитов аккаунта исчерпан. Новый день начинается в 00:00 UTC.');
+    }
     if (boundChannelId && channelLimits) {
       const { rows: channelUsageRows } = await client.query(
         `SELECT
@@ -709,6 +721,7 @@ export async function updateFinanceSettings(input: UpdateFinanceSettingsInput, a
     fail('INVALID_INPUT', 'spendingEnabled must be a boolean');
   }
   if (input.dailyCreditLimit !== undefined) integer(input.dailyCreditLimit, 'dailyCreditLimit', 0, MAX_CREDIT_BALANCE);
+  if (input.perAccountDailyCreditLimit !== undefined) integer(input.perAccountDailyCreditLimit, 'perAccountDailyCreditLimit', 0, MAX_CREDIT_BALANCE);
   if (input.maxActiveReservations !== undefined) integer(input.maxActiveReservations, 'maxActiveReservations', 0, MAX_CREDIT_BALANCE);
   return withTransaction(async client => {
     await lockGlobalBudget(client);
@@ -718,14 +731,15 @@ export async function updateFinanceSettings(input: UpdateFinanceSettingsInput, a
     const next = {
       spendingEnabled: input.spendingEnabled ?? previous.spendingEnabled,
       dailyCreditLimit: input.dailyCreditLimit ?? previous.dailyCreditLimit,
+      perAccountDailyCreditLimit: input.perAccountDailyCreditLimit ?? previous.perAccountDailyCreditLimit,
       maxActiveReservations: input.maxActiveReservations ?? previous.maxActiveReservations,
     };
     const { rows } = await client.query(
       `UPDATE meduha_finance_settings
        SET spending_enabled = $1, daily_credit_limit = $2, max_active_reservations = $3,
-           updated_by = $4, updated_at = now()
+           updated_by = $4, per_account_daily_credit_limit = $5, updated_at = now()
        WHERE id = 1 RETURNING *`,
-      [next.spendingEnabled, next.dailyCreditLimit, next.maxActiveReservations, actorId],
+      [next.spendingEnabled, next.dailyCreditLimit, next.maxActiveReservations, actorId, next.perAccountDailyCreditLimit],
     );
     return mapSettings(rows[0]);
   });

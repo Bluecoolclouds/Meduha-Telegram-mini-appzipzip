@@ -50,7 +50,7 @@ test('real PostgreSQL finance ledger, reservations, idempotency, budgets and rol
     await pool.query(
       `INSERT INTO meduha_ai_models
         (id, channel_id, upstream_id, display_name, kind, enabled, credit_price, limits)
-       VALUES ($1,$2,'finance-test-upstream','Finance test model','photo',$3,10,$4::jsonb)`,
+       VALUES ($1,$2,'finance-test-upstream','Finance test model','video',$3,10,$4::jsonb)`,
       [id, channelId, enabled, JSON.stringify(limits)],
     );
   };
@@ -72,6 +72,7 @@ test('real PostgreSQL finance ledger, reservations, idempotency, budgets and rol
     await updateFinanceSettings({
       spendingEnabled: true,
       dailyCreditLimit: 1_000,
+      perAccountDailyCreditLimit: 1_000,
       maxActiveReservations: 20,
     }, 'finance-test-admin');
 
@@ -401,6 +402,7 @@ test('real PostgreSQL finance ledger, reservations, idempotency, budgets and rol
     await updateFinanceSettings({
       spendingEnabled: previousSettings.spendingEnabled,
       dailyCreditLimit: previousSettings.dailyCreditLimit,
+      perAccountDailyCreditLimit: previousSettings.perAccountDailyCreditLimit,
       maxActiveReservations: previousSettings.maxActiveReservations,
     }, 'finance-test-cleanup');
     await pool.query(

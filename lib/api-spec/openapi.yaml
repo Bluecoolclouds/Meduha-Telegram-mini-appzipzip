@@ -1937,6 +1937,7 @@ components:
       properties:
         spendingEnabled: { type: boolean }
         dailyCreditLimit: { type: integer, minimum: 0 }
+        perAccountDailyCreditLimit: { type: integer, minimum: 0, maximum: 2147483647, description: "Daily credits per account: active holds plus net settlements for the UTC day. Zero blocks new holds." }
         maxActiveReservations: { type: integer, minimum: 0 }
     AdminUserBlockInput:
       type: object
@@ -2038,10 +2039,11 @@ components:
             totalReservations: { type: integer }
     FinanceSettings:
       type: object
-      required: [spendingEnabled, dailyCreditLimit, maxActiveReservations, updatedAt, updatedBy]
+      required: [spendingEnabled, dailyCreditLimit, perAccountDailyCreditLimit, maxActiveReservations, updatedAt, updatedBy]
       properties:
         spendingEnabled: { type: boolean }
         dailyCreditLimit: { type: integer }
+        perAccountDailyCreditLimit: { type: integer, minimum: 0, maximum: 2147483647 }
         maxActiveReservations: { type: integer }
         updatedAt: { type: string, format: date-time }
         updatedBy: { type: [string, "null"] }

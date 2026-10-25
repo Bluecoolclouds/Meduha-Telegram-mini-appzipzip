@@ -56,12 +56,14 @@ export const meduhaFinanceSettings = pgTable('meduha_finance_settings', {
   id: integer('id').notNull().primaryKey().default(1),
   spendingEnabled: boolean('spending_enabled').notNull().default(false),
   dailyCreditLimit: integer('daily_credit_limit').notNull().default(0),
+  perAccountDailyCreditLimit: integer('per_account_daily_credit_limit').notNull().default(0),
   maxActiveReservations: integer('max_active_reservations').notNull().default(3),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   updatedBy: text('updated_by'),
 }, table => [
   check('meduha_finance_settings_singleton_check', sql`${table.id} = 1`),
   check('meduha_finance_settings_daily_limit_check', sql`${table.dailyCreditLimit} >= 0`),
+  check('meduha_finance_settings_account_daily_limit_check', sql`${table.perAccountDailyCreditLimit} >= 0`),
   check('meduha_finance_settings_active_limit_check', sql`${table.maxActiveReservations} >= 0`),
 ]);
 export const insertMeduhaFinanceSettingsSchema = createInsertSchema(meduhaFinanceSettings).omit({ updatedAt: true });

@@ -9,6 +9,11 @@
 export interface FinanceSettings {
   spendingEnabled: boolean;
   dailyCreditLimit: number;
+  /**
+     * @minimum 0
+     * @maximum 2147483647
+     */
+  perAccountDailyCreditLimit: number;
   maxActiveReservations: number;
   updatedAt: Date;
   /** @nullable */

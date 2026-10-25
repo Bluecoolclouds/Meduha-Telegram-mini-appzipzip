@@ -85,7 +85,7 @@ test('video lifecycle reserves once, preserves private output, rejects stale pri
     for (const [id, mode] of [[modelId, 'text-to-video'], [imageModelId, 'image-to-video']]) {
       await pool.query(`INSERT INTO meduha_ai_models (id,channel_id,upstream_id,display_name,kind,enabled,credit_price,limits) VALUES ($1,$2,$3,'Video fixture','video',true,5,'{"concurrencyLimit":10,"dailyCreditLimit":10000}')`, [id, channelId, `bytedance/seedance-2.5/${mode}`]);
     }
-    await updateFinanceSettings({ spendingEnabled: true, dailyCreditLimit: 10000, maxActiveReservations: 20 }, 'video-test');
+    await updateFinanceSettings({ spendingEnabled: true, dailyCreditLimit: 10000, perAccountDailyCreditLimit: 10000, maxActiveReservations: 20 }, 'video-test');
     const body = { idempotencyKey: randomUUID(), catalogId: 'bytedance/seedance-2.5/text-to-video', modelId,
       expectedCreditPrice: 5, parameters: { prompt: 'Video fixture', duration: 5, generate_audio: false }, references: {} };
     assert.equal((await call(body, false)).status, 401);
@@ -125,8 +125,8 @@ test('video lifecycle reserves once, preserves private output, rejects stale pri
   } finally {
     await new Promise<void>(resolve => server.close(() => resolve()));
     // Restore the shared safety settings first, even if fixture deletion fails.
-    if (original) await pool.query(`UPDATE meduha_finance_settings SET spending_enabled=$1,daily_credit_limit=$2,max_active_reservations=$3,updated_by=$4,updated_at=$5 WHERE id=1 AND updated_by='video-test'`,
-      [original.spending_enabled, original.daily_credit_limit, original.max_active_reservations, original.updated_by, original.updated_at]);
+    if (original) await pool.query(`UPDATE meduha_finance_settings SET spending_enabled=$1,daily_credit_limit=$2,max_active_reservations=$3,updated_by=$4,updated_at=$5,per_account_daily_credit_limit=$6 WHERE id=1 AND updated_by='video-test'`,
+      [original.spending_enabled, original.daily_credit_limit, original.max_active_reservations, original.updated_by, original.updated_at, original.per_account_daily_credit_limit]);
     await pool.query('DELETE FROM meduha_generation_jobs WHERE account_id=$1', [accountId]);
     await pool.query('DELETE FROM meduha_finance_idempotency WHERE reservation_id IN (SELECT id FROM meduha_credit_reservations WHERE account_id=$1)', [accountId]);
     await pool.query('DELETE FROM meduha_finance_ledger WHERE account_id=$1', [accountId]);

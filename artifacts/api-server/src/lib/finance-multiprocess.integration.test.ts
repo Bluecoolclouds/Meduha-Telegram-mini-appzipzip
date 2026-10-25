@@ -136,6 +136,7 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
         CREATE TABLE "${schema}".meduha_finance_settings (
           id integer PRIMARY KEY, spending_enabled boolean NOT NULL DEFAULT false,
           daily_credit_limit integer NOT NULL DEFAULT 0, max_active_reservations integer NOT NULL DEFAULT 3,
+          per_account_daily_credit_limit integer NOT NULL DEFAULT 100,
           updated_at timestamptz NOT NULL DEFAULT now(), updated_by text
         );
         CREATE TABLE "${schema}".meduha_credit_reservations (
@@ -173,7 +174,7 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
       await pool.query(
         `INSERT INTO "${schema}".meduha_ai_models
           (id, channel_id, upstream_id, display_name, kind, enabled, credit_price, limits)
-         VALUES ($1,$2,'fixture','Fixture model','photo',true,10,'{"concurrencyLimit":10,"dailyCreditLimit":100}')`,
+         VALUES ($1,$2,'fixture','Fixture model','video',true,10,'{"concurrencyLimit":10,"dailyCreditLimit":100}')`,
         [ids.model, ids.channel],
       );
       await pool.query(
@@ -181,12 +182,13 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
          VALUES (1, true, 100, 20)`,
       );
     };
-    const setLimits = async (settings: { spending?: boolean; globalDaily?: number; active?: number; channelActive?: number; channelDaily?: number; modelActive?: number; modelDaily?: number }) => {
+    const setLimits = async (settings: { spending?: boolean; globalDaily?: number; accountDaily?: number; active?: number; channelActive?: number; channelDaily?: number; modelActive?: number; modelDaily?: number }) => {
       await pool.query(
         `UPDATE "${schema}".meduha_finance_settings
          SET spending_enabled=COALESCE($1,spending_enabled), daily_credit_limit=COALESCE($2,daily_credit_limit),
-             max_active_reservations=COALESCE($3,max_active_reservations) WHERE id=1`,
-        [settings.spending ?? null, settings.globalDaily ?? null, settings.active ?? null],
+             max_active_reservations=COALESCE($3,max_active_reservations),
+             per_account_daily_credit_limit=COALESCE($4,per_account_daily_credit_limit) WHERE id=1`,
+        [settings.spending ?? null, settings.globalDaily ?? null, settings.active ?? null, settings.accountDaily ?? null],
       );
       await pool.query(
         `UPDATE "${schema}".meduha_ai_channels
@@ -342,6 +344,36 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
         assert.equal(refund.wallet.available, 90);
       });
 
+      await t.test('per-account limit serializes different processes, counts settlements once and isolates accounts', async () => {
+        await setLimits({ globalDaily: 100, channelDaily: 100, modelDaily: 100, accountDaily: 20, active: 20 });
+        // This account already spent 10 in the earlier transition test.
+        const account = ids.accounts[0];
+        const attempts = await Promise.all([
+          runWorker([{ type: 'reserve', input: input(account, key(), false) }], { schema }),
+          runWorker([{ type: 'reserve', input: input(account, key(), false) }], { schema }),
+        ]);
+        const outcomes = attempts.map(result => result[0]);
+        assert.equal(outcomes.filter(result => result.status === 'ok').length, 1);
+        assert.equal(outcomes.filter(result => result.code === 'DAILY_LIMIT_EXCEEDED').length, 1);
+        const held = outcomes.find(result => result.status === 'ok')!.result.reservation.id;
+        await mutate('settle', held);
+        const blocked = await runWorker([{ type: 'reserve', input: input(account, key(), false) }], { schema });
+        assert.equal(blocked[0].code, 'DAILY_LIMIT_EXCEEDED');
+        assert.match(blocked[0].message!, /аккаунта/);
+        const other = await runWorker([{ type: 'reserve', input: input(ids.accounts[1], key(), false) }], { schema });
+        assert.equal(other[0].status, 'ok');
+        await mutate('release', other[0].result.reservation.id);
+        await mutate('refund', held);
+        const restored = await runWorker([{ type: 'reserve', input: input(account, key(), false) }], { schema });
+        assert.equal(restored[0].status, 'ok');
+        await mutate('release', restored[0].result.reservation.id);
+
+        await setLimits({ accountDaily: 0 });
+        const zero = await runWorker([{ type: 'reserve', input: input(ids.accounts[1], key(), false) }], { schema });
+        assert.equal(zero[0].code, 'DAILY_LIMIT_EXCEEDED');
+        await setLimits({ accountDaily: 100 });
+      });
+
       await t.test('kill switch blocks new holds without changing the isolated wallet', async () => {
         await setLimits({ spending: false });
         const rejected = await runWorker([{ type: 'reserve', input: input(ids.accounts[0], key(), false) }], { schema });
@@ -370,7 +402,7 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
       });
 
       await t.test('daily budgets reset exactly at midnight UTC across process restarts', async () => {
-        await setLimits({ globalDaily: 10, channelDaily: 100, modelDaily: 100 });
+        await setLimits({ globalDaily: 100, accountDaily: 10, channelDaily: 100, modelDaily: 100 });
         const beforeMidnight = await runWorker([
           { type: 'reserve', input: input(ids.accounts[3], key(), false) },
         ], { schema, now: '2026-08-31T23:59:59.999Z' });
@@ -383,6 +415,10 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
         }], { schema, now: '2026-08-31T23:59:59.999Z' });
         assert.equal(beforeSettlement[0].status, 'ok', JSON.stringify(beforeSettlement[0]));
         assert.equal(beforeSettlement[0].result.ledgerEntry.budgetDay, '2026-08-31');
+        const exhausted = await runWorker([
+          { type: 'reserve', input: input(ids.accounts[3], key(), false) },
+        ], { schema, now: '2026-08-31T23:59:59.999Z' });
+        assert.equal(exhausted[0].code, 'DAILY_LIMIT_EXCEEDED');
 
         const afterMidnight = await runWorker([
           { type: 'reserve', input: input(ids.accounts[3], key(), false) },
@@ -408,6 +444,22 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
           ['2026-08-31', 10],
           ['2026-09-01', 10],
         ]);
+      });
+
+      await t.test('holds carry across UTC midnight and cap reductions only block new reservations', async () => {
+        await setLimits({ accountDaily: 10, globalDaily: 100 });
+        const account = ids.accounts[3];
+        const [held] = await runWorker([{ type: 'reserve', input: input(account, key(), false) }],
+          { schema, now: '2026-09-02T23:59:59.999Z' });
+        assert.equal(held.status, 'ok');
+        const [blocked] = await runWorker([{ type: 'reserve', input: input(account, key(), false) }],
+          { schema, now: '2026-09-03T00:00:00.001Z' });
+        assert.equal(blocked.code, 'DAILY_LIMIT_EXCEEDED');
+        await setLimits({ accountDaily: 0 });
+        const [settled] = await runWorker([{ type: 'settle', reservationId: held.result.reservation.id, actorId, idempotencyKey: key() }],
+          { schema, now: '2026-09-03T00:00:00.001Z' });
+        assert.equal(settled.status, 'ok');
+        assert.equal(settled.result.ledgerEntry.budgetDay, '2026-09-03');
       });
 
       const { rows: finalAccounts } = await pool.query(

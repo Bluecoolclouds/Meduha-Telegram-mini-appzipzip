@@ -85,7 +85,7 @@ test('Genjutsu jobs preserve media, idempotency, prices and credit lifecycle wit
         JSON.stringify(scenario === 'genjutsu' ? tariffs.filter(tariff => tariff.scenario === scenario) : []),
       ]);
     }
-    await updateFinanceSettings({ spendingEnabled: true, dailyCreditLimit: 1000000, maxActiveReservations: 100 }, 'genjutsu-test');
+    await updateFinanceSettings({ spendingEnabled: true, dailyCreditLimit: 1000000, perAccountDailyCreditLimit: 1000000, maxActiveReservations: 100 }, 'genjutsu-test');
     const app = express();
     app.use(pinoHttp({ logger: pino({ level: 'silent' }) }));
     app.use(express.json(), cookieParser());
@@ -223,6 +223,7 @@ test('Genjutsu jobs preserve media, idempotency, prices and credit lifecycle wit
     await pool.query('DELETE FROM meduha_ai_channels WHERE id=$1', [channelId]);
     await updateFinanceSettings({
       spendingEnabled: previous.spendingEnabled, dailyCreditLimit: previous.dailyCreditLimit,
+      perAccountDailyCreditLimit: previous.perAccountDailyCreditLimit,
       maxActiveReservations: previous.maxActiveReservations,
     }, 'genjutsu-test-cleanup');
   }

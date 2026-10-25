@@ -589,7 +589,12 @@ router.patch('/admin/finance', async (req, res): Promise<void> => {
     if (caught instanceof FinanceError) { error(res, 400, caught.code, caught.message); return; }
     throw caught;
   }
-  await audit(actor, 'finance.settings.update', 'finance-settings');
+  await audit(actor, 'finance.settings.update', 'finance-settings', null, {
+    spendingEnabled: settings.spendingEnabled,
+    dailyCreditLimit: settings.dailyCreditLimit,
+    perAccountDailyCreditLimit: settings.perAccountDailyCreditLimit,
+    maxActiveReservations: settings.maxActiveReservations,
+  });
   res.json(GetAdminFinanceSettingsResponse.parse(settings));
 });
 router.get('/admin/ledger', async (req, res): Promise<void> => {

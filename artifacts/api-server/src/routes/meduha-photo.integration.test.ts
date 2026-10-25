@@ -104,7 +104,7 @@ test('private photo lifecycle: auth, schema, batch credit holds, replay, complet
     await pool.query(`INSERT INTO meduha_sessions (token_hash,user_id,expires_at) VALUES ($1,$2,now()+interval '1 hour')`, [createHash('sha256').update(token).digest('hex'), accountId]);
     await pool.query(`INSERT INTO meduha_ai_channels (id,name,base_url,adapter,enabled,concurrency_limit,daily_credit_limit) VALUES ($1,'Photo fixture','https://api.higgsfield.ai','higgsfield',true,10,10000)`, [channelId]);
     await pool.query(`INSERT INTO meduha_ai_models (id,channel_id,upstream_id,display_name,kind,enabled,credit_price,limits) VALUES ($1,$2,'higgsfield-ai/soul/standard','Soul fixture','photo',true,5,'{"concurrencyLimit":10,"dailyCreditLimit":10000}')`, [modelId, channelId]);
-    await updateFinanceSettings({ spendingEnabled: true, dailyCreditLimit: 10000, maxActiveReservations: 20 }, 'photo-test');
+    await updateFinanceSettings({ spendingEnabled: true, dailyCreditLimit: 10000, perAccountDailyCreditLimit: 10000, maxActiveReservations: 20 }, 'photo-test');
     const request = { idempotencyKey: randomUUID(), catalogId: 'higgsfield-ai/soul/standard', modelId, parameters: { prompt: 'Portrait', batch_size: 4, resolution: '1080p' }, references: {} };
     assert.equal((await quote(request, false)).status, 401);
     assert.equal((await call({ ...request, expectedCreditPrice: 20 })).status, 400, 'no launch without an explicit signed quote');
@@ -174,7 +174,7 @@ test('private photo lifecycle: auth, schema, batch credit holds, replay, complet
     // Restore safety settings before fixture cleanup, even when cleanup fails.
     const row = originalSettings.rows[0];
     if (row) {
-      await pool.query(`UPDATE meduha_finance_settings SET spending_enabled=$1,daily_credit_limit=$2,max_active_reservations=$3,updated_by=$4,updated_at=$5 WHERE id=1 AND updated_by='photo-test'`, [row.spending_enabled,row.daily_credit_limit,row.max_active_reservations,row.updated_by,row.updated_at]);
+      await pool.query(`UPDATE meduha_finance_settings SET spending_enabled=$1,daily_credit_limit=$2,max_active_reservations=$3,updated_by=$4,updated_at=$5,per_account_daily_credit_limit=$6 WHERE id=1 AND updated_by='photo-test'`, [row.spending_enabled,row.daily_credit_limit,row.max_active_reservations,row.updated_by,row.updated_at,row.per_account_daily_credit_limit]);
     } else await updateFinanceSettings(previous, 'photo-test-cleanup');
     await new Promise<void>(resolve => server.close(() => resolve()));
     await pool.query(`DELETE FROM meduha_generation_jobs WHERE account_id=ANY($1::text[])`, [[accountId,otherId]]);
