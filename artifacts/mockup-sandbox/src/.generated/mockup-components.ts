@@ -14,5 +14,7 @@ export const modules: ModuleMap = {
   "./components/mockups/meduha-light/Home.tsx": () => import("../components/mockups/meduha-light/Home.tsx"),
   "./components/mockups/meduha-light/Profile.tsx": () => import("../components/mockups/meduha-light/Profile.tsx"),
   "./components/mockups/meduha-light/Works.tsx": () => import("../components/mockups/meduha-light/Works.tsx"),
+  "./components/mockups/home-music-link/Current.tsx": () => import("../components/mockups/home-music-link/Current.tsx"),
+  "./components/mockups/home-music-link/Refresh.tsx": () => import("../components/mockups/home-music-link/Refresh.tsx"),
   "./components/mockups/meduha-mosaic/Mosaic.tsx": () => import("../components/mockups/meduha-mosaic/Mosaic.tsx")
 };

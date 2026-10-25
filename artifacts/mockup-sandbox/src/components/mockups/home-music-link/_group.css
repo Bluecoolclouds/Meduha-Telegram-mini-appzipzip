@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;450;500;550;600;650;700;750;800;850;900&family=Manrope:wght@600;700;800&display=swap');
+
+:root {
+  --background: 28 100% 96%;
+  --foreground: 18 45% 11%;
+  --border: 28 55% 87%;
+  --app-font-sans: 'Golos Text', sans-serif;
+  --orange: #ff6b18;
+  --orange-ink: #df4f12;
+  --muted: #8d7b70;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--app-font-sans); color: #2a1810; background: #fff6ec; }
+.home-music-frame {
+  width: 100%;
+  height: 250px;
+  min-height: 250px;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #2a1810;
+  background: #fff6ec;
+  color-scheme: light;
+}
+.home-music-frame * { box-sizing: border-box; }
+.home-music-frame a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.home-music-frame svg { flex-shrink: 0; }
+.home-music-frame .press { transition: transform 160ms ease, box-shadow 160ms ease; }
+.home-music-frame .press:active { transform: scale(.98); }
+.home-music-frame .press:focus-visible { outline: 2px solid #df4f12; outline-offset: 3px; }
+
+/* Exact source styles for the existing home link, kept as the Current baseline. */
+.home-music-frame .m-music-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #fff !important;
+  border-radius: 13px;
+  margin-top: 9px;
+  padding: 9px 11px;
+  text-align: left;
+  font-size: 11px !important;
+  background: #fffdfb;
+  box-shadow: 0 2px 10px #c8743a12;
+}
+.home-music-frame .m-music-link .music-icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 8px;
+  color: #22798c;
+  background: #e5f5f6;
+}
+.home-music-frame .m-music-link small { color: #8d7b70; font-size: 9px; margin-left: 7px; }
+.home-music-frame .m-music-link > svg:last-child { margin-left: auto; }
+
+/* The refined version deliberately keeps the same label and destination. */
+.home-music-frame .music-feature-card {
+  position: relative;
+  width: 100%;
+  min-height: 88px;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 14px;
+  overflow: hidden;
+  border: 1px solid #efc7a9;
+  border-radius: 19px;
+  background: linear-gradient(112deg, #fffdfa 0%, #fff5eb 61%, #ffe6d5 100%);
+  box-shadow: 0 8px 24px #c8743a18, inset 0 1px 0 #ffffff;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.home-music-frame .music-feature-card::before {
+  position: absolute;
+  top: 15px;
+  bottom: 15px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #ff9a53, #e85827);
+  content: '';
+}
+.home-music-frame .music-feature-card:hover {
+  transform: translateY(-1px);
+  border-color: #e8ae85;
+  box-shadow: 0 11px 28px #c8743a24, inset 0 1px 0 #ffffff;
+}
+.home-music-frame .music-feature-icon {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  color: #fffdfb;
+  background: linear-gradient(145deg, #ff9954, #e95428);
+  box-shadow: 0 5px 12px #de5a2d35;
+}
+.home-music-frame .music-feature-icon svg { width: 23px; height: 23px; stroke-width: 2; }
+.home-music-frame .music-feature-copy { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.home-music-frame .music-feature-kicker {
+  color: #c85b25;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.home-music-frame .music-feature-copy strong {
+  color: #2a1810;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -.35px;
+  line-height: 1.15;
+}
+.home-music-frame .music-feature-copy small { color: #80695c; font-size: 10px; line-height: 1.2; }
+.home-music-frame .music-feature-arrow {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #f0c6a6;
+  border-radius: 50%;
+  color: #d95319;
+  background: #fffdfb;
+}
+.home-music-frame .music-feature-arrow svg { width: 16px; height: 16px; stroke-width: 2; }
+@media (max-width: 360px) {
+  .home-music-frame { padding: 14px; }
+  .home-music-frame .music-feature-card { grid-template-columns: 46px minmax(0, 1fr) 34px; gap: 10px; padding: 11px 12px; }
+  .home-music-frame .music-feature-icon { width: 46px; height: 46px; border-radius: 14px; }
+  .home-music-frame .music-feature-copy strong { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-music-frame .press { transition: none; }
+  .home-music-frame .music-feature-card:hover { transform: none; }
+}
