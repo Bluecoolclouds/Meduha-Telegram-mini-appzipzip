@@ -62,3 +62,9 @@ Do not treat a provider's HTTP 401 as proof that the saved `higgsapi` secret is 
 **Why:** The user corrected repeated requests after already supplying the project's secret.
 
 **How to apply:** First verify secret existence, the running server's configured status, unchanged credential forwarding and a non-generating authentication check. Distinguish a missing configuration from an upstream rejection; never print credentials or use billable generation to diagnose authentication.
+
+Resolve conflicting credential documentation before repeating unchanged authentication probes or replacing the REST adapter with the SDK.
+
+**Why:** The supplied integration brief says to pass a complete copied key unchanged, while the official shared authentication guide and TypeScript v2 client describe paired credentials. The v2 client explicitly parses two colon-separated parts and constructs the same `Key` authorization scheme; installing it is not evidence that a rejected standalone credential will work.
+
+**How to apply:** Explain this source conflict without demanding that the user manually split or assemble secrets. Preserve the complete-key secret flow and do not silently switch to Bearer, legacy headers, or another API environment. After an unchanged 401, investigate new evidence rather than looping the same status probe.
