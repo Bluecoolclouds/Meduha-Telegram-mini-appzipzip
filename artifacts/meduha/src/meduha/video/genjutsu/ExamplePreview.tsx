@@ -3,6 +3,7 @@ import { ChevronRight, Film, Play, RotateCw, Users } from 'lucide-react';
 import { Link } from 'wouter';
 import { videoScenarios } from '../scenarios';
 import { videoModelPreview, type VideoPreviewMedia } from '../modelPreviews';
+import './genjutsu.css';
 
 const CDN = 'https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/';
 const examples: Record<string, VideoPreviewMedia | null> = {
@@ -24,6 +25,7 @@ export default function ExamplePreview({ scenario, showDemo = true, heading, med
   const video = useRef<HTMLVideoElement>(null);
   const [started, setStarted] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [imageAttempt, setImageAttempt] = useState(0);
   const isStill = Boolean(ex?.image);
   const legacyTestIds = hasGenjutsuLibrary;
   const title = heading ?? item?.title ?? 'Видео';
@@ -45,6 +47,11 @@ export default function ExamplePreview({ scenario, showDemo = true, heading, med
   }, []);
 
   const play = () => {
+    if (isStill) {
+      setFailed(false);
+      setImageAttempt(value => value + 1);
+      return;
+    }
     const element = video.current;
     if (!element) return;
     setFailed(false);
@@ -60,11 +67,11 @@ export default function ExamplePreview({ scenario, showDemo = true, heading, med
     <div className={`gj-ex-media${isStill ? ' still' : ''}${!ex ? ' unavailable' : ''}`}>
       {ex?.video && <video ref={video} src={ex.video} poster={ex.thumb} preload="none" playsInline muted controls={started && !failed}
         aria-label={`Демо ${title}`} data-testid={legacyTestIds ? 'video-genjutsu-example' : `video-example-${scenario}`} onError={() => setFailed(true)}/>}
-      {ex?.image && <img src={ex.image} alt={`Официальный пример образа для сценария «${title}»`} loading="lazy"/>}
+      {ex?.image && <img key={imageAttempt} src={ex.image} loading="lazy" decoding="async" alt={`Демо ${title}`} onError={() => setFailed(true)}/>}
       {!ex && <div className="gj-ex-fallback"><Film size={18}/><span>{emptyText ?? 'Пример появится после подключения сценария'}</span></div>}
       {ex?.video && !started && !failed && <button type="button" className="gj-ex-play" onClick={play} aria-label="Воспроизвести пример" data-testid={legacyTestIds ? 'button-play-example' : `button-play-example-${scenario}`}><Play size={25} fill="currentColor"/></button>}
       {failed && <div className="gj-ex-error" role="alert">
-        <Film size={18}/><span>Не удалось загрузить видео</span>
+        <Film size={18}/><span>{isStill ? 'Не удалось загрузить изображение' : 'Не удалось загрузить видео'}</span>
         <div><button type="button" onClick={play} data-testid={legacyTestIds ? 'button-retry-example' : `button-retry-example-${scenario}`}><RotateCw size={12}/>Повторить</button>
           <span>Оригинал временно недоступен</span></div>
       </div>}

@@ -1,8 +1,31 @@
 import { expect, test } from '@playwright/test';
 import { photoIdeas, photoIdeaHref } from '../src/meduha/photo/ideas';
 import catalog from '../../api-server/src/lib/photo-catalog.json' with { type: 'json' };
+import previewMedia from '../src/meduha/photo/model-preview-media.json' with { type: 'json' };
 
 test.use({ viewport: { width: 390, height: 844 } });
+
+test('photo demo headers use matching Playground images in all 20 modes without duplicate cards', async ({ page }) => {
+  test.setTimeout(80_000);
+  await page.goto(photoIdeaHref(photoIdeas[0]));
+  for (const model of catalog.models) {
+    await page.getByTestId('select-photo-idea-model').selectOption(model.id);
+    const form = page.getByTestId(`page-photo-model-${model.id}`);
+    const expected = previewMedia.models[model.id as keyof typeof previewMedia.models];
+    await expect(form.locator('.gj-ex-head h1')).toHaveCount(1);
+    await expect(form.locator('.ps-model-head')).toHaveCount(0);
+    await expect(form.locator('.gj-ex-media img')).toHaveAttribute('src', expected.image);
+    await expect(form.locator('.gj-ex-media img')).toHaveAttribute('loading', 'lazy');
+    await expect(form.locator('.gj-ex-media video')).toHaveCount(0);
+    await expect(form.getByTestId('button-photo-quote')).toBeDisabled();
+  }
+  for (const id of ['higgsfield-ai/soul/v2/standard', 'higgsfield/ai-influencer', 'workflows/product-shots']) {
+    await page.getByTestId('select-photo-idea-model').selectOption(id);
+    const image = page.locator('.gj-ex-media img');
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth), { timeout: 15_000 }).toBeGreaterThan(0);
+  }
+});
 
 test('all photo ideas open a prefilled generation form instead of a draft-only editor', async ({ page }) => {
   test.setTimeout(80_000);
@@ -13,13 +36,13 @@ test('all photo ideas open a prefilled generation form instead of a draft-only e
   await expect(page.getByTestId('status-photo-idea')).toContainText(first.title);
   await expect(page.getByTestId('textarea-prompt')).toHaveValue(first.prompt);
   await expect(page.getByTestId('select-photo-idea-model').locator('option')).toHaveCount(20);
-  await expect(page.getByTestId('button-photo-generate')).toBeDisabled();
+  await expect(page.getByTestId('button-photo-quote')).toBeDisabled();
 
   for (const idea of photoIdeas.slice(1)) {
     await page.goto(photoIdeaHref(idea));
     await expect(page.getByTestId('status-photo-idea')).toContainText(idea.title);
     await expect(page.getByTestId('textarea-prompt')).toHaveValue(idea.prompt);
-    await expect(page.getByTestId('button-photo-generate')).toBeDisabled();
+    await expect(page.getByTestId('button-photo-quote')).toBeDisabled();
   }
 });
 
@@ -37,7 +60,7 @@ test('every documented mode accepts the idea through its own schema while spendi
     await expect(page.getByTestId('status-photo-idea')).toContainText(idea.title);
     const field = 'prompt' in model.schema.properties ? 'prompt' : 'brief';
     await expect(page.getByTestId(`textarea-${field}`)).toHaveValue(idea.prompt);
-    await expect(page.getByTestId('button-photo-generate')).toBeDisabled();
+    await expect(page.getByTestId('button-photo-quote')).toBeDisabled();
     expect(new URL(page.url()).searchParams.get('photoIdea')).toBe(idea.id);
   }
   expect(requests).toEqual([]);

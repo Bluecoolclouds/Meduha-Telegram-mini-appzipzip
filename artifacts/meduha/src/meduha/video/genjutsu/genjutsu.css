@@ -1,3 +1,4 @@
+.meduha .gj-ex-head .gj-ex-title{margin:0;font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.02em}
 .meduha .gj-page{--gj-card:#f4f4f2;--gj-line:#e2e2df;--gj-soft:#e9e9e6;--gj-ink:#1d1d1f;--gj-mute:#76767a;--gj-acc:#2b2b2e;--gj-dot:#df4f12;display:flex;flex-direction:column;gap:12px;animation:gjIn .3s ease both;min-width:0}
 .meduha.light.dark .gj-page{--gj-card:#1e1e20;--gj-line:#2e2e31;--gj-soft:#141416;--gj-ink:#ededee;--gj-mute:#8e8e93;--gj-acc:#ededee;--gj-dot:#ff8a4c}
 @keyframes gjIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}

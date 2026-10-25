@@ -2,8 +2,28 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { photoIdeaHref, photoIdeaModel, photoIdeaParameters, photoIdeas, searchPhotoIdeas } from './ideas.ts';
 import { readFileSync } from 'node:fs';
+import { photoModelPreview } from './modelPreviews.ts';
 
 const catalog = JSON.parse(readFileSync(new URL('../../../../api-server/src/lib/photo-catalog.json', import.meta.url)));
+
+test('all 20 photo modes use the primary image from their own verified Playground', () => {
+  const manifest = JSON.parse(readFileSync(new URL('./model-preview-media.json', import.meta.url)));
+  assert.deepEqual(Object.keys(manifest.models).sort(), catalog.models.map(model => model.id).sort());
+  for (const model of catalog.models) {
+    const entry = manifest.models[model.id];
+    assert.equal(entry.source, model.source);
+    const url = new URL(entry.image);
+    assert.equal(url.protocol, 'https:');
+    assert.ok(
+      (url.hostname === 'd28lhcrx5qdowv.cloudfront.net' && url.pathname.startsWith('/media/explore/media/'))
+      || (url.hostname === 'static.higgsfield.ai' && url.pathname.startsWith('/api-workflows/')),
+    );
+    assert.deepEqual(photoModelPreview(model.id), { image: entry.image });
+  }
+  assert.equal(photoModelPreview('unknown'), null);
+  assert.equal(photoModelPreview('constructor'), null);
+  assert.equal(photoModelPreview('__proto__'), null);
+});
 
 test('photo catalogue only references existing curated local image keys', () => {
   const approved = new Set(['fashion', 'portrait', 'perfume', 'flower', 'car', 'city', 'mountain', 'astronaut', 'wave']);

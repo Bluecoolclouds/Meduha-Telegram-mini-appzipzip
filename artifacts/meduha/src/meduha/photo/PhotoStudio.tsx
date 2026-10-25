@@ -8,6 +8,8 @@ import { Frame, asset, mood, useToast } from '../shared';
 import { hideProviderBrand } from '../publicText';
 import { ScenarioCarousel, PromoBanner } from '../video/ScenarioHero';
 import { photoModelArt, photoProvider, photoProviderLabel } from './modelArt';
+import { photoModelPreview } from './modelPreviews';
+import ExamplePreview from '../video/genjutsu/ExamplePreview';
 import '../video/video.css';
 import '../video/catalogue.css';
 import { meduhaErrorMessage, useMeduhaSession } from '../session';
@@ -268,7 +270,8 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
 
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-photo-model-${model.id}`}>
     <a className="ps-back" href="/create?type=photo" onClick={go(navigate, '/create?type=photo')} data-testid="link-photo-catalogue"><ArrowLeft size={13}/>Все фотомодели</a>
-    <div className="ps-model-head"><span className="ps-art" aria-hidden="true"><img src={asset(photoModelArt(model))} alt=""/></span><div><span className="ps-mode">{modeLabel(model)}</span><h1>{userSafeName(fam.title ?? displayName(model))}<span>.</span></h1><p>{userSafeName(blurb(model))}</p></div></div>
+    <ExamplePreview scenario={model.id} heading={userSafeName(fam.title ?? displayName(model))} media={photoModelPreview(model.id)}
+      communityHref="/community?kind=photo" emptyText="Для этого режима на исходной странице пока нет фотопримера"/>
     {idea && <>
       <div className="ps-note" data-testid="status-photo-idea"><strong>{idea.title}</strong><p>Описание можно изменить. У каждой модели — отдельный черновик этого сценария: настройки и загруженные референсы сохраняются на этом устройстве и восстанавливаются при возвращении к модели.</p><Link href="/create?type=photo&ideas=1">Выбрать другой сценарий</Link></div>
       <label className="ps-field"><span>Модель для этого сценария</span><select data-testid="select-photo-idea-model" value={model.id} onChange={event => onPick(event.target.value)}>{catalog.models.map(option => <option key={option.id} value={option.id}>{displayName(option)}</option>)}</select></label>

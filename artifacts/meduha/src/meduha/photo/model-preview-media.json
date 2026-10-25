@@ -1,0 +1,84 @@
+{
+  "models": {
+    "higgsfield-ai/soul/standard": {
+      "source": "https://open.higgsfield.ai/models/higgsfield-ai/soul/standard/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/dfb9e5132b364597cfbd85730ade54498adadc113a47d50ea8458ae98185fa43-image.webp"
+    },
+    "higgsfield-ai/soul/v2/standard": {
+      "source": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/standard/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/52a6ceab9e44aa8dea42343c337a6b236690253920b4a2181b6c45cbb023ce49-image.webp"
+    },
+    "higgsfield-ai/soul/v2/image-to-image": {
+      "source": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/image-to-image/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/f90c3780fc3f4dead3be1e07c3419d6977c82472f601b0d7b0adf5db3d5932bd-image.webp"
+    },
+    "xai/grok-imagine-image-2.0": {
+      "source": "https://open.higgsfield.ai/models/xai/grok-imagine-image-2.0/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/d33e1b969add4c0e54ad3f0c22e0a46c2ad5bc96372525e89230fbad2177ece1-image.webp"
+    },
+    "marketing-studio/image": {
+      "source": "https://open.higgsfield.ai/models/marketing-studio/image/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7ff805cfc3c70a2ca923b1a9002b04e91f6d627dd4d302afe09797ae2e3ca44a-image.webp"
+    },
+    "higgsfield/ai-influencer": {
+      "source": "https://open.higgsfield.ai/models/higgsfield/ai-influencer/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/51a4efd07b9718780330b44fd6fcb36fc8bc31656100b72a15627ff2205debf0-image.webp"
+    },
+    "ideogram/v4.0": {
+      "source": "https://open.higgsfield.ai/models/ideogram/v4.0/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/aa642d35ed929d33feab8bbe4389d33ad8f65e384576ed6a25532e762c94bbd0-image.webp"
+    },
+    "recraft/v4.1/text-to-image": {
+      "source": "https://open.higgsfield.ai/models/recraft/v4.1/text-to-image/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e1451eeadce1f0aef53f6773fc57ae95dcde45679cf90d0c6d6c1baecd500a24-image.webp"
+    },
+    "alibaba/qwen-image-3/text-to-image": {
+      "source": "https://open.higgsfield.ai/models/alibaba/qwen-image-3/text-to-image/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/1414a0e1959b5300c286cadaad198491fd4c50c7bef46a0133a4cc35f8cefce0-image.webp"
+    },
+    "z-image/turbo": {
+      "source": "https://open.higgsfield.ai/models/z-image/turbo/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/48b4796091385740976c26b2664a0142768b84c74c48f3711c52ac014e13a66a-image.webp"
+    },
+    "workflows/ads-studio": {
+      "source": "https://open.higgsfield.ai/models/workflows/ads-studio/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/452afb9232ac3a2a46d56326f495e7ed9ffdd745fa7726ae9e46a76b8a80ffcf-image.webp"
+    },
+    "workflows/product-shots": {
+      "source": "https://open.higgsfield.ai/models/workflows/product-shots/playground",
+      "image": "https://static.higgsfield.ai/api-workflows/product-shots.webp"
+    },
+    "workflows/graphic-ads": {
+      "source": "https://open.higgsfield.ai/models/workflows/graphic-ads/playground",
+      "image": "https://static.higgsfield.ai/api-workflows/graphic-ads.webp"
+    },
+    "workflows/marketplace-design": {
+      "source": "https://open.higgsfield.ai/models/workflows/marketplace-design/playground",
+      "image": "https://static.higgsfield.ai/api-workflows/marketplace-design.webp"
+    },
+    "marketing-studio/image/flare": {
+      "source": "https://open.higgsfield.ai/models/marketing-studio/image/flare/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7ff805cfc3c70a2ca923b1a9002b04e91f6d627dd4d302afe09797ae2e3ca44a-image.webp"
+    },
+    "marketing-studio/image/sunburst": {
+      "source": "https://open.higgsfield.ai/models/marketing-studio/image/sunburst/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7ff805cfc3c70a2ca923b1a9002b04e91f6d627dd4d302afe09797ae2e3ca44a-image.webp"
+    },
+    "recraft/v4.1/pro/text-to-image": {
+      "source": "https://open.higgsfield.ai/models/recraft/v4.1/pro/text-to-image/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e1451eeadce1f0aef53f6773fc57ae95dcde45679cf90d0c6d6c1baecd500a24-image.webp"
+    },
+    "recraft/v4.1/utility/text-to-image": {
+      "source": "https://open.higgsfield.ai/models/recraft/v4.1/utility/text-to-image/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e1451eeadce1f0aef53f6773fc57ae95dcde45679cf90d0c6d6c1baecd500a24-image.webp"
+    },
+    "recraft/v4.1/utility/pro/text-to-image": {
+      "source": "https://open.higgsfield.ai/models/recraft/v4.1/utility/pro/text-to-image/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e1451eeadce1f0aef53f6773fc57ae95dcde45679cf90d0c6d6c1baecd500a24-image.webp"
+    },
+    "alibaba/qwen-image-3/edit": {
+      "source": "https://open.higgsfield.ai/models/alibaba/qwen-image-3/edit/playground",
+      "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/1414a0e1959b5300c286cadaad198491fd4c50c7bef46a0133a4cc35f8cefce0-image.webp"
+    }
+  }
+}
