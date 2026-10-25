@@ -157,6 +157,9 @@ function ModelDialog({ model, channels, onClose, onDone }: { model: AdminModel |
         <label className="adm-field full"><span>Лимиты и параметры цены</span><textarea className="mono" value={d.limits} onChange={set('limits')} placeholder={'concurrencyLimit=2\ndailyCreditLimit=500'} data-testid="input-model-limits" /><small>По одному на строку: ключ=число. concurrencyLimit и dailyCreditLimit ограничивают расход. Для поддержанных видеорежимов videoCreditsPerUsd задаёт курс кредитов, videoMaxUsd — предел одной сметы в USD. Оба параметра цены заполняются вместе; они не включают списания. Другие ключи остаются метаданными.</small></label>
         <label className="adm-check"><input type="checkbox" checked={d.enabled} onChange={e => setD(v => ({ ...v, enabled: e.target.checked }))} data-testid="checkbox-model-enabled" />Включена в конфигурации</label>
       </div>
+      {d.upstreamId.trim() === 'higgsfield/ads-studio/v1.0' && <div className="adm-feedback bad" role="note" data-testid="ads-studio-pricing-blocked">
+        Ads Studio остаётся заблокированной независимо от цены и лимитов этой записи. Официальная страница указывает цену за 1 млн токенов и сверку по фактическому расходу, но не документирует максимум токенов или окончательной суммы. Администраторский курс и предел сметы ограничили бы только предварительную оценку. Не задавай фиктивный тариф и не используй рекламную цену как тариф аккаунта; нужен подтверждённый провайдером жёсткий предел итоговой стоимости.
+      </div>}
       {d.kind === 'video' && selectedChannel?.adapter === 'higgsfield' && <PricingTools key={d.upstreamId} upstreamId={d.upstreamId.trim()} limits={limits} tariffs={genjutsuPricing} scenario={expectedGenjutsuScenario}
         onLimits={next => setD(value => ({ ...value, limits: limitsToText(next) }))}
         onTariffs={next => setD(value => ({ ...value, genjutsuPricing: genjutsuPricingToText(next) }))}/>}

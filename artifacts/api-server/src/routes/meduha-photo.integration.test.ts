@@ -10,7 +10,7 @@ import { validatePhotoInput, PhotoInputError, stablePhotoInput, type PhotoMetada
 import { checkPhotoHeader, PhotoResultValidationError } from '../lib/photo-storage';
 import { runGenerationWorkerOnce } from '../lib/generation-worker';
 import { getFinanceSettings, getWallet, updateFinanceSettings } from '../lib/finance';
-import { assertPhotoQuote, photoEstimateMicros, photoPricingFingerprint, photoQuotedPrice, photoRequestHash, PhotoPricingError, signPhotoQuote, verifyPhotoQuote } from '../lib/photo-pricing';
+import { assertPhotoQuote, photoEstimateMicros, photoPricingBlockedReason, photoPricingFingerprint, photoQuotedPrice, photoRequestHash, PhotoPricingError, signPhotoQuote, verifyPhotoQuote } from '../lib/photo-pricing';
 
 process.env.SESSION_SECRET ??= randomUUID();
 
@@ -20,8 +20,11 @@ test('photo quotes use exact decimal totals, verified ceilings and signed reques
   for (const bad of [0.75, 'NaN', '-1', '0', '1e-2', '0.0000001', null]) assert.throws(() => photoEstimateMicros(bad), PhotoPricingError);
   assert.equal(photoQuotedPrice(15, metadata, 750000), 60);
   assert.equal(photoQuotedPrice(15, metadata, 375200), 31);
-  assert.throws(() => photoQuotedPrice(15, metadata, 750001), PhotoPricingError);
+  const fourImageMaximum = 187500 * 4;
+  assert.equal(photoQuotedPrice(15, metadata, fourImageMaximum), 60, 'the verified per-image ceiling covers the whole four-image batch');
+  assert.throws(() => photoQuotedPrice(15, metadata, fourImageMaximum + 1), PhotoPricingError, 'one micro-dollar above the whole-batch ceiling is rejected');
   assert.throws(() => photoQuotedPrice(7, { ...metadata, catalogId: 'workflows/ads-studio', endpoint: 'higgsfield/ads-studio/v1.0' }, 84000), PhotoPricingError);
+  assert.match(photoPricingBlockedReason('higgsfield/ads-studio/v1.0') ?? '', /1 млн токенов.*фактическому расходу.*Максимум токенов или итоговой суммы не подтверждён/);
   assert.throws(() => photoQuotedPrice(7, { ...metadata, endpoint: 'unknown' }, 84000), PhotoPricingError);
   const claims = { purpose: 'photo-price' as const, accountId: 'fixture', modelId: randomUUID(), idempotencyKey: randomUUID(), requestHash: photoRequestHash(metadata), pricingFingerprint: photoPricingFingerprint(15), creditPrice: 60, expiresAt: Date.now() + 60_000, usdMicros: 750000 };
   const token = signPhotoQuote(claims);
@@ -36,6 +39,54 @@ test('photo quotes use exact decimal totals, verified ceilings and signed reques
   ]) assert.throws(() => assertPhotoQuote(claims, 'fixture', claims.modelId, claims.idempotencyKey, changed, 60), PhotoPricingError);
   assert.throws(() => assertPhotoQuote(claims, 'other', claims.modelId, claims.idempotencyKey, metadata, 60), PhotoPricingError);
   assert.throws(() => assertPhotoQuote(claims, 'fixture', claims.modelId, randomUUID(), metadata, 60), PhotoPricingError);
+});
+
+test('a signed Ads Studio quote binds every setting and the complete ten-image reference package', () => {
+  const metadata: PhotoMetadata = {
+    catalogId: 'workflows/ads-studio',
+    endpoint: 'higgsfield/ads-studio/v1.0',
+    parameters: {
+      prompt: 'Summer launch',
+      niche: 'Coffee',
+      language: 'ru',
+      target_audience: 'Adults',
+      batch_size: 8,
+      aspect_ratio: '2:1',
+    },
+    references: { image_urls: Array.from({ length: 10 }, () => randomUUID()) },
+  };
+  const claims = {
+    purpose: 'photo-price' as const,
+    accountId: 'ads-fixture',
+    modelId: randomUUID(),
+    idempotencyKey: randomUUID(),
+    requestHash: photoRequestHash(metadata),
+    pricingFingerprint: photoPricingFingerprint(7),
+    creditPrice: 7,
+    expiresAt: Date.now() + 60_000,
+    usdMicros: 84_000,
+  };
+  const token = signPhotoQuote(claims);
+  assert.deepEqual(verifyPhotoQuote(token), claims);
+  assertPhotoQuote(claims, claims.accountId, claims.modelId, claims.idempotencyKey, metadata, claims.creditPrice);
+  const changedRequests: PhotoMetadata[] = [
+    { ...metadata, parameters: { ...metadata.parameters, prompt: 'Winter launch' } },
+    { ...metadata, parameters: { ...metadata.parameters, niche: 'Tea' } },
+    { ...metadata, parameters: { ...metadata.parameters, language: 'en' } },
+    { ...metadata, parameters: { ...metadata.parameters, target_audience: 'Teens' } },
+    { ...metadata, parameters: { ...metadata.parameters, batch_size: 7 } },
+    { ...metadata, parameters: { ...metadata.parameters, aspect_ratio: '16:9' } },
+    { ...metadata, references: { image_urls: metadata.references.image_urls.slice(0, 9) } },
+    { ...metadata, references: { image_urls: [...metadata.references.image_urls].reverse() } },
+    { ...metadata, references: { image_urls: metadata.references.image_urls.map((id, index) => index === 9 ? randomUUID() : id) } },
+  ];
+  for (const changed of changedRequests) {
+    assert.throws(
+      () => assertPhotoQuote(claims, claims.accountId, claims.modelId, claims.idempotencyKey, changed, claims.creditPrice),
+      PhotoPricingError,
+      'any changed Ads Studio option or image invalidates the signed quote',
+    );
+  }
 });
 
 test('official photo schemas reject unsupported inputs, invalid references and workflow shortcuts', () => {
