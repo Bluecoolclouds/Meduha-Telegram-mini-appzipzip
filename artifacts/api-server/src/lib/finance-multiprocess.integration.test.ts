@@ -364,9 +364,23 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
           assert.equal(outcomes[1 - winner].code, 'INVALID_RESERVATION_STATE');
           const settled = operations[winner].type === 'settle';
           const [snapshot] = await runWorker([{ type: 'wallet', accountId }], { schema });
+          assert.equal(snapshot.status, 'ok', JSON.stringify(snapshot));
           assert.equal(snapshot.result.balance, settled ? 90 : 100);
           assert.equal(snapshot.result.available, snapshot.result.balance);
           assert.equal(snapshot.result.reserved, 0);
+          const terminalReservation = snapshot.result.reservations.find(
+            (reservation: any) => reservation.id === reservationId,
+          );
+          assert.equal(terminalReservation?.status, settled ? 'settled' : 'released');
+          assert.equal(snapshot.result.ledger.length, 2);
+          assert.equal(snapshot.result.ledger.reduce(
+            (sum: number, entry: any) => sum + entry.delta,
+            0,
+          ), settled ? -10 : 0);
+          assert.equal(snapshot.result.ledger.reduce(
+            (sum: number, entry: any) => sum + entry.reservedDelta,
+            0,
+          ), 0);
           const { rows: ledger } = await pool.query(
             `SELECT kind, delta, reserved_delta, budget_delta FROM "${schema}".meduha_finance_ledger
              WHERE reservation_id=$1`,
@@ -378,9 +392,20 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
           assert.equal(ledger.reduce((sum, row) => sum + Number(row.reserved_delta), 0), 0);
           assert.equal(ledger.reduce((sum, row) => sum + Number(row.budget_delta), 0), settled ? 10 : 0);
           const [replayed] = await runWorker([operations[winner]], { schema });
+          assert.equal(replayed.status, 'ok', JSON.stringify(replayed));
           assert.equal(replayed.result.replayed, true);
+          assert.equal(replayed.result.ledgerEntry.id, outcomes[winner].result.ledgerEntry.id);
           assert.equal(replayed.result.reservation.status, settled ? 'settled' : 'released');
+          const [rejectedReplay] = await runWorker([operations[1 - winner]], { schema });
+          assert.equal(rejectedReplay.status, 'error');
+          assert.equal(rejectedReplay.code, 'INVALID_RESERVATION_STATE');
+          assert.equal(await countLedger(operations[winner].idempotencyKey), 1);
           assert.equal(await countLedger(operations[1 - winner].idempotencyKey), 0);
+          const { rows: finalLedger } = await pool.query(
+            `SELECT kind FROM "${schema}".meduha_finance_ledger WHERE reservation_id=$1`,
+            [reservationId],
+          );
+          assert.equal(finalLedger.length, 2, 'replaying either transition must not add another ledger entry');
           if (settled) await mutate('refund', reservationId);
         }
       });
