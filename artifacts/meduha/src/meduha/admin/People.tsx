@@ -114,7 +114,7 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
       <div className="adm-panel-body" style={{ paddingTop: 0 }}>
         <section aria-label="Дневной лимит аккаунта" data-testid="account-daily-usage">
           <div className="adm-actions" style={{ justifyContent: 'space-between' }}>
-            <strong style={{ fontSize: 13 }}>Дневной лимит · {dailyUsage?.utcDay ?? '—'} UTC</strong>
+            <strong style={{ fontSize: 13 }} data-testid="text-daily-usage-day">Дневной лимит · {dailyUsage?.utcDay ?? '—'} UTC</strong>
             <button className="adm-btn sm" disabled={wq.isFetching} onClick={() => void wq.refetch()} data-testid="button-refresh-daily-usage">{wq.isFetching ? 'Обновляем…' : 'Обновить'}</button>
           </div>
           {walletStale && dailyUsage && <div className="adm-feedback bad" role="alert" data-testid="daily-usage-stale">

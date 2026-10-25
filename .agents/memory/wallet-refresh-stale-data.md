@@ -8,3 +8,9 @@ When a cached wallet refetch fails, keep the last successful values visible and 
 **Why:** Waiting for the terminal error hides the warning during retry delays, even though the displayed data is already known to be old. A separate account-detail snapshot may contain daily values, but it does not prove the dedicated wallet request succeeded.
 
 **How to apply:** For wallet refresh UI, derive freshness from both `isError` and `failureCount`, preserve data from that wallet query itself, and test both initial failure without wallet data and a transient cached-data failure followed by success.
+
+When a browser test simulates a UTC rollover, keep the wallet endpoint in failure mode for requests already in flight as well as new requests; otherwise a delayed success can overwrite the previous day's cached date during the assertion.
+
+**Why:** The route can begin before the simulated outage and finish after it starts, creating a successful current-day response that races the stale-state check.
+
+**How to apply:** In rollover tests, enforce the outage both before and after the upstream request, assert the old date and warning, then disable the outage and explicitly refresh to verify the new date.

@@ -130,8 +130,21 @@ test('account daily usage refreshes through the real admin API and an isolated a
   test.setTimeout(75_000);
   const account = fixture.testAccount!;
   let walletFailuresRemaining = 0;
+  let walletStaysUnavailable = false;
+  let dailyUsageUtcDayOverride: string | null = null;
   await page.route('**/api/meduha/admin/**', async route => {
     const incoming = new URL(route.request().url());
+    if (walletStaysUnavailable
+      && incoming.pathname === '/api/meduha/admin/wallet'
+      && incoming.searchParams.get('userId') === account.id
+      && route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Temporary wallet read failure' }),
+      });
+      return;
+    }
     if (walletFailuresRemaining > 0
       && incoming.pathname === '/api/meduha/admin/wallet'
       && incoming.searchParams.get('userId') === account.id
@@ -147,6 +160,36 @@ test('account daily usage refreshes through the real admin API and an isolated a
     const upstream = await route.fetch({
       url: `${fixture.url}${incoming.pathname}${incoming.search}`,
     });
+    if (walletStaysUnavailable
+      && incoming.pathname === '/api/meduha/admin/wallet'
+      && incoming.searchParams.get('userId') === account.id
+      && route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Temporary wallet read failure' }),
+      });
+      return;
+    }
+    if (dailyUsageUtcDayOverride
+      && incoming.pathname === '/api/meduha/admin/wallet'
+      && incoming.searchParams.get('userId') === account.id
+      && route.request().method() === 'GET'
+      && upstream.status() === 200) {
+      const body = await upstream.json() as {
+        dailyUsage?: Record<string, unknown>;
+        [key: string]: unknown;
+      };
+      await route.fulfill({
+        status: upstream.status(),
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ...body,
+          dailyUsage: { ...body.dailyUsage, utcDay: dailyUsageUtcDayOverride },
+        }),
+      });
+      return;
+    }
     await route.fulfill({ response: upstream });
   });
 
@@ -221,6 +264,53 @@ test('account daily usage refreshes through the real admin API and an isolated a
   const reopenedAccountRow = page.getByTestId(`button-user-${account.id}`);
   await expect(reopenedAccountRow).toBeVisible();
   await reopenedAccountRow.click();
+  const previousUtcDay = '2026-10-24';
+  const currentUtcDay = '2026-10-25';
+  dailyUsageUtcDayOverride = previousUtcDay;
+  const previousDayResponse = page.waitForResponse(async response => {
+    if (new URL(response.url()).pathname !== '/api/meduha/admin/wallet'
+      || new URL(response.url()).searchParams.get('userId') !== account.id
+      || response.request().method() !== 'GET'
+      || response.status() !== 200) return false;
+    const body = await response.json() as { dailyUsage?: { utcDay?: string } };
+    return body.dailyUsage?.utcDay === previousUtcDay;
+  });
+  await page.getByTestId('button-refresh-daily-usage').click();
+  await previousDayResponse;
+  await expect(page.getByTestId('text-daily-usage-day')).toHaveText(`Дневной лимит · ${previousUtcDay} UTC`);
+
+  dailyUsageUtcDayOverride = currentUtcDay;
+  walletStaysUnavailable = true;
+  const failedAcrossUtcMidnight = page.waitForResponse(response =>
+    new URL(response.url()).pathname === '/api/meduha/admin/wallet'
+      && new URL(response.url()).searchParams.get('userId') === account.id
+      && response.request().method() === 'GET'
+      && response.status() === 503,
+  );
+  await page.getByTestId('button-refresh-daily-usage').click();
+  await failedAcrossUtcMidnight;
+  await expect(page.getByTestId('daily-usage-stale')).toBeVisible();
+  await expect(page.getByTestId('text-daily-usage-day')).toHaveText(`Дневной лимит · ${previousUtcDay} UTC`);
+  await assertDailyUsage(page, {
+    reserves: 0, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit,
+  });
+
+  walletStaysUnavailable = false;
+  await expect(page.getByTestId('button-refresh-daily-usage')).toBeEnabled({ timeout: 15_000 });
+  const recoveredAcrossUtcMidnight = page.waitForResponse(async response => {
+    if (new URL(response.url()).pathname !== '/api/meduha/admin/wallet'
+      || new URL(response.url()).searchParams.get('userId') !== account.id
+      || response.request().method() !== 'GET'
+      || response.status() !== 200) return false;
+    const body = await response.json() as { dailyUsage?: { utcDay?: string } };
+    return body.dailyUsage?.utcDay === currentUtcDay;
+  });
+  await page.getByTestId('button-refresh-daily-usage').click();
+  await recoveredAcrossUtcMidnight;
+  await expect(page.getByTestId('text-daily-usage-day')).toHaveText(`Дневной лимит · ${currentUtcDay} UTC`);
+  await expect(page.getByTestId('daily-usage-stale')).toHaveCount(0);
+
+  dailyUsageUtcDayOverride = null;
   await assertDailyUsage(page, {
     reserves: 0, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit,
   });
