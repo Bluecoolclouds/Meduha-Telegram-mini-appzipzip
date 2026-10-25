@@ -35,3 +35,17 @@ await build({
   plugins: [esbuildPluginPino({ transports: ['pino-pretty'] })],
   logLevel: 'warning',
 });
+await build({
+  entryPoints: {
+    fixture: path.join(root, 'src/routes/meduha-template-repeat-browser-fixture.ts'),
+  },
+  outdir: path.join(root, 'node_modules/.cache/meduha-template-repeat-browser'),
+  entryNames: '[name]',
+  bundle: true,
+  platform: 'node',
+  format: 'cjs',
+  outExtension: { '.js': '.cjs' },
+  external: ['pg-native'],
+  plugins: [esbuildPluginPino({ transports: ['pino-pretty'] })],
+  logLevel: 'warning',
+});
