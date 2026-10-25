@@ -103,7 +103,7 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
   const status = useGetMeduhaAdminStatus({ request: adminQueryRequest, query: { queryKey: getGetMeduhaAdminStatusQueryKey() } });
   if (q.isLoading) return <Panel title="Пользователь"><Skeleton rows={8} /></Panel>;
   if (q.isError || !q.data) return <Panel title="Пользователь"><ErrorBox error={q.error ?? new Error('Нет данных')} onRetry={() => void q.refetch()} /></Panel>;
-  const u = q.data; const w = wq.data ?? u.wallet; const walletStale = wq.isError || wq.failureCount > 0; const reservations = asArray<FinanceReservation>(w?.reservations); const ledger = asArray<FinanceLedgerEntry>(w?.ledger); const isSelf = !!status.data?.adminId && status.data.adminId === u.id; const wTotal = Math.max(w?.pagination?.totalLedger ?? 0, w?.pagination?.totalReservations ?? 0); const works = asArray<AdminJob>(u.works);
+  const u = q.data; const w = wq.data ?? u.wallet; const dailyUsage = wq.data?.dailyUsage; const walletStale = wq.isError || wq.failureCount > 0; const reservations = asArray<FinanceReservation>(w?.reservations); const ledger = asArray<FinanceLedgerEntry>(w?.ledger); const isSelf = !!status.data?.adminId && status.data.adminId === u.id; const wTotal = Math.max(w?.pagination?.totalLedger ?? 0, w?.pagination?.totalReservations ?? 0); const works = asArray<AdminJob>(u.works);
   return <div>
     <Panel title={`${u.firstName} ${u.lastName ?? ''}`.trim()} meta={<span className="mono">{u.username ? `@${u.username} · ` : ''}ID {u.id}</span>} actions={<span className={`adm-tag ${u.blocked ? 'bad' : 'ok'}`}>{u.blocked ? 'Заблокирован' : 'Активен'}</span>}>
       <div className="adm-figures" style={{ margin: 16, marginBottom: 12 }}>
@@ -114,18 +114,18 @@ function UserDetail({ userId, onDone }: { userId: string; onDone: (m: string) =>
       <div className="adm-panel-body" style={{ paddingTop: 0 }}>
         <section aria-label="Дневной лимит аккаунта" data-testid="account-daily-usage">
           <div className="adm-actions" style={{ justifyContent: 'space-between' }}>
-            <strong style={{ fontSize: 13 }}>Дневной лимит · {w?.dailyUsage?.utcDay ?? '—'} UTC</strong>
+            <strong style={{ fontSize: 13 }}>Дневной лимит · {dailyUsage?.utcDay ?? '—'} UTC</strong>
             <button className="adm-btn sm" disabled={wq.isFetching} onClick={() => void wq.refetch()} data-testid="button-refresh-daily-usage">{wq.isFetching ? 'Обновляем…' : 'Обновить'}</button>
           </div>
-          {walletStale && w?.dailyUsage && <div className="adm-feedback bad" role="alert" data-testid="daily-usage-stale">
+          {walletStale && dailyUsage && <div className="adm-feedback bad" role="alert" data-testid="daily-usage-stale">
             Не удалось обновить кошелёк. Показаны последние подтверждённые данные; они могут быть устаревшими.
           </div>}
-          {wq.isError && !w?.dailyUsage ? <ErrorBox error={wq.error} onRetry={() => void wq.refetch()} /> : w?.dailyUsage ? <>
+          {wq.isError && !dailyUsage ? <ErrorBox error={wq.error} onRetry={() => void wq.refetch()} /> : dailyUsage ? <>
             <dl className="adm-review" style={{ margin: '12px 0', gridTemplateColumns: 'minmax(0, 1fr) auto' }}>
-              <dt>Активные резервы</dt><dd className="num" data-testid="text-daily-reserves">{fmtInt(w.dailyUsage.activeReserves)} кр.</dd>
-              <dt>Чистые списания за день</dt><dd className="num" data-testid="text-daily-net-spent">{fmtInt(w.dailyUsage.netSpent)} кр.</dd>
-              <dt>Лимит аккаунта в день</dt><dd className="num" data-testid="text-daily-limit">{fmtInt(w.dailyUsage.perAccountDailyCreditLimit)} кр.</dd>
-              <dt>Остаток дневного лимита</dt><dd className="num" data-testid="text-daily-remaining">{fmtInt(w.dailyUsage.remaining)} кр.</dd>
+              <dt>Активные резервы</dt><dd className="num" data-testid="text-daily-reserves">{fmtInt(dailyUsage.activeReserves)} кр.</dd>
+              <dt>Чистые списания за день</dt><dd className="num" data-testid="text-daily-net-spent">{fmtInt(dailyUsage.netSpent)} кр.</dd>
+              <dt>Лимит аккаунта в день</dt><dd className="num" data-testid="text-daily-limit">{fmtInt(dailyUsage.perAccountDailyCreditLimit)} кр.</dd>
+              <dt>Остаток дневного лимита</dt><dd className="num" data-testid="text-daily-remaining">{fmtInt(dailyUsage.remaining)} кр.</dd>
             </dl>
             <p style={{ fontSize: 12, color: 'var(--ink-3)', margin: '0 0 16px' }}>Новый день начинается в 00:00 UTC. Учтены все активные резервы, включая прошлые дни; списания — за вычетом возвратов к этому дню. Остаток лимита не равен балансу: также действуют общие лимиты, ограничения модели и канала. Обновляется каждые 30 секунд.</p>
           </> : <Skeleton rows={4} />}

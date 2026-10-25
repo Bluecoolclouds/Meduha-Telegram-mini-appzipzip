@@ -38,7 +38,7 @@ async function setPageVisibility(page: Page, state: 'hidden' | 'visible') {
       configurable: true,
       get: () => nextState,
     });
-    document.dispatchEvent(new Event('visibilitychange'));
+    window.dispatchEvent(new Event('visibilitychange'));
   }, state);
 }
 
@@ -161,8 +161,34 @@ test('account daily usage refreshes through the real admin API and an isolated a
   await search.fill(account.firstName);
   const accountRow = page.getByTestId(`button-user-${account.id}`);
   await expect(accountRow).toBeVisible();
+  walletFailuresRemaining = 10;
+  const failedInitialWallet = page.waitForResponse(response =>
+    new URL(response.url()).pathname === '/api/meduha/admin/wallet'
+      && new URL(response.url()).searchParams.get('userId') === account.id
+      && response.request().method() === 'GET'
+      && response.status() === 503,
+  );
   await accountRow.click();
-  await expect(page.getByTestId('account-daily-usage')).toBeVisible();
+  const dailyUsage = page.getByTestId('account-daily-usage');
+  await expect(dailyUsage).toBeVisible();
+  await failedInitialWallet;
+  await expect(dailyUsage.getByRole('alert')).toBeVisible({ timeout: 15_000 });
+  await expect(dailyUsage.getByTestId('button-retry')).toBeVisible();
+  await expect(dailyUsage.getByTestId('text-daily-reserves')).toHaveCount(0);
+  await expect(dailyUsage.getByTestId('text-daily-net-spent')).toHaveCount(0);
+  await expect(dailyUsage.getByTestId('text-daily-limit')).toHaveCount(0);
+  await expect(dailyUsage.getByTestId('text-daily-remaining')).toHaveCount(0);
+  walletFailuresRemaining = 0;
+  const recoveredInitialWallet = page.waitForResponse(async response => {
+    if (new URL(response.url()).pathname !== '/api/meduha/admin/wallet'
+      || new URL(response.url()).searchParams.get('userId') !== account.id
+      || response.request().method() !== 'GET'
+      || response.status() !== 200) return false;
+    const body = await response.json() as { dailyUsage?: { activeReserves?: number } };
+    return body.dailyUsage?.activeReserves === 0;
+  });
+  await dailyUsage.getByTestId('button-retry').click();
+  await recoveredInitialWallet;
   await assertDailyUsage(page, {
     reserves: 0, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit,
   });
