@@ -198,6 +198,5 @@ function MosaicTile({ template, onOpen, autoplay, reportVisibility }: { template
       {template.kind === 'audio' && <span className="mt-kind-badge"><Music2 size={10}/>Аудио</span>}
       {isExampleTemplate(template) && <span className="mt-example-badge" data-testid={`badge-example-${template.id}`}>Пример</span>}
     </span>
-    <span className="mt-card-title">{template.title}</span>
   </button>;
 }

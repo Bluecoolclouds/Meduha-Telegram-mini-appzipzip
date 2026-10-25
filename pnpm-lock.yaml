@@ -154,6 +154,11 @@ overrides:
   esbuild: 0.28.2
   js-yaml: 4.3.2
 
+patchedDependencies:
+  teeny-request@11.1.1:
+    hash: 62ea0019694a4ba8751a4ccb9d13cf5b55b9510bbf087e086c1a6a0e4f007cd6
+    path: patches/teeny-request@11.1.1.patch
+
 importers:
 
   .:
@@ -183,6 +188,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
+      '@workspace/studio-examples':
+        specifier: workspace:*
+        version: link:../../lib/studio-examples
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -361,6 +369,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/studio-examples':
+        specifier: workspace:*
+        version: link:../../lib/studio-examples
       class-variance-authority:
         specifier: 'catalog:'
         version: 0.7.1
@@ -659,6 +670,8 @@ importers:
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
+
+  lib/studio-examples: {}
 
   scripts:
     devDependencies:
@@ -3580,7 +3593,7 @@ snapshots:
       mime: 3.0.0
       p-limit: 3.1.0
       retry-request: 9.1.0
-      teeny-request: 11.1.1
+      teeny-request: 11.1.1(patch_hash=62ea0019694a4ba8751a4ccb9d13cf5b55b9510bbf087e086c1a6a0e4f007cd6)
     transitivePeerDependencies:
       - supports-color
 
@@ -6010,7 +6023,7 @@ snapshots:
 
   tapable@2.3.3: {}
 
-  teeny-request@11.1.1:
+  teeny-request@11.1.1(patch_hash=62ea0019694a4ba8751a4ccb9d13cf5b55b9510bbf087e086c1a6a0e4f007cd6):
     dependencies:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6

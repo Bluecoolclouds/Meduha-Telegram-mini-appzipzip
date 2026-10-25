@@ -1,4 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { useProductionPreview } from './production-preview';
+
+test.beforeEach(async ({ page, baseURL }) => {
+  if (process.env.MEDUHA_PRODUCTION_SMOKE === '1') await useProductionPreview(page, baseURL!);
+});
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
   test(`public studio opens without runtime errors at ${viewport.width}px`, async ({ page }) => {

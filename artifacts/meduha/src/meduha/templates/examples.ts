@@ -1,5 +1,5 @@
 import type { StudioTemplate } from '@workspace/api-client-react';
-import motionTransfer from '../../../public/templates/motion-transfer.json';
+import motionTransfer from '@workspace/studio-examples/motion-transfer.json';
 
 const photoCredit = 'Иллюстрация из стартовых материалов Meduha. Не публикация пользователя.';
 

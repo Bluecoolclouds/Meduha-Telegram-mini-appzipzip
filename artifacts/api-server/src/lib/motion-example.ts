@@ -1,4 +1,4 @@
-import example from '../../../meduha/public/templates/motion-transfer.json';
+import example from '@workspace/studio-examples/motion-transfer.json';
 export { example as motionExample };
 export const motionAssets = {
   'motion-result.mp4': { id: 'ced2dff4-3003-42fe-b705-05a81ec79001', contentType: 'video/mp4', size: 12140419 },

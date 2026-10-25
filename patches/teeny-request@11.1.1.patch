@@ -1,0 +1,42 @@
+diff --git a/build/src/index.js b/build/src/index.js
+index 3feb6bcac60c56b254af79f35a2c379f63a971cc..fd2b18049a4a48bd9cdf6d568013928ea240139e 100644
+--- a/build/src/index.js
++++ b/build/src/index.js
+@@ -452,13 +452,26 @@ function teenyRequest(reqOpts, callback) {
+         const requestStream = streamEvents(new stream_1.PassThrough());
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         let responseStream;
++        // This duplex is also a source in the GCS caller's pipeline. Nesting a
++        // second pipeline adds duplicate lifecycle listeners to the same stream.
++        // Monitor the source once, clean those listeners up, and keep close/error
++        // propagation without suppressing EventEmitter warnings globally.
++        const pipeResponse = () => {
++            const abortSource = () => responseStream.destroy();
++            requestStream.once('close', abortSource);
++            (0, stream_1.finished)(responseStream, { cleanup: true }, err => {
++                requestStream.removeListener('close', abortSource);
++                if (err) requestStream.destroy(err);
++            });
++            responseStream.pipe(requestStream);
++        };
+         requestStream.once('reading', () => {
+             if (responseStream) {
+-                (0, stream_1.pipeline)(responseStream, requestStream, () => { });
++                pipeResponse();
+             }
+             else {
+                 requestStream.once('response', () => {
+-                    (0, stream_1.pipeline)(responseStream, requestStream, () => { });
++                    pipeResponse();
+                 });
+             }
+         });
+@@ -468,7 +481,7 @@ function teenyRequest(reqOpts, callback) {
+             teenyRequest.stats.requestFinished();
+             responseStream = res.body;
+             responseStream.on('error', (err) => {
+-                requestStream.emit('error', err);
++                requestStream.destroy(err);
+             });
+             const response = fetchToRequestResponse(options, res);
+             requestStream.emit('response', response);

@@ -5,12 +5,12 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
-import Home from './meduha/Home';
-import Create from './meduha/Create';
-import Works from './meduha/Works';
-import Profile from './meduha/Profile';
-import Community from './meduha/Community';
-import TemplateManager from './meduha/templates/manage/TemplateManager';
+const Home = lazy(() => import('./meduha/Home'));
+const Create = lazy(() => import('./meduha/Create'));
+const Works = lazy(() => import('./meduha/Works'));
+const Profile = lazy(() => import('./meduha/Profile'));
+const Community = lazy(() => import('./meduha/Community'));
+const TemplateManager = lazy(() => import('./meduha/templates/manage/TemplateManager'));
 const AdminApp = lazy(() => import('./meduha/admin/AdminApp'));
 const Wallet = lazy(() => import('./meduha/wallet/Wallet'));
 import { ThemeProvider } from './meduha/theme';
@@ -30,7 +30,7 @@ const pageMeta:Record<string,{title:string;description:string}>={
   '/community':{title:'Вдохновение — meduha',description:'Мозаика фото и видео участников сообщества с оригинальными промптами.'},
 };
 function Metadata(){const [location]=useLocation();useEffect(()=>{const meta=pageMeta[location.split('?')[0]]||pageMeta['/'];document.title=meta.title;let element=document.querySelector('meta[name="description"]');if(!element){element=document.createElement('meta');element.setAttribute('name','description');document.head.appendChild(element)}element.setAttribute('content',meta.description)},[location]);return null}
-function Router(){return <><Metadata/><RoutedErrorBoundary><Switch>
+function Router(){return <><Metadata/><RoutedErrorBoundary><Suspense fallback={<div className="m-startup" role="status"><p>Загружаем студию…</p></div>}><Switch>
   <Route path="/" component={Home}/>
   <Route path="/create" component={Create}/>
   <Route path="/works" component={Works}/>
@@ -39,7 +39,7 @@ function Router(){return <><Metadata/><RoutedErrorBoundary><Switch>
   <Route path="/community/manage" component={TemplateManager}/>
   <Route path="/wallet">{()=><Suspense fallback={<div className="m-startup"><p>Загружаем кошелёк…</p></div>}><Wallet/></Suspense>}</Route>
   <Route component={NotFound}/>
-</Switch></RoutedErrorBoundary></>}
+</Switch></Suspense></RoutedErrorBoundary></>}
 function RoutedErrorBoundary({children}:{children:ReactNode}){const [location]=useLocation();return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>}
 function SessionGate({children}:{children:ReactNode}){
  const [location]=useLocation();

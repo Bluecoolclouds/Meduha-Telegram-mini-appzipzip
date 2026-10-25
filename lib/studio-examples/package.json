@@ -1,0 +1,9 @@
+{
+  "name": "@workspace/studio-examples",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./motion-transfer.json": "./motion-transfer.json"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "example-genjutsu-motion-transfer",
+  "status": "published",
+  "kind": "video",
+  "title": "Два героя — одно движение",
+  "description": "Genjutsu Motion Transfer: исходное видео задаёт движение, два фото — лица героев. Можно заменить материалы своими. Пример Meduha, опубликован с разрешения предоставившего материалы пользователя. Переданы промпт и результат 720p; остальные исходные настройки неизвестны.",
+  "poster": "/api/meduha/example-media/motion-poster.jpg",
+  "videoUrl": "/api/meduha/example-media/motion-result.mp4",
+  "width": 720,
+  "height": 1280,
+  "prompt": "replace the faces only from @[Image 1](image_1)  and @[Image 2](image_2)  from the faces of the people in @[Video 1](video_1) and make the people from @[Video 1](video_1)  make them wear gangster rap clothes with jewelry on and make the face from @[Image 1](image_1)  that is going on the person in @[Video 1](video_1)  make @[Image 1](image_1)  face slightly skinnier and less chubby witha good jawline but not very far from where it is right now just a little bit better but besides that keep the movement and everything from @[Video 1](video_1)  the same just replacign the faces like i said and changing the clothing",
+  "tags": ["Genjutsu", "Motion Transfer", "Перенос движения", "Два героя"],
+  "credit": "Пример Meduha. Результат и исходные материалы предоставлены пользователем для публикации шаблона.",
+  "parameters": { "model": "Genjutsu", "style": "", "ratio": "9:16", "duration": "11" },
+  "recipe": {
+    "version": 1,
+    "kind": "video",
+    "catalogId": "higgsfield/genjutsu/motion-transfer/v1.0",
+    "parameters": {
+      "prompt": "replace the faces only from @[Image 1](image_1)  and @[Image 2](image_2)  from the faces of the people in @[Video 1](video_1) and make the people from @[Video 1](video_1)  make them wear gangster rap clothes with jewelry on and make the face from @[Image 1](image_1)  that is going on the person in @[Video 1](video_1)  make @[Image 1](image_1)  face slightly skinnier and less chubby witha good jawline but not very far from where it is right now just a little bit better but besides that keep the movement and everything from @[Video 1](video_1)  the same just replacign the faces like i said and changing the clothing",
+      "resolution": "720p"
+    },
+    "references": {
+      "/video_url": ["ced2dff4-3003-42fe-b705-05a81ec79003"],
+      "/image_urls": ["ced2dff4-3003-42fe-b705-05a81ec79004", "ced2dff4-3003-42fe-b705-05a81ec79005"]
+    }
+  }
+}

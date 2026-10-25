@@ -16,6 +16,7 @@
     "test:admin-access": "node ./test.mjs --admin-access"
   },
   "dependencies": {
+    "@workspace/studio-examples": "workspace:*",
     "@google-cloud/storage": "^8.4.0",
     "@higgsfield/client": "^0.2.6",
     "@workspace/api-zod": "workspace:*",
