@@ -21,3 +21,4 @@
 .m-referral{padding-right:118px;min-height:104px}.m-referral>img{position:absolute;right:2px;bottom:2px;width:118px;object-fit:contain;pointer-events:none}
 .m-faq-row{display:flex;gap:10px;align-items:center;background:#2a2321;border:1px solid #4a3328;border-radius:14px;padding:8px 12px 8px 4px;margin:10px 0 14px}.m-faq-row img{width:82px;flex-shrink:0;object-fit:contain}.m-faq-row p{margin:0;font-size:11px}
 .meduha .m-screen-create .m-prompt textarea{padding-right:86px}
+.meduha .m-entry:after{background:linear-gradient(0deg,#100d0de8 0%,#100d0dca 28%,#100d0d70 55%,#100d0d10 76%,transparent 88%)}

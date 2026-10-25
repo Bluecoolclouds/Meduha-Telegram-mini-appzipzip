@@ -3,7 +3,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Camera, Clapperboard, LoaderCircle, Music2, Play, Plus, RotateCw } from 'lucide-react';
 import { Link, useLocation, useSearch } from 'wouter';
 import { Sheet } from '../shared';
-import { getExampleTemplate, getPublicTemplate, getTemplatePage, isExampleTemplate, type InspirationTemplate } from './catalog';
+import { getExampleTemplate, getPublicTemplate, getTemplatePage, type InspirationTemplate } from './catalog';
 import { feedMediaUrl } from './feedMedia';
 import WorkViewer from './WorkViewer';
 import { useMeduhaSession } from '../session';
@@ -196,7 +196,6 @@ function MosaicTile({ template, onOpen, autoplay, reportVisibility }: { template
     <span className="mt-tile-badges">
       {isVideo && <span className="mt-kind-badge"><Play size={9} fill="currentColor"/>Видео</span>}
       {template.kind === 'audio' && <span className="mt-kind-badge"><Music2 size={10}/>Аудио</span>}
-      {isExampleTemplate(template) && <span className="mt-example-badge" data-testid={`badge-example-${template.id}`}>Пример</span>}
     </span>
   </button>;
 }
