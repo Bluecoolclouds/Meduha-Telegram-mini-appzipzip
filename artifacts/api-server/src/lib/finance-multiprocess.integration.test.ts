@@ -9,12 +9,16 @@ import {
   releaseReservation,
   reserveCredits,
   settleReservation,
+  getWallet,
+  updateFinanceSettings,
   type ReserveCreditsInput,
 } from './finance';
 
 type WorkerOperation =
   | { type: 'reserve'; input: ReserveCreditsInput }
   | { type: 'settle' | 'release' | 'refund'; reservationId: string; actorId: string; idempotencyKey: string }
+  | { type: 'wallet'; accountId: string }
+  | { type: 'account-limit'; limit: number; actorId: string }
   | { type: 'lose-response'; input: ReserveCreditsInput };
 
 async function runWorker(
@@ -78,6 +82,16 @@ async function executeWorker(): Promise<void> {
         results.push({ status: 'ok', result: await releaseReservation(operation) });
       } else if (operation.type === 'refund') {
         results.push({ status: 'ok', result: await refundReservation(operation) });
+      } else if (operation.type === 'wallet') {
+        results.push({ status: 'ok', result: await getWallet(operation.accountId) });
+      } else if (operation.type === 'account-limit') {
+        results.push({
+          status: 'ok',
+          result: await updateFinanceSettings(
+            { perAccountDailyCreditLimit: operation.limit },
+            operation.actorId,
+          ),
+        });
       } else {
         results.push({ status: 'error', code: 'INVALID_WORKER_OPERATION' });
       }
@@ -98,7 +112,10 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
   test('isolated finance operations stay consistent across independent API processes', async t => {
     const schema = `finance_mp_${randomUUID().replaceAll('-', '')}`;
     const ids = {
-      accounts: [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()],
+      accounts: [
+        randomUUID(), randomUUID(), randomUUID(), randomUUID(),
+        randomUUID(), randomUUID(), randomUUID(), randomUUID(),
+      ],
       channel: randomUUID(),
       model: randomUUID(),
     };
@@ -372,6 +389,129 @@ if (process.env.FINANCE_MULTIPROCESS_WORKER === '1') {
         const zero = await runWorker([{ type: 'reserve', input: input(ids.accounts[1], key(), false) }], { schema });
         assert.equal(zero[0].code, 'DAILY_LIMIT_EXCEEDED');
         await setLimits({ accountDaily: 100 });
+      });
+
+      await t.test('wallet snapshots stay consistent while reservations and the per-account limit change', async () => {
+        const day = '2026-10-25';
+        const now = `${day}T12:00:00.000Z`;
+        const account = ids.accounts[6];
+        const otherAccount = ids.accounts[7];
+        await setLimits({
+          globalDaily: 100,
+          accountDaily: 40,
+          channelDaily: 100,
+          modelDaily: 100,
+          active: 20,
+          channelActive: 10,
+          modelActive: 10,
+        });
+
+        const [otherHold] = await runWorker([
+          { type: 'reserve', input: input(otherAccount, key(), false) },
+        ], { schema, now });
+        assert.equal(otherHold.status, 'ok', JSON.stringify(otherHold));
+        const [otherSettlement] = await runWorker([{
+          type: 'settle',
+          reservationId: otherHold.result.reservation.id,
+          actorId,
+          idempotencyKey: key(),
+        }], { schema, now });
+        assert.equal(otherSettlement.status, 'ok', JSON.stringify(otherSettlement));
+
+        const initialHolds = await Promise.all([account, account].map(accountId =>
+          runWorker([{ type: 'reserve', input: input(accountId, key(), false) }], { schema, now }),
+        ));
+        assert(initialHolds.every(([result]) => result.status === 'ok'), JSON.stringify(initialHolds));
+        const [settleId, releaseId] = initialHolds.map(([result]) => result.result.reservation.id);
+
+        const verifySnapshot = (wallet: any) => {
+          const { dailyUsage } = wallet;
+          const heldFromSnapshot = wallet.reservations
+            .filter((reservation: any) => reservation.status === 'held')
+            .reduce((sum: number, reservation: any) => sum + reservation.amount, 0);
+          const netSpentFromSnapshot = wallet.ledger
+            .filter((entry: any) => entry.budgetDay === day)
+            .reduce((sum: number, entry: any) => sum + entry.budgetDelta, 0);
+          assert.equal(dailyUsage.activeReserves, wallet.reserved);
+          assert.equal(dailyUsage.activeReserves, heldFromSnapshot);
+          assert.equal(dailyUsage.netSpent, netSpentFromSnapshot);
+          assert.equal(
+            dailyUsage.remaining,
+            Math.max(0, dailyUsage.perAccountDailyCreditLimit
+              - Math.max(0, dailyUsage.activeReserves + dailyUsage.netSpent)),
+          );
+          assert.equal(wallet.balance, 100 - dailyUsage.netSpent);
+          assert([30, 40, 50].includes(dailyUsage.perAccountDailyCreditLimit));
+        };
+
+        const concurrent = await Promise.all([
+          runWorker(Array.from({ length: 8 }, () => ({ type: 'wallet' as const, accountId: account })), { schema, now }),
+          runWorker(Array.from({ length: 8 }, () => ({ type: 'wallet' as const, accountId: account })), { schema, now }),
+          runWorker([{
+            type: 'settle', reservationId: settleId, actorId, idempotencyKey: key(),
+          }], { schema, now }),
+          runWorker([{
+            type: 'release', reservationId: releaseId, actorId, idempotencyKey: key(),
+          }], { schema, now }),
+          runWorker([{ type: 'reserve', input: input(account, key(), false) }], { schema, now }),
+          ...[30, 40, 50].map(limit => runWorker([{
+            type: 'account-limit', limit, actorId,
+          }], { schema, now })),
+        ]);
+        const readers = concurrent.slice(0, 2).flatMap(result => result);
+        assert.equal(readers.length, 16);
+        for (const read of readers) {
+          assert.equal(read.status, 'ok', JSON.stringify(read));
+          verifySnapshot(read.result);
+        }
+        for (const transition of concurrent.slice(2, 4)) {
+          assert.equal(transition[0].status, 'ok', JSON.stringify(transition[0]));
+        }
+        const concurrentReserve = concurrent[4][0];
+        assert.equal(concurrentReserve.status, 'ok', JSON.stringify(concurrentReserve));
+        for (const settingUpdate of concurrent.slice(5)) {
+          assert.equal(settingUpdate[0].status, 'ok', JSON.stringify(settingUpdate[0]));
+        }
+        const [extraSettlement] = await runWorker([{
+          type: 'settle',
+          reservationId: concurrentReserve.result.reservation.id,
+          actorId,
+          idempotencyKey: key(),
+        }], { schema, now });
+        assert.equal(extraSettlement.status, 'ok', JSON.stringify(extraSettlement));
+
+        const [accountWallet, otherWallet] = await Promise.all([
+          runWorker([{ type: 'wallet', accountId: account }], { schema, now }),
+          runWorker([{ type: 'wallet', accountId: otherAccount }], { schema, now }),
+        ]);
+        assert.equal(accountWallet[0].status, 'ok');
+        assert.equal(otherWallet[0].status, 'ok');
+        verifySnapshot(accountWallet[0].result);
+        assert.equal(accountWallet[0].result.dailyUsage.activeReserves, 0);
+        assert.equal(accountWallet[0].result.dailyUsage.netSpent, 20);
+        assert.equal(accountWallet[0].result.dailyUsage.remaining,
+          Math.max(0, accountWallet[0].result.dailyUsage.perAccountDailyCreditLimit - 20));
+        assert.equal(otherWallet[0].result.dailyUsage.activeReserves, 0);
+        assert.equal(otherWallet[0].result.dailyUsage.netSpent, 10);
+        assert.equal(otherWallet[0].result.dailyUsage.remaining,
+          Math.max(0, otherWallet[0].result.dailyUsage.perAccountDailyCreditLimit - 10));
+
+        const { rows: beforeRead } = await pool.query(
+          `SELECT credits FROM "${schema}".meduha_accounts WHERE id=$1`,
+          [account],
+        );
+        const beforeBalance = Number(beforeRead[0].credits);
+        const [readOnce, readAgain] = await Promise.all([
+          runWorker([{ type: 'wallet', accountId: account }], { schema, now }),
+          runWorker([{ type: 'wallet', accountId: account }], { schema, now }),
+        ]);
+        assert.equal(readOnce[0].result.balance, beforeBalance);
+        assert.equal(readAgain[0].result.balance, beforeBalance);
+        const { rows: afterRead } = await pool.query(
+          `SELECT credits FROM "${schema}".meduha_accounts WHERE id=$1`,
+          [account],
+        );
+        assert.equal(Number(afterRead[0].credits), beforeBalance, 'wallet reads must not mutate the balance');
       });
 
       await t.test('kill switch blocks new holds without changing the isolated wallet', async () => {
