@@ -1,0 +1,56 @@
+.home-music-frame .music-feature-card {
+  height: 48px;
+  min-height: 48px;
+  grid-template-columns: 28px minmax(0, 1fr) 30px;
+  gap: 9px;
+  padding: 8px 11px;
+  border-radius: 16px;
+}
+
+.home-music-frame .music-feature-card::before {
+  top: 9px;
+  bottom: 9px;
+  width: 2px;
+}
+
+.home-music-frame .music-feature-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  box-shadow: none;
+}
+
+.home-music-frame .music-feature-icon svg { width: 17px; height: 17px; }
+
+.home-music-frame .music-feature-copy {
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 0;
+}
+
+.home-music-frame .music-feature-copy strong {
+  font-size: 12px;
+  letter-spacing: -.2px;
+}
+
+.home-music-frame .music-feature-copy small { font-size: 9px; }
+
+.home-music-frame .music-feature-arrow {
+  width: 30px;
+  height: 30px;
+}
+
+.home-music-frame .music-feature-arrow svg { width: 15px; height: 15px; }
+
+@media (max-width: 360px) {
+  .home-music-frame .music-feature-card {
+    grid-template-columns: 28px minmax(0, 1fr) 28px;
+    gap: 7px;
+    padding: 8px 10px;
+  }
+
+  .home-music-frame .music-feature-arrow { width: 28px; height: 28px; }
+  .home-music-frame .music-feature-copy strong { font-size: 11px; }
+}

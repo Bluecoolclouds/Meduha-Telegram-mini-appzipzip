@@ -1,16 +1,17 @@
 .meduha .m-music-link.m-music-feature {
   position: relative;
   width: 100%;
-  min-height: 88px;
+  height: 48px;
+  min-height: 48px;
   display: grid;
-  grid-template-columns: 50px minmax(0, 1fr) 36px;
+  grid-template-columns: 28px minmax(0, 1fr) 30px;
   align-items: center;
-  gap: 13px;
+  gap: 9px;
   margin-top: 9px;
-  padding: 12px 14px;
+  padding: 8px 11px;
   overflow: hidden;
   border: 1px solid #493b34 !important;
-  border-radius: 19px;
+  border-radius: 16px;
   background: linear-gradient(112deg, #211d1b 0%, #2a211d 100%);
   box-shadow: 0 8px 20px #100d0d30;
   color: #fff7f0;
@@ -21,8 +22,8 @@
 
 .meduha .m-music-feature::before {
   position: absolute;
-  inset: 15px auto 15px 0;
-  width: 3px;
+  inset: 9px auto 9px 0;
+  width: 2px;
   border-radius: 0 4px 4px 0;
   background: linear-gradient(180deg, #ff9a53, #e85827);
   content: '';
@@ -35,58 +36,51 @@
 }
 
 .meduha .m-music-link.m-music-feature .music-icon {
-  width: 50px;
-  height: 50px;
+  width: 28px;
+  height: 28px;
   display: grid;
   flex-shrink: 0;
   place-items: center;
-  border-radius: 16px;
+  border-radius: 9px;
   color: #fffdfb;
   background: linear-gradient(145deg, #ff9954, #e95428);
-  box-shadow: 0 5px 12px #de5a2d35;
+  box-shadow: none;
 }
 
-.meduha .m-music-feature-icon svg { width: 23px; height: 23px; stroke-width: 2; }
+.meduha .m-music-feature-icon svg { width: 17px; height: 17px; stroke-width: 2; }
 
 .meduha .m-music-feature-copy {
   position: relative;
   z-index: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-}
-
-.meduha .m-music-feature-kicker {
-  color: #ffb488;
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: .13em;
-  line-height: 1.2;
-  text-transform: uppercase;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 0;
 }
 
 .meduha .m-music-feature-copy strong {
   color: #fff7f0;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: -.35px;
+  letter-spacing: -.2px;
   line-height: 1.15;
 }
 
 .meduha .m-music-feature-copy small {
   margin-left: 0;
   color: #c4b2a3;
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.2;
 }
 
 .meduha .m-music-feature-arrow {
   position: relative;
   z-index: 1;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border: 1px solid #5b4235;
@@ -95,7 +89,7 @@
   background: #342922;
 }
 
-.meduha .m-music-feature-arrow svg { width: 16px; height: 16px; stroke-width: 2; }
+.meduha .m-music-feature-arrow svg { width: 15px; height: 15px; stroke-width: 2; }
 
 .meduha.light .m-music-link.m-music-feature {
   border-color: #efc7a9 !important;
@@ -109,19 +103,41 @@
   box-shadow: 0 11px 28px #c8743a24, inset 0 1px 0 #ffffff;
 }
 
-.meduha.light .m-music-feature-kicker { color: #c85b25; }
 .meduha.light .m-music-feature-copy strong { color: #2a1810; }
 .meduha.light .m-music-feature-copy small { color: #80695c; }
 .meduha.light .m-music-feature-arrow { border-color: #f0c6a6; color: #d95319; background: #fffdfb; }
 
+.meduha.light.dark .m-music-link.m-music-feature {
+  border-color: #493b34 !important;
+  background: linear-gradient(112deg, #211d1b 0%, #2a211d 100%);
+  box-shadow: 0 8px 20px #0004;
+  color: #f6f0eb;
+}
+
+.meduha.light.dark .m-music-feature:hover {
+  border-color: #77513c !important;
+  box-shadow: 0 11px 26px #0006;
+}
+
+.meduha.light.dark .m-music-link.m-music-feature .music-icon {
+  border-color: transparent;
+  color: #fffdfb;
+  background: linear-gradient(145deg, #ff9954, #e95428);
+  box-shadow: none;
+}
+
+.meduha.light.dark .m-music-feature-copy strong { color: #f6f0eb; }
+.meduha.light.dark .m-music-feature-copy small { color: #c4b2a3; }
+.meduha.light.dark .m-music-feature-arrow { border-color: #5b4235; color: #ffd8c3; background: #342922; }
+
 @media (max-width: 360px) {
   .meduha .m-music-link.m-music-feature {
-    grid-template-columns: 46px minmax(0, 1fr) 34px;
-    gap: 10px;
-    padding: 11px 12px;
+    grid-template-columns: 28px minmax(0, 1fr) 28px;
+    gap: 7px;
+    padding: 8px 10px;
   }
-  .meduha .m-music-link.m-music-feature .music-icon { width: 46px; height: 46px; border-radius: 14px; }
-  .meduha .m-music-feature-copy strong { font-size: 14px; }
+  .meduha .m-music-feature-arrow { width: 28px; height: 28px; }
+  .meduha .m-music-feature-copy strong { font-size: 11px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
