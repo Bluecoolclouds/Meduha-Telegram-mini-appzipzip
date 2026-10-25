@@ -48,15 +48,31 @@ test('approved example videos support byte ranges, reject invalid ranges, and an
   t.after(() => new Promise<void>(resolve => server.close(() => resolve())));
 
   const nativeFetch = globalThis.fetch.bind(globalThis);
-  const outboundRequests: string[] = [];
+  const outboundRequests: Array<{ url: string; method: string; range: string | null }> = [];
   t.mock.method(globalThis, 'fetch', async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
     const url = input instanceof Request ? input.url : String(input);
     if (url.startsWith(baseUrl)) return nativeFetch(input, init);
-    outboundRequests.push(url);
-    return new Response('public fixture', {
-      status: 200,
-      headers: { 'content-type': url.endsWith('.png') ? 'image/png' : 'video/webm' },
+    const method = init?.method ?? 'GET';
+    const range = new Headers(init?.headers).get('range');
+    outboundRequests.push({ url, method, range });
+
+    const bytes = Buffer.from('public fixture');
+    const headers = new Headers({
+      'content-type': url.endsWith('.png') ? 'image/png' : 'video/webm',
+      'accept-ranges': 'bytes',
+      'content-length': String(bytes.length),
     });
+    if (range) {
+      const match = /^bytes=(\d+)-(\d+)$/.exec(range);
+      assert(match, `unexpected test range: ${range}`);
+      const start = Number(match[1]);
+      const end = Number(match[2]);
+      const partial = bytes.subarray(start, end + 1);
+      headers.set('content-range', `bytes ${start}-${end}/${bytes.length}`);
+      headers.set('content-length', String(partial.length));
+      return new Response(method === 'HEAD' ? null : partial, { status: 206, headers });
+    }
+    return new Response(method === 'HEAD' ? null : bytes, { status: 200, headers });
   });
 
   for (const name of approvedVideos) {
@@ -108,12 +124,41 @@ test('approved example videos support byte ranges, reject invalid ranges, and an
     'sintel.webm': 'https://media.w3.org/2010/05/sintel/trailer.webm',
     'sintel.png': 'https://media.w3.org/2010/05/sintel/poster.png',
   };
+  const publicVideoNames = ['flower.webm', 'sintel.webm'] as const;
   for (const [name, source] of Object.entries(publicSources)) {
     const response = await fetch(`${baseUrl}/${name}`);
     assert.equal(response.status, 200, `${name} should be served from its approved source`);
     assert.equal(response.headers.get('content-type'), name.endsWith('.png') ? 'image/png' : 'video/webm');
     assert.equal(await response.text(), 'public fixture');
-    assert.equal(outboundRequests.at(-1), source);
+    assert.deepEqual(outboundRequests.at(-1), { url: source, method: 'GET', range: null });
   }
-  assert.deepEqual(outboundRequests, Object.values(publicSources));
+
+  for (const name of publicVideoNames) {
+    const source = publicSources[name];
+    const range = 'bytes=2-7';
+
+    const partial = await fetch(`${baseUrl}/${name}`, { headers: { Range: range } });
+    assert.equal(partial.status, 206, `${name} should return a partial public-source response`);
+    assert.equal(partial.headers.get('content-range'), `bytes 2-7/14`);
+    assert.equal(partial.headers.get('content-length'), '6');
+    assert.equal(partial.headers.get('content-type'), 'video/webm');
+    assert.equal(partial.headers.get('accept-ranges'), 'bytes');
+    assert.equal(await partial.text(), 'blic f');
+    assert.deepEqual(outboundRequests.at(-1), { url: source, method: 'GET', range });
+
+    const head = await fetch(`${baseUrl}/${name}`, { method: 'HEAD' });
+    assert.equal(head.status, 200, `${name} should answer public-source HEAD`);
+    assert.equal(head.headers.get('content-type'), 'video/webm');
+    assert.equal(head.headers.get('content-length'), '14');
+    assert.equal(head.headers.get('accept-ranges'), 'bytes');
+    assert.equal((await head.arrayBuffer()).byteLength, 0);
+    assert.deepEqual(outboundRequests.at(-1), { url: source, method: 'HEAD', range: null });
+  }
+  assert.deepEqual(outboundRequests.map(request => request.url), [
+    ...Object.values(publicSources),
+    publicSources['flower.webm'],
+    publicSources['flower.webm'],
+    publicSources['sintel.webm'],
+    publicSources['sintel.webm'],
+  ]);
 });
