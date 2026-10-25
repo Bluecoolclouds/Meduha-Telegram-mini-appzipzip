@@ -179,5 +179,6 @@ export * from './videoPriceQuoteInput';
 export * from './videoPriceQuoteInputParameters';
 export * from './videoPriceQuoteInputReferences';
 export * from './videoPricingReference';
+export * from './videoSecondRate';
 export * from './videoTokenRate';
 export * from './videoTokenRateResolution';

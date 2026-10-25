@@ -15,6 +15,7 @@ export interface PhotoCatalogModel {
   schema: PhotoCatalogModelSchema;
   workflow: boolean;
   available: boolean;
+  availabilityIssues?: string[];
   /** @nullable */
   modelId: string | null;
   /** @nullable */

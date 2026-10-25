@@ -32,6 +32,7 @@ export const GetVideoCatalogResponse = zod.object({
   "array": zod.boolean()
 })),
   "available": zod.boolean(),
+  "availabilityIssues": zod.array(zod.string()).optional(),
   "quoteScenario": zod.union([zod.literal('genjutsu'),zod.literal('object-swap'),zod.literal('restyle'),zod.literal(null)]).nullish(),
   "pricingMode": zod.enum(['fixed', 'estimate']).optional(),
   "modelId": zod.string().nullable(),
@@ -95,6 +96,7 @@ export const GetPhotoCatalogResponse = zod.object({
   "schema": zod.record(zod.string(), zod.unknown()),
   "workflow": zod.boolean(),
   "available": zod.boolean(),
+  "availabilityIssues": zod.array(zod.string()).optional(),
   "modelId": zod.string().nullable(),
   "creditPrice": zod.number().int().nullable(),
   "pricingBlockedReason": zod.string().nullish()
@@ -118,6 +120,12 @@ export const GetVideoPricingReferenceResponse = zod.object({
   "usdPerSecond": zod.number(),
   "exact": zod.boolean()
 })),
+  "klingRates": zod.array(zod.object({
+  "endpoint": zod.string(),
+  "usdPerSecondMin": zod.number(),
+  "usdPerSecondMax": zod.number(),
+  "note": zod.string()
+})).optional(),
   "sources": zod.array(zod.string()),
   "notes": zod.array(zod.string())
 })

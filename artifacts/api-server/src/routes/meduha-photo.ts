@@ -1,4 +1,5 @@
 import { Router, type Response } from 'express';
+import { catalogAvailabilityIssues } from '../lib/catalog-availability';
 import { randomUUID } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { db, meduhaAiChannels, meduhaAiModels, pool } from '@workspace/db';
@@ -79,14 +80,18 @@ export function createPhotoRouter(dependencies: {
       }).from(meduhaAiModels).innerJoin(meduhaAiChannels, eq(meduhaAiChannels.id, meduhaAiModels.channelId))
         .where(and(eq(meduhaAiModels.kind, 'photo'), eq(meduhaAiChannels.adapter, 'higgsfield'))),
     ]);
-    res.json({
+    res.set('Cache-Control', 'no-store').json({
       spendingEnabled: settings.spendingEnabled, providerConfigured: providerReady(),
       storageConfigured: storageReady(),
       models: photoModels.map(model => {
         const candidates = rows.filter(row => row.upstreamId === model.endpoint);
         const configured = candidates.find(row => row.enabled && row.channelEnabled && row.price > 0) ?? candidates[0];
+        const availabilityIssues = catalogAvailabilityIssues({
+          modelId: configured?.id, enabled: configured?.enabled, channelEnabled: configured?.channelEnabled,
+          priceReady: !!configured && configured.price > 0, pricingBlockedReason: photoPricingBlockedReason(model.endpoint),
+        });
         return {
-          ...model, available: !photoPricingBlockedReason(model.endpoint) && !!configured?.enabled && !!configured.channelEnabled && configured.price > 0,
+          ...model, available: availabilityIssues.length === 0, availabilityIssues,
           pricingBlockedReason: photoPricingBlockedReason(model.endpoint),
           modelId: configured?.id ?? null, creditPrice: configured && configured.price > 0 ? configured.price : null,
         };

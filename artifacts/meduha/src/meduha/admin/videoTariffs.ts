@@ -2,13 +2,15 @@ import type { GenjutsuTariff, GenjutsuUsdRate } from '@workspace/api-client-reac
 
 export const isSeedance25 = (id: string) =>
   /^bytedance\/seedance-2\.5\/(text-to-video|image-to-video|reference-to-video|video-edit|video-extend)$/.test(id);
+export const videoEstimateName = (id: string): string | null => isSeedance25(id) ? 'Seedance 2.5'
+  : /^kling-video\/v3\.0\/std\/(text-to-video|image-to-video)$/.test(id) ? 'Kling 3.0 Standard' : null;
 export function videoPolicyProblem(id: string, limits: Record<string, number> | string): string | null {
   if (typeof limits === 'string') return null;
   const rate = limits.videoCreditsPerUsd, max = limits.videoMaxUsd;
   if (rate === undefined && max === undefined) return null;
-  if (!isSeedance25(id) || !Number.isSafeInteger(rate) || rate < 1 || rate > 1_000_000
+  if (!videoEstimateName(id) || !Number.isSafeInteger(rate) || rate < 1 || rate > 1_000_000
     || !Number.isFinite(max) || max <= 0 || max > 10_000 || Number(max.toFixed(6)) !== max
-    || max * rate > 100_000_000) return 'Для Seedance укажи курс кредитов за USD и максимум сметы в USD. Неполная настройка не сохраняется.';
+    || max * rate > 100_000_000) return 'Для поддержанного видеорежима укажи курс кредитов за USD и максимум сметы в USD. Неполная настройка не сохраняется.';
   return null;
 }
 export function appendGenjutsuTariffs(existing: GenjutsuTariff[], rates: GenjutsuUsdRate[], creditsPerUsd: number) {

@@ -23,6 +23,7 @@ export interface VideoCatalogModel {
   outputSchema: VideoCatalogModelOutputSchema;
   fileFields: VideoFileField[];
   available: boolean;
+  availabilityIssues?: string[];
   /** @nullable */
   quoteScenario?: VideoCatalogModelQuoteScenario;
   pricingMode?: VideoCatalogModelPricingMode;

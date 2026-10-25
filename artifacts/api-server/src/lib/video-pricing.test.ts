@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import {
-  assertVideoQuote, seedancePricingEndpoints, signVideoQuote, verifyVideoQuote,
+  assertVideoQuote, seedancePricingEndpoints, klingPricingEndpoints, signVideoQuote, verifyVideoQuote, estimateVideoRequest,
   videoPricingFingerprint, videoPricingPolicy, videoQuotedPrice, videoRequestHash,
 } from './video-pricing';
 import { videoPriceReference } from './video-price-reference';
-import type { VideoMetadata } from './video';
+import { validateVideoInput, type VideoMetadata } from './video';
 
 const endpoint = 'bytedance/seedance-2.5/text-to-video';
 const settings = { videoCreditsPerUsd: 100, videoMaxUsd: 20 };
@@ -37,6 +37,56 @@ test('USD conversion rounds up and fails closed at the exact configured ceiling'
   assert.equal(videoQuotedPrice(policy, 1_000_001), 101);
   assert.equal(videoQuotedPrice(policy, 20_000_000), 2000);
   for (const value of [0, -1, 0.1, NaN, Infinity, 20_000_001]) assert.throws(() => videoQuotedPrice(policy, value));
+});
+test('Kling Standard modes opt into account-specific estimation without overriding fixed prices', () => {
+  for (const id of klingPricingEndpoints) {
+    assert.equal(videoPricingPolicy(id, {}), null);
+    assert.deepEqual(videoPricingPolicy(id, settings), policy);
+    assert.equal(videoQuotedPrice(videoPricingPolicy(id, settings)!, 420_001), 43);
+    assert.throws(() => videoPricingPolicy(id, { videoCreditsPerUsd: 100 }));
+  }
+  assert.throws(() => videoPricingPolicy('kling-video/v3.0/pro/text-to-video', settings));
+  assert.equal(videoPriceReference.klingRates.length, 2);
+  assert.equal(videoPriceReference.klingRates[0].usdPerSecondMin, 0.084);
+  assert.equal(videoPriceReference.klingRates[1].usdPerSecondMax, 0.126);
+});
+test('Kling quote signatures bind sound, duration, multiple shots, mode and source images', () => {
+  const request: VideoMetadata = { catalogId: 'kling-video/v3.0/std/text-to-video', endpoint: 'kling-video/v3.0/std/text-to-video',
+    parameters: { prompt: 'Synthetic', duration: 5, sound: 'on', multi_shots: false, aspect_ratio: '16:9' }, references: {} };
+  const claims = { purpose: 'video-price' as const, accountId: randomUUID(), modelId: randomUUID(), idempotencyKey: randomUUID(),
+    requestHash: videoRequestHash(request), pricingFingerprint: videoPricingFingerprint(policy),
+    usdMicros: 420_000, creditPrice: 42, expiresAt: Date.now() + 60_000 };
+  assertVideoQuote(verifyVideoQuote(signVideoQuote(claims)), claims.accountId, claims.modelId, claims.idempotencyKey, request, policy, 42);
+  for (const patch of [{ duration: 15 }, { sound: 'off' }, { multi_shots: true }, { aspect_ratio: '9:16' }]) {
+    assert.throws(() => assertVideoQuote(claims, claims.accountId, claims.modelId, claims.idempotencyKey,
+      { ...request, parameters: { ...request.parameters, ...patch } }, policy, 42));
+  }
+  assert.throws(() => assertVideoQuote(claims, claims.accountId, claims.modelId, claims.idempotencyKey,
+    { ...request, endpoint: 'kling-video/v3.0/std/image-to-video', references: { '/image_url': [randomUUID()] } }, policy, 42));
+});
+test('Kling Standard follows the documented 3–15 second schema, not the one-second pricing example', () => {
+  const request: VideoMetadata = { catalogId: 'kling-video/v3.0/std/text-to-video', endpoint: 'kling-video/v3.0/std/text-to-video',
+    parameters: { prompt: 'Synthetic only', duration: 5, sound: 'on', aspect_ratio: '16:9' }, references: {} };
+  for (const duration of [3, 5, 15]) assert.doesNotThrow(() => validateVideoInput({ ...request, parameters: { ...request.parameters, duration } }));
+  for (const duration of [1, 2, 16, 5.5]) assert.throws(() => validateVideoInput({ ...request, parameters: { ...request.parameters, duration } }));
+});
+test('Kling estimation calls only the estimate endpoint and never falls back to generation', async (t) => {
+  let calls = 0;
+  const fetchMock = t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    calls++;
+    assert.equal(url, 'https://api.higgsfield.ai/estimate/kling-video/v3.0/std/text-to-video');
+    assert.equal(init.method, 'POST');
+    assert.equal(init.redirect, 'error');
+    assert.deepEqual(JSON.parse(String(init.body)), { prompt: 'Synthetic only', duration: 5, sound: 'off' });
+    return Response.json({ usd: '0.420001' });
+  });
+  const parameters = { prompt: 'Synthetic only', duration: 5, sound: 'off' };
+  assert.equal(await estimateVideoRequest('kling-video/v3.0/std/text-to-video', parameters), 420001);
+  fetchMock.mock.mockImplementation(async () => { calls++; return new Response('', { status: 503 }); });
+  await assert.rejects(estimateVideoRequest('kling-video/v3.0/std/text-to-video', parameters), { code: 'QUOTE_UNAVAILABLE' });
+  assert.equal(calls, 2);
+  await assert.rejects(estimateVideoRequest('kling-video/v3.0/pro/text-to-video', parameters), { code: 'MODEL_NOT_PRICED' });
+  assert.equal(calls, 2, 'unsupported models issue no request at all');
 });
 test('request fingerprints bind duration, resolution, audio, aspect and owned references', () => {
   const original = videoRequestHash(metadata);

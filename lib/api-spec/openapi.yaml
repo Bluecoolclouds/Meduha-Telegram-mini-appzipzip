@@ -1155,8 +1155,19 @@ components:
         genjutsuRates:
           type: array
           items: { $ref: "#/components/schemas/GenjutsuUsdRate" }
+        klingRates:
+          type: array
+          items: { $ref: "#/components/schemas/VideoSecondRate" }
         sources: { type: array, items: { type: string } }
         notes: { type: array, items: { type: string } }
+    VideoSecondRate:
+      type: object
+      required: [endpoint, usdPerSecondMin, usdPerSecondMax, note]
+      properties:
+        endpoint: { type: string }
+        usdPerSecondMin: { type: number }
+        usdPerSecondMax: { type: number }
+        note: { type: string }
     VideoTokenRate:
       type: object
       required: [resolution, videoInput, usdPer1000Tokens]
@@ -1227,6 +1238,7 @@ components:
         outputSchema: { type: object, additionalProperties: true }
         fileFields: { type: array, items: { $ref: "#/components/schemas/VideoFileField" } }
         available: { type: boolean }
+        availabilityIssues: { type: array, items: { type: string } }
         quoteScenario: { type: [string, "null"], enum: [genjutsu, object-swap, restyle, null] }
         pricingMode: { type: string, enum: [fixed, estimate] }
         modelId: { type: [string, "null"] }
@@ -1632,6 +1644,7 @@ components:
         schema: { type: object, additionalProperties: true }
         workflow: { type: boolean }
         available: { type: boolean }
+        availabilityIssues: { type: array, items: { type: string } }
         modelId: { type: [string, "null"] }
         creditPrice: { type: [integer, "null"] }
         pricingBlockedReason: { type: [string, "null"] }

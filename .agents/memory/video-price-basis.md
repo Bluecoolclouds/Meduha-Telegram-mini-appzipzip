@@ -20,3 +20,9 @@ Do not automatically turn a rate described as “roughly” or “approximately�
 **Why:** The full Genjutsu Restyle documentation describes its rate as approximate, unlike the documented motion-transfer and object-swap rates.
 
 **How to apply:** Show approximate rates as references only. Enable automatic matrix preparation only after exact pricing is verified.
+
+For Kling, input limits come from the model's Input Schema, not examples in pricing copy. Keep advertised discounts and unmapped price ranges out of exact billing calculations.
+
+**Why:** The Kling 3.0 Standard pricing pages mention one-second examples and a promotional 50% discount, while both API input schemas require 3–15 seconds. The image-to-video page gives a rate range without verifying how every setting selects a rate.
+
+**How to apply:** Validate the schema's duration limits, show undiscounted rates only as references, and use the complete request's authenticated estimate for exact pricing. Do not invent a sound-to-price mapping.

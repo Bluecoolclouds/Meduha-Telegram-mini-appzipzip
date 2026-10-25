@@ -10,6 +10,11 @@ export class VideoPricingError extends Error {
 export const seedancePricingEndpoints = new Set([
   'text-to-video', 'image-to-video', 'reference-to-video', 'video-edit', 'video-extend',
 ].map(mode => `bytedance/seedance-2.5/${mode}`));
+export const klingPricingEndpoints = new Set([
+  'kling-video/v3.0/std/text-to-video',
+  'kling-video/v3.0/std/image-to-video',
+]);
+export const videoEstimateEndpoints = new Set([...seedancePricingEndpoints, ...klingPricingEndpoints]);
 
 // Numeric model configuration lives with the existing administrator's model
 // parameters. These keys are opt-in; absent keys preserve legacy fixed prices.
@@ -17,10 +22,10 @@ export function videoPricingPolicy(endpoint: string, limits: Record<string, numb
   const hasPolicy = limits?.videoCreditsPerUsd !== undefined || limits?.videoMaxUsd !== undefined;
   if (!hasPolicy) return null;
   const rate = limits?.videoCreditsPerUsd, maximum = limits?.videoMaxUsd;
-  if (!seedancePricingEndpoints.has(endpoint) || !Number.isSafeInteger(rate) || rate! < 1 || rate! > 1_000_000
+  if (!videoEstimateEndpoints.has(endpoint) || !Number.isSafeInteger(rate) || rate! < 1 || rate! > 1_000_000
     || typeof maximum !== 'number' || !Number.isFinite(maximum) || maximum <= 0 || maximum > 10_000
     || Number(maximum.toFixed(6)) !== maximum) {
-    throw new VideoPricingError('MODEL_NOT_PRICED', 'Проверь курс кредитов и максимальную стоимость сметы Seedance 2.5.');
+    throw new VideoPricingError('MODEL_NOT_PRICED', 'Проверь поддержку режима, курс кредитов и максимальную стоимость сметы.');
   }
   const maxUsdMicros = photoEstimateMicros(maximum.toFixed(6));
   if (BigInt(rate!) * BigInt(maxUsdMicros) > 100_000_000n * 1_000_000n) {
@@ -71,7 +76,7 @@ export function assertVideoQuote(claims: Claims, accountId: string, modelId: str
     || claims.creditPrice !== price || videoQuotedPrice(policy, claims.usdMicros) !== price) throw stale();
 }
 export async function estimateVideoRequest(endpoint: string, input: Record<string, unknown>) {
-  if (!seedancePricingEndpoints.has(endpoint)) throw new VideoPricingError('MODEL_NOT_PRICED', 'Для этого режима нет расчёта сметы.');
+  if (!videoEstimateEndpoints.has(endpoint)) throw new VideoPricingError('MODEL_NOT_PRICED', 'Для этого режима нет расчёта сметы.');
   // Documented estimate endpoint only. Never call a generation endpoint as fallback.
   try {
     const response = await fetch(`https://api.higgsfield.ai/estimate/${endpoint}`, {

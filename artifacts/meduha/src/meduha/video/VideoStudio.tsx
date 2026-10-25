@@ -33,10 +33,10 @@ export function videoReadiness(c: VideoCatalog | undefined, m: VideoModel): Read
   if (!c) return { ok: false, reason: 'Каталог загружается' };
   if (!c.providerConfigured) return { ok: false, reason: 'Провайдер не настроен' };
   if (!c.storageConfigured) return { ok: false, reason: 'Хранилище не настроено' };
-  if (!c.spendingEnabled && m.pricingMode !== 'estimate') return { ok: false, reason: 'Списания выключены' };
   if (m.quoteScenario) return { ok: false, reason: 'Цена считается после проверки длительности видео — запуск через редактор с расчётом' };
-  if (!m.available || !m.modelId) return { ok: false, reason: 'Модель пока не включена администратором' };
+  if (!m.available || !m.modelId) return { ok: false, reason: m.availabilityIssues?.join(' ') || 'Модель пока не включена администратором' };
   if (m.pricingMode !== 'estimate' && m.creditPrice == null) return { ok: false, reason: 'Цена модели ещё не назначена' };
+  if (!c.spendingEnabled && m.pricingMode !== 'estimate') return { ok: false, reason: 'Списания выключены' };
   return { ok: true, reason: '' };
 }
 const blurb = (f: VideoFamily, ms: VideoModel[]) => {
@@ -66,7 +66,18 @@ export function VideoCatalogue() {
   const searching = t.length > 0;
   const activeFilters = (mode !== 'all' ? 1 : 0) + (provider !== 'all' ? 1 : 0);
   const update = (v: string) => { setQ(v); const p = new URLSearchParams({ type: 'video' }); if (v.trim()) p.set('q', v.trim()); window.history.replaceState(window.history.state, '', `${BASE}/create?${p}`); };
-  const priceLabel = (list: VideoModel[]) => { const ok = list.filter(m => videoReadiness(catalog.data, m).ok); if (!ok.length) { if (list.some(m => m.quoteScenario)) return 'Цена после проверки видео'; } if (!ok.length) return list.some(m => m.creditPrice != null && m.available) ? videoReadiness(catalog.data, list[0]).reason : 'Скоро'; if (ok.some(m => m.pricingMode === 'estimate')) return 'Цена по параметрам'; const ps = ok.map(m => m.creditPrice!); const min = Math.min(...ps); return `${ps.some(p => p !== min) ? 'от ' : ''}${min} кр.`; };
+  const priceLabel = (list: VideoModel[]) => {
+    const ok = list.filter(m => videoReadiness(catalog.data, m).ok);
+    if (!ok.length) {
+      if (list.some(m => m.quoteScenario)) return 'Цена после проверки видео';
+      if (list.some(m => m.pricingMode === 'estimate')) return 'Расчёт пока недоступен';
+      if (list.every(m => m.creditPrice == null)) return 'Цена не назначена';
+      return 'Запуски выключены';
+    }
+    if (ok.some(m => m.pricingMode === 'estimate')) return 'Цена по параметрам';
+    const ps = ok.map(m => m.creditPrice!); const min = Math.min(...ps);
+    return `${ps.some(p => p !== min) ? 'от ' : ''}${min} кр.`;
+  };
   const open = (id: string) => navigate(videoModelHref(id));
   const hero = all.slice(0, 5).map(g => ({ id: g.family.id, title: userSafeModelText(g.family.name), subtitle: blurb(g.family, g.members), image: familyArt(g.family.id), providerLabel: providerLabel(providerOf(g.members[0])), g }));
   const modes = [['all', 'Все'], ['text', 'Из текста'], ['image', 'Из фото'], ['video', 'Из видео']] as const;

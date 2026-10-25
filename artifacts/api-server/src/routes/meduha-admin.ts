@@ -395,7 +395,7 @@ router.post('/admin/models', async (req, res): Promise<void> => {
     const policy = videoPricingPolicy(parsed.data.upstreamId, parsed.data.limits);
     if (policy && (parsed.data.kind !== 'video' || channel.adapter !== 'higgsfield')) throw new Error();
   } catch {
-    error(res, 400, 'INVALID_INPUT', 'Расчёт Seedance 2.5 требует видеомодель, подходящий канал, целый videoCreditsPerUsd и положительный videoMaxUsd.');
+    error(res, 400, 'INVALID_INPUT', 'Расчёт требует поддержанный видеорежим, подходящий канал, целый videoCreditsPerUsd и положительный videoMaxUsd.');
     return;
   }
   if (genjutsuPricing.length > 0 && channel.adapter !== 'higgsfield') {
@@ -441,7 +441,7 @@ router.patch('/admin/models/:modelId', async (req, res): Promise<void> => {
       policy = videoPricingPolicy(upstreamId ?? '', parsed.data.limits ?? current?.limits);
       if (policy && (parsed.data.kind ?? current?.kind) !== 'video') throw new Error();
     } catch {
-      error(res, 400, 'INVALID_INPUT', 'Проверь videoCreditsPerUsd, videoMaxUsd и режим Seedance 2.5.');
+      error(res, 400, 'INVALID_INPUT', 'Проверь videoCreditsPerUsd, videoMaxUsd и поддержку видеорежима.');
       return;
     }
     if (genjutsuPricing.length > 0 || policy) {

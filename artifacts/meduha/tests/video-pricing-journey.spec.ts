@@ -232,3 +232,197 @@ test('estimate can be calculated while global spending is off but creation stays
   expect(generations).toHaveLength(0);
   expect(await page.getByTestId('dialog-video-confirm').count()).toBe(0);
 });
+
+test('Kling 3.0 Standard T2V invalidates changed estimates and requires explicit confirmation', async ({ page }) => {
+  const response = await page.request.get('/api/meduha/video/catalog');
+  expect(response.ok()).toBe(true);
+  const catalog = await response.json();
+  catalog.spendingEnabled = true;
+  catalog.providerConfigured = true;
+  catalog.storageConfigured = true;
+  const catalogId = 'kling-video/v3.0/std/text-to-video';
+  const model = catalog.models.find((row: { id: string }) => row.id === catalogId);
+  expect(model).toBeTruthy();
+  model.available = true;
+  model.pricingMode = 'estimate';
+  model.creditPrice = null;
+
+  const accountId = 'browser-test-user';
+  const quotes: Record<string, any>[] = [];
+  const generations: Record<string, any>[] = [];
+  const otherMutations: string[] = [];
+  let quoteFails = false;
+  await page.route('**/telegram-web-app.js*', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: `window.Telegram={WebApp:{
+      initData:'test-only-initdata',
+      initDataUnsafe:{user:{id:${JSON.stringify(accountId)}}},
+      platform:'tdesktop',colorScheme:'light',themeParams:{},
+      ready(){},expand(){},onEvent(){},offEvent(){},
+      setHeaderColor(){},setBackgroundColor(){},setBottomBarColor(){}
+    }};`,
+  }));
+  await page.route('**/api/meduha/**', async route => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (request.method() === 'GET' || request.method() === 'HEAD') {
+      if (path === '/api/meduha/session') {
+        return route.fulfill({ contentType: 'application/json', body: JSON.stringify({
+          account: { id: accountId, credits: 1000, role: 'user' },
+          telegramConfigured: true, telegramBotUsername: null,
+        }) });
+      }
+      if (path === '/api/meduha/bootstrap') {
+        return route.fulfill({ contentType: 'application/json', body: JSON.stringify({
+          account: { id: accountId, credits: 1000 }, drafts: [], settings: {}, wallet: {},
+        }) });
+      }
+      if (path === '/api/meduha/video/catalog') {
+        return route.fulfill({ contentType: 'application/json', body: JSON.stringify(catalog) });
+      }
+      if (path === '/api/meduha/video/generations') {
+        return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ items: [] }) });
+      }
+      return route.continue();
+    }
+    if (request.method() === 'POST' && path === '/api/meduha/video/quote') {
+      quotes.push(request.postDataJSON());
+      if (quoteFails) return route.fulfill({
+        status: 503, contentType: 'application/json',
+        body: JSON.stringify({ error: 'Fixture quote failure' }),
+      });
+      return route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          token: `kling-fixture-quote-${quotes.length}`,
+          creditPrice: 123, usdMicros: 1230000, expiresAt: Date.now() + 120000,
+        }),
+      });
+    }
+    if (request.method() === 'POST' && path === '/api/meduha/video/generations') {
+      generations.push(request.postDataJSON());
+      return route.fulfill({
+        status: 202, contentType: 'application/json',
+        body: JSON.stringify({ id: 'kling-fixture-job', status: 'queued' }),
+      });
+    }
+    otherMutations.push(`${request.method()} ${path}`);
+    return route.abort();
+  });
+
+  await page.goto(`/create?type=video&videoModel=${encodeURIComponent(catalogId)}`);
+  await expect(page.getByTestId(`page-video-model-${catalogId}`)).toBeVisible();
+  await expect(page.getByTestId('status-video-login-required')).toHaveCount(0);
+  const duration = page.getByTestId('input-duration');
+  await expect(duration).toHaveAttribute('min', '3');
+  await expect(duration).toHaveAttribute('max', '15');
+  await expect(page.getByTestId('button-sound-on')).toBeVisible();
+  await expect(page.getByTestId('button-sound-off')).toBeVisible();
+  for (const aspect of ['16:9', '9:16', '1:1']) {
+    await expect(page.getByTestId(`button-aspect_ratio-${aspect}`)).toBeVisible();
+  }
+  await page.getByTestId('textarea-prompt').fill('A calm Kling browser-only pricing scene.');
+
+  await page.getByTestId('button-video-quote').click();
+  await expect(page.getByTestId('text-video-cost')).toContainText('123');
+  expect(quotes).toHaveLength(1);
+  expect(quotes[0]).toMatchObject({
+    catalogId, modelId: model.modelId,
+    parameters: { prompt: 'A calm Kling browser-only pricing scene.', sound: 'on', duration: 5 },
+  });
+  expect(generations).toHaveLength(0);
+
+  await duration.fill('7');
+  await expect(page.getByTestId('button-video-quote')).toBeVisible();
+  await expect(page.getByTestId('text-video-cost')).toContainText('Рассчитай цену');
+  await expect(page.getByTestId('button-video-generate')).toHaveCount(0);
+  expect(generations).toHaveLength(0);
+  await page.getByTestId('button-video-quote').click();
+  await expect(page.getByTestId('text-video-cost')).toContainText('123');
+
+  await page.getByTestId('button-sound-off').click();
+  await expect(page.getByTestId('button-video-quote')).toBeVisible();
+  await expect(page.getByTestId('text-video-cost')).toContainText('Рассчитай цену');
+  expect(generations).toHaveLength(0);
+  quoteFails = true;
+  await page.getByTestId('button-video-quote').click();
+  await expect(page.getByTestId('text-video-error')).toContainText('Fixture quote failure');
+  await expect(page.getByTestId('text-video-cost')).toContainText('Рассчитай цену');
+  await expect(page.getByTestId('button-video-generate')).toHaveCount(0);
+  expect(generations).toHaveLength(0);
+
+  quoteFails = false;
+  await page.getByTestId('button-video-quote').click();
+  await expect(page.getByTestId('text-video-cost')).toContainText('123');
+  expect(quotes).toHaveLength(4);
+  expect(quotes[2].parameters).toMatchObject({ duration: 7, sound: 'off' });
+  expect(quotes[3].parameters).toEqual(quotes[2].parameters);
+  await page.getByTestId('button-video-generate').click();
+  await expect(page.getByTestId('dialog-video-confirm')).toBeVisible();
+  expect(generations).toHaveLength(0);
+  await page.getByTestId('button-video-confirm').click();
+  await expect.poll(() => generations.length).toBe(1);
+  expect(generations[0]).toMatchObject({
+    catalogId, modelId: model.modelId, expectedCreditPrice: 123,
+    idempotencyKey: quotes[3].idempotencyKey,
+    priceQuote: 'kling-fixture-quote-4',
+    parameters: quotes[3].parameters,
+    references: quotes[3].references,
+  });
+  expect(otherMutations).toEqual([]);
+});
+
+test('Kling 3.0 Standard I2V requires an image reference before quote calculation', async ({ page }) => {
+  const response = await page.request.get('/api/meduha/video/catalog');
+  expect(response.ok()).toBe(true);
+  const catalog = await response.json();
+  catalog.spendingEnabled = true;
+  catalog.providerConfigured = true;
+  catalog.storageConfigured = true;
+  const catalogId = 'kling-video/v3.0/std/image-to-video';
+  const model = catalog.models.find((row: { id: string }) => row.id === catalogId);
+  expect(model).toBeTruthy();
+  model.available = true;
+  model.pricingMode = 'estimate';
+  model.creditPrice = null;
+  const accountId = 'browser-test-user';
+  const quotes: Record<string, any>[] = [];
+  const generations: Record<string, any>[] = [];
+  await page.route('**/telegram-web-app.js*', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: `window.Telegram={WebApp:{initData:'test-only-initdata',initDataUnsafe:{user:{id:${JSON.stringify(accountId)}}},platform:'tdesktop',colorScheme:'light',themeParams:{},ready(){},expand(){},onEvent(){},offEvent(){},setHeaderColor(){},setBackgroundColor(){},setBottomBarColor(){}}};`,
+  }));
+  await page.route('**/api/meduha/**', async route => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (request.method() === 'GET' || request.method() === 'HEAD') {
+      if (path === '/api/meduha/session') return route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({ account: { id: accountId, credits: 1000, role: 'user' }, telegramConfigured: true, telegramBotUsername: null }),
+      });
+      if (path === '/api/meduha/bootstrap') return route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({ account: { id: accountId, credits: 1000 }, drafts: [], settings: {}, wallet: {} }),
+      });
+      if (path === '/api/meduha/video/catalog') return route.fulfill({
+        contentType: 'application/json', body: JSON.stringify(catalog),
+      });
+      if (path === '/api/meduha/video/generations') return route.fulfill({
+        contentType: 'application/json', body: JSON.stringify({ items: [] }),
+      });
+      return route.continue();
+    }
+    if (request.method() === 'POST' && path === '/api/meduha/video/quote') quotes.push(request.postDataJSON());
+    if (request.method() === 'POST' && path === '/api/meduha/video/generations') generations.push(request.postDataJSON());
+    return route.abort();
+  });
+
+  await page.goto(`/create?type=video&videoModel=${encodeURIComponent(catalogId)}`);
+  await expect(page.getByTestId(`page-video-model-${catalogId}`)).toBeVisible();
+  await expect(page.getByTestId('status-video-login-required')).toHaveCount(0);
+  await expect(page.getByTestId('input-file-image_url')).toBeAttached();
+  await expect(page.getByTestId('button-video-quote')).toBeDisabled();
+  await expect(page.getByTestId('button-video-generate')).toHaveCount(0);
+  expect(quotes).toHaveLength(0);
+  expect(generations).toHaveLength(0);
+});

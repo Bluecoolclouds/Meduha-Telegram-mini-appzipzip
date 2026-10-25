@@ -57,8 +57,8 @@ export function readiness(c: PhotoCatalog | undefined, m: PhotoCatalogModel): Re
   if (m.pricingBlockedReason) return { ok: false, reason: m.pricingBlockedReason };
   if (!c.providerConfigured) return { ok: false, reason: 'Провайдер не настроен' };
   if (!c.storageConfigured) return { ok: false, reason: 'Хранилище не настроено' };
+  if (!m.available || !m.modelId || m.creditPrice == null) return { ok: false, reason: m.availabilityIssues?.join(' ') || 'Модель не подключена' };
   if (!c.spendingEnabled) return { ok: false, reason: 'Списания выключены' };
-  if (!m.available || !m.modelId || m.creditPrice == null) return { ok: false, reason: 'Модель не подключена' };
   return { ok: true, reason: '' };
 }
 const go = (navigate: (to: string) => void, to: string) => (e: React.MouseEvent) => { e.preventDefault(); navigate(to); };
@@ -79,7 +79,7 @@ export function PhotoCatalogue() {
   const activeFilters = (mode !== 'all' ? 1 : 0) + (provider !== 'all' ? 1 : 0);
   const update = (v: string) => { setQ(v); const p = new URLSearchParams({ type: 'photo' }); if (v.trim()) p.set('q', v.trim()); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}/create?${p}`); };
   const href = (g: Group<PhotoCatalogModel>) => photoModelHref(g.initial.id);
-  const priceLabel = (list: PhotoCatalogModel[]) => { const ok = list.filter(m => readiness(catalog.data, m).ok); if (!ok.length) return readiness(catalog.data, list[0]).reason; return 'Цена по настройкам'; };
+  const priceLabel = (list: PhotoCatalogModel[]) => { const ok = list.filter(m => readiness(catalog.data, m).ok); if (!ok.length) { const m = list[0]; return m.pricingBlockedReason ? 'Цена не подтверждена' : m.creditPrice == null ? 'Цена не назначена' : m.availabilityIssues?.length ? 'Запуски выключены' : readiness(catalog.data, m).reason; } return 'Цена по настройкам'; };
   const title = (g: Group<PhotoCatalogModel>) => g.family.title ?? displayName(g.initial);
   const kinds = (g: Group<PhotoCatalogModel>) => Array.from(new Set(g.members.map(modeLabel))).join(' · ');
   const hero = groupFamilies(models).slice(0, 5).map(g => ({ id: g.family.id, title: title(g), subtitle: blurb(g.initial), image: photoModelArt(g.initial), providerLabel: photoProviderLabel(photoProvider(g.initial)), g }));

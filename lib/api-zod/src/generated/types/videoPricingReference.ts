@@ -6,12 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { GenjutsuUsdRate } from './genjutsuUsdRate';
+import type { VideoSecondRate } from './videoSecondRate';
 import type { VideoTokenRate } from './videoTokenRate';
 
 export interface VideoPricingReference {
   reviewedAt: string;
   seedanceRates: VideoTokenRate[];
   genjutsuRates: GenjutsuUsdRate[];
+  klingRates?: VideoSecondRate[];
   sources: string[];
   notes: string[];
 }

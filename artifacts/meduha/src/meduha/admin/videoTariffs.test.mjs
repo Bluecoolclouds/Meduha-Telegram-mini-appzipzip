@@ -25,3 +25,12 @@ test('Seedance price configuration must include both valid conversion and estima
   }
   assert(videoPolicyProblem('other-model', { videoCreditsPerUsd: 100, videoMaxUsd: 20 }));
 });
+test('Kling Standard estimate configuration uses an explicit exchange rate and ceiling', () => {
+  for (const mode of ['text-to-video', 'image-to-video']) {
+    const id = `kling-video/v3.0/std/${mode}`;
+    assert.equal(videoPolicyProblem(id, {}), null);
+    assert.equal(videoPolicyProblem(id, { videoCreditsPerUsd: 100, videoMaxUsd: 20 }), null);
+    assert(videoPolicyProblem(id, { videoMaxUsd: 20 }));
+  }
+  assert(videoPolicyProblem('kling-video/v3.0/pro/text-to-video', { videoCreditsPerUsd: 100, videoMaxUsd: 20 }));
+});

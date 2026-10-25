@@ -12,6 +12,7 @@ import { GENJUTSU_ENDPOINTS } from '../lib/genjutsu';
 import { videoFamilies, videoFileFields, videoModels, VideoInputError, validateVideoInput, verifyVideoReferences, videoProviderInput, type VideoMetadata } from '../lib/video';
 import { assertVideoQuote, estimateVideoRequest, signVideoQuote, verifyVideoQuote, videoPricingFingerprint, videoPricingPolicy, videoQuotedPrice, videoRequestHash, VideoPricingError } from '../lib/video-pricing';
 import { videoPriceReference } from '../lib/video-price-reference';
+import { catalogAvailabilityIssues } from '../lib/catalog-availability';
 
 const fail = (res: Response, code: string, error: string, status = 409) => res.status(status).json({ code, error });
 export async function registerVideoModels() {
@@ -114,12 +115,16 @@ export function createVideoRouter(dependencies: {
         const needsEstimate = !!selected && estimated(selected);
         const nativeScenario = Object.entries(GENJUTSU_ENDPOINTS).find(([, endpoint]) => endpoint === model.endpoint)?.[0] ?? null;
         const quoteScenario = selected?.genjutsuPricing?.length && nativeScenario ? nativeScenario : null;
+        const availabilityIssues = catalogAvailabilityIssues({
+          modelId: selected?.id, enabled: selected?.enabled, channelEnabled: selected?.channelEnabled,
+          priceReady: !!quoteScenario || (!!selected && (needsEstimate ? hasPolicy(selected) : selected.price > 0)),
+          pricingBlockedReason: needsEstimate && !hasPolicy(selected!) ? 'Параметры расчёта стоимости заполнены неверно.' : null,
+        });
         return { ...model, fileFields: videoFileFields(model), modelId: selected?.id ?? null,
-          quoteScenario,
+          quoteScenario, availabilityIssues,
           pricingMode: needsEstimate ? 'estimate' : 'fixed',
           creditPrice: !needsEstimate && selected && selected.price > 0 ? selected.price : null,
-          available: !quoteScenario && !!selected?.enabled && !!selected.channelEnabled
-            && (needsEstimate ? hasPolicy(selected) : selected.price > 0) };
+          available: !quoteScenario && availabilityIssues.length === 0 };
       }),
     });
   });

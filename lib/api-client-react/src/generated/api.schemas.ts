@@ -45,10 +45,18 @@ export interface GenjutsuUsdRate {
   exact: boolean;
 }
 
+export interface VideoSecondRate {
+  endpoint: string;
+  usdPerSecondMin: number;
+  usdPerSecondMax: number;
+  note: string;
+}
+
 export interface VideoPricingReference {
   reviewedAt: string;
   seedanceRates: VideoTokenRate[];
   genjutsuRates: GenjutsuUsdRate[];
+  klingRates?: VideoSecondRate[];
   sources: string[];
   notes: string[];
 }
@@ -133,6 +141,7 @@ export interface VideoCatalogModel {
   outputSchema: VideoCatalogModelOutputSchema;
   fileFields: VideoFileField[];
   available: boolean;
+  availabilityIssues?: string[];
   /** @nullable */
   quoteScenario?: VideoCatalogModelQuoteScenario;
   pricingMode?: VideoCatalogModelPricingMode;
@@ -750,6 +759,7 @@ export interface PhotoCatalogModel {
   schema: PhotoCatalogModelSchema;
   workflow: boolean;
   available: boolean;
+  availabilityIssues?: string[];
   /** @nullable */
   modelId: string | null;
   /** @nullable */
