@@ -8,6 +8,7 @@ import { publicJob } from './meduha-generations';
 import { FinanceError, getFinanceSettings, getModelDailyBudget, reserveCredits } from '../lib/finance';
 import { higgsfieldCredentials } from '../lib/higgsfield';
 import { generationImageFile } from '../lib/photo-storage';
+import { pipeStorageReadStream } from '../lib/storage-stream';
 import { photoModels, PhotoInputError, photoProviderInput, stablePhotoInput, validatePhotoInput, verifyPhotoReferences, type PhotoMetadata } from '../lib/photo';
 import { assertPhotoQuote, estimatePhotoRequest, photoPricingBlockedReason, photoPricingFingerprint, photoQuotedPrice, photoQuoteSummary, photoRequestHash, PhotoPricingError, signPhotoQuote, verifyPhotoQuote } from '../lib/photo-pricing';
 
@@ -159,9 +160,7 @@ export function createPhotoRouter(dependencies: {
         'Content-Disposition': req.query.download === '1' ? `attachment; filename="meduha-${req.params.id}-${index + 1}.${metadata.contentType === 'image/jpeg' ? 'jpg' : metadata.contentType!.split('/')[1]}"` : 'inline',
       });
       const stream = file.createReadStream();
-      stream.on('error', () => res.destroy());
-      res.on('close', () => stream.destroy());
-      stream.pipe(res);
+      pipeStorageReadStream(stream, res, () => res.destroy());
     } catch (error) {
       if ((error as { code?: number }).code === 404) res.sendStatus(404);
       else fail(res, 'IMAGE_UNAVAILABLE', 'Не удалось загрузить изображение. Попробуй позже.', 503);

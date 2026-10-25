@@ -18,6 +18,7 @@ import { currentAccount, requireAccount } from './meduha';
 import { isTemplateAdmin } from '../lib/template-admin';
 import { templateFile, templateUploadUrl } from '../lib/objectStorage';
 import { finalizeMedia, InvalidMediaError } from '../lib/template-files';
+import { pipeStorageReadStream } from '../lib/storage-stream';
 import { validateOwnedRecipe, RecipeError } from '../lib/template-recipes';
 
 const router = Router();
@@ -382,9 +383,7 @@ router.get('/media/:id', async (req, res): Promise<void> => {
   }
   res.setHeader('Content-Length', end - start + 1);
   const stream = templateFile(upload.id).createReadStream({ start, end });
-  stream.on('error', err => { req.log.error({ err }, 'Media stream failed'); res.destroy(); });
-  res.on('close', () => stream.destroy());
-  stream.pipe(res);
+  pipeStorageReadStream(stream, res, err => { req.log.error({ err }, 'Media stream failed'); });
 });
 
 export default router;

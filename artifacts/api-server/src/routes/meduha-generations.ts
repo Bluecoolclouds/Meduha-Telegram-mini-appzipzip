@@ -7,6 +7,7 @@ import { currentAccount } from './meduha';
 import { FinanceError, getFinanceSettings, reserveCredits } from '../lib/finance';
 import { SEEDANCE_MODEL } from '../lib/higgsfield';
 import { generationVideoFile } from '../lib/objectStorage';
+import { pipeStorageReadStream } from '../lib/storage-stream';
 
 const fail = (res: Response, status: number, code: string, error: string) => res.status(status).json({ code, error });
 type JobInput = { prompt: string; duration: number; aspect_ratio: string; resolution: string };
@@ -151,12 +152,9 @@ export function createMeduhaGenerationsRouter() {
         : 'inline',
     });
     const stream = file.createReadStream({ start, end });
-    stream.on('error', error => {
+    pipeStorageReadStream(stream, res, error => {
       req.log.error({ jobId: req.params.id, errorName: error instanceof Error ? error.name : 'UnknownError' }, 'Generation video stream failed');
-      res.destroy();
     });
-    res.on('close', () => stream.destroy());
-    stream.pipe(res);
   });
 
   router.post('/generations', async (req, res) => {
