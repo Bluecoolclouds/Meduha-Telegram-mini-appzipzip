@@ -26,6 +26,12 @@ For fullscreen viewer checks, emulate safe-area insets with the browser protocol
 
 **How to apply:** distinguish viewer behavior from feed/API health. Keep the production and development database untouched during a UI-only check unless schema repair is explicitly in scope.
 
+Headless Chromium may report multiple Playwright pages as visible even after another page is brought to the front. For focus-refetch tests, explicitly toggle `document.visibilityState` and dispatch `visibilitychange` when real tab visibility is not available.
+
+**Why:** a second page did not make the original page hidden in the headless browser, so the focus regression could not be tested by `bringToFront()` alone.
+
+**How to apply:** emulate the visibility transition deterministically while retaining the real query listener and API requests; do not infer a focus change just from opening another page.
+
 Use the artifact router for full-stack browser tests, not a direct Vite port without an API proxy.
 
 **Why:** direct Vite can serve HTML for an API request; the typed fetch client may accept that response and show a misleading login state instead of an obvious network error. This previously hid an enabled password-login form in a browser test.

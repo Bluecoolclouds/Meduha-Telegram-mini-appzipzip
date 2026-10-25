@@ -32,6 +32,16 @@ async function assertDailyUsage(page: Page, values: { reserves: number; spent: n
   await expect(page.getByTestId('text-daily-remaining')).toHaveText(`${values.remaining} кр.`);
 }
 
+async function setPageVisibility(page: Page, state: 'hidden' | 'visible') {
+  await page.evaluate(nextState => {
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      get: () => nextState,
+    });
+    document.dispatchEvent(new Event('visibilitychange'));
+  }, state);
+}
+
 async function fillReason(page: Page, reason: string) {
   await page.getByTestId('input-credit-reason').fill(reason);
 }
@@ -75,13 +85,13 @@ async function mutateReservationThroughAPI(
 async function mutateReservationThroughAPI(
   page: Page,
   userId: string,
-  action: 'release',
+  action: 'release' | 'settle' | 'refund',
   reservationId: string,
 ): Promise<void>;
 async function mutateReservationThroughAPI(
   page: Page,
   userId: string,
-  action: 'reserve' | 'release',
+  action: 'reserve' | 'release' | 'settle' | 'refund',
   value: number | string,
 ): Promise<string | void> {
   const body = action === 'reserve'
@@ -94,20 +104,20 @@ async function mutateReservationThroughAPI(
       channelId: null,
     }
     : {
-      reason: 'Browser daily-usage polling regression release',
+      reason: `Browser daily-usage regression ${action}`,
       idempotencyKey: `admin-browser-${randomUUID()}`,
     };
   const result = await page.evaluate(async ({ action, reservationId, body }) => {
     const url = action === 'reserve'
       ? '/api/meduha/admin/credits/reserve'
-      : `/api/meduha/admin/credits/${encodeURIComponent(reservationId!)}/release`;
+      : `/api/meduha/admin/credits/${encodeURIComponent(reservationId!)}/${action}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'X-Meduha-Request': '1' },
       body: JSON.stringify(body),
     });
     return { status: response.status, payload: await response.json() as { reservation?: { id: string } } };
-  }, { action, reservationId: action === 'release' ? value : undefined, body });
+  }, { action, reservationId: action === 'reserve' ? undefined : value, body });
   expect(result.status).toBe(200);
   if (action === 'reserve') {
     const reservationId = result.payload.reservation?.id;
@@ -196,7 +206,7 @@ test('account daily usage refreshes through the real admin API and an isolated a
     const body = await response.json() as { dailyUsage?: { activeReserves?: number } };
     return body.dailyUsage?.activeReserves === 4;
   }, { timeout: 40_000 });
-  await mutateReservationThroughAPI(page, account.id, 'reserve', 4);
+  const focusSettledReservation = await mutateReservationThroughAPI(page, account.id, 'reserve', 4);
   const polledWallet = await pollingResponse;
   const polledBody = await polledWallet.json() as { dailyUsage: { activeReserves: number; remaining: number } };
   expect(polledBody.dailyUsage.activeReserves).toBe(4);
@@ -204,4 +214,42 @@ test('account daily usage refreshes through the real admin API and an isolated a
   await assertDailyUsage(page, {
     reserves: 4, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit - 4,
   });
+
+  const backgroundTab = await page.context().newPage();
+  await backgroundTab.goto('about:blank');
+  await backgroundTab.bringToFront();
+  await setPageVisibility(page, 'hidden');
+  await expect.poll(() => page.evaluate(() => document.visibilityState)).toBe('hidden');
+
+  await mutateReservationThroughAPI(page, account.id, 'settle', focusSettledReservation);
+  const backgroundReservation = await mutateReservationThroughAPI(page, account.id, 'reserve', 3);
+  await expect.poll(() => page.evaluate(() => document.visibilityState)).toBe('hidden');
+  await assertDailyUsage(page, {
+    reserves: 4, spent: 0, limit: account.dailyLimit, remaining: account.dailyLimit - 4,
+  });
+
+  const focusedWalletResponse = page.waitForResponse(response =>
+    new URL(response.url()).pathname === '/api/meduha/admin/wallet'
+      && new URL(response.url()).searchParams.get('userId') === account.id
+      && response.request().method() === 'GET'
+      && response.status() === 200,
+  );
+  await page.bringToFront();
+  await setPageVisibility(page, 'visible');
+  const refreshedWallet = await focusedWalletResponse;
+  const refreshedBody = await refreshedWallet.json() as {
+    dailyUsage: { activeReserves: number; netSpent: number; remaining: number };
+  };
+  expect(refreshedBody.dailyUsage).toMatchObject({
+    activeReserves: 3,
+    netSpent: 4,
+    remaining: account.dailyLimit - 7,
+  });
+  await assertDailyUsage(page, {
+    reserves: 3, spent: 4, limit: account.dailyLimit, remaining: account.dailyLimit - 7,
+  });
+
+  await mutateReservationThroughAPI(page, account.id, 'release', backgroundReservation);
+  await mutateReservationThroughAPI(page, account.id, 'refund', focusSettledReservation);
+  await backgroundTab.close();
 });
