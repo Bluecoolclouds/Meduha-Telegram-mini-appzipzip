@@ -4,13 +4,15 @@ import { Link } from 'wouter';
 import type { VideoScenario } from './scenarios';
 
 export type CarouselItem = Pick<VideoScenario, 'id' | 'title' | 'subtitle' | 'image'> & Partial<Pick<VideoScenario, 'providerLabel'>>;
-type Props<T extends CarouselItem = VideoScenario> = { items: T[]; image: (n: string) => string; cover?: (s: T) => string; label: (s: T) => string; onOpen: (s: T) => void; paused?: boolean; eyebrow?: (s: T) => string };
+type Props<T extends CarouselItem = VideoScenario> = { items: T[]; image: (n: string) => string; cover?: (s: T) => string; thumbnail?: (s: T) => string; label: (s: T) => string; onOpen: (s: T) => void; paused?: boolean; eyebrow?: (s: T) => string };
 const SLIDE_MS = 6500;
 
-export function ScenarioCarousel<T extends CarouselItem>({ items, image, cover, label, onOpen, paused: externalPaused = false, eyebrow }: Props<T>) {
+export function ScenarioCarousel<T extends CarouselItem>({ items, image, cover, thumbnail, label, onOpen, paused: externalPaused = false, eyebrow }: Props<T>) {
   const imageOf = (item: T) => cover ? cover(item) : image(item.image);
+  const thumbOf = (item: T) => thumbnail ? thumbnail(item) : imageOf(item);
   const track = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
+  const [visited, setVisited] = useState<Set<string>>(() => new Set());
   const root = useRef<HTMLElement>(null);
   const [hover, setHover] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -39,13 +41,16 @@ export function ScenarioCarousel<T extends CarouselItem>({ items, image, cover, 
     return () => { el.removeEventListener('scroll', on); window.clearTimeout(t); };
   }, [items.length]);
   const cur = items[idx];
+  useEffect(() => {
+    if (cur) setVisited(previous => previous.has(cur.id) ? previous : new Set([...previous, cur.id]));
+  }, [cur?.id]);
 
   return <section className="vs-hero" aria-roledescription="carousel" aria-label="Новые сценарии" ref={root}
     onPointerEnter={e => { if (e.pointerType === 'mouse') setHover(true); }} onPointerLeave={() => setHover(false)} onFocus={() => setFocused(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false); }}>
     <div className="vs-hero-track" ref={track}>
       {items.map((s, i) => <article key={s.id} className={`vs-hero-slide${i === idx ? ' on' : ''}`} aria-hidden={i !== idx}>
-        <div className="vs-hero-backdrop" style={{ backgroundImage: `url("${imageOf(s)}")` }} aria-hidden="true" />
-        <img src={imageOf(s)} alt="" />
+        <div className="vs-hero-backdrop" style={{ backgroundImage: `url("${i === idx || visited.has(s.id) ? imageOf(s) : thumbOf(s)}")` }} aria-hidden="true" />
+        <img src={i === idx || visited.has(s.id) ? imageOf(s) : thumbOf(s)} alt="" decoding="async" fetchPriority={i === idx ? 'high' : 'auto'}/>
         <div className="vs-hero-copy">
            <span className="vs-hero-brand">{eyebrow ? eyebrow(s) : `Новое · ${s.providerLabel ?? ''}`}</span>
           <h2>{s.title}</h2>
@@ -59,7 +64,7 @@ export function ScenarioCarousel<T extends CarouselItem>({ items, image, cover, 
     </div>
     <div className="vs-hero-thumbs">
       {items.map((s, i) => <button key={s.id} data-testid={`button-hero-thumb-${s.id}`} aria-label={s.title} aria-current={i === idx} className={i === idx ? 'on' : ''} onClick={() => go(i)}>
-        <img src={imageOf(s)} alt="" />
+        <img src={thumbOf(s)} alt="" decoding="async" width={96} height={54}/>
       </button>)}
     </div>
     <div className="vs-hero-bars" role="progressbar" aria-label="Позиция карусели" aria-valuemin={1} aria-valuemax={items.length} aria-valuenow={idx + 1} aria-valuetext={cur?.title}>

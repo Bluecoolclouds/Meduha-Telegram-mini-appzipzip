@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { Readable } from 'node:stream';
 import { motionAssets } from '../lib/motion-example';
 import { templateFile } from '../lib/objectStorage';
+import { catalogCoverAsset } from '../lib/catalog-covers';
 
 const router = Router();
 // Public, attributed sample media only. Never accept an arbitrary upstream URL
@@ -13,14 +14,18 @@ const sources: Record<string, string> = {
 };
 
 router.get('/:name', async (req, res): Promise<void> => {
+  const cover = catalogCoverAsset(req.params.name);
   const asset = Object.hasOwn(motionAssets, req.params.name)
     ? motionAssets[req.params.name as keyof typeof motionAssets]
-    : undefined;
+    : cover;
   if (asset) {
     try {
       const file = templateFile(asset.id);
-      const [metadata] = await file.getMetadata();
-      const size = Number(metadata.size);
+      const size = cover ? cover.size : Number((await file.getMetadata())[0].size);
+      if (cover) {
+        res.set({ ETag: `"${req.params.name}"`, 'Cache-Control': 'public,max-age=31536000,immutable' });
+        if (req.fresh) { res.status(304).end(); return; }
+      }
       let start = 0, end = size - 1;
       if (req.headers.range) {
         const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
@@ -33,7 +38,7 @@ router.get('/:name', async (req, res): Promise<void> => {
         res.status(206).set('Content-Range', `bytes ${start}-${end}/${size}`);
       }
       res.set({ 'Content-Type': asset.contentType, 'Content-Length': String(end - start + 1),
-        'Accept-Ranges': 'bytes', 'Cache-Control': 'public,max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+        'Accept-Ranges': 'bytes', 'Cache-Control': cover ? 'public,max-age=31536000,immutable' : 'public,max-age=3600', 'X-Content-Type-Options': 'nosniff' });
       if (req.method === 'HEAD') { res.end(); return; }
       file.createReadStream({ start, end }).on('error', () => res.destroy()).pipe(res);
     } catch { if (!res.headersSent) res.status(503).json({ error: 'Материалы примера временно недоступны.' }); }

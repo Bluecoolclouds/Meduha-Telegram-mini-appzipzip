@@ -32,7 +32,7 @@ export default function PhotoScenarios() {
   return <Frame active="Create">
     <div className="vs-page photo-page" data-testid="catalogue-photo">
       <div className="photo-heading"><span className="photo-kicker"><ImageIcon size={12}/> СТУДИЯ ФОТОИДЕЙ</span><h1>Какой будет<br/>твой кадр<span>.</span></h1><p>Выбери направление — доработай текст и сохрани идею.</p></div>
-      <ScenarioCarousel items={photoIdeas.slice(0, 5)} image={asset} cover={photoIdeaCover} label={() => 'Идея для фото'} eyebrow={() => 'Подборка · фотоидеи'} onOpen={(idea: PhotoIdea) => setSelected(idea)} paused={selected !== null}/>
+      <ScenarioCarousel items={photoIdeas.slice(0, 5)} image={asset} cover={idea => photoIdeaCover(idea, 'hero')} thumbnail={idea => photoIdeaCover(idea, 'thumb')} label={() => 'Идея для фото'} eyebrow={() => 'Подборка · фотоидеи'} onOpen={(idea: PhotoIdea) => setSelected(idea)} paused={selected !== null}/>
       <Link href="/create?type=photo&editor=1" className="vs-promo" data-testid="link-photo-promo">
         <span className="vs-promo-icon"><ImageIcon size={17}/></span>
         <span className="vs-promo-text"><strong>Уже знаешь, что хочешь?</strong><small>Запиши свою идею без готового сценария</small></span>
@@ -70,7 +70,7 @@ export default function PhotoScenarios() {
 
 function PhotoIdeaSheet({ idea, onClose, onContinue }: { idea: PhotoIdea; onClose: () => void; onContinue: () => void }) {
   return <Sheet title={idea.title} onClose={onClose} className="vs-sheet photo-sheet">
-    <img className="vs-sheet-img" src={photoIdeaCover(idea)} alt={`Демо модели для идеи «${idea.title}»`}/>
+    <img className="vs-sheet-img" src={photoIdeaCover(idea, 'hero')} alt={`Демо модели для идеи «${idea.title}»`}/>
     <div className="vs-sheet-tags"><span className="vs-status documented"><ImageIcon size={11}/>Фотоидея</span><span className="vs-provider">{photoCategories.find(item => item.id === idea.category)?.label}</span></div>
     <p className="vs-sub">{idea.subtitle}</p>
     <h3 className="vs-h"><Check size={15}/>Текст идеи</h3>

@@ -135,3 +135,9 @@ Keep the homepage «Вдохновляйся» artist showcase hidden until ther
 **Why:** the user said «у нас их пока нет» and requested hiding that block.
 
 **How to apply:** do not substitute invented artist accounts; keep the separate community/example feed available.
+
+Media optimization must preserve original files. Catalogue cards and thumbnails should use smaller display copies; large carousel images should load only for active or previously visited slides.
+
+**Why:** the user explicitly approved optimization «сохраняя оригиналы» after checking excessive image traffic. Replacing only editor media without updating catalogue covers was not sufficient.
+
+**How to apply:** retain byte-identical originals alongside display variants, keep cached display assets immutable, and do not expose private user media when importing public model examples.

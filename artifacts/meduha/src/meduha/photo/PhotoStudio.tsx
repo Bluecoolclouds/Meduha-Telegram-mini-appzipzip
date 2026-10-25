@@ -83,7 +83,7 @@ export function PhotoCatalogue() {
   const hero = groupFamilies(models).slice(0, 5).map(g => ({ id: g.family.id, title: title(g), subtitle: blurb(g.initial), image: photoModelArt(g.initial), providerLabel: photoProviderLabel(photoProvider(g.initial)), g }));
   const modes = [['all', 'Все'], ['text', 'Текст → фото'], ['image', 'Фото → фото'], ['workflow', 'Сценарии']] as const;
   return <Frame active="Create"><div className="vs-page" data-testid="catalogue-photo-models">
-    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => photoModelCover(h.g.initial.id)} label={h => priceLabel(h.g.members)} eyebrow={h => `${kinds(h.g)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.g))}/>}
+    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => photoModelCover(h.g.initial.id, 'hero')} thumbnail={h => photoModelCover(h.g.initial.id, 'thumb')} label={h => priceLabel(h.g.members)} eyebrow={h => `${kinds(h.g)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.g))}/>}
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">

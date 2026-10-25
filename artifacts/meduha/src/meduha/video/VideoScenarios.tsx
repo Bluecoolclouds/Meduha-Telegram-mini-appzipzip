@@ -38,7 +38,7 @@ export default function VideoScenarios() {
 
   return <Frame active="Create">
     <div className="vs-page">
-    <ScenarioCarousel items={videoScenarios.slice(0, 5)} image={asset} cover={scenario => videoScenarioCover(scenario.id)} label={(scenario: VideoScenario) => priceLabel(scenario)} onOpen={(scenario: VideoScenario) => openScenario(scenario)}/>
+    <ScenarioCarousel items={videoScenarios.slice(0, 5)} image={asset} cover={scenario => videoScenarioCover(scenario.id, 'hero')} thumbnail={scenario => videoScenarioCover(scenario.id, 'thumb')} label={(scenario: VideoScenario) => priceLabel(scenario)} onOpen={(scenario: VideoScenario) => openScenario(scenario)}/>
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">

@@ -71,7 +71,7 @@ export function VideoCatalogue() {
   const hero = all.slice(0, 5).map(g => ({ id: g.family.id, title: userSafeModelText(g.family.name), subtitle: blurb(g.family, g.members), image: familyArt(g.family.id), providerLabel: providerLabel(providerOf(g.members[0])), g }));
   const modes = [['all', 'Все'], ['text', 'Из текста'], ['image', 'Из фото'], ['video', 'Из видео']] as const;
   return <Frame active="Create"><div className="vs-page" data-testid="catalogue-video-models">
-    {catalog.isLoading ? <div className="vs-hero vst-skel" style={{ height: 268 }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => videoModelCover(h.g.members[0].id)} label={h => priceLabel(h.g.members)} eyebrow={h => `${h.g.members.length > 1 ? `${h.g.members.length} режимов` : modeLabel(h.g.members[0].mode)} · ${h.providerLabel}`} onOpen={h => open(h.g.family.modes[0])}/>}
+    {catalog.isLoading ? <div className="vs-hero vst-skel" style={{ height: 268 }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => videoModelCover(h.g.members[0].id, 'hero')} thumbnail={h => videoModelCover(h.g.members[0].id, 'thumb')} label={h => priceLabel(h.g.members)} eyebrow={h => `${h.g.members.length > 1 ? `${h.g.members.length} режимов` : modeLabel(h.g.members[0].mode)} · ${h.providerLabel}`} onOpen={h => open(h.g.family.modes[0])}/>}
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">

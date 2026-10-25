@@ -17,3 +17,4 @@
 - [Feature CSS isolation](css-isolation.md) — scope styles by feature; shared short namespaces can silently alter unrelated routed pages and sheets.
 - [Pricing reference](pricing-reference.md) — user chose Higgsfield-style USD prices; distinguish monthly from annual pricing and do not copy website-only benefits.
 - [Account spending limits](account-spending-limits.md) — zero fails closed; holds carry across UTC days; lowering the cap does not cancel authorized work.
+- [API contracts after merges](post-merge-api-contracts.md) — merged API sources may outpace compiled shared declarations; rebuild before diagnosing missing UI fields.
