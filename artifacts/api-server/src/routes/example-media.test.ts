@@ -49,12 +49,24 @@ test('approved example videos support byte ranges, reject invalid ranges, and an
 
   const nativeFetch = globalThis.fetch.bind(globalThis);
   const outboundRequests: Array<{ url: string; method: string; range: string | null }> = [];
+  const outboundRedirectModes: Array<'follow' | 'error' | 'manual' | undefined> = [];
+  let redirectSource: string | undefined;
+  const redirectDestination = 'https://untrusted.example/private';
   t.mock.method(globalThis, 'fetch', async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
     const url = input instanceof Request ? input.url : String(input);
     if (url.startsWith(baseUrl)) return nativeFetch(input, init);
     const method = init?.method ?? 'GET';
     const range = new Headers(init?.headers).get('range');
     outboundRequests.push({ url, method, range });
+    outboundRedirectModes.push(init?.redirect);
+
+    if (url === redirectSource) {
+      if (init?.redirect !== 'manual') {
+        outboundRequests.push({ url: redirectDestination, method, range });
+        return new Response('untrusted fixture', { status: 200, headers: { 'content-type': 'video/webm' } });
+      }
+      return new Response(null, { status: 302, headers: { location: redirectDestination } });
+    }
 
     const bytes = Buffer.from('public fixture');
     const headers = new Headers({
@@ -154,11 +166,23 @@ test('approved example videos support byte ranges, reject invalid ranges, and an
     assert.equal((await head.arrayBuffer()).byteLength, 0);
     assert.deepEqual(outboundRequests.at(-1), { url: source, method: 'HEAD', range: null });
   }
+
+  redirectSource = publicSources['flower.webm'];
+  const redirected = await fetch(`${baseUrl}/flower.webm`);
+  assert.equal(redirected.status, 502, 'a public-source redirect should be rejected');
+  assert.equal(await redirected.json().then(body => (body as { error: string }).error), 'Пример временно недоступен.');
+  assert.deepEqual(outboundRequests.at(-1), { url: redirectSource, method: 'GET', range: null });
+  assert(!outboundRequests.some(request => request.url === redirectDestination),
+    'the redirect destination must never be requested');
+  assert(outboundRedirectModes.every(mode => mode === 'manual'),
+    'all approved public sources must be fetched without following redirects');
+
   assert.deepEqual(outboundRequests.map(request => request.url), [
     ...Object.values(publicSources),
     publicSources['flower.webm'],
     publicSources['flower.webm'],
     publicSources['sintel.webm'],
     publicSources['sintel.webm'],
+    publicSources['flower.webm'],
   ]);
 });

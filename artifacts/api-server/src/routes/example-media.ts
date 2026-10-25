@@ -47,6 +47,7 @@ router.get('/:name', async (req, res): Promise<void> => {
     const upstream = await fetch(source, {
       method: req.method === 'HEAD' ? 'HEAD' : 'GET',
       headers: req.headers.range ? { Range: req.headers.range } : undefined,
+      redirect: 'manual',
       signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
     });
     if (!upstream.ok && upstream.status !== 416) {
