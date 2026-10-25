@@ -47,6 +47,18 @@ test('approved example videos support byte ranges, reject invalid ranges, and an
   const baseUrl = `http://127.0.0.1:${address.port}/example-media`;
   t.after(() => new Promise<void>(resolve => server.close(() => resolve())));
 
+  const nativeFetch = globalThis.fetch.bind(globalThis);
+  const outboundRequests: string[] = [];
+  t.mock.method(globalThis, 'fetch', async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (url.startsWith(baseUrl)) return nativeFetch(input, init);
+    outboundRequests.push(url);
+    return new Response('public fixture', {
+      status: 200,
+      headers: { 'content-type': url.endsWith('.png') ? 'image/png' : 'video/webm' },
+    });
+  });
+
   for (const name of approvedVideos) {
     const asset = motionAssets[name];
     const bytes = stored.get(asset.id)!;
@@ -86,4 +98,22 @@ test('approved example videos support byte ranges, reject invalid ranges, and an
     assert.equal(head.headers.get('content-length'), '6');
     assert.equal((await head.arrayBuffer()).byteLength, 0);
   }
+
+  const unknown = await fetch(`${baseUrl}/unknown-media.webm`);
+  assert.equal(unknown.status, 404);
+  assert.equal(outboundRequests.length, 0, 'unknown names must not trigger an outbound fetch');
+
+  const publicSources = {
+    'flower.webm': 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm',
+    'sintel.webm': 'https://media.w3.org/2010/05/sintel/trailer.webm',
+    'sintel.png': 'https://media.w3.org/2010/05/sintel/poster.png',
+  };
+  for (const [name, source] of Object.entries(publicSources)) {
+    const response = await fetch(`${baseUrl}/${name}`);
+    assert.equal(response.status, 200, `${name} should be served from its approved source`);
+    assert.equal(response.headers.get('content-type'), name.endsWith('.png') ? 'image/png' : 'video/webm');
+    assert.equal(await response.text(), 'public fixture');
+    assert.equal(outboundRequests.at(-1), source);
+  }
+  assert.deepEqual(outboundRequests, Object.values(publicSources));
 });

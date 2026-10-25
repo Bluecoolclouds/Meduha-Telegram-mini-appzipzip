@@ -13,8 +13,10 @@ const sources: Record<string, string> = {
 };
 
 router.get('/:name', async (req, res): Promise<void> => {
-  const asset = motionAssets[req.params.name as keyof typeof motionAssets];
-  if (asset && Object.hasOwn(motionAssets, req.params.name)) {
+  const asset = Object.hasOwn(motionAssets, req.params.name)
+    ? motionAssets[req.params.name as keyof typeof motionAssets]
+    : undefined;
+  if (asset) {
     try {
       const file = templateFile(asset.id);
       const [metadata] = await file.getMetadata();
