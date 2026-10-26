@@ -30,7 +30,16 @@ const pageMeta:Record<string,{title:string;description:string}>={
   '/community':{title:'Вдохновение — meduha',description:'Мозаика фото и видео участников сообщества с оригинальными промптами.'},
 };
 function Metadata(){const [location]=useLocation();useEffect(()=>{const meta=pageMeta[location.split('?')[0]]||pageMeta['/'];document.title=meta.title;let element=document.querySelector('meta[name="description"]');if(!element){element=document.createElement('meta');element.setAttribute('name','description');document.head.appendChild(element)}element.setAttribute('content',meta.description)},[location]);return null}
-function Router(){return <><Metadata/><RoutedErrorBoundary><Suspense fallback={<div className="m-startup" role="status"><p>Загружаем студию…</p></div>}><Switch>
+function StudioLoading(){return <div className="m-startup" role="status" aria-busy="true">
+  <div className="m-startup-capsule"><img src={brandAsset('app-icon')} alt=""/><div><strong>meduha<span>.</span></strong><small>Подготавливаем рабочее пространство</small></div></div>
+  <div className="m-studio-skeleton" aria-hidden="true">
+    <i className="m-studio-skeleton-title"/><i className="m-studio-skeleton-caption"/>
+    <div className="m-studio-skeleton-tabs"><i/><i/><i/></div>
+    <i className="m-studio-skeleton-card"/><i className="m-studio-skeleton-upload"/><i className="m-studio-skeleton-action"/>
+  </div>
+  <p>Загружаем студию…</p>
+</div>}
+function Router(){return <><Metadata/><RoutedErrorBoundary><Suspense fallback={<StudioLoading/>}><Switch>
   <Route path="/" component={Home}/>
   <Route path="/create" component={Create}/>
   <Route path="/works" component={Works}/>
