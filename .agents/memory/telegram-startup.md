@@ -20,3 +20,9 @@ The product is a Telegram bot as well as a Mini App; users expect `/start` in th
 **Why:** The user explicitly corrected the incomplete bot experience: «на /start не отвечает этож бот».
 
 **How to apply:** Treat bot-message reception and command replies as part of the Telegram entry experience, not as something the Mini App authentication SDK supplies automatically.
+
+Do not treat a Telegram transport timeout as evidence that the bot token is invalid, or change the HTTP transport based on a single comparison.
+
+**Why:** Repeated transport timeouts recovered without changing the credential or code; both the default Node fetch client and the live polling worker subsequently succeeded. A successful alternate client alone did not prove a persistent fetch defect.
+
+**How to apply:** Distinguish an explicit Telegram authentication rejection from a timeout. Validate only with non-mutating metadata methods and secret-safe outputs; never log token-bearing URLs or raw network errors. Confirm the existing worker's recovery before replacing credentials or transport.
