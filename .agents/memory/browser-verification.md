@@ -43,3 +43,9 @@ Password-login browser regressions must forward API calls into the actual Meduha
 **Why:** Authentication behavior includes cookie persistence and database-backed revocation; a client-only mocked success would not verify those boundaries, while shared admin fixtures can disturb real access or finance state.
 
 **How to apply:** Keep the API fixture in the Playwright worker, route the browser through the artifact preview, and fail with a clear schema prerequisite if required admin tables are missing.
+
+For browser tests of scroll-driven media, isolate one feed item by its unique title and make sure the fixture creates real scroll overflow before testing that it leaves view. Keep the browser's native `IntersectionObserver`; an already-visible card may not scroll when `scrollIntoViewIfNeeded` runs.
+
+**Why:** the community feed adds bundled examples beside the mocked response, so they can use preview slots first; a filtered single-card feed may also have no overflow to scroll its card out of view.
+
+**How to apply:** use a unique feed fixture/search and inert test-only space inside the scroll root when a hidden-card transition is required. Verify actual geometry and browser requests rather than replacing the observer.
