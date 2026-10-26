@@ -36,3 +36,6 @@ packages = ["glib", "nss", "nspr", "atk", "at-spi2-atk", "dbus", "xorg.libX11", 
 [userenv.shared]
 MEDUHA_ADMIN_TELEGRAM_ID = "нет пока "
 MEDUHA_ADMIN_LOGIN = "admin"
+
+[userenv.development]
+TELEGRAM_BOT_TRANSPORT = "webhook"

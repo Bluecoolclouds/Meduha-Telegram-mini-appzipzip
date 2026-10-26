@@ -32,6 +32,7 @@ Meduha is a Russian-language creative Telegram Mini App for photo / video / musi
 - Required env: `DATABASE_URL` — PostgreSQL connection; `TELEGRAM_BOT_TOKEN` — server-only bot credential for real Telegram login, never VITE-prefixed or in frontend code. The bot must launch this app's HTTPS URL.
 - Without `TELEGRAM_BOT_TOKEN`, the web studio runs in explicitly labelled local guest mode; real Telegram login and bot command reception remain unavailable. Add the token through Replit Secrets, never in source code or chat.
 - `TELEGRAM_BOT_TRANSPORT`: defaults to `polling` in development and `webhook` in production. Production webhook setup is required for responses after publishing; autoscaling must not depend on a background poller. The bot credential must not be used by a second poller.
+- With the current shared bot token, development explicitly sets `TELEGRAM_BOT_TRANSPORT=webhook` so it does not consume production updates. Keep this development override while the published bot uses its webhook; use a separate bot token if development polling is needed. The production menu and secret-checked webhook have been configured using the verified published URL; no owner designation or paid generation was enabled.
 
 ## Stack
 
