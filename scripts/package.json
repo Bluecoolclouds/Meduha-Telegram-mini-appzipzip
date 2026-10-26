@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "hello": "tsx ./src/hello.ts",
+    "seed:home-example": "tsx ./seed-home-example.ts",
     "seed:motion-example": "tsx ./seed-motion-example.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test ./src/seed-motion-example.test.ts"
