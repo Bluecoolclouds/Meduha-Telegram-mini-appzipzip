@@ -640,6 +640,58 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/FinanceWallet" }
         "401": { description: Authenticated account required }
+  /meduha/billing/catalog:
+    get:
+      operationId: getMeduhaBillingCatalog
+      responses:
+        "200":
+          description: Current provider-neutral credit plans and exact RUB prices; payment availability is explicit
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingCatalog" }
+  /meduha/payments/orders:
+    post:
+      operationId: createMeduhaPaymentOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PaymentOrderInput" }
+      responses:
+        "201":
+          description: Checkout URL for the authenticated account's immutable provider order
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentOrderCheckout" }
+        "400": { description: "Invalid plan, term, or idempotency key" }
+        "401": { description: Authenticated Telegram account required }
+        "503": { description: Checkout disabled or provider not configured }
+  /meduha/payments/orders/{orderId}:
+    get:
+      operationId: getMeduhaPaymentOrder
+      parameters:
+        - { in: path, name: orderId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Payment status and scheduled credits for the authenticated owner
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentOrderStatus" }
+        "401": { description: Authenticated Telegram account required }
+        "404": { description: Payment order not found }
+  /meduha/payments/yookassa/webhook:
+    post:
+      operationId: receiveMeduhaYooKassaNotification
+      description: Unauthenticated provider notification; the server verifies current payment status with YooKassa before fulfillment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/YooKassaNotification" }
+      responses:
+        "200": { description: Notification handled or safely ignored }
+        "400": { description: Invalid notification body }
+        "503": { description: Provider status could not be verified; sender should retry }
   /meduha/admin/login:
     get:
       operationId: getMeduhaAdminStatus
@@ -1146,6 +1198,72 @@ components:
       in: header
       name: X-Telegram-Bot-Api-Secret-Token
   schemas:
+    BillingCatalog:
+      type: object
+      required: [currency, referenceRate, checkoutAvailable, plans]
+      properties:
+        currency: { type: string, enum: [RUB] }
+        referenceRate: { type: number }
+        checkoutAvailable: { type: boolean }
+        plans: { type: array, items: { $ref: "#/components/schemas/BillingPlan" } }
+    BillingPlan:
+      type: object
+      required: [id, name, credits, monthlyAmountMinor, termPrices]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        credits: { type: integer, minimum: 1 }
+        monthlyAmountMinor: { type: integer, minimum: 1 }
+        termPrices: { type: array, items: { $ref: "#/components/schemas/BillingTermPrice" } }
+    BillingTermPrice:
+      type: object
+      required: [months, monthlyAmountMinor, totalAmountMinor, savingsMinor]
+      properties:
+        months: { type: integer, enum: [1, 3, 12] }
+        monthlyAmountMinor: { type: integer, minimum: 1 }
+        totalAmountMinor: { type: integer, minimum: 1 }
+        savingsMinor: { type: integer, minimum: 0 }
+    PaymentOrderInput:
+      type: object
+      additionalProperties: false
+      required: [planId, termMonths, idempotencyKey]
+      properties:
+        planId: { type: string, minLength: 1, maxLength: 50 }
+        termMonths: { type: integer, enum: [1, 3, 12] }
+        idempotencyKey: { type: string, format: uuid }
+    PaymentOrderCheckout:
+      type: object
+      required: [orderId, providerId, paymentUrl, amountMinor, currency, status]
+      properties:
+        orderId: { type: string, format: uuid }
+        providerId: { type: string }
+        paymentUrl: { type: string, format: uri }
+        amountMinor: { type: integer, minimum: 1 }
+        currency: { type: string, enum: [RUB] }
+        status: { type: string, enum: [pending, succeeded, canceled, failed] }
+    PaymentOrderStatus:
+      type: object
+      required: [orderId, providerId, status, amountMinor, currency, termMonths, monthlyCredits, grantedMonths]
+      properties:
+        orderId: { type: string, format: uuid }
+        providerId: { type: string }
+        status: { type: string, enum: [pending, succeeded, canceled, failed] }
+        amountMinor: { type: integer, minimum: 1 }
+        currency: { type: string, enum: [RUB] }
+        termMonths: { type: integer, enum: [1, 3, 12] }
+        monthlyCredits: { type: integer, minimum: 1 }
+        grantedMonths: { type: integer, minimum: 0 }
+    YooKassaNotification:
+      type: object
+      required: [type, event, object]
+      properties:
+        type: { type: string, enum: [notification] }
+        event: { type: string, minLength: 1 }
+        object:
+          type: object
+          required: [id]
+          properties:
+            id: { type: string }
     VideoPricingReference:
       type: object
       required: [reviewedAt, seedanceRates, genjutsuRates, sources, notes]
@@ -2087,7 +2205,7 @@ components:
         id: { type: string }
         accountId: { type: string }
         actorId: { type: string }
-        kind: { type: string, enum: [adjustment, reserve, settlement, release, refund] }
+        kind: { type: string, enum: [adjustment, topup, reserve, settlement, release, refund] }
         delta: { type: integer }
         reservedDelta: { type: integer }
         budgetDelta: { type: integer }

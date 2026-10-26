@@ -1,68 +1,36 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { TOPUP_PACKAGES, BILLING_PERIODS, billingQuote, levelOf, resolvePackage, perCredit, usd } from './pricing.ts';
+import { BILLING_PERIODS, discountPercent, groupBillingPlans, planTierId, priceInRubles } from './pricing.ts';
 
-test('monthly reference prices are explicit USD amounts, not annual promotions', () => {
-  assert.deepEqual(TOPUP_PACKAGES.map(t => t.levels), [
-    [{ credits: 270, usd: 19 }],
-    [{ credits: 1200, usd: 59 }],
-    [{ credits: 3000, usd: 129 }, { credits: 6000, usd: 220 }, { credits: 9000, usd: 310 }],
-  ]);
+const plan = (id: string, credits: number, monthlyAmountMinor: number) => ({
+  id, name: 'Test', credits, monthlyAmountMinor,
+  termPrices: BILLING_PERIODS.map(({ months }) => ({
+    months, monthlyAmountMinor, totalAmountMinor: monthlyAmountMinor * months, savingsMinor: 0,
+  })),
 });
 
-test('Ultra selection resolves its exact volume price and preserves lower cost per credit', () => {
-  const ultra = TOPUP_PACKAGES[2];
-  assert.equal(resolvePackage(ultra, {}).usd, 129);
-  assert.equal(resolvePackage(ultra, { [ultra.id]: 1 }).usd, 220);
-  assert.deepEqual(resolvePackage(ultra, { [ultra.id]: 2 }), { id: ultra.id, note: undefined, credits: 9000, usd: 310 });
-  assert.ok(220 / 6000 < 129 / 3000);
-  assert.ok(310 / 9000 < 220 / 6000);
+test('wallet groups only plans returned by the server and keeps the exact plan IDs', () => {
+  const plans = [
+    plan('p100-270', 270, 169100),
+    plan('p300-1200', 1200, 525100),
+    plan('p1000-3000', 3000, 1148100),
+    plan('p1000-6000', 6000, 1958000),
+    plan('p1000-9000', 9000, 2759000),
+  ];
+  const groups = groupBillingPlans(plans);
+  assert.deepEqual(groups.map(group => group.id), ['p100', 'p300', 'p1000']);
+  assert.deepEqual(groups[2].levels.map(level => level.id), ['p1000-3000', 'p1000-6000', 'p1000-9000']);
+  assert.equal(planTierId('p1000-9000'), 'p1000');
+  assert.deepEqual(groupBillingPlans([]), []);
 });
 
-test('invalid selections cannot create missing or invented price levels', () => {
-  const ultra = TOPUP_PACKAGES[2];
-  assert.equal(levelOf(ultra, { [ultra.id]: -1 }), 0);
-  assert.equal(levelOf(ultra, { [ultra.id]: 99 }), 2);
-  assert.equal(levelOf(ultra, { [ultra.id]: NaN }), 0);
-  assert.equal(levelOf(ultra, { [ultra.id]: 0.5 }), 0);
-  assert.equal(resolvePackage(TOPUP_PACKAGES[1], { p300: 2 }).usd, 59);
+test('RUB formatting and server-supplied discounts use minor-unit amounts', () => {
+  assert.equal(priceInRubles(169100), '1 691 ₽');
+  assert.equal(priceInRubles(525100), '5 251 ₽');
+  assert.equal(discountPercent(525100, 12, 800400), 13);
+  assert.equal(discountPercent(169100, 1, 0), 0);
 });
 
-test('USD and price-per-credit retain useful precision', () => {
-  assert.equal(usd(129), '$129');
-  assert.equal(perCredit(resolvePackage(TOPUP_PACKAGES[2], {})), '$0,0430');
-});
-
-test('verified annual base prices and quarterly half-discounts', () => {
-  const [starter, plus, ultra] = TOPUP_PACKAGES.map(t => resolvePackage(t, {}));
-  assert.equal(billingQuote(starter, 12).monthlyUsd, 19);
-  assert.equal(billingQuote(starter, 3).discount, 0);
-  assert.equal(billingQuote(plus, 12).monthlyUsd, 47);
-  assert.equal(billingQuote(plus, 3).monthlyUsd, 53);
-  assert.equal(billingQuote(ultra, 12).monthlyUsd, 99);
-  assert.equal(billingQuote(ultra, 3).monthlyUsd, 114);
-  assert.equal(billingQuote(plus, 12).totalUsd, 564);
-  assert.equal(billingQuote(plus, 3).totalUsd, 159);
-  assert.equal(billingQuote(ultra, 12).totalUsd, 1188);
-  assert.equal(billingQuote(ultra, 3).totalUsd, 342);
-});
-
-test('all term-volume combinations reconcile to cents and preserve monthly credit quota', () => {
-  for (const tier of TOPUP_PACKAGES) for (const [index, level] of tier.levels.entries()) {
-    const pkg = resolvePackage(tier, { [tier.id]: index });
-    for (const { months } of BILLING_PERIODS) {
-      const q = billingQuote(pkg, months);
-      assert.equal(pkg.credits, level.credits);
-      assert.equal(Math.round(q.totalUsd * 100), Math.round(q.monthlyUsd * 100) * months);
-      assert.equal(Math.round((q.totalUsd + q.savingsUsd) * 100), level.usd * months * 100);
-      assert.equal(q.discount, months === 1 ? 0 : billingQuote(pkg, 12).discount * (months === 3 ? 0.5 : 1));
-      assert.equal(q.volumeCalculated, pkg.id === 'p1000' && index > 0 && months !== 1);
-    }
-  }
-});
-
-test('larger Ultra volumes apply disclosed base-tier discount, with cent rounding', () => {
-  const ultra = TOPUP_PACKAGES[2];
-  assert.equal(billingQuote(resolvePackage(ultra, { p1000: 1 }), 12).monthlyUsd, 168.84);
-  assert.equal(billingQuote(resolvePackage(ultra, { p1000: 2 }), 3).monthlyUsd, 273.95);
+test('all displayed billing terms are the one-, three-, and twelve-month choices', () => {
+  assert.deepEqual(BILLING_PERIODS.map(({ months }) => months), [1, 3, 12]);
 });

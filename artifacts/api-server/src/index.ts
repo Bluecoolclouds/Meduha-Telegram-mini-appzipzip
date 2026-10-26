@@ -4,6 +4,7 @@ import { startTelegramWorker } from './lib/telegram-worker';
 import { startTemplateUploadCleanupWorker } from './lib/template-upload-cleanup-worker';
 import { startMeduhaAdminCleanupWorker } from './lib/meduha-admin-cleanup-worker';
 import { startGenerationWorker } from './lib/generation-worker';
+import { startPaymentCreditWorker } from './lib/payment-credit-worker';
 import { pool } from '@workspace/db';
 import { registerPhotoModels } from './routes/meduha-photo';
 import { registerVideoModels } from './routes/meduha-video';
@@ -36,11 +37,13 @@ const stopTelegram=startTelegramWorker();
 const stopTemplateUploadCleanup=startTemplateUploadCleanupWorker();
 const stopMeduhaAdminCleanup=startMeduhaAdminCleanupWorker(logger);
 const stopGenerationWorker=startGenerationWorker();
+const stopPaymentCreditWorker=startPaymentCreditWorker();
 function shutdown(){
   stopTelegram();
   stopTemplateUploadCleanup();
   stopMeduhaAdminCleanup();
   stopGenerationWorker();
+  stopPaymentCreditWorker();
   server.close(()=>{void pool.end().finally(()=>process.exit(0));});
   setTimeout(()=>process.exit(0),5000).unref();
 }

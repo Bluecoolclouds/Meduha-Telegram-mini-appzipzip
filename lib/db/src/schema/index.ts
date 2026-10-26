@@ -22,3 +22,4 @@ export * from './templates';
 export * from './finance';
 export * from './admin';
 export * from './generations';
+export * from './payments';

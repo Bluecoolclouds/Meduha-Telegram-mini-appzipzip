@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { ArrowLeft, RotateCw, ShieldCheck, Zap } from 'lucide-react';
 import { TopupSheet } from './TopupSheet';
-import { getGetMeduhaBootstrapQueryKey, getGetMeduhaWalletQueryKey, useGetMeduhaWallet } from '@workspace/api-client-react';
+import { getGetMeduhaBootstrapQueryKey, getGetMeduhaPaymentOrderQueryKey, getGetMeduhaWalletQueryKey, useGetMeduhaPaymentOrder, useGetMeduhaWallet } from '@workspace/api-client-react';
 import type { FinanceLedgerEntry, FinanceReservation } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Frame } from '../shared';
@@ -10,7 +10,7 @@ import { meduhaErrorMessage, useMeduhaSession } from '../session';
 import './wallet.css';
 
 const PAGE = 30;
-const kind: Record<string, string> = { adjustment: 'Корректировка', reserve: 'Резерв', settlement: 'Списание', release: 'Освобождение резерва', refund: 'Возврат' };
+const kind: Record<string, string> = { adjustment: 'Корректировка', topup: 'Пополнение', reserve: 'Резерв', settlement: 'Списание', release: 'Освобождение резерва', refund: 'Возврат' };
 const resLabel: Record<string, string> = { held: 'удержано', settled: 'списано', released: 'освобождено', refunded: 'возвращено' };
 const int = (n: unknown) => (typeof n === 'number' && Number.isFinite(n) ? n.toLocaleString('ru-RU') : '—');
 const date = (v: string) => { const d = new Date(v); return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
@@ -19,25 +19,53 @@ export default function Wallet() {
   const session = useMeduhaSession(); const qc = useQueryClient();
   const authed = session.phase === 'authenticated';
   const [offset, setOffset] = useState(0); const [topup, setTopup] = useState(false); const params = { limit: PAGE, offset };
+  const returnedOrderId = new URLSearchParams(window.location.search).get('payment_order');
   const q = useGetMeduhaWallet(params, { request: { credentials: 'same-origin' }, query: { queryKey: getGetMeduhaWalletQueryKey(params), placeholderData: prev => prev, enabled: authed, staleTime: 10_000, refetchOnWindowFocus: true } });
+  const payment = useGetMeduhaPaymentOrder(returnedOrderId ?? '', {
+    request: { credentials: 'same-origin' },
+    query: {
+      queryKey: getGetMeduhaPaymentOrderQueryKey(returnedOrderId ?? ''),
+      enabled: authed && !!returnedOrderId,
+      refetchInterval: query => {
+        const order = query.state.data;
+        return order?.status === 'pending' || (order?.status === 'succeeded' && order.grantedMonths < 1) ? 5000 : false;
+      },
+    },
+  });
   const w = q.data;
   // Keep the shell balance consistent with the authoritative wallet balance.
   useEffect(() => { if (w && session.account && w.balance !== session.account.credits) void qc.invalidateQueries({ queryKey: getGetMeduhaBootstrapQueryKey() }); }, [w, session.account, qc]);
+  useEffect(() => {
+    if (payment.data?.status === 'succeeded' && payment.data.grantedMonths > 0) {
+      void q.refetch();
+      void qc.invalidateQueries({ queryKey: getGetMeduhaBootstrapQueryKey() });
+    }
+  }, [payment.data?.status, payment.data?.grantedMonths, q.refetch, qc]);
   const ledger: FinanceLedgerEntry[] = Array.isArray(w?.ledger) ? w!.ledger : [];
   const reservations: FinanceReservation[] = Array.isArray(w?.reservations) ? w!.reservations : [];
   const total = Math.max(w?.pagination?.totalLedger ?? 0, w?.pagination?.totalReservations ?? 0);
   return <Frame active="Profile">
     <Link href="/profile" className="mw-back" data-testid="link-wallet-back"><ArrowLeft size={15} />Профиль</Link>
     <h1 className="mw-title">Кошелёк</h1>
-    {!authed ? <div className="m-info-note" style={{ display: 'grid', gap: 10 }}><span><ShieldCheck size={14} style={{ verticalAlign: '-2px' }} /> История операций доступна только для подтверждённого аккаунта Telegram.</span>{session.phase === 'guest' && session.telegram && <button className="m-startup-action" onClick={session.reauthenticate}>Подтвердить аккаунт</button>}<button className="m-startup-guest" onClick={() => setTopup(true)} data-testid="button-wallet-topup-guest">Посмотреть пакеты · тест</button></div>
+    {returnedOrderId && authed && <div className="m-info-note" role="status" data-testid="status-payment-return">
+      {payment.isLoading ? 'Проверяем платёж…'
+        : payment.isError ? 'Не удалось проверить платёж. Обнови страницу или проверь историю кошелька позже.'
+          : payment.data?.status === 'pending' ? 'Ждём подтверждение платёжного провайдера. Баланс обновится автоматически.'
+            : payment.data?.status === 'succeeded' && payment.data.grantedMonths === 0 ? 'Платёж подтверждён. Готовим первое ежемесячное начисление…'
+              : payment.data?.status === 'succeeded' ? `Платёж подтверждён: начислено ${int(payment.data.monthlyCredits)} кредитов за ${int(payment.data.grantedMonths)} из ${int(payment.data.termMonths)} месяцев.`
+                : payment.data?.status === 'canceled' ? 'Платёж отменён. Баланс не изменён.'
+                  : payment.data?.status === 'failed' ? 'Платёж не завершён. Баланс не изменён.'
+                    : 'Проверяем статус платёжного заказа…'}
+    </div>}
+     {!authed ? <div className="m-info-note" style={{ display: 'grid', gap: 10 }}><span><ShieldCheck size={14} style={{ verticalAlign: '-2px' }} /> История операций доступна только для подтверждённого аккаунта Telegram.</span>{session.phase === 'guest' && session.telegram && <button className="m-startup-action" onClick={session.reauthenticate}>Подтвердить аккаунт</button>}<button className="m-startup-guest" onClick={() => setTopup(true)} data-testid="button-wallet-topup-guest">Посмотреть тарифы</button></div>
       : q.isLoading ? <div className="mw-skel" aria-busy="true"><i /><i /><i /><i /></div>
       : q.isError || !w ? <div className="m-info-note" role="alert">{meduhaErrorMessage(q.error)}<button className="m-startup-action" style={{ marginTop: 10 }} onClick={() => void q.refetch()}><RotateCw size={14} />Повторить</button></div>
       : <>
         <div className="mw-balance" data-testid="text-wallet-balance"><small>Баланс</small><strong>{int(w.balance)}</strong><span>кредитов</span>
           <div className="mw-split"><div><small>Доступно</small><b>{int(w.available)}</b></div><div><small>Удержано</small><b>{int(w.reserved)}</b></div></div>
         </div>
-        <p className="mw-note">Кредиты — внутренние единицы студии, не рубли. Пополнение пока только тестовое: оплата не принимается, кредиты не начисляются.</p>
-        <button className="m-startup-action" style={{ width: '100%', justifyContent: 'center', marginBottom: 14 }} onClick={() => setTopup(true)} data-testid="button-wallet-topup"><Zap size={14} fill="currentColor" />Пополнить · тест</button>
+         <p className="mw-note">Кредиты — внутренние единицы студии, не рубли. Оплата доступна только после настройки и проверки платёжного провайдера.</p>
+         <button className="m-startup-action" style={{ width: '100%', justifyContent: 'center', marginBottom: 14 }} onClick={() => setTopup(true)} data-testid="button-wallet-topup"><Zap size={14} fill="currentColor" />Тарифы и пополнение</button>
         {reservations.length > 0 && <><h2 className="mw-h2">Резервы <small>{int(w.pagination?.totalReservations)}</small></h2><div className="mw-list">{reservations.map(r => <div key={r.id} className="mw-row"><div><strong>{r.reason || 'Резерв'}</strong><small>{date(r.createdAt)} · {resLabel[r.status]}</small></div><b>{int(r.amount)}</b></div>)}</div></>}
         <h2 className="mw-h2">История операций <small>{int(w.pagination?.totalLedger)}</small></h2>
         {ledger.length === 0 ? <div className="m-info-note">Операций пока нет. Текущий баланс — начальный; история начнётся с первой операции.</div>

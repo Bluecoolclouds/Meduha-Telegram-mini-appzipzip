@@ -11,6 +11,7 @@ export type FinanceLedgerEntryKind = typeof FinanceLedgerEntryKind[keyof typeof 
 
 export const FinanceLedgerEntryKind = {
   adjustment: 'adjustment',
+  topup: 'topup',
   reserve: 'reserve',
   settlement: 'settlement',
   release: 'release',

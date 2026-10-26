@@ -48,6 +48,7 @@ import type {
   AdminUserBlockState,
   AdminUserDetail,
   AdminUserPage,
+  BillingCatalog,
   CompleteTemplateUpload200,
   FinanceMutationResult,
   FinanceSettings,
@@ -86,6 +87,9 @@ import type {
   MeduhaSession,
   MeduhaWork,
   ModelCatalogPriceList,
+  PaymentOrderCheckout,
+  PaymentOrderInput,
+  PaymentOrderStatus,
   PhotoCatalog,
   PhotoGenerationInput,
   PhotoQuote,
@@ -109,7 +113,8 @@ import type {
   VideoGenerationInput,
   VideoPriceQuote,
   VideoPriceQuoteInput,
-  VideoPricingReference
+  VideoPricingReference,
+  YooKassaNotification
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -3476,6 +3481,315 @@ export function useGetMeduhaWallet<TData = Awaited<ReturnType<typeof getMeduhaWa
 
 
 
+
+export const getGetMeduhaBillingCatalogUrl = () => {
+
+
+
+
+  return `/api/meduha/billing/catalog`
+}
+
+export const getMeduhaBillingCatalog = async ( options?: Parameters<typeof customFetch>[1]): Promise<BillingCatalog> => {
+
+  return customFetch<BillingCatalog>(getGetMeduhaBillingCatalogUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMeduhaBillingCatalogQueryKey = () => {
+    return [
+    `/api/meduha/billing/catalog`
+    ] as const;
+    }
+
+
+export const getGetMeduhaBillingCatalogQueryOptions = <TData = Awaited<ReturnType<typeof getMeduhaBillingCatalog>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMeduhaBillingCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMeduhaBillingCatalogQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMeduhaBillingCatalog>>> = ({ signal }) => getMeduhaBillingCatalog({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMeduhaBillingCatalog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMeduhaBillingCatalogQueryResult = NonNullable<Awaited<ReturnType<typeof getMeduhaBillingCatalog>>>
+export type GetMeduhaBillingCatalogQueryError = ErrorType<unknown>
+
+
+
+export function useGetMeduhaBillingCatalog<TData = Awaited<ReturnType<typeof getMeduhaBillingCatalog>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMeduhaBillingCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMeduhaBillingCatalogQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateMeduhaPaymentOrderUrl = () => {
+
+
+
+
+  return `/api/meduha/payments/orders`
+}
+
+export const createMeduhaPaymentOrder = async (paymentOrderInput: PaymentOrderInput, options?: Parameters<typeof customFetch>[1]): Promise<PaymentOrderCheckout> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<PaymentOrderCheckout>(getCreateMeduhaPaymentOrderUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(paymentOrderInput)
+  }
+);}
+
+
+
+
+
+export const getCreateMeduhaPaymentOrderMutationKey = () => ['createMeduhaPaymentOrder'] as const;
+
+export const getCreateMeduhaPaymentOrderMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMeduhaPaymentOrder>>, TError,CreateMeduhaPaymentOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMeduhaPaymentOrder>>, TError,CreateMeduhaPaymentOrderMutationVariables, TContext> => {
+
+const mutationKey = getCreateMeduhaPaymentOrderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMeduhaPaymentOrder>>, CreateMeduhaPaymentOrderMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMeduhaPaymentOrder(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMeduhaPaymentOrderMutationResult = NonNullable<Awaited<ReturnType<typeof createMeduhaPaymentOrder>>>
+    export type CreateMeduhaPaymentOrderMutationBody = BodyType<PaymentOrderInput>
+    export type CreateMeduhaPaymentOrderMutationError = ErrorType<void>
+    export type CreateMeduhaPaymentOrderMutationVariables = {data: BodyType<PaymentOrderInput>}
+
+    export const useCreateMeduhaPaymentOrder = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMeduhaPaymentOrder>>, TError,CreateMeduhaPaymentOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createMeduhaPaymentOrder>>,
+        TError,
+        CreateMeduhaPaymentOrderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMeduhaPaymentOrderMutationOptions(options));
+    }
+
+export const getGetMeduhaPaymentOrderUrl = (orderId: string,) => {
+
+
+
+
+  return `/api/meduha/payments/orders/${orderId}`
+}
+
+export const getMeduhaPaymentOrder = async (orderId: string, options?: Parameters<typeof customFetch>[1]): Promise<PaymentOrderStatus> => {
+
+  return customFetch<PaymentOrderStatus>(getGetMeduhaPaymentOrderUrl(orderId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMeduhaPaymentOrderQueryKey = (orderId: string,) => {
+    return [
+    `/api/meduha/payments/orders/${orderId}`
+    ] as const;
+    }
+
+
+export const getGetMeduhaPaymentOrderQueryOptions = <TData = Awaited<ReturnType<typeof getMeduhaPaymentOrder>>, TError = ErrorType<void>>(orderId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMeduhaPaymentOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMeduhaPaymentOrderQueryKey(orderId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMeduhaPaymentOrder>>> = ({ signal }) => getMeduhaPaymentOrder(orderId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: orderId !== null && orderId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMeduhaPaymentOrder>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMeduhaPaymentOrderQueryResult = NonNullable<Awaited<ReturnType<typeof getMeduhaPaymentOrder>>>
+export type GetMeduhaPaymentOrderQueryError = ErrorType<void>
+
+
+
+export function useGetMeduhaPaymentOrder<TData = Awaited<ReturnType<typeof getMeduhaPaymentOrder>>, TError = ErrorType<void>>(
+ orderId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMeduhaPaymentOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMeduhaPaymentOrderQueryOptions(orderId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReceiveMeduhaYooKassaNotificationUrl = () => {
+
+
+
+
+  return `/api/meduha/payments/yookassa/webhook`
+}
+
+/**
+ * Unauthenticated provider notification; the server verifies current payment status with YooKassa before fulfillment.
+ */
+export const receiveMeduhaYooKassaNotification = async (yooKassaNotification: YooKassaNotification, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<void>(getReceiveMeduhaYooKassaNotificationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(yooKassaNotification)
+  }
+);}
+
+
+
+
+
+export const getReceiveMeduhaYooKassaNotificationMutationKey = () => ['receiveMeduhaYooKassaNotification'] as const;
+
+export const getReceiveMeduhaYooKassaNotificationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveMeduhaYooKassaNotification>>, TError,ReceiveMeduhaYooKassaNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof receiveMeduhaYooKassaNotification>>, TError,ReceiveMeduhaYooKassaNotificationMutationVariables, TContext> => {
+
+const mutationKey = getReceiveMeduhaYooKassaNotificationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof receiveMeduhaYooKassaNotification>>, ReceiveMeduhaYooKassaNotificationMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  receiveMeduhaYooKassaNotification(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReceiveMeduhaYooKassaNotificationMutationResult = NonNullable<Awaited<ReturnType<typeof receiveMeduhaYooKassaNotification>>>
+    export type ReceiveMeduhaYooKassaNotificationMutationBody = BodyType<YooKassaNotification>
+    export type ReceiveMeduhaYooKassaNotificationMutationError = ErrorType<void>
+    export type ReceiveMeduhaYooKassaNotificationMutationVariables = {data: BodyType<YooKassaNotification>}
+
+    export const useReceiveMeduhaYooKassaNotification = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveMeduhaYooKassaNotification>>, TError,ReceiveMeduhaYooKassaNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof receiveMeduhaYooKassaNotification>>,
+        TError,
+        ReceiveMeduhaYooKassaNotificationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReceiveMeduhaYooKassaNotificationMutationOptions(options));
+    }
 
 export const getGetMeduhaAdminStatusUrl = () => {
 

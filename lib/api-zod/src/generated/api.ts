@@ -1551,7 +1551,7 @@ export const GetMeduhaWalletResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -1584,6 +1584,95 @@ export const GetMeduhaWalletResponse = zod.object({
   "totalReservations": zod.number().int()
 })
 })
+
+
+
+
+
+
+export const getMeduhaBillingCatalogResponsePlansItemTermPricesItemSavingsMinorMin = 0;
+
+
+
+export const GetMeduhaBillingCatalogResponse = zod.object({
+  "currency": zod.enum(['RUB']),
+  "referenceRate": zod.number(),
+  "checkoutAvailable": zod.boolean(),
+  "plans": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "credits": zod.number().int().min(1),
+  "monthlyAmountMinor": zod.number().int().min(1),
+  "termPrices": zod.array(zod.object({
+  "months": zod.union([zod.literal(1),zod.literal(3),zod.literal(12)]),
+  "monthlyAmountMinor": zod.number().int().min(1),
+  "totalAmountMinor": zod.number().int().min(1),
+  "savingsMinor": zod.number().int().min(getMeduhaBillingCatalogResponsePlansItemTermPricesItemSavingsMinorMin)
+}))
+}))
+})
+
+
+export const createMeduhaPaymentOrderBodyPlanIdMax = 50;
+
+
+
+export const CreateMeduhaPaymentOrderBody = zod.object({
+  "planId": zod.string().min(1).max(createMeduhaPaymentOrderBodyPlanIdMax),
+  "termMonths": zod.union([zod.literal(1),zod.literal(3),zod.literal(12)]),
+  "idempotencyKey": zod.string().uuid()
+})
+
+
+
+
+export const CreateMeduhaPaymentOrderResponse = zod.object({
+  "orderId": zod.string().uuid(),
+  "providerId": zod.string(),
+  "paymentUrl": zod.string().url(),
+  "amountMinor": zod.number().int().min(1),
+  "currency": zod.enum(['RUB']),
+  "status": zod.enum(['pending', 'succeeded', 'canceled', 'failed'])
+})
+
+
+export const GetMeduhaPaymentOrderParams = zod.object({
+  "orderId": zod.coerce.string().uuid()
+})
+
+
+
+export const getMeduhaPaymentOrderResponseGrantedMonthsMin = 0;
+
+
+
+export const GetMeduhaPaymentOrderResponse = zod.object({
+  "orderId": zod.string().uuid(),
+  "providerId": zod.string(),
+  "status": zod.enum(['pending', 'succeeded', 'canceled', 'failed']),
+  "amountMinor": zod.number().int().min(1),
+  "currency": zod.enum(['RUB']),
+  "termMonths": zod.union([zod.literal(1),zod.literal(3),zod.literal(12)]),
+  "monthlyCredits": zod.number().int().min(1),
+  "grantedMonths": zod.number().int().min(getMeduhaPaymentOrderResponseGrantedMonthsMin)
+})
+
+
+/**
+ * Unauthenticated provider notification; the server verifies current payment status with YooKassa before fulfillment.
+ */
+
+
+
+export const ReceiveMeduhaYooKassaNotificationBody = zod.object({
+  "type": zod.enum(['notification']),
+  "event": zod.string().min(1),
+  "object": zod.object({
+  "id": zod.string()
+})
+})
+
+export const ReceiveMeduhaYooKassaNotificationResponse = zod.unknown()
 
 
 export const GetMeduhaAdminStatusResponse = zod.object({
@@ -2421,7 +2510,7 @@ export const GetAdminUserResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -2506,7 +2595,7 @@ export const GetAdminWalletResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -2879,7 +2968,7 @@ export const ListAdminLedgerResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -2935,7 +3024,7 @@ export const AdjustAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -2972,7 +3061,7 @@ export const AdjustAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3045,7 +3134,7 @@ export const ReserveAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3082,7 +3171,7 @@ export const ReserveAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3154,7 +3243,7 @@ export const SettleAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3191,7 +3280,7 @@ export const SettleAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3263,7 +3352,7 @@ export const ReleaseAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3300,7 +3389,7 @@ export const ReleaseAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3372,7 +3461,7 @@ export const RefundAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),
@@ -3409,7 +3498,7 @@ export const RefundAdminCreditsResponse = zod.object({
   "id": zod.string(),
   "accountId": zod.string(),
   "actorId": zod.string(),
-  "kind": zod.enum(['adjustment', 'reserve', 'settlement', 'release', 'refund']),
+  "kind": zod.enum(['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund']),
   "delta": zod.number().int(),
   "reservedDelta": zod.number().int(),
   "budgetDelta": zod.number().int(),

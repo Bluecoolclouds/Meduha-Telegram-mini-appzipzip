@@ -7,7 +7,7 @@ export const meduhaFinanceLedger = pgTable('meduha_finance_ledger', {
   id: text('id').primaryKey(),
   accountId: text('account_id').notNull().references(() => meduhaAccounts.id),
   actorId: text('actor_id').notNull(),
-  kind: text('kind', { enum: ['adjustment', 'reserve', 'settlement', 'release', 'refund'] }).notNull(),
+  kind: text('kind', { enum: ['adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund'] }).notNull(),
   delta: integer('delta').notNull().default(0),
   reservedDelta: integer('reserved_delta').notNull().default(0),
   budgetDelta: integer('budget_delta').notNull().default(0),
@@ -20,7 +20,7 @@ export const meduhaFinanceLedger = pgTable('meduha_finance_ledger', {
   uniqueIndex('meduha_finance_ledger_idempotency_uq').on(table.idempotencyKey),
   index('meduha_finance_ledger_account_created_idx').on(table.accountId, table.createdAt),
   index('meduha_finance_ledger_budget_day_idx').on(table.budgetDay),
-  check('meduha_finance_ledger_kind_check', sql`${table.kind} in ('adjustment', 'reserve', 'settlement', 'release', 'refund')`),
+  check('meduha_finance_ledger_kind_check', sql`${table.kind} in ('adjustment', 'topup', 'reserve', 'settlement', 'release', 'refund')`),
 ]);
 export const insertMeduhaFinanceLedgerSchema = createInsertSchema(meduhaFinanceLedger).omit({ createdAt: true });
 export type MeduhaFinanceLedgerRow = typeof meduhaFinanceLedger.$inferSelect;

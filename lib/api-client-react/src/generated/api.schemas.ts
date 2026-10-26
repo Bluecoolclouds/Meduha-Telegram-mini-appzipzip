@@ -5,6 +5,153 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type BillingCatalogCurrency = typeof BillingCatalogCurrency[keyof typeof BillingCatalogCurrency];
+
+
+export const BillingCatalogCurrency = {
+  RUB: 'RUB',
+} as const;
+
+export type BillingTermPriceMonths = typeof BillingTermPriceMonths[keyof typeof BillingTermPriceMonths];
+
+
+export const BillingTermPriceMonths = {
+  NUMBER_1: 1,
+  NUMBER_3: 3,
+  NUMBER_12: 12,
+} as const;
+
+export interface BillingTermPrice {
+  months: BillingTermPriceMonths;
+  /** @minimum 1 */
+  monthlyAmountMinor: number;
+  /** @minimum 1 */
+  totalAmountMinor: number;
+  /** @minimum 0 */
+  savingsMinor: number;
+}
+
+export interface BillingPlan {
+  id: string;
+  name: string;
+  /** @minimum 1 */
+  credits: number;
+  /** @minimum 1 */
+  monthlyAmountMinor: number;
+  termPrices: BillingTermPrice[];
+}
+
+export interface BillingCatalog {
+  currency: BillingCatalogCurrency;
+  referenceRate: number;
+  checkoutAvailable: boolean;
+  plans: BillingPlan[];
+}
+
+export type PaymentOrderInputTermMonths = typeof PaymentOrderInputTermMonths[keyof typeof PaymentOrderInputTermMonths];
+
+
+export const PaymentOrderInputTermMonths = {
+  NUMBER_1: 1,
+  NUMBER_3: 3,
+  NUMBER_12: 12,
+} as const;
+
+export interface PaymentOrderInput {
+  /**
+     * @minLength 1
+     * @maxLength 50
+     */
+  planId: string;
+  termMonths: PaymentOrderInputTermMonths;
+  idempotencyKey: string;
+}
+
+export type PaymentOrderCheckoutCurrency = typeof PaymentOrderCheckoutCurrency[keyof typeof PaymentOrderCheckoutCurrency];
+
+
+export const PaymentOrderCheckoutCurrency = {
+  RUB: 'RUB',
+} as const;
+
+export type PaymentOrderCheckoutStatus = typeof PaymentOrderCheckoutStatus[keyof typeof PaymentOrderCheckoutStatus];
+
+
+export const PaymentOrderCheckoutStatus = {
+  pending: 'pending',
+  succeeded: 'succeeded',
+  canceled: 'canceled',
+  failed: 'failed',
+} as const;
+
+export interface PaymentOrderCheckout {
+  orderId: string;
+  providerId: string;
+  paymentUrl: string;
+  /** @minimum 1 */
+  amountMinor: number;
+  currency: PaymentOrderCheckoutCurrency;
+  status: PaymentOrderCheckoutStatus;
+}
+
+export type PaymentOrderStatusStatus = typeof PaymentOrderStatusStatus[keyof typeof PaymentOrderStatusStatus];
+
+
+export const PaymentOrderStatusStatus = {
+  pending: 'pending',
+  succeeded: 'succeeded',
+  canceled: 'canceled',
+  failed: 'failed',
+} as const;
+
+export type PaymentOrderStatusCurrency = typeof PaymentOrderStatusCurrency[keyof typeof PaymentOrderStatusCurrency];
+
+
+export const PaymentOrderStatusCurrency = {
+  RUB: 'RUB',
+} as const;
+
+export type PaymentOrderStatusTermMonths = typeof PaymentOrderStatusTermMonths[keyof typeof PaymentOrderStatusTermMonths];
+
+
+export const PaymentOrderStatusTermMonths = {
+  NUMBER_1: 1,
+  NUMBER_3: 3,
+  NUMBER_12: 12,
+} as const;
+
+export interface PaymentOrderStatus {
+  orderId: string;
+  providerId: string;
+  status: PaymentOrderStatusStatus;
+  /** @minimum 1 */
+  amountMinor: number;
+  currency: PaymentOrderStatusCurrency;
+  termMonths: PaymentOrderStatusTermMonths;
+  /** @minimum 1 */
+  monthlyCredits: number;
+  /** @minimum 0 */
+  grantedMonths: number;
+}
+
+export type YooKassaNotificationType = typeof YooKassaNotificationType[keyof typeof YooKassaNotificationType];
+
+
+export const YooKassaNotificationType = {
+  notification: 'notification',
+} as const;
+
+export type YooKassaNotificationObject = {
+  id: string;
+};
+
+export interface YooKassaNotification {
+  type: YooKassaNotificationType;
+  /** @minLength 1 */
+  event: string;
+  object: YooKassaNotificationObject;
+}
+
 export type VideoTokenRateResolution = typeof VideoTokenRateResolution[keyof typeof VideoTokenRateResolution];
 
 
@@ -1276,6 +1423,7 @@ export type FinanceLedgerEntryKind = typeof FinanceLedgerEntryKind[keyof typeof 
 
 export const FinanceLedgerEntryKind = {
   adjustment: 'adjustment',
+  topup: 'topup',
   reserve: 'reserve',
   settlement: 'settlement',
   release: 'release',
