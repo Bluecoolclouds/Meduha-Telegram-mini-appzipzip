@@ -1,0 +1,92 @@
+{
+  "example-genjutsu-motion-transfer": {
+    "thumb": {
+      "object": "curated-feed/v1/2aee01c52464b76e83eeffc1a51214087d611f69e90f93cdaa696ddbbb9d99ab.webp",
+      "generation": "1793051871066468",
+      "size": 6718,
+      "sha256": "2aee01c52464b76e83eeffc1a51214087d611f69e90f93cdaa696ddbbb9d99ab"
+    },
+    "preview": {
+      "object": "curated-feed/v1/b6b9652bd497e773ac19dd576f901ad6b6fd5fb9870ad593ed6d3fd88c9d7b36.mp4",
+      "generation": "1793051875492707",
+      "size": 74690,
+      "sha256": "b6b9652bd497e773ac19dd576f901ad6b6fd5fb9870ad593ed6d3fd88c9d7b36"
+    }
+  },
+  "example-fantasy-film": {
+    "thumb": {
+      "object": "curated-feed/v1/6ab57a1678edaa3eed3f83b6080a60ec4cd297d2c95f028312f2d8cf8c6b7dcd.webp",
+      "generation": "1793051880152810",
+      "size": 3178,
+      "sha256": "6ab57a1678edaa3eed3f83b6080a60ec4cd297d2c95f028312f2d8cf8c6b7dcd"
+    },
+    "preview": {
+      "object": "curated-feed/v1/80141be3dec561ecf94a635523d6951d9ccb64afb6028c19945fa60d9896e9d0.mp4",
+      "generation": "1793051884066903",
+      "size": 39112,
+      "sha256": "80141be3dec561ecf94a635523d6951d9ccb64afb6028c19945fa60d9896e9d0"
+    }
+  },
+  "example-space": {
+    "thumb": {
+      "object": "curated-feed/v1/778a0d5e3f8c555f71376b665e119ba1f08be0f97e9fac6d54c649b210128d2e.webp",
+      "generation": "1793051934967825",
+      "size": 42122,
+      "sha256": "778a0d5e3f8c555f71376b665e119ba1f08be0f97e9fac6d54c649b210128d2e"
+    }
+  },
+  "example-flower-film": {
+    "thumb": {
+      "object": "curated-feed/v1/7489b9f200137635bf907c11480e356e5c4b2e69649c04b4648a4f64fcbdca38.webp",
+      "generation": "1793051938774183",
+      "size": 10694,
+      "sha256": "7489b9f200137635bf907c11480e356e5c4b2e69649c04b4648a4f64fcbdca38"
+    },
+    "preview": {
+      "object": "curated-feed/v1/97ddf800799538243e236f2be8d54dfe442a1efd95f128b8ffd4ed36c9f269c9.mp4",
+      "generation": "1793051888716870",
+      "size": 40706,
+      "sha256": "97ddf800799538243e236f2be8d54dfe442a1efd95f128b8ffd4ed36c9f269c9"
+    }
+  },
+  "example-portrait": {
+    "thumb": {
+      "object": "curated-feed/v1/df0f448e8a7b97948bcc1d8e9c1096004ac5381471fa42667b0e25f2c3ae29c3.webp",
+      "generation": "1793051947189154",
+      "size": 16844,
+      "sha256": "df0f448e8a7b97948bcc1d8e9c1096004ac5381471fa42667b0e25f2c3ae29c3"
+    }
+  },
+  "example-car": {
+    "thumb": {
+      "object": "curated-feed/v1/1622ef64ff0c64f84bb0a1f63eb1457de3c9e912e67019ae3ad78e174ae303c9.webp",
+      "generation": "1793051951698163",
+      "size": 20654,
+      "sha256": "1622ef64ff0c64f84bb0a1f63eb1457de3c9e912e67019ae3ad78e174ae303c9"
+    }
+  },
+  "example-city": {
+    "thumb": {
+      "object": "curated-feed/v1/8eb1a934e96492e20a6f7d78a2b42278b72ae5af2304299f19aa695838ff7c0d.webp",
+      "generation": "1793051955584097",
+      "size": 37882,
+      "sha256": "8eb1a934e96492e20a6f7d78a2b42278b72ae5af2304299f19aa695838ff7c0d"
+    }
+  },
+  "example-mountain": {
+    "thumb": {
+      "object": "curated-feed/v1/3250ba62074da4f6d8c0f484cd2b0fec57254bedffc7cb8e2b843ed761bda109.webp",
+      "generation": "1793051960244317",
+      "size": 23254,
+      "sha256": "3250ba62074da4f6d8c0f484cd2b0fec57254bedffc7cb8e2b843ed761bda109"
+    }
+  },
+  "example-perfume": {
+    "thumb": {
+      "object": "curated-feed/v1/34ac48bf5c53b5fc5fd471ac7e7d3a88512bc7b6ccbc5ad7dfe307adbfa71065.webp",
+      "generation": "1793051964032967",
+      "size": 20772,
+      "sha256": "34ac48bf5c53b5fc5fd471ac7e7d3a88512bc7b6ccbc5ad7dfe307adbfa71065"
+    }
+  }
+}

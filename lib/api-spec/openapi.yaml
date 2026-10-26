@@ -445,10 +445,12 @@ paths:
     get:
       operationId: getFeedMedia
       tags: [templates]
-      summary: Small cached media for published community cards; originals remain unchanged
+      summary: Small previews for published community cards and allowlisted public examples
+      description: User media always rechecks publication before conditional/range responses and remains private, no-cache. Only curated examples use a fixed manifest; the exact v hash enables public immutable caching. Originals remain unchanged.
       parameters:
         - { name: id, in: path, required: true, schema: { type: string } }
         - { name: variant, in: path, required: true, schema: { type: string, enum: [thumb, preview] } }
+        - { name: v, in: query, description: SHA-256 version for curated examples only; a mismatched curated version returns 404, schema: { type: string } }
         - { name: Range, in: header, schema: { type: string } }
         - { name: If-None-Match, in: header, schema: { type: string } }
       responses:
@@ -461,7 +463,7 @@ paths:
           description: Partial preview content
           content:
             video/mp4: { schema: { type: string, format: binary } }
-        "304": { description: Unchanged preview; publication access is still checked }
+        "304": { description: "Unchanged preview; user publication access is still checked, curated examples use the fixed public manifest" }
         "404": { description: Work is not published or has no such media }
         "416": { description: Invalid byte range }
         "503": { description: Preview is being prepared or media processing is unavailable }

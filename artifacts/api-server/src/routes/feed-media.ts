@@ -8,6 +8,9 @@ import { createHash } from 'node:crypto';
 import { db, meduhaTemplates } from '@workspace/db';
 import { motionAssets, motionExample } from '../lib/motion-example';
 import { createFeedVariant, variantFile, type FeedSource, type FeedVariant } from '../lib/feed-media';
+import { curatedAsset, serveCurated } from '../lib/curated-feed';
+import { byteRange } from '../lib/feed-range';
+export { byteRange } from '../lib/feed-range';
 
 const cdn = 'https://media.w3.org/2010/05/sintel/';
 const examplePhotos: Record<string, string> = {
@@ -15,6 +18,8 @@ const examplePhotos: Record<string, string> = {
   'example-portrait': 'portrait', 'example-car': 'car', 'example-city': 'city',
   'example-mountain': 'mountain', 'example-perfume': 'perfume',
 };
+// Offline preparation only; request-time curated serving uses the manifest.
+export const curatedExampleIds = [motionExample.id, 'example-fantasy-film', ...Object.keys(examplePhotos)];
 const localKeys = new Map<string, { stamp: string; key: string }>();
 async function localImage(relative: string): Promise<FeedSource | null> {
   // Only stored image paths, never request-supplied filesystem paths.
@@ -42,8 +47,9 @@ type Dependencies = {
   findPublished?: typeof findPublishedTemplate;
   prepare?: typeof createFeedVariant;
   file?: typeof variantFile;
+  readCurated?: Parameters<typeof serveCurated>[4];
 };
-async function sourceFor(id: string, variant: FeedVariant, findPublished = findPublishedTemplate): Promise<FeedSource | null> {
+export async function sourceFor(id: string, variant: FeedVariant, findPublished = findPublishedTemplate): Promise<FeedSource | null> {
   if (id === motionExample.id) {
     const objectId = motionAssets[variant === 'thumb' ? 'motion-poster.jpg' : 'motion-result.mp4'].id;
     return { key: objectId, objectId };
@@ -56,7 +62,7 @@ async function sourceFor(id: string, variant: FeedVariant, findPublished = findP
     const url = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm';
     return { key: url, url };
   }
-  if (examplePhotos[id]) return variant === 'thumb' ? localImage(`images/meduha/${examplePhotos[id]}.png`) : null;
+  if (Object.hasOwn(examplePhotos, id)) return variant === 'thumb' ? localImage(`images/meduha/${examplePhotos[id]}.png`) : null;
   if (!/^[a-f0-9-]{36}$/i.test(id)) return null;
   // Check publication before every response, including cached derivatives and
   // conditional requests. A private or revoked work must never leak its preview.
@@ -69,24 +75,19 @@ async function sourceFor(id: string, variant: FeedVariant, findPublished = findP
   return variant === 'thumb' ? localImage(raw) : null;
 }
 
-export function byteRange(value: string | undefined, size: number): { start: number; end: number } | null {
-  if (!value) return { start: 0, end: size - 1 };
-  const m = /^bytes=(\d*)-(\d*)$/.exec(value);
-  if (!m || (!m[1] && !m[2])) return null;
-  if ([m[1], m[2]].some(n => n && !Number.isSafeInteger(Number(n)))) return null;
-  const suffix = !m[1];
-  if (suffix && (!Number.isSafeInteger(Number(m[2])) || Number(m[2]) <= 0)) return null;
-  const start = suffix ? Math.max(0, size - Number(m[2])) : Number(m[1]);
-  const end = suffix || !m[2] ? size - 1 : Math.min(Number(m[2]), size - 1);
-  return Number.isSafeInteger(start) && Number.isSafeInteger(end) && start >= 0 && start <= end && start < size ? { start, end } : null;
-}
-
 async function serve(req: Request, res: Response, dependencies: Dependencies) {
   const variant = req.params.variant;
   if (variant !== 'thumb' && variant !== 'preview') { res.sendStatus(404); return; }
-  const source = await sourceFor(String(req.params.id), variant, dependencies.findPublished);
-  if (!source) { res.set('Cache-Control', 'no-store').sendStatus(404); return; }
   try {
+    const id = String(req.params.id);
+    if (curatedExampleIds.includes(id)) {
+      const asset = curatedAsset(id, variant);
+      if (!asset) { res.set('Cache-Control', 'no-store').sendStatus(404); return; }
+      await serveCurated(req, res, asset, variant, dependencies.readCurated);
+      return;
+    }
+    const source = await sourceFor(id, variant, dependencies.findPublished);
+    if (!source) { res.set('Cache-Control', 'no-store').sendStatus(404); return; }
     await (dependencies.prepare ?? createFeedVariant)(source, variant);
     if (res.destroyed) return;
     // Preparation can take time: do not serve a cached derivative if the owner
@@ -119,7 +120,10 @@ async function serve(req: Request, res: Response, dependencies: Dependencies) {
       code: (error as { code?: string | number })?.code,
       encoderMessage: (error as { stderr?: string })?.stderr?.slice(-1000),
     }, 'Feed preview unavailable');
-    if (!res.headersSent && !res.destroyed) res.status(503).set({ 'Cache-Control': 'no-store', 'Retry-After': '60' }).json({ error: 'Не удалось подготовить превью. Оригинал доступен при открытии работы.' });
+    if (!res.headersSent && !res.destroyed) {
+      for (const header of ['Content-Length', 'Content-Range', 'ETag', 'Accept-Ranges']) res.removeHeader(header);
+      res.status(503).set({ 'Cache-Control': 'no-store', 'Retry-After': '60' }).json({ error: 'Не удалось подготовить превью. Оригинал доступен при открытии работы.' });
+    }
   }
 }
 export function createFeedMediaRouter(dependencies: Dependencies = {}) {

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "hello": "tsx ./src/hello.ts",
+    "prepare:curated-feed": "tsx ./prepare-curated-feed.ts",
     "seed:home-example": "tsx ./seed-home-example.ts",
     "seed:motion-example": "tsx ./seed-motion-example.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",

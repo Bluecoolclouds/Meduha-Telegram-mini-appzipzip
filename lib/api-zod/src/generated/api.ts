@@ -1177,11 +1177,16 @@ export const CompleteTemplateUploadResponse = zod.object({
 
 
 /**
- * @summary Small cached media for published community cards; originals remain unchanged
+ * User media always rechecks publication before conditional/range responses and remains private, no-cache. Only curated examples use a fixed manifest; the exact v hash enables public immutable caching. Originals remain unchanged.
+ * @summary Small previews for published community cards and allowlisted public examples
  */
 export const GetFeedMediaParams = zod.object({
   "id": zod.coerce.string(),
   "variant": zod.enum(['thumb', 'preview'])
+})
+
+export const GetFeedMediaQueryParams = zod.object({
+  "v": zod.coerce.string().optional().describe('SHA-256 version for curated examples only; a mismatched curated version returns 404')
 })
 
 export const GetFeedMediaHeader = zod.object({

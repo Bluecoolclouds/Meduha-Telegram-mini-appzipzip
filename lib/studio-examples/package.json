@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./feed-media.json": "./feed-media.json",
     "./motion-transfer.json": "./motion-transfer.json"
   }
 }

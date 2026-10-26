@@ -1603,6 +1603,13 @@ export type CompleteTemplateUpload200 = {
   objectPath: string;
 };
 
+export type GetFeedMediaParams = {
+/**
+ * SHA-256 version for curated examples only; a mismatched curated version returns 404
+ */
+v?: string;
+};
+
 export type GetMeduhaWalletParams = {
 /**
  * @minimum 1

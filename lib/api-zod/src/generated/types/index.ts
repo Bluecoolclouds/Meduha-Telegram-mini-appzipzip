@@ -86,6 +86,7 @@ export * from './genjutsuUsdRate';
 export * from './genjutsuUsdRateResolution';
 export * from './genjutsuUsdRateScenario';
 export * from './getAdminWalletParams';
+export * from './getFeedMediaParams';
 export * from './getMeduhaWalletParams';
 export * from './getTemplateAccess200';
 export * from './healthStatus';

@@ -61,6 +61,7 @@ import type {
   GenjutsuPriceQuoteInput,
   GenjutsuStyleList,
   GetAdminWalletParams,
+  GetFeedMediaParams,
   GetMeduhaWalletParams,
   GetTemplateAccess200,
   HealthStatus,
@@ -2456,21 +2457,31 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     }
 
 export const getGetFeedMediaUrl = (id: string,
-    variant: 'thumb' | 'preview',) => {
+    variant: 'thumb' | 'preview',
+    params?: GetFeedMediaParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/meduha/feed-media/${id}/${variant}`
+  return stringifiedParams.length > 0 ? `/api/meduha/feed-media/${id}/${variant}?${stringifiedParams}` : `/api/meduha/feed-media/${id}/${variant}`
 }
 
 /**
- * @summary Small cached media for published community cards; originals remain unchanged
+ * User media always rechecks publication before conditional/range responses and remains private, no-cache. Only curated examples use a fixed manifest; the exact v hash enables public immutable caching. Originals remain unchanged.
+ * @summary Small previews for published community cards and allowlisted public examples
  */
 export const getFeedMedia = async (id: string,
-    variant: 'thumb' | 'preview', options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+    variant: 'thumb' | 'preview',
+    params?: GetFeedMediaParams, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
 
-  return customFetch<Blob>(getGetFeedMediaUrl(id,variant),
+  return customFetch<Blob>(getGetFeedMediaUrl(id,variant,params),
   {
     ...options,
     method: 'GET'
@@ -2484,24 +2495,26 @@ export const getFeedMedia = async (id: string,
 
 
 export const getGetFeedMediaQueryKey = (id: string,
-    variant: 'thumb' | 'preview',) => {
+    variant: 'thumb' | 'preview',
+    params?: GetFeedMediaParams,) => {
     return [
-    `/api/meduha/feed-media/${id}/${variant}`
+    `/api/meduha/feed-media/${id}/${variant}`, ...(params ? [params] : [])
     ] as const;
     }
 
 
 export const getGetFeedMediaQueryOptions = <TData = Awaited<ReturnType<typeof getFeedMedia>>, TError = ErrorType<void>>(id: string,
-    variant: 'thumb' | 'preview', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeedMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+    variant: 'thumb' | 'preview',
+    params?: GetFeedMediaParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeedMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetFeedMediaQueryKey(id,variant);
+  const queryKey =  queryOptions?.queryKey ?? getGetFeedMediaQueryKey(id,variant,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFeedMedia>>> = ({ signal }) => getFeedMedia(id,variant, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFeedMedia>>> = ({ signal }) => getFeedMedia(id,variant,params, { signal, ...requestOptions });
 
 
 
@@ -2515,16 +2528,17 @@ export type GetFeedMediaQueryError = ErrorType<void>
 
 
 /**
- * @summary Small cached media for published community cards; originals remain unchanged
+ * @summary Small previews for published community cards and allowlisted public examples
  */
 
 export function useGetFeedMedia<TData = Awaited<ReturnType<typeof getFeedMedia>>, TError = ErrorType<void>>(
  id: string,
-    variant: 'thumb' | 'preview', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeedMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+    variant: 'thumb' | 'preview',
+    params?: GetFeedMediaParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFeedMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetFeedMediaQueryOptions(id,variant,options)
+  const queryOptions = getGetFeedMediaQueryOptions(id,variant,params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
