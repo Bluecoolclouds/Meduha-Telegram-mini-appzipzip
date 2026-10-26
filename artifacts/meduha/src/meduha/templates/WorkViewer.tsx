@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Flag } from 'lucide-react';
 import { Bookmark, Check, ChevronLeft, Clapperboard, Copy, Download, Heart, LoaderCircle, MoreHorizontal, Pause, Play, RotateCw, Search, Share2, Sparkles, UserRound, Volume2, VolumeX } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
-import meduhaMascot from '../meduha-mascot.png';
+import meduhaMascot from '../meduha-mascot.webp?inline';
 import { AppNavigation, mood, Sheet } from '../shared';
 import { isExampleTemplate, templateMediaUrl, type InspirationTemplate } from './catalog';
 import { usePublicationLike } from './likes';
