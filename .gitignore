@@ -48,6 +48,9 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
+# Private generated checks and media; never commit these outputs.
+/generated-artifacts/
+
 # Replit
 .cache/
 .local/

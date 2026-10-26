@@ -14,3 +14,17 @@ mtime_ms = 1792969110349
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:8a1bf598-9c53-4d71-b052-9d0a4fd7bfc8/5f0655b7-08d0-4a7f-942c-34ae118f8cc5/eb786ea7-b65b-4905-9dd6-ecbbf4d015e8"
 storage_version_token = "1792969122703845"
 content_type = "text/csv"
+
+[[outputs]]
+id = "ANfu-gQqhcwZgNAI3LxM2"
+uri = "file://generated-artifacts/production-photo-smoke-2026-10-27/z-image-turbo-honey.png"
+type = "image"
+title = "Тестовое фото — Z-Image Turbo"
+description = "Реальная генерация одного фото 1024×1024. Смета API перед запуском — $0,015; окончательное списание отдельно не сверено. В Community не опубликовано."
+logical_id = "b9c06133-898f-4ae5-b892-bea6b8818b03"
+content_hash = "sha256:612fdb6c9f83c852f31c3394257e8d1c9e62995db01b139391e6267b0b080a35"
+size = 1201871
+mtime_ms = 1793047692078
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:4d734171-2790-4f59-b736-5914322d75eb/b9c06133-898f-4ae5-b892-bea6b8818b03/abec8ff3-5b1f-4d84-9670-bb0ec900c20a"
+storage_version_token = "1793047808302525"
+content_type = "image/png"
