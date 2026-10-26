@@ -32,3 +32,9 @@ A successful estimate HTTP response is not necessarily a numerical quote. Some m
 **Why:** Authenticated price auditing exposed both response forms and small rounded estimates above published photo reference maxima. Treating HTTP 200 as a price or replacing descriptive responses with public table numbers would conceal an unsupported billing contract.
 
 **How to apply:** Check the estimate payload for each endpoint and distinguish numerical quotes from descriptive pricing. Preserve fail-closed behavior, explicitly report reference/rounding mismatches, and do not raise financial limits or invent final token usage while auditing prices.
+
+Keep only verified cost calculations in the prepared launch set; leave models without the necessary formula, request-level measurements, or verified inputs unconfigured and disabled.
+
+**Why:** The user confirmed: «у кого точные расходы оставили а у кого формулу надо узнать пока нету».
+
+**How to apply:** Separate numeric quote samples, descriptive/formula-only replies, range mismatches and untested media inputs. A successful sample is evidence for those parameters, not a universal cost formula. Do not restore the broader historical tariff list merely because it was approved before the API audit.

@@ -1,4 +1,6 @@
--- Development-only, owner-approved configuration. No provider calls or wallet writes.
+-- Development-only, user-approved configuration. No provider calls or wallet writes.
+-- Conservative subset of the approved tariffs: numeric audited estimates without
+-- recorded range mismatches only. Samples are not a formula for other parameters.
 -- Run after catalog registration. Never run from application startup or deployment.
 BEGIN;
 SET LOCAL lock_timeout = '10s';
@@ -15,21 +17,14 @@ DECLARE
   affected integer;
   prices jsonb := '{
     "higgsfield-ai/soul/standard": 15,
-    "higgsfield-ai/soul/v2/standard": 1,
-    "higgsfield-ai/soul/v2/image-to-image": 1,
     "xai/grok-imagine-image-2.0": 7,
-    "marketing-studio/image": 55,
     "higgsfield/ai-influencer": 4,
-    "ideogram/v4.0": 3,
     "recraft/v4.1/text-to-image": 3,
     "alibaba/qwen-image-3/text-to-image": 6,
     "z-image/turbo": 2,
-    "marketing-studio/image/flare": 55,
-    "marketing-studio/image/sunburst": 55,
     "recraft/v4.1/pro/text-to-image": 16,
     "recraft/v4.1/utility/text-to-image": 3,
-    "recraft/v4.1/utility/pro/text-to-image": 16,
-    "alibaba/qwen-image-3/edit": 6
+    "recraft/v4.1/utility/pro/text-to-image": 16
   }';
 BEGIN
   -- Once applied, do not overwrite later administrator decisions on subsequent merges.
@@ -78,12 +73,12 @@ BEGIN
     updated_at = now()
   WHERE m.channel_id = v_channel_id AND m.kind = 'photo' AND prices ? m.upstream_id;
   GET DIAGNOSTICS affected = ROW_COUNT;
-  IF affected <> 16 OR EXISTS (
+  IF affected <> 9 OR EXISTS (
     SELECT 1 FROM jsonb_object_keys(prices) p(upstream_id)
     WHERE (SELECT count(*) FROM meduha_ai_models m
       WHERE m.channel_id = v_channel_id AND m.kind = 'photo' AND m.upstream_id = p.upstream_id) <> 1
   ) THEN
-    RAISE EXCEPTION 'Expected all 16 approved endpoints exactly once; transaction rolled back';
+    RAISE EXCEPTION 'Expected all 9 approved endpoints exactly once; transaction rolled back';
   END IF;
 
   UPDATE meduha_ai_channels SET daily_credit_limit = 500, updated_at = now()
@@ -92,11 +87,12 @@ BEGIN
     updated_at = now(), updated_by = 'owner-approved-configuration'
     WHERE id = 1;
   -- No assignments to enabled/spending_enabled, no unapproved prices or account limits.
-  -- Ads Studio, SOUL Cinema, video/audio models and wallet tables are untouched.
+  -- Unverified/descriptive/mismatched estimates, video/audio models and wallets
+  -- are untouched. All switches stay disabled; per-request quotes remain required.
   INSERT INTO meduha_admin_audit (actor_id, action, entity_type, entity_id, details)
   VALUES ('owner-approved-configuration', 'photo.pricing.approved.apply',
     'configuration', 'photo-pilot-2026-10-25',
-    '{"approvedPhotoEndpoints":16,"globalDailyCreditLimit":500,"channelDailyCreditLimit":500,"modelDailyCreditLimit":100,"concurrencyLimit":1,"maxActiveReservations":3,"spendingEnabled":false}'::jsonb);
+    '{"approvedPhotoEndpoints":9,"policy":"numeric-audited-subset","globalDailyCreditLimit":500,"channelDailyCreditLimit":500,"modelDailyCreditLimit":100,"concurrencyLimit":1,"maxActiveReservations":3,"spendingEnabled":false}'::jsonb);
 END
 $approved$;
 COMMIT;

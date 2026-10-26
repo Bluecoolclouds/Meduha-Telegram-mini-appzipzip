@@ -9,6 +9,11 @@ const sql = readFileSync(new URL('./apply-approved-photo-pricing.sql', import.me
 const fixture = `
   CREATE TEMP TABLE meduha_finance_settings (LIKE public.meduha_finance_settings);
   INSERT INTO meduha_finance_settings SELECT * FROM public.meduha_finance_settings;
+  INSERT INTO meduha_finance_settings
+    (id, spending_enabled, daily_credit_limit, per_account_daily_credit_limit,
+     max_active_reservations, updated_at)
+  SELECT 1, false, 0, 0, 3, now()
+  WHERE NOT EXISTS (SELECT 1 FROM meduha_finance_settings WHERE id=1);
   UPDATE meduha_finance_settings SET spending_enabled=false, daily_credit_limit=0, max_active_reservations=3;
   CREATE TEMP TABLE meduha_ai_channels (LIKE public.meduha_ai_channels);
   INSERT INTO meduha_ai_channels SELECT * FROM public.meduha_ai_channels;
@@ -35,8 +40,8 @@ function succeeds(result) {
 test('approved settings apply without enabling, billing or touching excluded models', () => {
   succeeds(run(sql + `
     DO $check$ BEGIN
-      IF (SELECT count(*) FROM meduha_ai_models WHERE credit_price > 0) <> 16
-        OR (SELECT count(*) FROM meduha_ai_models WHERE limits = '{"dailyCreditLimit":100}') <> 16
+      IF (SELECT count(*) FROM meduha_ai_models WHERE credit_price > 0) <> 9
+        OR (SELECT count(*) FROM meduha_ai_models WHERE limits = '{"dailyCreditLimit":100}') <> 9
         OR EXISTS (SELECT 1 FROM meduha_ai_models WHERE enabled)
         OR EXISTS (SELECT 1 FROM meduha_ai_channels WHERE enabled)
         OR NOT EXISTS (SELECT 1 FROM meduha_finance_settings WHERE NOT spending_enabled
@@ -44,7 +49,12 @@ test('approved settings apply without enabling, billing or touching excluded mod
         OR NOT EXISTS (SELECT 1 FROM meduha_ai_channels WHERE adapter='higgsfield'
           AND daily_credit_limit=500 AND concurrency_limit=1)
         OR EXISTS (SELECT 1 FROM meduha_ai_models
-          WHERE upstream_id IN ('higgsfield/ads-studio/v1.0','higgsfield-ai/soul/cinema')
+          WHERE upstream_id IN (
+            'higgsfield/ads-studio/v1.0','higgsfield-ai/soul/cinema',
+            'higgsfield-ai/soul/v2/standard','higgsfield-ai/soul/v2/image-to-image',
+            'marketing-studio/image','ideogram/v4.0',
+            'marketing-studio/image/flare','marketing-studio/image/sunburst',
+            'alibaba/qwen-image-3/edit')
             AND (credit_price<>0 OR limits<>'{}'::jsonb))
         OR EXISTS (SELECT 1 FROM meduha_ai_models WHERE kind<>'photo'
           AND (credit_price<>0 OR limits<>'{}'::jsonb))
@@ -88,9 +98,9 @@ test('clean database setup succeeds without seeding finance settings or applying
 for (const [name, mutation, message] of [
   ['enabled spending', 'UPDATE meduha_finance_settings SET spending_enabled=true;', /disabled baseline/],
   ['changed model price', "UPDATE meduha_ai_models SET credit_price=9 WHERE upstream_id='higgsfield-ai/soul/standard';", /disabled baseline/],
-  ['missing endpoint', "DELETE FROM meduha_ai_models WHERE upstream_id='higgsfield-ai/soul/standard';", /16 approved endpoints/],
+  ['missing endpoint', "DELETE FROM meduha_ai_models WHERE upstream_id='higgsfield-ai/soul/standard';", /9 approved endpoints/],
   ['duplicate endpoint', `INSERT INTO meduha_ai_models
-      SELECT * FROM meduha_ai_models WHERE upstream_id='higgsfield-ai/soul/standard';`, /16 approved endpoints/],
+      SELECT * FROM meduha_ai_models WHERE upstream_id='higgsfield-ai/soul/standard';`, /9 approved endpoints/],
 ]) {
   test(`refuses ${name} rather than guessing or overwriting settings`, () => {
     const result = run(mutation + sql);
