@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Flag } from 'lucide-react';
 import { Bookmark, Check, ChevronLeft, Clapperboard, Copy, Download, Heart, LoaderCircle, MoreHorizontal, Pause, Play, RotateCw, Search, Share2, Sparkles, UserRound, Volume2, VolumeX } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
+import meduhaMascot from '../meduha-mascot.png';
 import { AppNavigation, mood, Sheet } from '../shared';
 import { isExampleTemplate, templateMediaUrl, type InspirationTemplate } from './catalog';
 import { usePublicationLike } from './likes';
@@ -58,8 +59,10 @@ export default function WorkViewer({ template, items, onSelect, onClose, hasMore
   const hasPlayback = isVideo || isAudio;
   const prompt = template.prompt ?? '';
   const hasPrompt = prompt.trim().length > 0;
-  const author = example ? 'Пример Meduha' : template.authorName?.trim() || 'Автор сообщества';
-  const avatar = !example && template.authorAvatarUrl !== failedAvatar ? template.authorAvatarUrl : null;
+  const author = example ? 'Meduha' : template.authorName?.trim() || 'Автор сообщества';
+  const avatar = example
+    ? failedAvatar === meduhaMascot ? null : meduhaMascot
+    : template.authorAvatarUrl !== failedAvatar ? template.authorAvatarUrl : null;
   const recipe = isRecipe((template as { recipe?: unknown }).recipe) ? (template as { recipe?: unknown }).recipe as Parameters<typeof recipeHref>[0] : null;
   const repeatUrl = recipe ? recipeHref(recipe, { template: template.id }) : null;
   const prepareUrl = `/create?preset=${encodeURIComponent(template.title)}&type=${isAudio ? 'music' : template.kind}&prompt=${encodeURIComponent(prompt)}`;
