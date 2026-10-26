@@ -24,7 +24,7 @@ test('photo quotes use exact decimal totals, verified ceilings and signed reques
   assert.equal(photoQuotedPrice(15, metadata, fourImageMaximum), 60, 'the verified per-image ceiling covers the whole four-image batch');
   assert.throws(() => photoQuotedPrice(15, metadata, fourImageMaximum + 1), PhotoPricingError, 'one micro-dollar above the whole-batch ceiling is rejected');
   assert.throws(() => photoQuotedPrice(7, { ...metadata, catalogId: 'workflows/ads-studio', endpoint: 'higgsfield/ads-studio/v1.0' }, 84000), PhotoPricingError);
-  assert.match(photoPricingBlockedReason('higgsfield/ads-studio/v1.0') ?? '', /1 млн токенов.*фактическому расходу.*Максимум токенов или итоговой суммы не подтверждён/);
+  assert.match(photoPricingBlockedReason('higgsfield/ads-studio/v1.0') ?? '', /фактическим токенам.*счётчики токенов или окончательная стоимость конкретного запроса/);
   assert.throws(() => photoQuotedPrice(7, { ...metadata, endpoint: 'unknown' }, 84000), PhotoPricingError);
   const claims = { purpose: 'photo-price' as const, accountId: 'fixture', modelId: randomUUID(), idempotencyKey: randomUUID(), requestHash: photoRequestHash(metadata), pricingFingerprint: photoPricingFingerprint(15), creditPrice: 60, expiresAt: Date.now() + 60_000, usdMicros: 750000 };
   const token = signPhotoQuote(claims);

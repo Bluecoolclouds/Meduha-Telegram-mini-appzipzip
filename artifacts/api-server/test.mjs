@@ -22,6 +22,7 @@ await build({
     path.join(root,'src/lib/objectStorage-generation.test.ts'),
     path.join(root,'src/lib/storage-transport.test.ts'),
     path.join(root,'src/lib/video-pricing.test.ts'),
+    path.join(root,'src/lib/photo-pricing.test.ts'),
     path.join(root,'src/lib/catalog-availability.test.ts'),
     path.join(root,'src/routes/meduha.integration.test.ts'),
     path.join(root,'src/lib/finance.test.ts'),
@@ -44,6 +45,12 @@ if (process.argv.includes('--finance-isolated')) {
   ], { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } });
   process.exit(financeResult.status ?? 1);
 }
+if (process.argv.includes('--photo-pricing')) {
+  const pricingResult = spawnSync(process.execPath, [
+    '--test', path.join(out, 'photo-pricing.test.cjs'),
+  ], { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } });
+  process.exit(pricingResult.status ?? 1);
+}
 if (process.argv.includes('--photo')) {
   const photoResult = spawnSync(process.execPath, [
     '--test', path.join(out, 'meduha-photo.integration.test.cjs'),
@@ -65,6 +72,7 @@ if (process.argv.includes('--admin-access')) {
 const result=spawnSync(process.execPath,[
   '--test', '--test-concurrency=1', path.join(out,'storage-transport.test.cjs'),
   path.join(out,'video-pricing.test.cjs'),
+  path.join(out,'photo-pricing.test.cjs'),
   path.join(out,'catalog-availability.test.cjs'),
   path.join(out,'feed-media.test.cjs'),path.join(out,'feed-media-route.test.cjs'),path.join(out,'telegram-init-data.test.cjs'),path.join(out,'telegram-commands.test.cjs'),path.join(out,'template-files.test.cjs'),path.join(out,'higgsfield-catalog.test.cjs'),path.join(out,'higgsfield.test.cjs'),path.join(out,'template-upload-cleanup.test.cjs'),path.join(out,'objectStorage-generation.test.cjs'),path.join(out,'meduha.integration.test.cjs'),path.join(out,'finance.test.cjs'),path.join(out,'finance-multiprocess.integration.test.cjs'),path.join(out,'meduha-admin.integration.test.cjs'),path.join(out,'example-media.test.cjs'),
   path.join(out,'meduha-admin-password.integration.test.cjs'),

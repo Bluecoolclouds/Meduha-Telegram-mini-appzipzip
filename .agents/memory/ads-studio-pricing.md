@@ -14,3 +14,9 @@ The reviewed public status schema and webhook examples do not specify the six to
 **Why:** A price formula alone does not provide the measured quantities needed to settle a particular request correctly.
 
 **How to apply:** Report this specific integration gap rather than repeatedly demanding a provider hard cap or another API key.
+
+The same actual-token billing rule applies to Marketing Studio Flare and Sunburst: an authenticated descriptive estimate confirms the six rates, not the measured quantities or a final amount.
+
+**Why:** Their account-specific estimates state that the initial charge is reconciled on completion, just like Ads Studio. Published per-image ranges cannot substitute for this contract.
+
+**How to apply:** Keep all three blocked until request-level settlement data is verified. For Ads Studio batches, sum actual image charges; do not multiply already aggregated batch usage by batch size. Investigate an existing completed request and its billing record rather than creating a paid probe. See [the cost verification report](../../reports/token-model-cost-verification-2026-10-26.md) for evidence and source links.
