@@ -261,7 +261,7 @@ export default function WorkViewer({ template, items, onSelect, onClose, hasMore
       </div>}
       <div className="mw-body" key={`body-${template.id}`}>
         <div className="mw-author" data-testid="text-work-origin">
-          <span className="mw-avatar">{avatar ? <img src={avatar} alt="" referrerPolicy="no-referrer" onError={() => setFailedAvatar(avatar)}/> : example ? <Sparkles size={17}/> : <UserRound size={18}/>}</span>
+          <span className={`mw-avatar${example ? ' mw-avatar-example' : ''}`}>{avatar ? <img src={avatar} alt="" referrerPolicy="no-referrer" onError={() => setFailedAvatar(avatar)}/> : example ? <Sparkles size={17}/> : <UserRound size={18}/>}</span>
           <span><strong>{author}</strong></span>
         </div>
         <h1 className="mw-title-accessible" data-testid="text-viewer-title">{template.title}</h1>
