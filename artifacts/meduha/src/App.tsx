@@ -10,6 +10,7 @@ const Create = lazy(() => import('./meduha/Create'));
 const Works = lazy(() => import('./meduha/Works'));
 const Profile = lazy(() => import('./meduha/Profile'));
 const PrivacyNotice = lazy(() => import('./meduha/PrivacyNotice'));
+const LegalPages = lazy(() => import('./meduha/LegalPages'));
 const Community = lazy(() => import('./meduha/Community'));
 const TemplateManager = lazy(() => import('./meduha/templates/manage/TemplateManager'));
 const AdminApp = lazy(() => import('./meduha/admin/AdminApp'));
@@ -26,6 +27,9 @@ const pageMeta:Record<string,{title:string;description:string}>={
   '/works':{title:'Мои работы — meduha',description:'Твои сохранённые идеи и черновики на этом устройстве.'},
   '/profile':{title:'Профиль — meduha',description:'Настройки локальной студии meduha.'},
   '/privacy':{title:'Политика конфиденциальности — meduha',description:'Статус юридических документов meduha.'},
+  '/terms':{title:'Пользовательское соглашение — meduha',description:'Черновик условий использования meduha.'},
+  '/refunds':{title:'Возвраты — meduha',description:'Черновик условий возврата средств в meduha.'},
+  '/contacts':{title:'Контакты — meduha',description:'Связь с поддержкой meduha.'},
   '/community/manage':{title:'Мои публикации — meduha',description:'Поделись фото или видео и промптом с сообществом.'},
   '/wallet':{title:'Кошелёк — meduha',description:'Баланс кредитов и история операций аккаунта.'},
   '/admin':{title:'Пульт — meduha',description:'Панель управления студией meduha.'},
@@ -47,6 +51,9 @@ function Router(){return <><Metadata/><RoutedErrorBoundary><Suspense fallback={<
   <Route path="/works" component={Works}/>
   <Route path="/profile" component={Profile}/>
   <Route path="/privacy" component={PrivacyNotice}/>
+  <Route path="/terms">{()=><LegalPages page="terms"/>}</Route>
+  <Route path="/refunds">{()=><LegalPages page="refunds"/>}</Route>
+  <Route path="/contacts">{()=><LegalPages page="contacts"/>}</Route>
    <Route path="/community" component={Community}/>
   <Route path="/community/manage" component={TemplateManager}/>
   <Route path="/wallet">{()=><Suspense fallback={<div className="m-startup"><p>Загружаем кошелёк…</p></div>}><Wallet/></Suspense>}</Route>
@@ -56,7 +63,7 @@ function RoutedErrorBoundary({children}:{children:ReactNode}){const [location]=u
 function SessionGate({children}:{children:ReactNode}){
  const [location]=useLocation();
  if(location==='/admin'||location.startsWith('/admin/'))return <RoutedErrorBoundary><Suspense fallback={<div style={{padding:40}}>Загружаем пульт…</div>}><AdminApp/></Suspense></RoutedErrorBoundary>;
-  if(location==='/privacy')return children;
+   if(['/privacy','/terms','/refunds','/contacts'].includes(location))return children;
  return <AppSessionGate>{children}</AppSessionGate>;
 }
 function AppSessionGate({children}:{children:ReactNode}){

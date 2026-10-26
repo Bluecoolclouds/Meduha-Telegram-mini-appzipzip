@@ -23,4 +23,4 @@
 - [Wallet refresh stale data](wallet-refresh-stale-data.md) — show cached daily values as stale as soon as a wallet refetch fails, including while automatic retries are pending.
 - [Video price basis](video-price-basis.md) — Seedance uses account-specific estimates; USD-to-credit conversion is explicit; approximate provider rates never become exact tariffs.
 - [Ads Studio pricing](ads-studio-pricing.md) — user chose actual-token billing; verify per-request usage for settlement, not a fixed rate or mandatory provider hard cap.
-- [Legal and payment launch scope](legal-payment-launch-scope.md) — worldwide web/Telegram and native store plans; YooKassa is intended for web/Telegram, with store payments treated separately.
+- [Legal and payment launch scope](legal-payment-launch-scope.md) — worldwide web/Telegram and native store plans; YooKassa is for web/Telegram; legal contact and refund terms remain draft.
