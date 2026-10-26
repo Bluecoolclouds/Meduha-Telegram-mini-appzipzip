@@ -30,6 +30,7 @@
 .meduha.light .m-tool{background:#fffdfb;border:1px solid #2a18100f!important;box-shadow:0 2px 10px #c8743a14}
 .meduha.light .m-tool svg{color:var(--orange-ink)}
 .meduha.light .m-tool .tiny-new{color:var(--orange-ink)}
+.meduha .m-tool-subtitle{display:block;margin-top:3px;color:var(--muted);font-size:8px;line-height:1.2}
 .meduha.light .m-inspo-card{background:#f6e3d2}
 .meduha.light .m-mini-grid button{background:#f6e3d2}
 .meduha.light .m-heading p{color:var(--muted)}
