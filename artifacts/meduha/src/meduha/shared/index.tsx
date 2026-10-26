@@ -14,10 +14,10 @@ export const ink = '#df4f12';
 export function SectionTitle({children,action,onClick}:{children:ReactNode;action?:string;onClick?:()=>void}) {
   return <div className="m-section-title"><h2>{children}</h2>{action&&<button onClick={onClick}>{action}<ChevronRight size={12}/></button>}</div>;
 }
-export function LiveMascot({moods,alt='',interval=4000,className='',style}:{moods:Mood[];alt?:string;interval?:number;className?:string;style?:CSSProperties}) {
+export function LiveMascot({moods,alt='',interval=4000,className='',style,priority=false}:{moods:Mood[];alt?:string;interval?:number;className?:string;style?:CSSProperties;priority?:boolean}) {
   const [index,setIndex]=useState(0);
   useEffect(()=>{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||moods.length<2)return;const timer=window.setInterval(()=>setIndex(i=>(i+1)%moods.length),interval);return()=>window.clearInterval(timer)},[moods,interval]);
-  return <div className={`ml-live ${className}`} style={style} role="img" aria-label={alt}>{moods.map((m,i)=><img key={m} src={mood(m)} alt="" className={i===index?'on':''}/>)}</div>;
+  return <div className={`ml-live ${className}`} style={style} role="img" aria-label={alt}>{moods.map((m,i)=><img key={m} src={mood(m)} alt="" decoding="async" fetchPriority={priority ? i===0?'high':'low' : 'auto'} className={i===index?'on':''}/>)}</div>;
 }
 export function Credit(){const {phase,account}=useMeduhaSession();return <Link className="m-credit press" href="/profile?topup=1" aria-label={phase==='authenticated'?`${account?.credits??'—'} кредитов, открыть пополнение`:'Гостевой режим — открыть пакеты кредитов'}><Zap size={13} fill="currentColor"/><span className="m-credit-value">{phase==='authenticated'?(account?.credits??'—'):'Гость'}</span><Plus size={16} className="plus"/></Link>}
 export function HeaderActions(){return <div className="m-header-actions"><ThemeToggle/><Credit/></div>}

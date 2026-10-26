@@ -21,11 +21,16 @@ router.get('/:name', async (req, res): Promise<void> => {
   if (asset) {
     try {
       const file = templateFile(asset.id);
-      const size = cover ? cover.size : Number((await file.getMetadata())[0].size);
-      if (cover) {
-        res.set({ ETag: `"${req.params.name}"`, 'Cache-Control': 'public,max-age=31536000,immutable' });
-        if (req.fresh) { res.status(304).end(); return; }
-      }
+      // Home assets are curated, fixed object IDs with verified manifest sizes.
+      // Avoid a storage metadata round trip before every HEAD/range/image request.
+      // Legacy examples still use their actual metadata (including test fixtures).
+      const size = cover?.size ?? (req.params.name.startsWith('home-')
+        ? asset.size : Number((await file.getMetadata())[0].size));
+      res.set({
+        ETag: cover ? `"${req.params.name}"` : `"${asset.id}-${size}"`,
+        'Cache-Control': cover ? 'public,max-age=31536000,immutable' : 'public,max-age=3600',
+      });
+      if (req.fresh) { res.status(304).end(); return; }
       let start = 0, end = size - 1;
       if (req.headers.range) {
         const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);

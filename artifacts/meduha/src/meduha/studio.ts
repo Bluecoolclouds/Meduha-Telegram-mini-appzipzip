@@ -20,7 +20,7 @@ export function getDraftPromptDisplay(draft:Pick<Draft,'type'|'model'|'prompt'>)
 export function packContentPlanPrompt(prompt:string,plan:ContentPlanSettings){
   return `${prompt.trim()}\n\nПараметры контент-плана Meduha:\nПлощадка: ${plan.platform}\nИдей: ${plan.count}\nФормат: ${plan.format}`;
 }
-export const mood=(name:Mood)=>`${import.meta.env.BASE_URL}images/brand/mascot-${name}.png`;
+export const mood=(name:Mood)=>`${import.meta.env.BASE_URL}images/brand/mascot-${name}.webp`;
 export const DRAFTS_KEY='meduha.drafts.v1', SETTINGS_KEY='meduha.settings.v1';
 export type Settings={notifications:boolean;quality:boolean};
 const draftSchema=z.object({

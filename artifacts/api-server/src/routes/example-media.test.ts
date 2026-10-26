@@ -186,3 +186,65 @@ test('approved example videos support byte ranges, reject invalid ranges, and an
     publicSources['flower.webm'],
   ]);
 });
+
+test('home media use manifest sizes and conditional caching without storage metadata requests', async t => {
+  const previousObjectDir = process.env.PRIVATE_OBJECT_DIR;
+  process.env.PRIVATE_OBJECT_DIR = 'test-bucket/home-media';
+  t.after(() => {
+    if (previousObjectDir === undefined) delete process.env.PRIVATE_OBJECT_DIR;
+    else process.env.PRIVATE_OBJECT_DIR = previousObjectDir;
+  });
+  const assets = Object.entries(motionAssets).filter(([name]) => name.startsWith('home-'));
+  const stored = new Map(assets.map(([, asset]) => [asset.id as string, Buffer.alloc(asset.size, 7)]));
+  let metadataReads = 0;
+  let streamReads = 0;
+  t.mock.method(objectStorageClient, 'bucket', () => ({
+    file(objectName: string) {
+      const bytes = stored.get(objectName.split('/').at(-1)!);
+      assert(bytes, 'home route must only access manifest objects');
+      return {
+        getMetadata: async () => {
+          metadataReads++;
+          throw new Error('Home media must not request storage metadata');
+        },
+        createReadStream: ({ start, end }: { start: number; end: number }) => {
+          streamReads++;
+          return Readable.from([bytes.subarray(start, end + 1)]);
+        },
+      };
+    },
+  }) as unknown as ReturnType<typeof objectStorageClient.bucket>);
+  const app = express();
+  app.use('/example-media', exampleMediaRouter);
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise<void>(resolve => server.once('listening', resolve));
+  t.after(() => new Promise<void>(resolve => server.close(() => resolve())));
+  const address = server.address();
+  assert(address && typeof address !== 'string');
+  const baseUrl = `http://127.0.0.1:${address.port}/example-media`;
+
+  for (const [name, asset] of assets) {
+    const head = await fetch(`${baseUrl}/${name}`, { method: 'HEAD' });
+    assert.equal(head.status, 200);
+    assert.equal(head.headers.get('content-length'), String(asset.size));
+    assert.equal(head.headers.get('content-type'), asset.contentType);
+    assert.equal(head.headers.get('cache-control'), 'public,max-age=3600');
+    assert.equal((await head.arrayBuffer()).byteLength, 0);
+    const etag = head.headers.get('etag');
+    assert(etag);
+    // Undici otherwise injects request Cache-Control:no-cache for conditional
+    // fetches, which deliberately makes Express req.fresh false.
+    const cached = await fetch(`${baseUrl}/${name}`, {
+      headers: { 'If-None-Match': etag, 'Cache-Control': 'max-age=0' },
+    });
+    assert.equal(cached.status, 304, name);
+    assert.equal((await cached.arrayBuffer()).byteLength, 0);
+    const range = await fetch(`${baseUrl}/${name}`, { headers: { Range: 'bytes=0-15' } });
+    assert.equal(range.status, 206, name);
+    assert.equal(range.headers.get('content-range'), `bytes 0-15/${asset.size}`);
+    assert.equal(range.headers.get('content-length'), '16');
+    assert.deepEqual(Buffer.from(await range.arrayBuffer()), Buffer.alloc(16, 7));
+  }
+  assert.equal(metadataReads, 0);
+  assert.equal(streamReads, assets.length, 'HEAD and 304 must not open storage streams');
+});
