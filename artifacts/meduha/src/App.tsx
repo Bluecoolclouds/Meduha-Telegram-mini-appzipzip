@@ -9,6 +9,7 @@ const Home = lazy(() => import('./meduha/Home'));
 const Create = lazy(() => import('./meduha/Create'));
 const Works = lazy(() => import('./meduha/Works'));
 const Profile = lazy(() => import('./meduha/Profile'));
+const PrivacyNotice = lazy(() => import('./meduha/PrivacyNotice'));
 const Community = lazy(() => import('./meduha/Community'));
 const TemplateManager = lazy(() => import('./meduha/templates/manage/TemplateManager'));
 const AdminApp = lazy(() => import('./meduha/admin/AdminApp'));
@@ -24,6 +25,7 @@ const pageMeta:Record<string,{title:string;description:string}>={
   '/create':{title:'Создать идею — meduha',description:'Опиши идею, выбери формат и сохрани локальный черновик.'},
   '/works':{title:'Мои работы — meduha',description:'Твои сохранённые идеи и черновики на этом устройстве.'},
   '/profile':{title:'Профиль — meduha',description:'Настройки локальной студии meduha.'},
+  '/privacy':{title:'Политика конфиденциальности — meduha',description:'Статус юридических документов meduha.'},
   '/community/manage':{title:'Мои публикации — meduha',description:'Поделись фото или видео и промптом с сообществом.'},
   '/wallet':{title:'Кошелёк — meduha',description:'Баланс кредитов и история операций аккаунта.'},
   '/admin':{title:'Пульт — meduha',description:'Панель управления студией meduha.'},
@@ -44,6 +46,7 @@ function Router(){return <><Metadata/><RoutedErrorBoundary><Suspense fallback={<
   <Route path="/create" component={Create}/>
   <Route path="/works" component={Works}/>
   <Route path="/profile" component={Profile}/>
+  <Route path="/privacy" component={PrivacyNotice}/>
    <Route path="/community" component={Community}/>
   <Route path="/community/manage" component={TemplateManager}/>
   <Route path="/wallet">{()=><Suspense fallback={<div className="m-startup"><p>Загружаем кошелёк…</p></div>}><Wallet/></Suspense>}</Route>
@@ -53,6 +56,7 @@ function RoutedErrorBoundary({children}:{children:ReactNode}){const [location]=u
 function SessionGate({children}:{children:ReactNode}){
  const [location]=useLocation();
  if(location==='/admin'||location.startsWith('/admin/'))return <RoutedErrorBoundary><Suspense fallback={<div style={{padding:40}}>Загружаем пульт…</div>}><AdminApp/></Suspense></RoutedErrorBoundary>;
+  if(location==='/privacy')return children;
  return <AppSessionGate>{children}</AppSessionGate>;
 }
 function AppSessionGate({children}:{children:ReactNode}){

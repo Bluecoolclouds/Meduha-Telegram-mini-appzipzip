@@ -1,11 +1,11 @@
 import './templates/manage/manager.css';
 import { useDeferredValue, useEffect, useRef, useState } from 'react';
-import { Bookmark, Camera, Clapperboard, Heart, Music2, Plus, Search, Sparkles, X } from 'lucide-react';
+import { Bookmark, Camera, Check, ChevronDown, Clapperboard, Heart, ListFilter, Music2, Plus, Search, Sparkles, X } from 'lucide-react';
 import { Link, useLocation, useSearch } from 'wouter';
-import { Frame } from './shared';
+import { Frame, Sheet } from './shared';
 import TemplateFeed from './templates/TemplateFeed';
 import { useMeduhaSession } from './session';
-import { videoScenarios } from './video/scenarios';
+import { searchVideoScenarios, videoScenarios } from './video/scenarios';
 
 const filters = [
   { kind: 'all', label: 'Все', Icon: Sparkles },
@@ -18,16 +18,32 @@ export default function Community() {
   const session = useMeduhaSession();
   const [tab, setTab] = useState<'all' | 'liked' | 'saved'>('all');
   const [search, setSearch] = useState('');
+  const [scenarioSearch, setScenarioSearch] = useState('');
+  const [scenarioPickerOpen, setScenarioPickerOpen] = useState(false);
   const searchInput = useRef<HTMLInputElement>(null);
   const search_ = useSearch();
   const [, navigate] = useLocation();
   const tag = new URLSearchParams(search_).get('tag')?.normalize('NFKC').trim().replace(/^#/, '').trim().toLocaleLowerCase() ?? '';
-  const scenarioLabel = videoScenarios.find(scenario => scenario.id === tag)?.title ?? tag;
+  const normalizeTag = (value: string) => value.normalize('NFKC').toLocaleLowerCase('ru').replaceAll('ё', 'е').trim();
+  const scenarioTag = (id: string) => id === 'genjutsu' ? 'Genjutsu' : videoScenarios.find(scenario => scenario.id === id)?.title ?? id;
+  const activeScenario = videoScenarios.find(scenario => scenario.id === tag || normalizeTag(scenarioTag(scenario.id)) === normalizeTag(tag));
+  const scenarioLabel = activeScenario?.title ?? tag;
   const clearTag = () => {
     const params = new URLSearchParams(search_);
     params.delete('tag');
+    if (activeScenario) params.delete('kind');
     navigate(`/community${params.size ? `?${params.toString()}` : ''}`);
   };
+  const selectScenario = (scenarioId: string) => {
+    const params = new URLSearchParams(search_);
+    params.set('tag', normalizeTag(scenarioTag(scenarioId)));
+    params.set('kind', 'video');
+    params.delete('work');
+    navigate(`/community?${params.toString()}`);
+    setScenarioPickerOpen(false);
+    setScenarioSearch('');
+  };
+  const scenarioResults = searchVideoScenarios(scenarioSearch);
   const queryKind = filters.find(f => f.kind === new URLSearchParams(search_).get('kind'))?.kind ?? 'all';
   const [kind, setKind] = useState<(typeof filters)[number]['kind']>(queryKind);
   useEffect(() => { setKind(queryKind); }, [queryKind]);
@@ -69,7 +85,18 @@ export default function Community() {
           data-testid={`filter-community-${filterKind}`}
         ><Icon size={13}/>{label}</button>)}
       </div>
-      {tag && <div className="mt-community-filters" aria-label="Выбранный сценарий">
+      <div className="mt-scenario-filter-row" aria-label="Фильтр по сценарию">
+        <button
+          type="button"
+          className={`mt-scenario-filter${activeScenario ? ' selected' : ''}`}
+          onClick={() => { setScenarioSearch(''); setScenarioPickerOpen(true); }}
+          aria-haspopup="dialog"
+          aria-expanded={scenarioPickerOpen}
+          data-testid="button-community-scenario-filter"
+        ><ListFilter size={14}/><span>{activeScenario?.title ?? 'Сценарий'}</span><ChevronDown size={13}/></button>
+        {activeScenario && <button type="button" className="mt-scenario-clear" onClick={clearTag} aria-label={`Снять фильтр сценария ${activeScenario.title}`} data-testid="button-clear-community-scenario"><X size={14}/></button>}
+      </div>
+      {tag && !activeScenario && <div className="mt-community-filters" aria-label="Выбранный тег">
         <button type="button" className="selected" style={{ maxWidth: '100%', whiteSpace: 'normal' }} data-testid="filter-community-scenario" onClick={clearTag} aria-label={`Снять фильтр: ${scenarioLabel}`}>
           <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>#{tag} · {scenarioLabel}</span><X size={13}/>
         </button>
@@ -83,6 +110,40 @@ export default function Community() {
           {session.telegram ? <button className="mt-share-work" onClick={session.reauthenticate}>Войти</button> : session.telegramBotUrl ? <a className="mt-share-work" href={session.telegramBotUrl} target="_blank" rel="noopener noreferrer">Открыть в Telegram</a> : <Link className="mt-share-work" href="/profile">Открыть профиль</Link>}
         </div>
         : <TemplateFeed search={deferredSearch} tag={tag} kind={kind} likedOnly={tab === 'liked'} savedOnly={tab === 'saved'}/>}
+      {scenarioPickerOpen && <Sheet title="Выбрать сценарий" onClose={() => setScenarioPickerOpen(false)} className="mt-scenario-sheet">
+        <div className="mt-scenario-picker">
+          <p>Ищи по названию или смыслу: например, «оживить фото», «танец» или «заменить одежду».</p>
+          <div className="mt-search mt-scenario-search" role="search">
+            <Search size={16}/>
+            <input
+              autoFocus
+              value={scenarioSearch}
+              onChange={event => setScenarioSearch(event.target.value)}
+              placeholder="Название или ключевые слова"
+              aria-label="Поиск сценария по названию и ключевым словам"
+              data-testid="input-community-scenario-search"
+            />
+            {scenarioSearch && <button type="button" aria-label="Очистить поиск сценариев" onClick={() => setScenarioSearch('')}><X size={14}/></button>}
+          </div>
+          {scenarioResults.length > 0
+            ? <div className="mt-scenario-list" role="listbox" aria-label="Сценарии видео">
+              {scenarioResults.map(scenario => <button
+                key={scenario.id}
+                type="button"
+                role="option"
+                aria-selected={activeScenario?.id === scenario.id}
+                className="mt-scenario-option"
+                onClick={() => selectScenario(scenario.id)}
+                data-testid={`option-community-scenario-${scenario.id}`}
+              >
+                <span className="mt-scenario-option-icon"><Clapperboard size={15}/></span>
+                <span className="mt-scenario-option-copy"><strong>{scenario.title}</strong><small>{scenario.subtitle}</small></span>
+                {activeScenario?.id === scenario.id && <Check size={16} className="mt-scenario-option-check"/>}
+              </button>)}
+            </div>
+            : <div className="mt-scenario-empty" role="status" data-testid="text-community-scenario-no-results">Не нашёл сценарий. Попробуй короче или опиши, что хочешь сделать.</div>}
+        </div>
+      </Sheet>}
     </div>
   </Frame>;
 }

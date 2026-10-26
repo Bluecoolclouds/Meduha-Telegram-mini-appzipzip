@@ -1,0 +1,97 @@
+.meduha .m-profile-legal-link {
+  display: inline-block;
+  margin-top: 9px;
+  color: var(--orange);
+  font-size: 10px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.meduha .m-privacy-page {
+  padding: 2px 0 22px;
+}
+
+.meduha .m-privacy-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 17px;
+  color: var(--orange);
+  font-size: 11px;
+}
+
+.meduha .m-privacy-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #b94d273d;
+  border-radius: 14px;
+  background: #ff6b180c;
+  color: var(--orange);
+}
+
+.meduha .m-privacy-status div {
+  display: grid;
+  gap: 4px;
+}
+
+.meduha .m-privacy-status strong {
+  font-size: 12px;
+}
+
+.meduha .m-privacy-status small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.meduha .m-privacy-page h1 {
+  margin-top: 20px;
+  font-size: 24px;
+}
+
+.meduha .m-privacy-intro,
+.meduha .m-privacy-warning {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.meduha .m-privacy-card {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+}
+
+.meduha .m-privacy-card h2 {
+  font-size: 13px;
+}
+
+.meduha .m-privacy-card p {
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.meduha .m-privacy-card ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.meduha .m-privacy-card li + li {
+  margin-top: 5px;
+}
+
+.meduha .m-privacy-warning {
+  padding: 11px 12px;
+  border-left: 2px solid var(--orange);
+  background: var(--surface);
+}

@@ -56,6 +56,11 @@ test('natural-language searches rank the relevant scenarios', () => {
     ['cinema', 'cinema'],
   ]) assert.equal(searchVideoScenarios(query)[0]?.id, expected, query);
 });
+test('scenario picker finds scenarios from partial words and short descriptions', () => {
+  assert.equal(searchVideoScenarios('катан')[0]?.id, 'katana');
+  assert.equal(searchVideoScenarios('джиудж')[0]?.id, 'genjutsu');
+  assert.equal(searchVideoScenarios('заменить одеж')[0]?.id, 'object-swap');
+});
 test('empty and generic queries show the catalog; unknown queries are empty', () => {
   assert.equal(searchVideoScenarios('').length, videoScenarios.length);
   assert.equal(searchVideoScenarios('хочу видео').length, videoScenarios.length);
