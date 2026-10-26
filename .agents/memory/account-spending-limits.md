@@ -14,3 +14,9 @@ UTC budget-day labels must stay calendar strings (`YYYY-MM-DD`) across the API b
 **Why:** The generated response validator coerces date-formatted fields into JavaScript dates. JSON then emits a midnight timestamp instead of the intended calendar label, even when the finance helper returned a plain string.
 
 **How to apply:** For new budget-day response fields, test the real HTTP JSON as well as the finance helper; keep calendar labels distinct from event timestamps.
+
+Do not turn the small budget for one provider smoke test into the product's shared daily user quota. A wallet balance, a request quote and an operator risk budget are separate concepts; a cap is not a credit grant.
+
+**Why:** The user rejected an arbitrary 10-credit account cap chosen during a cheap-photo test. It could block a legitimate verified model priced above that amount even when the user has sufficient balance.
+
+**How to apply:** Base any additional per-account restriction on an explicit product or abuse-control policy, not the price of the test image. During the disabled pilot, matching the already-approved global ceiling removes the accidental tighter account restriction without increasing the shared budget. This is a pilot configuration, not a customer plan or an unlimited-spending policy. Keep spending/model/channel switches and wallet balances unchanged when correcting only this cap.
