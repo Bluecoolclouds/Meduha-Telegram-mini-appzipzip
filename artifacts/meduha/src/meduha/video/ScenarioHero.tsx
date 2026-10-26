@@ -48,7 +48,7 @@ export function ScenarioCarousel<T extends CarouselItem>({ items, image, cover, 
   return <section className="vs-hero" aria-roledescription="carousel" aria-label="Новые сценарии" ref={root}
     onPointerEnter={e => { if (e.pointerType === 'mouse') setHover(true); }} onPointerLeave={() => setHover(false)} onFocus={() => setFocused(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false); }}>
     <div className="vs-hero-track" ref={track}>
-      {items.map((s, i) => <article key={s.id} className={`vs-hero-slide${i === idx ? ' on' : ''}`} aria-hidden={i !== idx}>
+      {items.map((s, i) => <article key={s.id} className={`vs-hero-slide${i === idx ? ' on' : ''}${s.id === 'bytedance/seedance-2.5/text-to-video' ? ' seedance-25' : ''}`} aria-hidden={i !== idx}>
         <div className="vs-hero-backdrop" style={{ backgroundImage: `url("${i === idx || visited.has(s.id) ? imageOf(s) : thumbOf(s)}")` }} aria-hidden="true" />
         <img src={i === idx || visited.has(s.id) ? imageOf(s) : thumbOf(s)} alt="" decoding="async" fetchPriority={i === idx ? 'high' : 'auto'}/>
         <div className="vs-hero-copy">

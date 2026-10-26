@@ -1,11 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Clapperboard, Music2, Replace, ScanFace, Sparkles, WandSparkles } from 'lucide-react';
+import { ArrowRight, Clapperboard, Megaphone, Music2, Package, Palette, Replace, ScanFace, Sparkles, WandSparkles } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
-import { HeaderActions, Frame, LiveMascot, SectionTitle, Sheet, asset, brandAsset, mood } from './shared';
+import { HeaderActions, Frame, LiveMascot, SectionTitle, Sheet, brandAsset, mood } from './shared';
 import TemplateFeed from './templates/TemplateFeed';
 import { usePlaybackPolicy } from './templates/playback-policy';
+import './home-tools.css';
 
 const homePhotoFiles = ['home-photo-1.webp','home-photo-2.webp','home-photo-3.webp','home-photo-4.webp'];
+const homeToolGroups = [
+ {title:'Сценарии',items:[
+  {label:'Замена объекта',subtitle:'Genjutsu',icon:Replace,href:'/create?type=video&scenario=object-swap'},
+  {label:'ИИ-персонаж',subtitle:'Создание персонажа',icon:ScanFace,href:'/create?type=photo&photoModel=higgsfield%2Fai-influencer'},
+  {label:'Оживить фото',subtitle:'MiniMax H3',icon:WandSparkles,href:`/create?type=video&videoModel=${encodeURIComponent('minimax/h3/image-to-video')}`}
+ ]},
+ {title:'Студии',items:[
+  {label:'Ads Studio',subtitle:'Рекламные креативы',icon:Megaphone,href:'/create?type=photo&photoModel=workflows%2Fads-studio'},
+  {label:'Cinema Studio',subtitle:'Видео',icon:Clapperboard,href:'/create?type=video&videoModel=higgsfield%2Fcinema-studio%2F4.0'},
+  {label:'Marketing Studio',subtitle:'Рекламная графика',icon:Palette,href:'/create?type=photo&photoModel=marketing-studio%2Fimage'},
+  {label:'Product Shots',subtitle:'Предметные фото',icon:Package,href:'/create?type=photo&photoModel=workflows%2Fproduct-shots'}
+ ]}
+];
+
 function HomeVideoPreview() {
  const videoRef=useRef<HTMLVideoElement>(null);const [visible,setVisible]=useState(false);const {pageActive,canAutoplay}=usePlaybackPolicy();
  useEffect(()=>{const video=videoRef.current;if(!video)return;const observer=new IntersectionObserver(([entry])=>setVisible(entry.isIntersecting),{rootMargin:'120px'});observer.observe(video);return()=>observer.disconnect()},[]);
@@ -39,9 +54,9 @@ export default function Home(){
   <div className="m-info-note">Пока можно подготовить идею и сохранить черновик. Генерация ещё не подключена.</div>
     <div className="m-entry-grid"><Link href="/create?type=photo" className="m-entry m-entry-photo press"><HomePhotoPreview/><div className="m-entry-content"><h3>Создать фото</h3><p>Ты в любой вселенной</p><div className="m-entry-cta">Попробовать<ArrowRight size={14}/></div></div></Link><Link href="/create?type=video" className="m-entry press"><HomeVideoPreview/><div className="m-entry-content"><h3>Создать видео</h3><p>Оживи свою историю</p><div className="m-entry-cta">Попробовать<ArrowRight size={14}/></div></div></Link></div>
   <Link className="m-music-link m-music-feature press" href="/create?type=music"><span className="music-icon m-music-feature-icon"><Music2 size={17}/></span><span className="m-music-feature-copy"><strong>А может, свой трек?</strong><small>Из пары слов</small></span><span className="m-music-feature-arrow" aria-hidden="true"><ArrowRight size={15}/></span></Link>
-  <SectionTitle action="Все инструменты" onClick={()=>setTools(true)}>Больше, чем промпт</SectionTitle><div className="m-tools">{[{label:'Замена объекта',subtitle:'Genjutsu',icon:Replace,href:'/create?type=video&scenario=object-swap'},{label:'Видеоэффекты',icon:Clapperboard,href:`/create?preset=${encodeURIComponent('Видеоэффекты')}`},{label:'Оживить фото',icon:WandSparkles,href:`/create?preset=${encodeURIComponent('Оживить фото')}`}].map(({label,subtitle,icon:Icon,href})=><Link key={label} href={href} className="m-tool"><Icon size={23}/>{label}{subtitle&&<small className="m-tool-subtitle">{subtitle}</small>}</Link>)}</div>
+  <SectionTitle action="Все инструменты" onClick={()=>setTools(true)}>Больше, чем промпт</SectionTitle><div className="m-tools">{[{label:'Замена объекта',subtitle:'Genjutsu',icon:Replace,href:'/create?type=video&scenario=object-swap'},{label:'ИИ-персонаж',icon:ScanFace,href:'/create?type=photo&photoModel=higgsfield%2Fai-influencer'},{label:'Оживить фото',subtitle:'MiniMax H3',icon:WandSparkles,href:`/create?type=video&videoModel=${encodeURIComponent('minimax/h3/image-to-video')}`}].map(({label,subtitle,icon:Icon,href})=><Link key={label} href={href} className="m-tool"><Icon size={23}/>{label}{subtitle&&<small className="m-tool-subtitle">{subtitle}</small>}</Link>)}</div>
    <SectionTitle action="Все шаблоны" onClick={()=>navigate('/community')}>Примеры для вдохновения</SectionTitle><TemplateFeed/>
   <div className="ml-peek"><img src={mood('curious')} alt="Медуха выглядывает с вопросом"/></div><p className="m-footer-note" style={{marginTop:4}}>Хорошие идеи заслуживают быть созданными.<br/>А что придумаешь ты?</p>
-  {tools&&<Sheet title="Чуть больше магии" onClose={()=>setTools(false)}><img src={mood('wink')} alt="" className="m-mascot ml-sheet-mascot ml-landscape" style={{width:150}}/><p>Выбери идею — всё остальное мы уже подготовили. Сохранить результат пока можно как черновик.</p><div className="m-gallery">{[{image:'fashion',title:'AI-фотосессия'},{image:'car',title:'Кино из фото'},{image:'astronaut',title:'Другая вселенная'},{image:'flower',title:'Предметная магия'}].map(item=><Link href={`/create?preset=${encodeURIComponent(item.title)}`} className="m-work" key={item.image} onClick={()=>setTools(false)}><img style={{height:160,width:'100%',objectFit:'cover',borderRadius:14}} src={asset(item.image)} alt={`Пример: ${item.title}`}/><h3>{item.title} <ArrowRight size={12} style={{display:'inline'}}/></h3></Link>)}</div></Sheet>}
+  {tools&&<Sheet title="Все инструменты" onClose={()=>setTools(false)} className="m-home-tools-sheet"><p className="m-home-tools-intro">Сценарии и студии для фото, видео и рекламы.</p>{homeToolGroups.map(group=><section className="m-home-tool-group" key={group.title}><h3 className="m-home-tool-heading">{group.title}</h3><div className="m-home-tool-grid">{group.items.map(({label,subtitle,icon:Icon,href})=><Link href={href} className="m-home-tool-link" key={label} onClick={()=>setTools(false)}><Icon className="m-home-tool-icon" size={18}/><span className="m-home-tool-copy"><strong>{label}</strong><small>{subtitle}</small></span><ArrowRight className="m-home-tool-arrow" size={13}/></Link>)}</div></section>)}</Sheet>}
  </Frame>;
 }

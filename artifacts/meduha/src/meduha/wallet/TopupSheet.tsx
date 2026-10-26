@@ -22,7 +22,6 @@ export function TopupSheet({ onClose, authenticated, balance }: { onClose: () =>
   return <Sheet title={title} onClose={onClose} className="mt-sheet">
     <div className="mt-flag" data-testid="status-topup-demo"><CircleSlash size={13} />Тестовый режим · оплата, подписка и начисление кредитов не подключены</div>
     {step === 'choose' && <div className="mt-step" key="choose">
-      <p className="mt-lead">Цены в USD. На 3 месяца действует половина годовой скидки. Кредиты указаны за каждый месяц, полная сумма — за выбранный срок.</p>
       <div className="mt-periods" role="group" aria-label="Срок тарифа">
         {BILLING_PERIODS.map(p => <button key={p.months} type="button" aria-pressed={months === p.months} className={months === p.months ? 'on' : ''} onClick={() => setMonths(p.months)} data-testid={`button-topup-period-${p.months}`}><strong>{p.label}</strong>{p.months > 1 && <small>до −{discountLabel(billingQuote(resolve(TOPUP_PACKAGES[2], {}), p.months).discount)}</small>}</button>)}
       </div>

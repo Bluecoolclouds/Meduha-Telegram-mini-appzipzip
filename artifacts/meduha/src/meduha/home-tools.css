@@ -1,0 +1,12 @@
+.meduha .m-home-tools-sheet .m-home-tools-intro{margin:0 0 14px;font-size:11px;line-height:1.45}
+.meduha .m-home-tool-group+.m-home-tool-group{margin-top:16px}
+.meduha .m-home-tool-heading{margin:0 0 8px;font-size:10px;font-weight:650;color:var(--muted)}
+.meduha .m-home-tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.meduha .m-home-tool-link{display:flex;align-items:center;gap:8px;min-width:0;min-height:64px;padding:9px;border:1px solid var(--line);border-radius:13px;background:var(--raised);text-align:left;transition:background-color .2s ease,border-color .2s ease}
+.meduha .m-home-tool-icon{flex:none;color:var(--orange)}
+.meduha .m-home-tool-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.meduha .m-home-tool-copy strong{font-size:10px;line-height:1.2;font-weight:650}
+.meduha .m-home-tool-copy small{color:var(--muted);font-size:8px;line-height:1.2}
+.meduha .m-home-tool-arrow{flex:none;color:var(--muted)}
+.meduha .m-home-tool-link:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+@media(max-width:340px){.meduha .m-home-tool-grid{grid-template-columns:1fr}}
