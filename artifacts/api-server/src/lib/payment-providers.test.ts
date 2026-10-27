@@ -6,6 +6,7 @@ import {
   paymentsEnabled,
   PaymentProviderError,
 } from './payment-providers';
+import { resolveBillingPlan } from './billing-pricing';
 
 test('YooKassa adapter sends a fixed amount with idempotency and returns only its HTTPS checkout URL', async () => {
   let captured: RequestInit | undefined;
@@ -31,6 +32,39 @@ test('YooKassa adapter sends a fixed amount with idempotency and returns only it
     description: 'Meduha test',
     metadata: { order_id: 'order-1' },
   });
+});
+
+test('YooKassa checkout uses the catalog RUB total for 1, 3 and 12 month terms', async () => {
+  const amounts: { value: string; currency: string }[] = [];
+  const provider = createYooKassaProvider(
+    { shopId: 'test-shop', secretKey: 'test-secret' },
+    async (_input, init) => {
+      const body = JSON.parse(String(init?.body));
+      amounts.push(body.amount);
+      return Response.json({
+        id: `provider-payment-${amounts.length}`,
+        confirmation: { confirmation_url: 'https://yookassa.ru/checkout/payment/test' },
+      }, { status: 201 });
+    },
+  );
+  for (const months of [1, 3, 12]) {
+    const quote = resolveBillingPlan('p300-1200', months)!;
+    await provider.createPayment({
+      orderId: `order-${months}`,
+      amountMinor: quote.totalAmountMinor,
+      currency: 'RUB',
+      description: 'Meduha test',
+      returnUrl: 'https://example.test/wallet',
+      idempotencyKey: `order-${months}`,
+    });
+  }
+  assert.deepEqual(
+    amounts,
+    [1, 3, 12].map(months => ({
+      value: (resolveBillingPlan('p300-1200', months)!.totalAmountMinor / 100).toFixed(2),
+      currency: 'RUB',
+    })),
+  );
 });
 
 test('YooKassa verification parses authoritative status and minor units', async () => {

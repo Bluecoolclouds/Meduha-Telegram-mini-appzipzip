@@ -25,6 +25,7 @@ await build({
     path.join(root,'src/lib/photo-pricing.test.ts'),
     path.join(root,'src/lib/billing-pricing.test.ts'),
     path.join(root,'src/lib/payment-providers.test.ts'),
+    { in: path.join(root,'src/lib/payment-credit.integration.test.ts'), out: 'payment-credit.integration.test' },
     path.join(root,'src/lib/catalog-availability.test.ts'),
     path.join(root,'src/routes/meduha.integration.test.ts'),
     path.join(root,'src/lib/finance.test.ts'),
@@ -57,6 +58,12 @@ if (process.argv.includes('--payment-unit')) {
   const paymentResult = spawnSync(process.execPath, [
     '--test', path.join(out, 'billing-pricing.test.cjs'), path.join(out, 'payment-providers.test.cjs'),
   ], { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'production' } });
+  process.exit(paymentResult.status ?? 1);
+}
+if (process.argv.includes('--payment-isolated')) {
+  const paymentResult = spawnSync(process.execPath, [
+    '--test', path.join(out, 'payment-credit.integration.test.cjs'),
+  ], { stdio: 'inherit', env: { ...process.env } });
   process.exit(paymentResult.status ?? 1);
 }
 if (process.argv.includes('--photo')) {
