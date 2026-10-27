@@ -9,8 +9,11 @@ import { hideProviderBrand } from '../publicText';
 import { ScenarioCarousel, PromoBanner } from '../video/ScenarioHero';
 import { photoModelArt, photoProvider, photoProviderLabel } from './modelArt';
 import { photoModelPreview } from './modelPreviews';
-import { photoModelCover } from '../scenarioCovers';
+import { coverPlaceholder, photoModelCover } from '../scenarioCovers';
 import ExamplePreview from '../video/genjutsu/ExamplePreview';
+import { applyContent, contentCover, photoExampleKey, photoIdeaKey } from '../studioContent';
+import { useStudioContent } from '../useStudioContent';
+import { ScenarioUnavailable, StudioContentPending } from '../StudioContentGate';
 import '../video/video.css';
 import '../video/catalogue.css';
 import { meduhaErrorMessage, useMeduhaSession } from '../session';
@@ -67,6 +70,9 @@ export function PhotoCatalogue() {
   const [, navigate] = useLocation();
   const search = useSearch();
   const catalog = useGetPhotoCatalog({ request: read });
+  const content = useStudioContent();
+  // Hidden examples remove only the cover; the model itself stays selectable.
+  const modelCover = (id: string, size?: 'thumb' | 'card' | 'hero') => !content.ready || !content.enabled(photoExampleKey(id)) ? coverPlaceholder : content.cover(photoExampleKey(id), photoModelCover(id, size));
   const [q, setQ] = useState(() => new URLSearchParams(search).get('q') || '');
   const [mode, setMode] = useState<'all' | 'text' | 'image' | 'workflow'>('all');
   const [provider, setProvider] = useState('all');
@@ -85,7 +91,7 @@ export function PhotoCatalogue() {
   const hero = groupFamilies(models).slice(0, 5).map(g => ({ id: g.family.id, title: title(g), subtitle: blurb(g.initial), image: photoModelArt(g.initial), providerLabel: photoProviderLabel(photoProvider(g.initial)), g }));
   const modes = [['all', 'Все'], ['text', 'Текст → фото'], ['image', 'Фото → фото'], ['workflow', 'Сценарии']] as const;
   return <Frame active="Create"><div className="vs-page" data-testid="catalogue-photo-models">
-    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => photoModelCover(h.g.initial.id, 'hero')} thumbnail={h => photoModelCover(h.g.initial.id, 'thumb')} label={h => priceLabel(h.g.members)} eyebrow={h => `${kinds(h.g)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.g))}/>}
+    {catalog.isLoading ? <div className="vs-hero" style={{ height: 268, background: 'var(--vk-card)' }}/> : hero.length > 0 && <ScenarioCarousel items={hero} image={asset} cover={h => modelCover(h.g.initial.id, 'hero')} thumbnail={h => modelCover(h.g.initial.id, 'thumb')} label={h => priceLabel(h.g.members)} eyebrow={h => `${kinds(h.g)} · ${h.providerLabel}`} onOpen={h => navigate(href(h.g))}/>}
     <PromoBanner/>
     <div className="vs-toolbar">
       <div className="vs-toolrow">
@@ -112,7 +118,7 @@ export function PhotoCatalogue() {
     {catalog.isLoading ? <div className="vs-grid">{[0, 1, 2, 3].map(i => <div key={i} className="vs-card" style={{ height: 230, opacity: .5 }}/>)}</div>
       : catalog.isError ? <div className="vs-empty"><img src={mood('curious')} alt=""/><strong>Каталог не загрузился</strong><p>{meduhaErrorMessage(catalog.error)}</p><div className="vs-empty-actions"><button onClick={() => catalog.refetch()}><RefreshCw size={12}/> Повторить</button></div></div>
       : shown.length ? <div className="vs-grid">{shown.map((g, i) => <button key={g.family.id} data-testid={`card-photo-model-${g.family.id}`} className={`vs-card${searching && i === 0 ? ' best' : ''}`} style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }} onClick={() => navigate(href(g))}>
-        <span className="vs-card-img"><img src={photoModelCover(g.initial.id)} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
+        <span className="vs-card-img"><img src={modelCover(g.initial.id)} alt="" loading="lazy"/>{searching && i === 0 && <span className="vs-best">Ближе всего</span>}</span>
         <span className="vs-card-body"><strong>{title(g)}<em> · {g.members.length > 1 ? `${g.members.length} режима` : modeLabel(g.initial)}</em></strong><small>{blurb(g.initial)}</small>
           <span className="vs-card-foot"><span className="vs-prov">{photoProviderLabel(photoProvider(g.initial))}</span><span className="vs-price" data-testid={`text-price-${g.family.id}`}>{priceLabel(g.matched)}</span></span></span>
       </button>)}</div>
@@ -135,13 +141,17 @@ export function PhotoModelPage({ catalogId }: { catalogId: string }) {
   const authed = session.phase === 'authenticated';
   const catalog = useGetPhotoCatalog({ request: read });
   const source = useRecipeSource();
+  const content = useStudioContent();
   const ideaId = new URLSearchParams(useSearch()).get('photoIdea');
-  const idea = source.active ? undefined : photoIdeas.find(item => item.id === ideaId);
+  const baseIdea = source.active ? undefined : photoIdeas.find(item => item.id === ideaId);
+  const idea = baseIdea && applyContent(baseIdea, content.map, photoIdeaKey);
   const [selected, setSelected] = useState(catalogId);
   const model = catalog.data?.models.find(m => m.id === selected);
   const siblings = catalog.data ? familyOf(catalogId).modes.map(x => catalog.data!.models.find(m => m.id === x.id)).filter((m): m is PhotoCatalogModel => !!m) : [];
   const pick = (id: string) => { setSelected(id); window.history.replaceState(window.history.state, '', `${import.meta.env.BASE_URL.replace(/\/$/, '')}${idea ? photoIdeaHref(idea, id) : `${photoModelHref(id)}${source.carry}`}`); };
   if (catalog.isLoading || (source.active && source.phase === 'loading')) return <Frame active="Create"><div className="ps-page"><div className="ps-card ps-skel" style={{ height: 120 }}/><div className="ps-card ps-skel" style={{ height: 260, marginTop: 12 }}/></div></Frame>;
+  if (baseIdea && !content.ready) return <Frame active="Create"><div className="ps-page"><StudioContentPending content={content}/></div></Frame>;
+  if (baseIdea && !content.enabled(photoIdeaKey(baseIdea.id))) return <Frame active="Create"><div className="ps-page"><ScenarioUnavailable backHref="/create?type=photo&ideas=1" label="К фотоидеям"/></div></Frame>;
   if (ideaId && !idea && !source.active) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><strong>Фото-сценарий не найден</strong><p>Выбери сценарий из актуальной подборки.</p><Link className="ps-btn" href="/create?type=photo&ideas=1">К фотоидеям</Link></div></div></Frame>;
   if (catalog.isError || !model) return <Frame active="Create"><div className="ps-page"><div className="ps-empty"><img src={mood('curious')} alt=""/><strong>{catalog.isError ? 'Каталог не загрузился' : 'Модель не найдена'}</strong><p>{catalog.isError ? meduhaErrorMessage(catalog.error) : 'Возможно, она убрана из каталога.'}</p>{catalog.isError && <button className="ps-btn" onClick={() => catalog.refetch()}><RefreshCw size={14}/>Повторить</button>}<Link className="ps-btn" href="/create?type=photo">К каталогу</Link></div></div></Frame>;
   const recipeView = source.view && source.view.recipe.kind === 'photo' && source.view.recipe.catalogId === model.id ? source.view : null;
@@ -151,6 +161,12 @@ export function PhotoModelPage({ catalogId }: { catalogId: string }) {
 
 function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, navigate, siblings, onPick }: { idea?: PhotoIdea; suffix: string | null; source: RecipeSource; recipeView: RecipeView | null; model: PhotoCatalogModel; catalog: PhotoCatalog; authed: boolean; navigate: (to: string) => void; siblings: PhotoCatalogModel[]; onPick: (id: string) => void }) {
   const fam = familyOf(model.id);
+  const content = useStudioContent();
+  const exampleKey = photoExampleKey(model.id);
+  const exampleVisible = content.ready && content.enabled(exampleKey);
+  const exampleRow = content.map.get(exampleKey);
+  const exampleText = exampleRow ? { title: exampleRow.title.trim() || undefined, description: exampleRow.description.trim() || undefined } : undefined;
+  const exampleCover = contentCover(content.map, exampleKey) ? content.cover(exampleKey, '') : null;
   const schema = model.schema as Schema;
   const qc = useQueryClient();
   const { toast, notify } = useToast();
@@ -281,8 +297,9 @@ function ModelForm({ idea, suffix, source, recipeView, model, catalog, authed, n
 
   return <Frame active="Create"><div className="ps-page vs-page ps-model" data-testid={`page-photo-model-${model.id}`}>
     <a className="ps-back" href="/create?type=photo" onClick={go(navigate, '/create?type=photo')} data-testid="link-photo-catalogue"><ArrowLeft size={13}/>Все фотомодели</a>
-    <ExamplePreview scenario={model.id} heading={userSafeName(fam.title ?? displayName(model))} media={photoModelPreview(model.id)}
-      communityHref="/community?kind=photo" emptyText="Для этого режима на исходной странице пока нет фотопримера"/>
+    {exampleVisible && <ExamplePreview scenario={model.id} heading={userSafeName(fam.title ?? displayName(model))} description={exampleText?.description} subheading={exampleText?.title}
+      media={exampleCover ? { image: exampleCover } : photoModelPreview(model.id)}
+      communityHref="/community?kind=photo" emptyText="Для этого режима на исходной странице пока нет фотопримера"/>}
     {idea && <>
       <div className="ps-note" data-testid="status-photo-idea"><strong>{idea.title}</strong><p>Описание можно изменить. У каждой модели — отдельный черновик этого сценария: настройки и загруженные референсы сохраняются на этом устройстве и восстанавливаются при возвращении к модели.</p><Link href="/create?type=photo&ideas=1">Выбрать другой сценарий</Link></div>
       <label className="ps-field"><span>Модель для этого сценария</span><select data-testid="select-photo-idea-model" value={model.id} onChange={event => onPick(event.target.value)}>{catalog.models.map(option => <option key={option.id} value={option.id}>{displayName(option)}</option>)}</select></label>

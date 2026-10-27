@@ -16,8 +16,8 @@ const examples: Record<string, VideoPreviewMedia | null> = {
   cinema: videoModelPreview('higgsfield/cinema-studio/4.0'),
 };
 
-export default function ExamplePreview({ scenario, showDemo = true, heading, media, communityHref, emptyText }: {
-  scenario: string; showDemo?: boolean; heading?: string; media?: VideoPreviewMedia | null; communityHref?: string; emptyText?: string;
+export default function ExamplePreview({ scenario, showDemo = true, heading, subheading, description, media, communityHref, emptyText }: {
+  scenario: string; showDemo?: boolean; heading?: string; subheading?: string; description?: string; media?: VideoPreviewMedia | null; communityHref?: string; emptyText?: string;
 }) {
   const item = videoScenarios.find(value => value.id === scenario);
   const ex = showDemo ? (media === undefined ? examples[scenario] : media) : undefined;
@@ -64,6 +64,7 @@ export default function ExamplePreview({ scenario, showDemo = true, heading, med
 
   return <section className="gj-ex" data-testid={hasGenjutsuLibrary ? 'card-genjutsu-example' : 'card-scenario-example'}>
     <div className="gj-ex-head">{heading ? <h1 className="gj-ex-title">{heading}</h1> : <strong>{isStill ? 'Пример образа' : 'Пример результата'}</strong>}<small>{ex ? 'Демо' : 'Пока без демо'}</small></div>
+    {(subheading || description) && <div className="gj-ex-note" data-testid={`text-example-note-${scenario}`}>{subheading && <strong>{subheading}</strong>}{description && <p>{description}</p>}</div>}
     <div className={`gj-ex-media${isStill ? ' still' : ''}${!ex ? ' unavailable' : ''}`}>
       {ex?.video && <video ref={video} src={ex.video} poster={ex.thumb} preload="none" playsInline muted controls={started && !failed}
         aria-label={`Демо ${title}`} data-testid={legacyTestIds ? 'video-genjutsu-example' : `video-example-${scenario}`} onError={() => setFailed(true)}/>}

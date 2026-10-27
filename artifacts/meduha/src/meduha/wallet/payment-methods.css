@@ -17,11 +17,15 @@
 .meduha .mpm-sum dt{color:#f3eee8a6}
 .meduha .mpm-sum dd{margin:0;font-weight:650;text-align:right}
 .meduha .mpm-list{display:grid;gap:8px}
-.meduha .mpm-opt{display:grid;grid-template-columns:38px 1fr 20px;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 12px;border:1.5px solid var(--line,#f0dccb);border-radius:14px;background:var(--vk-card,#fff8ef);color:inherit;font:inherit;cursor:pointer;transition:border-color .15s ease,transform .15s ease}
+.meduha .mpm-opt{display:grid;grid-template-columns:50px 1fr 20px;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 12px;border:1.5px solid var(--line,#f0dccb);border-radius:14px;background:var(--vk-card,#fff8ef);color:inherit;font:inherit;cursor:pointer;transition:border-color .15s ease,transform .15s ease}
 .meduha .mpm-opt:active{transform:scale(.99)}
 .meduha .mpm-opt.on{border-color:var(--orange,#ff6b18)}
 .meduha .mpm-opt:focus-visible,.meduha .mpm-back:focus-visible{outline:2px solid var(--orange,#ff6b18);outline-offset:2px}
 .meduha .mpm-ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:#ff6b1818;color:var(--orange,#ff6b18)}
+.meduha .mpm-ico-logo{background:transparent}
+.meduha .mpm-ico-logo img{display:block;width:100%;height:100%;object-fit:contain}
+.meduha .mpm-ico-logo-wide{width:50px}
+.meduha .mpm-ico-logo-wide img{height:auto}
 .meduha .mpm-txt{display:grid;gap:2px}
 .meduha .mpm-txt strong{display:flex;align-items:center;gap:6px;font-size:13px}
 .meduha .mpm-txt strong small{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border:1px solid var(--line,#f0dccb);border-radius:5px;padding:1px 4px}
@@ -38,5 +42,5 @@
 .meduha .mpm-notice{margin:0;padding:10px 12px;border-radius:12px;background:#fff0e3;font-size:11.5px;line-height:1.45}
 .meduha.light.dark .mpm-demo{background:#2b1f19;border-color:#7a4a2e;color:#ffb886}
 .meduha.light.dark .mpm-notice{background:#ff6b1814}
-@media(max-width:360px){.meduha .mpm-opt{grid-template-columns:32px 1fr 18px;gap:8px;padding:10px}.meduha .mpm-ico{width:32px;height:32px}.meduha .mpm-total b{font-size:22px}}
+@media(max-width:360px){.meduha .mpm-opt{grid-template-columns:44px 1fr 18px;gap:8px;padding:10px}.meduha .mpm-ico{width:32px;height:32px}.meduha .mpm-ico-logo-wide{width:44px}.meduha .mpm-total b{font-size:22px}}
 @media(prefers-reduced-motion:reduce){.meduha .mpm-opt{transition:none}}

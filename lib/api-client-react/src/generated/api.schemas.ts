@@ -5,6 +5,39 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface StudioContentInput {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  title: string;
+  /** @maxLength 2000 */
+  description: string;
+  /**
+     * @maxLength 2048
+     * @nullable
+     */
+  cover: string | null;
+  enabled: boolean;
+  /** @minimum 0 */
+  revision: number;
+}
+
+export interface StudioContent {
+  key: string;
+  title: string;
+  description: string;
+  /** @nullable */
+  cover: string | null;
+  enabled: boolean;
+  revision: number;
+  updatedAt: string;
+}
+
+export interface StudioContentMedia {
+  url: string;
+}
+
 export interface BroadcastActionInput {
   /** @pattern ^[1-9][0-9]{0,15}$ */
   chatId?: string;

@@ -15,15 +15,15 @@ export function optimizedCover(source: string, size: CoverSize = 'card'): string
 }
 
 // A neutral placeholder, never an unrelated model's demonstration.
-const placeholder = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360"><rect width="640" height="360" fill="#dcdcd9"/></svg>')}`;
+export const coverPlaceholder = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360"><rect width="640" height="360" fill="#dcdcd9"/></svg>')}`;
 
 export const photoModelCover = (modelId: string, size: CoverSize = 'card'): string => {
   const image = photoModelPreview(modelId)?.image;
-  return image ? optimizedCover(image, size) : placeholder;
+  return image ? optimizedCover(image, size) : coverPlaceholder;
 };
 export const videoModelCover = (modelId: string, size: CoverSize = 'card'): string => {
   const image = videoModelPreview(modelId)?.thumb;
-  return image ? optimizedCover(image, size) : placeholder;
+  return image ? optimizedCover(image, size) : coverPlaceholder;
 };
 export const photoIdeaCover = (idea: PhotoIdea, size: CoverSize = 'card'): string => photoModelCover(photoIdeaModel(idea), size);
 
@@ -36,5 +36,5 @@ const motionModels: Record<string, string> = {
 export function videoScenarioCover(scenarioId: string, size: CoverSize = 'card'): string {
   if (scenarioId === 'ai-blogger') return photoModelCover('higgsfield/ai-influencer', size);
   const modelId = Object.hasOwn(motionModels, scenarioId) ? motionModels[scenarioId] : videoScenarioModel(scenarioId);
-  return modelId ? videoModelCover(modelId, size) : placeholder;
+  return modelId ? videoModelCover(modelId, size) : coverPlaceholder;
 }

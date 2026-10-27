@@ -1,0 +1,35 @@
+/* Scoped to the admin "Контент студии" section. */
+.adm .sc-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.adm .sc-hidden-count { margin-left: 7px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--signal); }
+.adm .sc-search { display: flex; align-items: center; gap: 8px; border: 1px solid var(--rule); background: var(--sheet); border-radius: 7px; padding: 0 10px; min-width: min(280px, 100%); color: var(--ink-3); }
+.adm .sc-search input { border: 0; background: transparent; padding: 8px 0; flex: 1; font: inherit; color: var(--ink); outline: none; }
+.adm .sc-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.adm .sc-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 12px 4px; border-bottom: 1px solid var(--rule); animation: adm-in .3s ease both; }
+.adm .sc-row.off .sc-text strong, .adm .sc-row.off .sc-text > small { color: var(--ink-3); }
+.adm .sc-thumb { position: relative; width: 96px; aspect-ratio: 16 / 10; border-radius: 6px; overflow: hidden; background: hsl(40 20% 88%); display: grid; place-items: center; }
+.adm .sc-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.adm .sc-row.off .sc-thumb img { opacity: .3; filter: grayscale(1); }
+.adm .sc-thumb svg { position: relative; color: var(--ink); }
+.adm .sc-text { display: grid; gap: 3px; min-width: 0; }
+.adm .sc-text strong { font-size: 14.5px; letter-spacing: -.01em; }
+.adm .sc-text > small { color: var(--ink-2); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm .sc-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--ink-3); }
+.adm .sc-meta code { font-family: 'IBM Plex Mono', monospace; overflow-wrap: anywhere; }
+.adm .sc-meta em { font-style: normal; }
+.adm .sc-pill { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; padding: 3px 8px; border-radius: 99px; border: 1px solid var(--rule); color: var(--ink-2); }
+.adm .sc-pill.off { border-color: var(--signal); color: var(--signal); background: var(--signal-soft); }
+.adm .sc-editor-media { display: grid; gap: 6px; }
+.adm .sc-editor-media img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; border: 1px solid var(--rule); background: hsl(40 20% 88%); }
+.adm .sc-editor-media small { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-3); }
+.adm .sc-upload { display: grid; gap: 10px; padding: 12px; border: 1px dashed var(--rule); border-radius: 8px; }
+.adm .sc-upload-warn { display: flex; gap: 8px; font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.adm .sc-upload-warn svg { flex: none; color: var(--signal); margin-top: 2px; }
+.adm .sc-toggle { display: flex; gap: 12px; align-items: flex-start; }
+.adm .sc-toggle span { display: grid; gap: 2px; }
+.adm .sc-toggle small { color: var(--ink-3); font-size: 12px; }
+@media (max-width: 720px) {
+  .adm .sc-row { grid-template-columns: 72px minmax(0, 1fr); }
+  .adm .sc-thumb { width: 72px; }
+  .adm .sc-pill { justify-self: start; grid-column: 2; }
+  .adm .sc-row > .adm-btn { grid-column: 2; justify-self: start; }
+}

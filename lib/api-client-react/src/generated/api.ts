@@ -104,6 +104,9 @@ import type {
   PhotoQuoteInput,
   ReceiveMeduhaFreeKassaNotification200,
   RequestTemplateUpload200,
+  StudioContent,
+  StudioContentInput,
+  StudioContentMedia,
   StudioTemplate,
   TelegramBotUpdate,
   TelegramCredentials,
@@ -153,6 +156,384 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getListStudioContentUrl = () => {
+
+
+
+
+  return `/api/meduha/studio-content`
+}
+
+export const listStudioContent = async ( options?: Parameters<typeof customFetch>[1]): Promise<StudioContent[]> => {
+
+  return customFetch<StudioContent[]>(getListStudioContentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListStudioContentQueryKey = () => {
+    return [
+    `/api/meduha/studio-content`
+    ] as const;
+    }
+
+
+export const getListStudioContentQueryOptions = <TData = Awaited<ReturnType<typeof listStudioContent>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listStudioContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListStudioContentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listStudioContent>>> = ({ signal }) => listStudioContent({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listStudioContent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListStudioContentQueryResult = NonNullable<Awaited<ReturnType<typeof listStudioContent>>>
+export type ListStudioContentQueryError = ErrorType<unknown>
+
+
+
+export function useListStudioContent<TData = Awaited<ReturnType<typeof listStudioContent>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listStudioContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListStudioContentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminStudioContentUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/studio-content`
+}
+
+export const listAdminStudioContent = async ( options?: Parameters<typeof customFetch>[1]): Promise<StudioContent[]> => {
+
+  return customFetch<StudioContent[]>(getListAdminStudioContentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminStudioContentQueryKey = () => {
+    return [
+    `/api/meduha/admin/studio-content`
+    ] as const;
+    }
+
+
+export const getListAdminStudioContentQueryOptions = <TData = Awaited<ReturnType<typeof listAdminStudioContent>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminStudioContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminStudioContentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminStudioContent>>> = ({ signal }) => listAdminStudioContent({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminStudioContent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminStudioContentQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminStudioContent>>>
+export type ListAdminStudioContentQueryError = ErrorType<unknown>
+
+
+
+export function useListAdminStudioContent<TData = Awaited<ReturnType<typeof listAdminStudioContent>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminStudioContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminStudioContentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetStudioContentMediaUrl = (mediaId: string,) => {
+
+
+
+
+  return `/api/meduha/studio-content-media/${mediaId}`
+}
+
+export const getStudioContentMedia = async (mediaId: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetStudioContentMediaUrl(mediaId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStudioContentMediaQueryKey = (mediaId: string,) => {
+    return [
+    `/api/meduha/studio-content-media/${mediaId}`
+    ] as const;
+    }
+
+
+export const getGetStudioContentMediaQueryOptions = <TData = Awaited<ReturnType<typeof getStudioContentMedia>>, TError = ErrorType<void>>(mediaId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStudioContentMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStudioContentMediaQueryKey(mediaId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStudioContentMedia>>> = ({ signal }) => getStudioContentMedia(mediaId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: mediaId !== null && mediaId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStudioContentMedia>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStudioContentMediaQueryResult = NonNullable<Awaited<ReturnType<typeof getStudioContentMedia>>>
+export type GetStudioContentMediaQueryError = ErrorType<void>
+
+
+
+export function useGetStudioContentMedia<TData = Awaited<ReturnType<typeof getStudioContentMedia>>, TError = ErrorType<void>>(
+ mediaId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStudioContentMedia>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStudioContentMediaQueryOptions(mediaId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveAdminStudioContentUrl = (contentKey: string,) => {
+
+
+
+
+  return `/api/meduha/admin/studio-content/${contentKey}`
+}
+
+export const saveAdminStudioContent = async (contentKey: string,
+    studioContentInput: StudioContentInput, options?: Parameters<typeof customFetch>[1]): Promise<StudioContent> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<StudioContent>(getSaveAdminStudioContentUrl(contentKey),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(studioContentInput)
+  }
+);}
+
+
+
+
+
+export const getSaveAdminStudioContentMutationKey = () => ['saveAdminStudioContent'] as const;
+
+export const getSaveAdminStudioContentMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAdminStudioContent>>, TError,SaveAdminStudioContentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveAdminStudioContent>>, TError,SaveAdminStudioContentMutationVariables, TContext> => {
+
+const mutationKey = getSaveAdminStudioContentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveAdminStudioContent>>, SaveAdminStudioContentMutationVariables> = (props) => {
+          const {contentKey,data} = props ?? {};
+
+          return  saveAdminStudioContent(contentKey,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveAdminStudioContentMutationResult = NonNullable<Awaited<ReturnType<typeof saveAdminStudioContent>>>
+    export type SaveAdminStudioContentMutationBody = BodyType<StudioContentInput>
+    export type SaveAdminStudioContentMutationError = ErrorType<void>
+    export type SaveAdminStudioContentMutationVariables = {contentKey: string;data: BodyType<StudioContentInput>}
+
+    export const useSaveAdminStudioContent = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAdminStudioContent>>, TError,SaveAdminStudioContentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveAdminStudioContent>>,
+        TError,
+        SaveAdminStudioContentMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveAdminStudioContentMutationOptions(options));
+    }
+
+export const getUploadAdminStudioContentMediaUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/studio-content-media`
+}
+
+export const uploadAdminStudioContentMedia = async (uploadAdminStudioContentMediaBody: Blob, options?: Parameters<typeof customFetch>[1]): Promise<StudioContentMedia> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<StudioContentMedia>(getUploadAdminStudioContentMediaUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream', ...getHeaders(options?.headers) },
+    body: uploadAdminStudioContentMediaBody
+  }
+);}
+
+
+
+
+
+export const getUploadAdminStudioContentMediaMutationKey = () => ['uploadAdminStudioContentMedia'] as const;
+
+export const getUploadAdminStudioContentMediaMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAdminStudioContentMedia>>, TError,UploadAdminStudioContentMediaMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadAdminStudioContentMedia>>, TError,UploadAdminStudioContentMediaMutationVariables, TContext> => {
+
+const mutationKey = getUploadAdminStudioContentMediaMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadAdminStudioContentMedia>>, UploadAdminStudioContentMediaMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadAdminStudioContentMedia(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadAdminStudioContentMediaMutationResult = NonNullable<Awaited<ReturnType<typeof uploadAdminStudioContentMedia>>>
+    export type UploadAdminStudioContentMediaMutationBody = BodyType<Blob>
+    export type UploadAdminStudioContentMediaMutationError = ErrorType<unknown>
+    export type UploadAdminStudioContentMediaMutationVariables = {data: BodyType<Blob>}
+
+    export const useUploadAdminStudioContentMedia = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAdminStudioContentMedia>>, TError,UploadAdminStudioContentMediaMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadAdminStudioContentMedia>>,
+        TError,
+        UploadAdminStudioContentMediaMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUploadAdminStudioContentMediaMutationOptions(options));
+    }
 
 export const getListAdminBroadcastsUrl = () => {
 

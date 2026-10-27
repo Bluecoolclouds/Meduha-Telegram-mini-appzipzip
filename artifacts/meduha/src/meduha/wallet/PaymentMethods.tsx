@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { ArrowLeft, Check, CreditCard, Info, QrCode } from 'lucide-react';
+import { ArrowLeft, Check, Info } from 'lucide-react';
 import type { BillingPlan, BillingTermPrice } from '@workspace/api-client-react';
 import { BILLING_PERIODS, discountPercent, priceInRubles, type BillingMonths } from './pricing';
 import './payment-methods.css';
 
 type Method = 'sbp' | 'card';
-const METHODS: { id: Method; name: string; sub: string; Icon: typeof QrCode }[] = [
-  { id: 'sbp', name: 'СБП', sub: 'Перевод через приложение банка по QR-коду', Icon: QrCode },
-  { id: 'card', name: 'Банковская карта', sub: 'Данные карты вводятся только на странице платёжного сервиса', Icon: CreditCard },
+const METHODS: { id: Method; name: string; sub: string; logo: string; wideLogo?: boolean }[] = [
+  { id: 'sbp', name: 'СБП', sub: 'Перевод через приложение банка по QR-коду', logo: '/images/payments/sbp-logo.webp' },
+  { id: 'card', name: 'Банковская карта', sub: 'Данные карты вводятся только на странице платёжного сервиса', logo: '/images/payments/mir-logo.webp', wideLogo: true },
 ];
 const num = (n: number) => n.toLocaleString('ru-RU');
 
@@ -41,11 +41,11 @@ export function PaymentMethods({ plan, quote, months, tierName, onBack }: { plan
       </dl>
     </section>
     <div className="mpm-list" role="radiogroup" aria-label="Способ оплаты (демо)">
-      {METHODS.map(({ id, name, sub, Icon }, i) => {
+      {METHODS.map(({ id, name, sub, logo, wideLogo }, i) => {
         const on = method === id;
         return <button key={id} type="button" role="radio" aria-checked={on} data-method={id} tabIndex={on || (!method && i === 0) ? 0 : -1}
           className={`mpm-opt${on ? ' on' : ''}`} onClick={() => { setMethod(id); setNotice(false); }} onKeyDown={e => onKey(e, i)} data-testid={`radio-payment-${id}`}>
-          <span className="mpm-ico" aria-hidden="true"><Icon size={18} /></span>
+          <span className={`mpm-ico mpm-ico-logo${wideLogo ? ' mpm-ico-logo-wide' : ''}`} aria-hidden="true"><img src={logo} alt="" /></span>
           <span className="mpm-txt"><strong>{name}<small>демо</small></strong><span>{sub}</span></span>
           <span className="mpm-dot" aria-hidden="true"><Check size={11} strokeWidth={3} /></span>
         </button>;

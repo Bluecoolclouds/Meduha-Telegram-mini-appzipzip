@@ -127,10 +127,10 @@ const stopWords = new Set(['хочу', 'нужно', 'надо', 'мне', 'дл
 const normalize = (value: string) => value.toLowerCase().replaceAll('ё', 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim();
 const stem = (word: string) => word.length > 5 ? word.slice(0, -2) : word;
 
-export function searchVideoScenarios(query: string): VideoScenario[] {
+export function searchVideoScenarios(query: string, scenarios: readonly VideoScenario[] = videoScenarios): VideoScenario[] {
   const tokens = normalize(query).split(/\s+/).filter(w => w.length > 1 && !stopWords.has(w));
-  if (!tokens.length) return videoScenarios;
-  return videoScenarios.map((scenario, index) => {
+  if (!tokens.length) return [...scenarios];
+  return scenarios.map((scenario, index) => {
     const title = normalize(scenario.title);
     const keywords = scenario.keywords.map(normalize);
     const text = normalize(`${scenario.title} ${scenario.subtitle} ${scenario.providerLabel}`);

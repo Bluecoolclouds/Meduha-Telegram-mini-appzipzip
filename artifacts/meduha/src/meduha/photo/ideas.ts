@@ -35,10 +35,10 @@ export const photoIdeas: PhotoIdea[] = [
 const normalize = (value: string) => value.toLocaleLowerCase('ru').replaceAll('ё', 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim();
 const stem = (word: string) => word.length > 5 ? word.slice(0, -2) : word;
 
-export function searchPhotoIdeas(query: string): PhotoIdea[] {
+export function searchPhotoIdeas(query: string, ideas: readonly PhotoIdea[] = photoIdeas): PhotoIdea[] {
   const tokens = normalize(query).split(/\s+/).filter(Boolean);
-  if (!tokens.length) return photoIdeas;
-  return photoIdeas.map((idea, index) => {
+  if (!tokens.length) return [...ideas];
+  return ideas.map((idea, index) => {
     const title = normalize(idea.title);
     const subtitle = normalize(idea.subtitle);
     const keywords = idea.keywords.map(normalize);

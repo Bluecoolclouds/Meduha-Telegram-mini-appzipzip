@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Activity, Boxes, FileClock, Flag, KeyRound, LogOut, Megaphone, MonitorCog, Users, Wallet, Video } from 'lucide-react';
+import { Activity, Boxes, FileClock, Flag, KeyRound, LogOut, Megaphone, MonitorCog, Users, Wallet, Video, LayoutTemplate } from 'lucide-react';
 import { getGetMeduhaAdminStatusQueryKey, getListAdminReportsQueryKey, useGetMeduhaAdminStatus, useListAdminReports, useLoginMeduhaAdminPairing, useLogoutMeduhaAdmin, loginMeduhaAdminPassword } from '@workspace/api-client-react';
 import type { AdminReport } from '@workspace/api-client-react';
 import { ErrorBox, Feedback, Skeleton, adminQueryRequest, adminRequest, asArray, clearAdminQueries, errStatus, isAdminKey } from './ui';
@@ -11,13 +11,15 @@ import SeedanceSection from './Seedance';
 import { AuditSection, ModerationSection, OverviewSection } from './Ops';
 import SessionsSection from './Sessions';
 import BroadcastsSection from './Broadcasts';
+import StudioContentSection from './StudioContent';
 import './admin.css';
 
-type Tab = 'overview' | 'config' | 'users' | 'finance' | 'seedance' | 'moderation' | 'audit' | 'sessions' | 'broadcasts';
+type Tab = 'overview' | 'config' | 'users' | 'finance' | 'seedance' | 'moderation' | 'audit' | 'sessions' | 'broadcasts' | 'content';
 const tabs: { id: Tab; label: string; icon: typeof Activity }[] = [
   { id: 'overview', label: 'Пульт', icon: Activity }, { id: 'config', label: 'Каналы и модели', icon: Boxes },
   { id: 'users', label: 'Пользователи', icon: Users }, { id: 'finance', label: 'Финансы', icon: Wallet },
   { id: 'seedance', label: 'Seedance', icon: Video },
+  { id: 'content', label: 'Контент студии', icon: LayoutTemplate },
   { id: 'broadcasts', label: 'Рассылки', icon: Megaphone },
   { id: 'moderation', label: 'Модерация', icon: Flag }, { id: 'audit', label: 'Аудит', icon: FileClock },
   { id: 'sessions', label: 'Сеансы', icon: MonitorCog },
@@ -118,6 +120,7 @@ function Shell({ onLogout, loggingOut, logoutError }: { onLogout: () => void; lo
       {tab === 'finance' && <FinanceSection />}{tab === 'seedance' && <SeedanceSection />}
       {tab === 'moderation' && <ModerationSection />}{tab === 'audit' && <AuditSection />}
       {tab === 'sessions' && <SessionsSection />}{tab === 'broadcasts' && <BroadcastsSection />}
+      {tab === 'content' && <StudioContentSection />}
     </main>
   </div>;
 }

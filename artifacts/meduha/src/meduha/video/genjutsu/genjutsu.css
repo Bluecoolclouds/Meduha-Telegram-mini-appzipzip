@@ -122,3 +122,6 @@
 .meduha .gj-ex-link span{flex:1;min-width:0;display:flex;flex-direction:column}
 .meduha .gj-ex-link strong{font-size:12px}
 .meduha .gj-ex-link small{font-size:10px;color:var(--gj-mute)}
+.gj-ex-note { margin: 0 0 10px; display: grid; gap: 3px; }
+.gj-ex-note strong { font-size: 14px; }
+.gj-ex-note p { margin: 0; font-size: 13px; opacity: .72; line-height: 1.45; }

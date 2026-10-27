@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { createBroadcastRouter } from './meduha-broadcasts';
 import { createAiChannelRouter } from './meduha-ai-channels';
+import { createStudioContentAdminRouter, createStudioContentPublicRouter } from './meduha-studio-content';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { videoPricingPolicy } from '../lib/video-pricing';
 import { isDeepStrictEqual } from 'node:util';
@@ -947,6 +948,8 @@ function validSecretRef(value: string | null | undefined): boolean {
 
 router.use('/admin', createBroadcastRouter(requiredAdmin));
 router.use('/admin', createAiChannelRouter(requiredAdmin));
+router.use('/admin', createStudioContentAdminRouter(requiredAdmin));
+router.use(createStudioContentPublicRouter());
 
 router.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   req.log.error({ err }, 'Admin request failed');

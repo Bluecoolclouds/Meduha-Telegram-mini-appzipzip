@@ -24,3 +24,4 @@ export * from './finance';
 export * from './admin';
 export * from './generations';
 export * from './payments';
+export * from './studio-content';

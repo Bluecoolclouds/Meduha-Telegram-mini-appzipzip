@@ -8,6 +8,79 @@
 import * as zod from 'zod';
 
 
+export const ListStudioContentResponseItem = zod.object({
+  "key": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "cover": zod.string().nullable(),
+  "enabled": zod.boolean(),
+  "revision": zod.number().int(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListStudioContentResponse = zod.array(ListStudioContentResponseItem)
+
+
+export const ListAdminStudioContentResponseItem = zod.object({
+  "key": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "cover": zod.string().nullable(),
+  "enabled": zod.boolean(),
+  "revision": zod.number().int(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListAdminStudioContentResponse = zod.array(ListAdminStudioContentResponseItem)
+
+
+export const GetStudioContentMediaParams = zod.object({
+  "mediaId": zod.coerce.string().uuid()
+})
+
+export const GetStudioContentMediaResponse = zod.unknown()
+
+
+export const SaveAdminStudioContentParams = zod.object({
+  "contentKey": zod.coerce.string()
+})
+
+export const saveAdminStudioContentBodyTitleMax = 120;
+
+export const saveAdminStudioContentBodyDescriptionMax = 2000;
+
+export const saveAdminStudioContentBodyCoverMax = 2048;
+
+export const saveAdminStudioContentBodyRevisionMin = 0;
+
+
+
+export const SaveAdminStudioContentBody = zod.object({
+  "title": zod.string().min(1).max(saveAdminStudioContentBodyTitleMax),
+  "description": zod.string().max(saveAdminStudioContentBodyDescriptionMax),
+  "cover": zod.string().max(saveAdminStudioContentBodyCoverMax).nullable(),
+  "enabled": zod.boolean(),
+  "revision": zod.number().int().min(saveAdminStudioContentBodyRevisionMin)
+})
+
+export const SaveAdminStudioContentResponse = zod.object({
+  "key": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "cover": zod.string().nullable(),
+  "enabled": zod.boolean(),
+  "revision": zod.number().int(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const UploadAdminStudioContentMediaHeader = zod.object({
+  "X-Media-Type": zod.enum(['image/jpeg', 'image/png', 'image/webp'])
+})
+
+export const UploadAdminStudioContentMediaResponse = zod.object({
+  "url": zod.string()
+})
+
+
 export const listAdminBroadcastsResponseItemsItemButtonsItemTextMax = 64;
 
 

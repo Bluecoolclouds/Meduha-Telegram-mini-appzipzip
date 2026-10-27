@@ -11,6 +11,76 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /meduha/studio-content:
+    get:
+      operationId: listStudioContent
+      tags: [meduha]
+      responses:
+        "200":
+          description: Published studio content overrides
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/StudioContent" } }
+  /meduha/admin/studio-content:
+    get:
+      operationId: listAdminStudioContent
+      tags: [meduha]
+      responses:
+        "200":
+          description: Studio content overrides
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/StudioContent" } }
+  /meduha/studio-content-media/{mediaId}:
+    get:
+      operationId: getStudioContentMedia
+      tags: [meduha]
+      parameters:
+        - { name: mediaId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Public administrator-uploaded curated image
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        "404":
+          description: Image not found
+  /meduha/admin/studio-content/{contentKey}:
+    put:
+      operationId: saveAdminStudioContent
+      tags: [meduha]
+      parameters:
+        - { name: contentKey, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StudioContentInput" }
+      responses:
+        "200":
+          description: Saved content
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StudioContent" }
+        "409":
+          description: Another administrator changed this content; reload before saving
+  /meduha/admin/studio-content-media:
+    post:
+      operationId: uploadAdminStudioContentMedia
+      tags: [meduha]
+      parameters:
+        - { name: X-Media-Type, in: header, required: true, schema: { type: string, enum: [image/jpeg, image/png, image/webp] } }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        "201":
+          description: Intentionally public curated image, up to 2 MiB
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StudioContentMedia" }
   /meduha/admin/broadcasts:
     get:
       operationId: listAdminBroadcasts
@@ -1365,6 +1435,31 @@ components:
       in: header
       name: X-Telegram-Bot-Api-Secret-Token
   schemas:
+    StudioContentInput:
+      type: object
+      required: [title, description, cover, enabled, revision]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 120 }
+        description: { type: string, maxLength: 2000 }
+        cover: { type: [string, "null"], maxLength: 2048 }
+        enabled: { type: boolean }
+        revision: { type: integer, minimum: 0 }
+    StudioContent:
+      type: object
+      required: [key, title, description, cover, enabled, revision, updatedAt]
+      properties:
+        key: { type: string }
+        title: { type: string }
+        description: { type: string }
+        cover: { type: [string, "null"] }
+        enabled: { type: boolean }
+        revision: { type: integer }
+        updatedAt: { type: string, format: date-time }
+    StudioContentMedia:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string }
     BroadcastActionInput:
       type: object
       properties:
