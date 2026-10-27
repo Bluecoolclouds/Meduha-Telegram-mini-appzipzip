@@ -107,7 +107,7 @@ test('encoded model IDs round-trip through the editor API without losing fields'
     const options={method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({...input,description:''})};
     const response=await fetch(url,options);
     assert.equal(response.status,200);
-    const row=await response.json();
+    const row=await response.json() as Record<string, unknown>;
     assert.equal(row.key,key);
     assert.equal(row.description,'');
     assert.equal(row.cover,null);
