@@ -52,7 +52,7 @@ export function Mosaic() {
         <div className="mm-scroll">
           <header className="mm-topline">
             <div className="mm-brand">
-              <img src="/__mockup/images/brand/app-icon.png" alt="" />
+              <img src="/__mockup/images/brand/app-icon-ui-v2.webp" alt="" />
               <span className="mm-wordmark">meduha<i>.</i></span>
             </div>
             <div className="mm-header-right">

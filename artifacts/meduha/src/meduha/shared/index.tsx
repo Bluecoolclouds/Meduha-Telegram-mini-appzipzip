@@ -8,7 +8,7 @@ import { useMeduhaSession } from '../session';
 export { mood };
 export type { Mood };
 export const asset = (name: string) => `${import.meta.env.BASE_URL}images/meduha/${name}.png`;
-export const brandAsset = (name: string) => `${import.meta.env.BASE_URL}images/brand/${name === 'app-icon' ? 'app-icon-ui.webp' : `${name}.png`}`;
+export const brandAsset = (name: string) => `${import.meta.env.BASE_URL}images/brand/${name === 'app-icon' ? 'app-icon-ui-v2.webp' : `${name}.png`}`;
 export const route = (name: string) => ({Home:'/',Create:'/create',Works:'/works',Profile:'/profile',Community:'/community'}[name] ?? '/');
 export const ink = '#df4f12';
 export function SectionTitle({children,action,onClick}:{children:ReactNode;action?:string;onClick?:()=>void}) {

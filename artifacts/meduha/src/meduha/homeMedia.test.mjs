@@ -91,9 +91,9 @@ test('home mascot group and logo retain small local byte budgets', () => {
   const total = ['hello', 'wink', 'joy', 'curious']
     .reduce((sum, name) => sum + webp(`mascot-${name}.webp`, 16_000), 0);
   budget(total, 50_000, 'four home mascots (audit baseline: 40,804)');
-  webp('app-icon-ui.webp', 6_000);
+  webp('app-icon-ui-v2.webp', 6_000);
   const brandAsset = compile(expression(shared, 'brandAsset').replace('import.meta.env.BASE_URL', "'/'"));
-  assert.equal(brandAsset('app-icon'), '/images/brand/app-icon-ui.webp');
+  assert.equal(brandAsset('app-icon'), '/images/brand/app-icon-ui-v2.webp');
 });
 
 test('home keeps optimized asset bindings, lazy footer, and hero priority', () => {

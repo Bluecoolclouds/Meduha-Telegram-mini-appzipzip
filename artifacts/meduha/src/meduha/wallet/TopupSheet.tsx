@@ -16,6 +16,8 @@ export function TopupSheet({ onClose, authenticated }: { onClose: () => void; au
   const [picked, setPicked] = useState<string>('p300-1200');
   const [months, setMonths] = useState<BillingMonths>(1);
   const [checkoutError, setCheckoutError] = useState('');
+  const checkoutIdempotency = useRef<{ selection: string; key: string } | null>(null);
+  const checkoutActive = useRef(false);
   const catalog = useGetMeduhaBillingCatalog({
     request: { credentials: 'same-origin' },
   });
@@ -29,7 +31,10 @@ export function TopupSheet({ onClose, authenticated }: { onClose: () => void; au
     request: { credentials: 'same-origin', headers: { 'X-Meduha-Request': '1' } },
     mutation: {
       onSuccess: result => window.location.assign(result.paymentUrl),
-      onError: () => setCheckoutError('Не удалось создать ссылку на оплату. Проверь соединение и попробуй снова.'),
+      onError: () => {
+        checkoutActive.current = false;
+        setCheckoutError('Не удалось создать ссылку на оплату. Проверь соединение и попробуй снова.');
+      },
     },
   });
   const title = step === 'review' ? 'Проверка выбора' : 'Тарифы и кредиты';
@@ -37,12 +42,20 @@ export function TopupSheet({ onClose, authenticated }: { onClose: () => void; au
   useEffect(() => {
     if (plans.length && !plans.some(item => item.id === picked)) setPicked(plans[0].id);
   }, [plans, picked]);
+  useEffect(() => {
+    checkoutIdempotency.current = null;
+  }, [plan?.id, months]);
 
   const startCheckout = () => {
-    if (!canCheckout || !plan || createPayment.isPending) return;
+    if (!canCheckout || !plan || createPayment.isPending || checkoutActive.current) return;
     setCheckoutError('');
+    checkoutActive.current = true;
+    const selection = `${plan.id}:${months}`;
+    if (checkoutIdempotency.current?.selection !== selection) {
+      checkoutIdempotency.current = { selection, key: window.crypto.randomUUID() };
+    }
     createPayment.mutate({
-      data: { planId: plan.id, termMonths: months, idempotencyKey: window.crypto.randomUUID() },
+      data: { planId: plan.id, termMonths: months, idempotencyKey: checkoutIdempotency.current.key },
     });
   };
 

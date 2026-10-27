@@ -173,6 +173,16 @@ export async function markVerifiedPayment(
   });
 }
 
+export async function findPaymentOrderByProviderPaymentId(providerId: string, providerPaymentId: string) {
+  const { rows } = await pool.query<{ id: string }>(
+    `SELECT id FROM meduha_payment_orders
+     WHERE provider_id=$1 AND provider_payment_id=$2
+     LIMIT 1`,
+    [providerId, providerPaymentId],
+  );
+  return rows[0]?.id ?? null;
+}
+
 export async function getPaymentOrderForAccount(orderId: string, accountId: string) {
   const { rows } = await pool.query<PaymentOrderRow>(
     `SELECT * FROM meduha_payment_orders WHERE id=$1 AND account_id=$2`,

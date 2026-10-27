@@ -6,6 +6,7 @@ import {
 } from '@workspace/api-zod';
 import {
   createPendingPaymentOrder,
+  findPaymentOrderByProviderPaymentId,
   getPaymentOrderForAccount,
   grantNextDueInstallment,
   markVerifiedPayment,
@@ -47,11 +48,11 @@ export function createMeduhaPaymentsRouter() {
 
   router.get('/billing/catalog', (_req, res) => {
     const provider = configuredPaymentProvider();
-    const baseUrl = configuredBaseUrl(_req);
     res.json({
       currency: BILLING_CURRENCY,
       referenceRate: USD_TO_RUB_REFERENCE_RATE,
-      checkoutAvailable: paymentsEnabled() && !!provider && !!baseUrl,
+      checkoutAvailable: paymentsEnabled() && !!provider
+        && (process.env.NODE_ENV !== 'production' || !!process.env.MEDUHA_PUBLIC_URL),
       plans: getBillingPlans(),
     });
   });
@@ -181,6 +182,13 @@ export function createYooKassaWebhookRouter() {
     }
 
     try {
+      // Ignore unrecognized IDs before calling the provider API; external
+      // notifications must not turn into an unauthenticated API proxy.
+      const knownOrderId = await findPaymentOrderByProviderPaymentId(provider.id, parsed.data.object.id);
+      if (!knownOrderId) {
+        res.sendStatus(200);
+        return;
+      }
       const verified = await provider.getPayment(parsed.data.object.id);
       if (!verified.orderId) {
         req.log.warn({ providerPaymentId: verified.id }, 'Ignoring provider notification without a local order');
