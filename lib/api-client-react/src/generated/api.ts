@@ -53,6 +53,7 @@ import type {
   FinanceMutationResult,
   FinanceSettings,
   FinanceWallet,
+  FreeKassaNotification,
   GenerationInput,
   GenerationJobList,
   GenerationModelList,
@@ -94,6 +95,7 @@ import type {
   PhotoGenerationInput,
   PhotoQuote,
   PhotoQuoteInput,
+  ReceiveMeduhaFreeKassaNotification200,
   RequestTemplateUpload200,
   StudioTemplate,
   TelegramBotUpdate,
@@ -3789,6 +3791,242 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getReceiveMeduhaYooKassaNotificationMutationOptions(options));
+    }
+
+export const getReceiveMeduhaFreeKassaNotificationUrl = () => {
+
+
+
+
+  return `/api/meduha/payments/freekassa/notify`
+}
+
+/**
+ * Hosted SCI notification. Verify Secret Word 2 signature and match immutable local RUB order before fulfillment. Return literal YES only after commit.
+ */
+export const receiveMeduhaFreeKassaNotification = async (freeKassaNotification: FreeKassaNotification, options?: Parameters<typeof customFetch>[1]): Promise<ReceiveMeduhaFreeKassaNotification200> => {
+    const formUrlEncoded = new URLSearchParams();
+formUrlEncoded.append(`MERCHANT_ID`, freeKassaNotification.MERCHANT_ID);
+formUrlEncoded.append(`AMOUNT`, freeKassaNotification.AMOUNT);
+formUrlEncoded.append(`MERCHANT_ORDER_ID`, freeKassaNotification.MERCHANT_ORDER_ID);
+formUrlEncoded.append(`SIGN`, freeKassaNotification.SIGN);
+formUrlEncoded.append(`intid`, freeKassaNotification.intid);
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<ReceiveMeduhaFreeKassaNotification200>(getReceiveMeduhaFreeKassaNotificationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...getHeaders(options?.headers) },
+    body: formUrlEncoded
+  }
+);}
+
+
+
+
+
+export const getReceiveMeduhaFreeKassaNotificationMutationKey = () => ['receiveMeduhaFreeKassaNotification'] as const;
+
+export const getReceiveMeduhaFreeKassaNotificationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveMeduhaFreeKassaNotification>>, TError,ReceiveMeduhaFreeKassaNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof receiveMeduhaFreeKassaNotification>>, TError,ReceiveMeduhaFreeKassaNotificationMutationVariables, TContext> => {
+
+const mutationKey = getReceiveMeduhaFreeKassaNotificationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof receiveMeduhaFreeKassaNotification>>, ReceiveMeduhaFreeKassaNotificationMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  receiveMeduhaFreeKassaNotification(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReceiveMeduhaFreeKassaNotificationMutationResult = NonNullable<Awaited<ReturnType<typeof receiveMeduhaFreeKassaNotification>>>
+    export type ReceiveMeduhaFreeKassaNotificationMutationBody = BodyType<FreeKassaNotification>
+    export type ReceiveMeduhaFreeKassaNotificationMutationError = ErrorType<void>
+    export type ReceiveMeduhaFreeKassaNotificationMutationVariables = {data: BodyType<FreeKassaNotification>}
+
+    export const useReceiveMeduhaFreeKassaNotification = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveMeduhaFreeKassaNotification>>, TError,ReceiveMeduhaFreeKassaNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof receiveMeduhaFreeKassaNotification>>,
+        TError,
+        ReceiveMeduhaFreeKassaNotificationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReceiveMeduhaFreeKassaNotificationMutationOptions(options));
+    }
+
+export const getReturnMeduhaFreeKassaPaymentUrl = () => {
+
+
+
+
+  return `/api/meduha/payments/freekassa/return`
+}
+
+/**
+ * Redirect to wallet only. Never authorizes payment or credits.
+ */
+export const returnMeduhaFreeKassaPayment = async ( options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getReturnMeduhaFreeKassaPaymentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getReturnMeduhaFreeKassaPaymentQueryKey = () => {
+    return [
+    `/api/meduha/payments/freekassa/return`
+    ] as const;
+    }
+
+
+export const getReturnMeduhaFreeKassaPaymentQueryOptions = <TData = Awaited<ReturnType<typeof returnMeduhaFreeKassaPayment>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof returnMeduhaFreeKassaPayment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getReturnMeduhaFreeKassaPaymentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof returnMeduhaFreeKassaPayment>>> = ({ signal }) => returnMeduhaFreeKassaPayment({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof returnMeduhaFreeKassaPayment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ReturnMeduhaFreeKassaPaymentQueryResult = NonNullable<Awaited<ReturnType<typeof returnMeduhaFreeKassaPayment>>>
+export type ReturnMeduhaFreeKassaPaymentQueryError = ErrorType<void>
+
+
+
+export function useReturnMeduhaFreeKassaPayment<TData = Awaited<ReturnType<typeof returnMeduhaFreeKassaPayment>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof returnMeduhaFreeKassaPayment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getReturnMeduhaFreeKassaPaymentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPostReturnMeduhaFreeKassaPaymentUrl = () => {
+
+
+
+
+  return `/api/meduha/payments/freekassa/return`
+}
+
+/**
+ * Optional POST return. Redirect only; never authorizes payment or credits.
+ */
+export const postReturnMeduhaFreeKassaPayment = async ( options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getPostReturnMeduhaFreeKassaPaymentUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getPostReturnMeduhaFreeKassaPaymentMutationKey = () => ['postReturnMeduhaFreeKassaPayment'] as const;
+
+export const getPostReturnMeduhaFreeKassaPaymentMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postReturnMeduhaFreeKassaPayment>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof postReturnMeduhaFreeKassaPayment>>, TError,void, TContext> => {
+
+const mutationKey = getPostReturnMeduhaFreeKassaPaymentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postReturnMeduhaFreeKassaPayment>>, void> = () => {
+
+
+          return  postReturnMeduhaFreeKassaPayment(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostReturnMeduhaFreeKassaPaymentMutationResult = NonNullable<Awaited<ReturnType<typeof postReturnMeduhaFreeKassaPayment>>>
+
+    export type PostReturnMeduhaFreeKassaPaymentMutationError = ErrorType<void>
+
+
+    export const usePostReturnMeduhaFreeKassaPayment = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postReturnMeduhaFreeKassaPayment>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof postReturnMeduhaFreeKassaPayment>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPostReturnMeduhaFreeKassaPaymentMutationOptions(options));
     }
 
 export const getGetMeduhaAdminStatusUrl = () => {

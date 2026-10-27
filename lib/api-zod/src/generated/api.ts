@@ -1675,6 +1675,38 @@ export const ReceiveMeduhaYooKassaNotificationBody = zod.object({
 export const ReceiveMeduhaYooKassaNotificationResponse = zod.unknown()
 
 
+/**
+ * Hosted SCI notification. Verify Secret Word 2 signature and match immutable local RUB order before fulfillment. Return literal YES only after commit.
+ */
+export const receiveMeduhaFreeKassaNotificationBodyMERCHANTIDRegExp = new RegExp('^[1-9][0-9]{0,15}$');
+export const receiveMeduhaFreeKassaNotificationBodyAMOUNTRegExp = new RegExp('^[0-9]{1,12}(\\.[0-9]{1,2})?$');
+export const receiveMeduhaFreeKassaNotificationBodySIGNRegExp = new RegExp('^[a-fA-F0-9]{32}$');
+export const receiveMeduhaFreeKassaNotificationBodyIntidRegExp = new RegExp('^[1-9][0-9]{0,30}$');
+
+
+export const ReceiveMeduhaFreeKassaNotificationBody = zod.object({
+  "MERCHANT_ID": zod.string().regex(receiveMeduhaFreeKassaNotificationBodyMERCHANTIDRegExp),
+  "AMOUNT": zod.string().regex(receiveMeduhaFreeKassaNotificationBodyAMOUNTRegExp),
+  "MERCHANT_ORDER_ID": zod.string().uuid(),
+  "SIGN": zod.string().regex(receiveMeduhaFreeKassaNotificationBodySIGNRegExp),
+  "intid": zod.string().regex(receiveMeduhaFreeKassaNotificationBodyIntidRegExp)
+})
+
+export const ReceiveMeduhaFreeKassaNotificationResponse = zod.string()
+
+
+/**
+ * Redirect to wallet only. Never authorizes payment or credits.
+ */
+export const ReturnMeduhaFreeKassaPaymentResponse = zod.void()
+
+
+/**
+ * Optional POST return. Redirect only; never authorizes payment or credits.
+ */
+export const PostReturnMeduhaFreeKassaPaymentResponse = zod.void()
+
+
 export const GetMeduhaAdminStatusResponse = zod.object({
   "authenticated": zod.boolean(),
   "isAdmin": zod.boolean(),

@@ -1,3 +1,5 @@
+import { configuredFreeKassaProvider } from './freekassa';
+
 export type ProviderPaymentStatus = 'pending' | 'succeeded' | 'canceled';
 
 export type PaymentIntent = {
@@ -20,7 +22,7 @@ export type VerifiedProviderPayment = {
 export interface PaymentProvider {
   readonly id: string;
   createPayment(input: PaymentIntent): Promise<{ paymentId: string; confirmationUrl: string }>;
-  getPayment(paymentId: string): Promise<VerifiedProviderPayment>;
+  getPayment?(paymentId: string): Promise<VerifiedProviderPayment>;
 }
 
 export class PaymentProviderError extends Error {
@@ -58,7 +60,7 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
   return body;
 }
 
-export function createYooKassaProvider(config: YooKassaConfig, fetcher: FetchLike = fetch): PaymentProvider {
+export function createYooKassaProvider(config: YooKassaConfig, fetcher: FetchLike = fetch): PaymentProvider & Required<Pick<PaymentProvider, 'getPayment'>> {
   if (!config.shopId.trim() || !config.secretKey.trim()) throw new PaymentProviderError('YooKassa is not configured');
   const authorization = `Basic ${Buffer.from(`${config.shopId}:${config.secretKey}`).toString('base64')}`;
   const baseUrl = 'https://api.yookassa.ru/v3';
@@ -132,7 +134,11 @@ export function configuredPaymentProvider(
   fetcher: FetchLike = fetch,
 ): PaymentProvider | null {
   const providerId = env.MEDUHA_PAYMENT_PROVIDER || 'yookassa';
-  return providerFactories.get(providerId)?.(env, fetcher) ?? null;
+  return paymentProviderForId(providerId, env, fetcher);
+}
+
+export function paymentProviderForId(id: string, env: NodeJS.ProcessEnv = process.env, fetcher: FetchLike = fetch) {
+  return providerFactories.get(id)?.(env, fetcher) ?? null;
 }
 
 export function paymentsEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
@@ -153,3 +159,5 @@ registerPaymentProvider('yookassa', (env, fetcher) => {
   if (!shopId || !secretKey) return null;
   return createYooKassaProvider({ shopId, secretKey }, fetcher);
 });
+
+registerPaymentProvider('freekassa', env => configuredFreeKassaProvider(env));

@@ -13,8 +13,9 @@ import {
   savePaymentCheckout,
 } from '../lib/billing-orders';
 import { getBillingPlans, INITIAL_PAYMENT_PROVIDER, resolveBillingPlan, BILLING_CURRENCY, USD_TO_RUB_REFERENCE_RATE } from '../lib/billing-pricing';
-import { configuredPaymentProvider, paymentsEnabled } from '../lib/payment-providers';
+import { configuredPaymentProvider, paymentProviderForId, paymentsEnabled } from '../lib/payment-providers';
 import { requireAccount } from './meduha-auth';
+import { rememberFreeKassaReturn } from './freekassa-payments';
 
 function configuredBaseUrl(req: Request): URL | null {
   const configured = process.env.MEDUHA_PUBLIC_URL;
@@ -100,6 +101,7 @@ export function createMeduhaPaymentsRouter() {
         return;
       }
       if (order.payment_url) {
+        if (providerId === 'freekassa') rememberFreeKassaReturn(res, order.id);
         res.status(201).json({
           orderId: order.id, providerId, paymentUrl: order.payment_url,
           amountMinor: order.amount_minor, currency: order.currency, status: order.status,
@@ -119,6 +121,7 @@ export function createMeduhaPaymentsRouter() {
         orderId: order.id, providerId, providerPaymentId: checkout.paymentId,
         paymentUrl: checkout.confirmationUrl,
       });
+      if (providerId === 'freekassa') rememberFreeKassaReturn(res, order.id);
       res.status(201).json({
         orderId: order.id, providerId, paymentUrl: checkout.confirmationUrl,
         amountMinor: order.amount_minor, currency: order.currency, status: order.status,
@@ -175,8 +178,8 @@ export function createYooKassaWebhookRouter() {
       res.sendStatus(200);
       return;
     }
-    const provider = configuredPaymentProvider();
-    if (!provider || provider.id !== 'yookassa') {
+    const provider = paymentProviderForId('yookassa');
+    if (!provider?.getPayment) {
       res.status(503).json({ code: 'PAYMENT_PROVIDER_NOT_CONFIGURED' });
       return;
     }

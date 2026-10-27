@@ -173,7 +173,7 @@ export async function markVerifiedPayment(
   });
 }
 
-export async function findPaymentOrderByProviderPaymentId(providerId: string, providerPaymentId: string) {
+export async function findPaymentOrderByProviderPaymentId(providerId: string, providerPaymentId: string): Promise<string | null> {
   const { rows } = await pool.query<{ id: string }>(
     `SELECT id FROM meduha_payment_orders
      WHERE provider_id=$1 AND provider_payment_id=$2

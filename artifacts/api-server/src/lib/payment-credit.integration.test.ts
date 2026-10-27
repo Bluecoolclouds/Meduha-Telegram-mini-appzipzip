@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { pool } from '@workspace/db';
 import {
   createPendingPaymentOrder,
@@ -11,6 +11,7 @@ import {
 } from './billing-orders';
 import { getBillingPlans, resolveBillingPlan } from './billing-pricing';
 import type { VerifiedProviderPayment } from './payment-providers';
+import { createFreeKassaProvider } from './freekassa';
 
 type WorkerOperation = { type: 'grant-due'; now: string };
 
@@ -312,6 +313,44 @@ if (process.env.PAYMENT_CREDIT_TEST_WORKER === '1') {
           [accountIds[2]],
         );
         assert.equal(replayLedger[0].count, 12);
+      });
+      await t.test('FreeKassa signed SCI notifications settle RUB orders and grant each prepaid month once', async () => {
+        const provider = createFreeKassaProvider({
+          merchantId: '123', secretWord1: 'fixture-one', secretWord2: 'fixture-two',
+        });
+        const plan = resolveBillingPlan('p300-1200', 3)!;
+        const order = await createPendingPaymentOrder({
+          accountId: accountIds[0], idempotencyKey: `freekassa-${randomUUID()}`,
+          planId: plan.id, termMonths: 3, providerId: 'freekassa',
+        });
+        const checkout = await provider.createPayment({
+          orderId: order.id, amountMinor: order.amount_minor, currency: 'RUB',
+          description: 'Fixture', returnUrl: 'https://example.test/wallet', idempotencyKey: order.id,
+        });
+        await savePaymentCheckout({
+          orderId: order.id, providerId: 'freekassa',
+          providerPaymentId: checkout.paymentId, paymentUrl: checkout.confirmationUrl,
+        });
+        const signed = (amount: string) => provider.verifyNotification({
+          MERCHANT_ID: '123', AMOUNT: amount, MERCHANT_ORDER_ID: order.id, intid: '123456',
+          SIGN: createHash('md5').update(`123:${amount}:fixture-two:${order.id}`).digest('hex'),
+        });
+        await assert.rejects(markVerifiedPayment('freekassa', signed('1.00')), /PAYMENT_DETAILS_MISMATCH/);
+        await assert.rejects(markVerifiedPayment('yookassa', signed((order.amount_minor / 100).toFixed(2))),
+          /PAYMENT_DETAILS_MISMATCH/);
+        const verified = signed((order.amount_minor / 100).toFixed(2));
+        const settled = await Promise.all(Array.from({ length: 5 }, () => markVerifiedPayment('freekassa', verified)));
+        assert(settled.every(result => result?.status === 'succeeded'));
+        const now = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+        const results = await Promise.all([runWorker(schema, now), runWorker(schema, now)]);
+        assert.equal(results.flat().filter(Boolean).length, 3);
+        await markVerifiedPayment('freekassa', verified);
+        assert.equal(await grantNextDueInstallment(new Date(now)), false);
+        const { rows } = await pool.query(
+          `SELECT delta, actor_id FROM ${schemaName}.meduha_finance_ledger WHERE account_id=$1`, [accountIds[0]],
+        );
+        assert.equal(rows.length, 3);
+        assert(rows.every(row => row.actor_id === 'payment:freekassa' && row.delta === plan.credits));
       });
     } finally {
       await cleanup();

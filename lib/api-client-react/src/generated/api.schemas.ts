@@ -134,6 +134,18 @@ export interface PaymentOrderStatus {
   grantedMonths: number;
 }
 
+export interface FreeKassaNotification {
+  /** @pattern ^[1-9][0-9]{0,15}$ */
+  MERCHANT_ID: string;
+  /** @pattern ^[0-9]{1,12}(\.[0-9]{1,2})?$ */
+  AMOUNT: string;
+  MERCHANT_ORDER_ID: string;
+  /** @pattern ^[a-fA-F0-9]{32}$ */
+  SIGN: string;
+  /** @pattern ^[1-9][0-9]{0,30}$ */
+  intid: string;
+}
+
 export type YooKassaNotificationType = typeof YooKassaNotificationType[keyof typeof YooKassaNotificationType];
 
 
@@ -1770,6 +1782,13 @@ limit?: number;
  */
 offset?: number;
 };
+
+export type ReceiveMeduhaFreeKassaNotification200 = typeof ReceiveMeduhaFreeKassaNotification200[keyof typeof ReceiveMeduhaFreeKassaNotification200];
+
+
+export const ReceiveMeduhaFreeKassaNotification200 = {
+  YES: 'YES',
+} as const;
 
 export type ListAdminUsersParams = {
 /**

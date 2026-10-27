@@ -59,3 +59,4 @@ MEDUHA_ADMIN_LOGIN = "admin"
 
 [userenv.development]
 TELEGRAM_BOT_TRANSPORT = "webhook"
+MEDUHA_PAYMENT_PROVIDER = "freekassa"

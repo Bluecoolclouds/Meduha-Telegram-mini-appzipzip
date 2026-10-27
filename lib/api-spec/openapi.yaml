@@ -692,6 +692,37 @@ paths:
         "200": { description: Notification handled or safely ignored }
         "400": { description: Invalid notification body }
         "503": { description: Provider status could not be verified; sender should retry }
+  /meduha/payments/freekassa/notify:
+    post:
+      operationId: receiveMeduhaFreeKassaNotification
+      description: Hosted SCI notification. Verify Secret Word 2 signature and match immutable local RUB order before fulfillment. Return literal YES only after commit.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { $ref: "#/components/schemas/FreeKassaNotification" }
+      responses:
+        "200":
+          description: Payment processed idempotently
+          content:
+            text/plain:
+              schema: { type: string, enum: [YES] }
+        "400": { description: Malformed notification }
+        "403": { description: Invalid merchant or signature }
+        "404": { description: Unknown order }
+        "409": { description: Payment details mismatch }
+        "503": { description: Not configured or settlement unavailable; sender should retry }
+  /meduha/payments/freekassa/return:
+    get:
+      operationId: returnMeduhaFreeKassaPayment
+      description: Redirect to wallet only. Never authorizes payment or credits.
+      responses:
+        "303": { description: Redirect to wallet }
+    post:
+      operationId: postReturnMeduhaFreeKassaPayment
+      description: Optional POST return. Redirect only; never authorizes payment or credits.
+      responses:
+        "303": { description: Redirect to wallet }
   /meduha/admin/login:
     get:
       operationId: getMeduhaAdminStatus
@@ -1253,6 +1284,15 @@ components:
         termMonths: { type: integer, enum: [1, 3, 12] }
         monthlyCredits: { type: integer, minimum: 1 }
         grantedMonths: { type: integer, minimum: 0 }
+    FreeKassaNotification:
+      type: object
+      required: [MERCHANT_ID, AMOUNT, MERCHANT_ORDER_ID, SIGN, intid]
+      properties:
+        MERCHANT_ID: { type: string, pattern: "^[1-9][0-9]{0,15}$" }
+        AMOUNT: { type: string, pattern: "^[0-9]{1,12}(\\.[0-9]{1,2})?$" }
+        MERCHANT_ORDER_ID: { type: string, format: uuid }
+        SIGN: { type: string, pattern: "^[a-fA-F0-9]{32}$" }
+        intid: { type: string, pattern: "^[1-9][0-9]{0,30}$" }
     YooKassaNotification:
       type: object
       required: [type, event, object]
