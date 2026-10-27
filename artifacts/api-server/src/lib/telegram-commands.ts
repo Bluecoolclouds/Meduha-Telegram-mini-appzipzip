@@ -6,25 +6,33 @@ export type TelegramUpdate = {
 };
 
 function commandOf(update: TelegramUpdate) {
-  return update.message?.text?.match(/^\/(start|help)(?:@([a-zA-Z0-9_]+))?(?:\s|$)/i);
+  return update.message?.text?.match(/^\/(start|help|subscribe|stop)(?:@([a-zA-Z0-9_]+))?(?:\s|$)/i);
 }
 
 /** Coalesce commands retried before the bot was online; don't greet a chat repeatedly. */
 export function pendingCommands(updates: TelegramUpdate[]) {
   const latest = new Map<number, number>();
   for (const update of updates) {
-    if (commandOf(update) && update.message?.chat) latest.set(update.message.chat.id, update.update_id);
+    if (/^(start|help)$/i.test(commandOf(update)?.[1] ?? '') && update.message?.chat) latest.set(update.message.chat.id, update.update_id);
   }
-  return updates.filter(update => !commandOf(update) || !update.message?.chat || latest.get(update.message.chat.id) === update.update_id);
+  return updates.filter(update => !/^(start|help)$/i.test(commandOf(update)?.[1] ?? '') || !update.message?.chat || latest.get(update.message.chat.id) === update.update_id);
 }
 
-export function createTelegramCommandHandler(api: TelegramApi, username: string, recordFirstUser?: (id: string) => Promise<void>) {
+export function createTelegramCommandHandler(api: TelegramApi, username: string, recordFirstUser?: (id: string) => Promise<void>, recordContact?: (id: string, subscribed?: boolean) => Promise<void>) {
   return async (update: TelegramUpdate) => {
     const match = commandOf(update), chat = update.message?.chat;
     if (!match || !chat || !Number.isSafeInteger(chat.id)) return;
     if (match[2] && match[2].toLowerCase() !== username.toLowerCase()) return;
     if (chat.type !== 'private') {
       await api('sendMessage', { chat_id: chat.id, text: 'Открой личный чат с meduha, чтобы запустить студию.', reply_markup: { inline_keyboard: [[{ text: 'Перейти к боту', url: `https://t.me/${username}` }]] } });
+      return;
+    }
+    const command = match[1].toLowerCase();
+    if (chat.id > 0) await recordContact?.(String(chat.id), command === 'subscribe' ? true : command === 'stop' ? false : undefined);
+    if (command === 'subscribe' || command === 'stop') {
+      await api('sendMessage', { chat_id: chat.id, text: command === 'subscribe'
+        ? 'Подписка на новости meduha включена. Отключить рассылки: /stop. Если уведомления выключены в профиле, рассылки не придут.'
+        : 'Рассылки meduha отключены. Снова подписаться: /subscribe.' });
       return;
     }
     if (chat.id > 0) await recordFirstUser?.(String(chat.id));
@@ -44,7 +52,7 @@ export function createTelegramCommandHandler(api: TelegramApi, username: string,
         ? 'Бот уже на связи. Миниапп ещё не опубликован, поэтому кнопка открытия студии пока недоступна. После подключения постоянного адреса здесь появится вход в meduha.'
         : 'Бот на связи, но сейчас не удалось получить ссылку на студию. Попробуй /start немного позже.';
     await api('sendMessage', {
-      chat_id: chat.id, text: `${introduction}\n\n${details}`,
+      chat_id: chat.id, text: `${introduction}\n\n${details}\n\nНовости и обновления: /subscribe. Отписаться: /stop.`,
       ...(appUrl ? { reply_markup: { inline_keyboard: [[{ text: 'Открыть meduha', web_app: { url: appUrl } }]] } } : {}),
     });
   };

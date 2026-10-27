@@ -20,3 +20,12 @@ Public pricing HTML and a direct browser may not expose dynamic volume prices. O
 **Why:** Pricing extraction exposed only the selected Ultra volume; direct browser loading and static asset requests did not expose other options. An official Seedance pricing article documented the volume amounts while reporting older Starter/Plus allowances.
 
 **How to apply:** Verify each price against its relevant official source, prefer the current pricing page for base tiers, retain source links, and never invent larger-volume prices by multiplying a base price.
+
+Choosing a tariff card or pressing «Продолжить» must open payment-method
+selection directly, without an intermediate «Проверка выбора» confirmation.
+
+**Why:** the user explicitly requested this shorter tariff flow.
+
+**How to apply:** keep the chosen tariff and billing term when returning from
+payment methods. Carousel gestures and credit-volume controls select options
+without advancing to payment.

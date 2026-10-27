@@ -222,3 +222,6 @@
 .adm-kill div { flex: 1; min-width: 220px; }
 .adm-kill strong { display: block; font-size: 15px; }
 .adm-kill small { color: var(--ink-2); }
+.adm-ai-entry { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 4px 10px; align-items: start; padding: 9px 10px; }
+.adm-ai-entry > span { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.adm-ai-entry > small:last-child { grid-column: 2; opacity: .75; }

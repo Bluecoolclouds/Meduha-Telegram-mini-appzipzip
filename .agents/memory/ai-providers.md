@@ -15,6 +15,12 @@ Administrative channel/model configuration and credit bookkeeping must remain in
 
 **How to apply:** do not launch provider requests, charge payment methods, or imply that saving/enabling a channel verifies connectivity. Credit balances and limits are internal credits, not currency or actual provider spending. Live generation and payment collection require a separate user request.
 
+Models may use APINet or another supported channel instead of Higgsfield, but capabilities belong to the specific channel/model binding, not merely the model's marketing name.
+
+**Why:** the user requested interchangeable providers and asked whether available settings should be determined by channel tests. APINet's authenticated catalogue advertises many models as only `openai`, including image-named models; that marker alone does not establish an image/video generation contract.
+
+**How to apply:** distinguish credential/catalog checks, documented input schemas and actual paid smoke tests. Never infer settings, video support or account access from names, and never carry a schema over when a model is moved to a different channel. Keep unverified entries visible with an honest blocked reason. A fixed internal credit quote is not an exact provider-cost estimate. Do not silently fail over or retry a billable submission after an ambiguous response.
+
 The requested СБП top-up flow is test-only until the user separately requests real payment integration; package prices are preliminary, not approved commercial pricing.
 
 **Why:** the user asked for «пока чисто тестовая кнопка оплаты через сбп без проверок».

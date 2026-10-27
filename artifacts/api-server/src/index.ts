@@ -5,8 +5,10 @@ import { startTemplateUploadCleanupWorker } from './lib/template-upload-cleanup-
 import { startMeduhaAdminCleanupWorker } from './lib/meduha-admin-cleanup-worker';
 import { startGenerationWorker } from './lib/generation-worker';
 import { startPaymentCreditWorker } from './lib/payment-credit-worker';
+import { startBroadcastWorker } from './lib/broadcast-worker';
 import { pool } from '@workspace/db';
 import { registerPhotoModels } from './routes/meduha-photo';
+import { registerApinetChannel } from './lib/ai-channels';
 import { registerVideoModels } from './routes/meduha-video';
 
 const rawPort = process.env["PORT"];
@@ -24,6 +26,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 await registerPhotoModels();
+await registerApinetChannel();
 await registerVideoModels();
 const server=app.listen(port, (err) => {
   if (err) {
@@ -38,12 +41,14 @@ const stopTemplateUploadCleanup=startTemplateUploadCleanupWorker();
 const stopMeduhaAdminCleanup=startMeduhaAdminCleanupWorker(logger);
 const stopGenerationWorker=startGenerationWorker();
 const stopPaymentCreditWorker=startPaymentCreditWorker();
+const stopBroadcastWorker=startBroadcastWorker();
 function shutdown(){
   stopTelegram();
   stopTemplateUploadCleanup();
   stopMeduhaAdminCleanup();
   stopGenerationWorker();
   stopPaymentCreditWorker();
+  stopBroadcastWorker();
   server.close(()=>{void pool.end().finally(()=>process.exit(0));});
   setTimeout(()=>process.exit(0),5000).unref();
 }

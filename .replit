@@ -47,6 +47,10 @@ externalPort = 80
 localPort = 8081
 externalPort = 8081
 
+[[ports]]
+localPort = 20269
+externalPort = 3000
+
 [nix]
 channel = "stable-25_05"
 packages = ["glib", "nss", "nspr", "atk", "at-spi2-atk", "dbus", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb", "libxkbcommon", "libdrm", "mesa", "alsa-lib", "cups", "pango", "cairo", "expat", "fontconfig", "freetype", "gtk3", "ffmpeg"]

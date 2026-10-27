@@ -8,6 +8,9 @@ import { photoProviderInput, type PhotoMetadata } from './photo';
 import { assertPhotoQuote, photoPricingBlockedReason, verifyPhotoQuote } from './photo-pricing';
 import { storeGenerationImages, PhotoResultValidationError } from './photo-storage';
 import { videoProviderInput, type VideoMetadata } from './video';
+import { submitChannelImage } from './ai-channels';
+import { channelPhotoPriceFingerprint, loadChannelPhoto, type ChannelPhotoBinding } from './channel-photo';
+import { storeChannelImage } from './photo-storage';
 
 type GenerationJob = {
   id: string;
@@ -19,7 +22,7 @@ type GenerationJob = {
   reservation_id: string;
   request_id: string | null;
   status: string;
-  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata; _photo?: PhotoMetadata; _photoQuote?: string; _video?: VideoMetadata };
+  input: { prompt: string; duration: number; aspect_ratio: string; resolution: string; _genjutsu?: GenjutsuMetadata; _photo?: PhotoMetadata; _photoQuote?: string; _video?: VideoMetadata; _channelPhoto?: ChannelPhotoBinding };
   provider_status: string | null;
   result_url: string | null;
   resolution_outcome?: 'completed' | 'failed' | null;
@@ -241,7 +244,8 @@ async function applyCompletedProviderResult(job: GenerationJob, result: Provider
   if (job.input._photo) {
     const urls = result.images?.map(image => image.url);
     const expected = Number(job.input._photo.parameters.batch_size ?? 1);
-    if (!urls?.length || urls.length !== expected || urls.length > 8 || urls.some(url => typeof url !== 'string' || !url.startsWith('https://'))) {
+    if (!urls?.length || urls.length !== expected || urls.length > 8 || urls.some((url, index) => typeof url !== 'string' || (job.input._channelPhoto
+      ? url !== `/api/meduha/generations/${job.id}/images/${index}` : !url.startsWith('https://')))) {
       await closeReservation(job, 'failed', null, 'invalid_image', storeVideo, 'Поставщик не вернул ожидаемые изображения. Резерв снят.');
       return false;
     }
@@ -296,7 +300,7 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
   if (!job) return;
   let responseRequestId: string | null = null;
   try {
-    if (job.input._photo) {
+    if (job.input._photo && !job.input._channelPhoto) {
       try {
         if (!job.input._photoQuote || photoPricingBlockedReason(job.input._photo.endpoint)) throw new Error('Unsafe photo price');
         // A queue delay does not invalidate consent already accepted at reservation.
@@ -306,6 +310,21 @@ async function submitNextJob(submit: WorkerDependencies['submit'], storeVideo: G
     }
     // REST submission has no retries: this POST is billable and a lost response is ambiguous.
     const send = submit ?? (async (input: GenerationJob['input']) => {
+      if (input._channelPhoto) {
+        let selected: Awaited<ReturnType<typeof loadChannelPhoto>>;
+        try {
+          selected = await loadChannelPhoto(job.model_id);
+          const snapshot = input._channelPhoto;
+          if (!input._photo || !input._photoQuote || selected.channel.id !== job.channel_id
+            || snapshot.channelId !== selected.channel.id || snapshot.upstreamId !== selected.model.upstreamId || snapshot.binding !== selected.binding) throw new Error('Channel changed');
+          const quote = verifyPhotoQuote(input._photoQuote, true);
+          assertPhotoQuote(quote, job.account_id, job.model_id, job.idempotency_key, input._photo, Number(job.credit_price));
+          if (quote.pricingFingerprint !== channelPhotoPriceFingerprint(snapshot.binding, Number(job.credit_price))) throw new Error('Invalid channel price quote');
+        } catch { throw new ProviderPreparationError('Канал изменился или подтверждение цены недействительно.'); }
+        const images = await submitChannelImage(selected.channel, selected.model.upstreamId, String(input._photo!.parameters.prompt));
+        const paths = await storeChannelImage(job.id, images[0]);
+        return { status: 'completed', request_id: job.id, images: paths.map(url => ({ url })) };
+      }
       if (input._photo) {
         let providerInput: Record<string, unknown>;
         try { providerInput = await photoProviderInput(job.account_id, input._photo); }
@@ -392,6 +411,9 @@ async function pollJobs(getStatus: WorkerDependencies['getStatus'], storeVideo: 
      ORDER BY updated_at LIMIT 10`,
   );
   for (const job of rows as GenerationJob[]) {
+    // OpenAI Images is synchronous. Its local request ID must never be polled
+    // through the Higgsfield adapter or resubmitted after an ambiguous result.
+    if (job.input._channelPhoto) continue;
     try {
       const readStatus = getStatus ?? getHiggsfieldRequestStatus;
       const result = await readStatus(job.request_id!);

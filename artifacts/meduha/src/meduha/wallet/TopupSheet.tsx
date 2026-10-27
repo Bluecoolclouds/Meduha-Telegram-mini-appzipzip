@@ -1,66 +1,34 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, CircleSlash, Zap, Repeat, Layers, Image as ImageIcon, Clapperboard } from 'lucide-react';
-import { useCreateMeduhaPaymentOrder, useGetMeduhaBillingCatalog, useGetPhotoCatalog } from '@workspace/api-client-react';
+import { Check, ChevronLeft, ChevronRight, CircleSlash, Zap, Repeat, Layers, Image as ImageIcon, Clapperboard } from 'lucide-react';
+import { useGetMeduhaBillingCatalog, useGetPhotoCatalog } from '@workspace/api-client-react';
 import { useVideoCatalog } from '../video/videoApi';
 import { cheapestAvailable, generationsFor, type Cheapest } from './yield';
 import { BILLING_PERIODS, discountPercent, groupBillingPlans, planTierId, priceInRubles, type BillingMonths, type BillingTier } from './pricing';
-import type { BillingPlan } from '@workspace/api-client-react';
+import { PaymentMethods } from './PaymentMethods';
 import { Sheet } from '../shared';
 import './topup.css';
 
 const num = (n: number) => n.toLocaleString('ru-RU');
-type Step = 'choose' | 'review';
+type Step = 'choose' | 'pay';
 
-export function TopupSheet({ onClose, authenticated }: { onClose: () => void; authenticated: boolean; balance: number | null }) {
+export function TopupSheet({ onClose }: { onClose: () => void; authenticated: boolean; balance: number | null }) {
   const [step, setStep] = useState<Step>('choose');
   const [picked, setPicked] = useState<string>('p300-1200');
   const [months, setMonths] = useState<BillingMonths>(1);
-  const [checkoutError, setCheckoutError] = useState('');
-  const checkoutIdempotency = useRef<{ selection: string; key: string } | null>(null);
-  const checkoutActive = useRef(false);
-  const catalog = useGetMeduhaBillingCatalog({
-    request: { credentials: 'same-origin' },
-  });
+  const catalog = useGetMeduhaBillingCatalog({ request: { credentials: 'same-origin' } });
   const tiers = groupBillingPlans(catalog.data?.plans);
   const plans = tiers.flatMap(tier => tier.levels);
   const plan = plans.find(item => item.id === picked) ?? plans[0];
   const quote = plan?.termPrices.find(item => item.months === months);
-  const canCheckout = authenticated && catalog.data?.checkoutAvailable === true;
   const period = BILLING_PERIODS.find(p => p.months === months)!;
-  const createPayment = useCreateMeduhaPaymentOrder({
-    request: { credentials: 'same-origin', headers: { 'X-Meduha-Request': '1' } },
-    mutation: {
-      onSuccess: result => window.location.assign(result.paymentUrl),
-      onError: () => {
-        checkoutActive.current = false;
-        setCheckoutError('Не удалось создать ссылку на оплату. Проверь соединение и попробуй снова.');
-      },
-    },
-  });
-  const title = step === 'review' ? 'Проверка выбора' : 'Тарифы и кредиты';
+  const title = step === 'pay' ? 'Способ оплаты' : 'Тарифы и кредиты';
 
   useEffect(() => {
     if (plans.length && !plans.some(item => item.id === picked)) setPicked(plans[0].id);
   }, [plans, picked]);
-  useEffect(() => {
-    checkoutIdempotency.current = null;
-  }, [plan?.id, months]);
-
-  const startCheckout = () => {
-    if (!canCheckout || !plan || createPayment.isPending || checkoutActive.current) return;
-    setCheckoutError('');
-    checkoutActive.current = true;
-    const selection = `${plan.id}:${months}`;
-    if (checkoutIdempotency.current?.selection !== selection) {
-      checkoutIdempotency.current = { selection, key: window.crypto.randomUUID() };
-    }
-    createPayment.mutate({
-      data: { planId: plan.id, termMonths: months, idempotencyKey: checkoutIdempotency.current.key },
-    });
-  };
 
   return <Sheet title={title} onClose={onClose} className="mt-sheet">
-    <div className="mt-flag" data-testid="status-topup-payments"><CircleSlash size={13} />{catalog.data?.checkoutAvailable ? 'Оплата настроена; за срок будет один платёж без автопродления.' : 'Оплата пока выключена. Автопродления не будет; кредиты будут поступать раз в месяц после успешной оплаты срока.'}</div>
+    {step === 'choose' && <div className="mt-flag" data-testid="status-topup-payments"><CircleSlash size={13} />Демо-режим оплаты: деньги не списываются. За срок — один платёж без автопродления, кредиты начисляются раз в месяц.</div>}
     {catalog.isLoading && <p className="mt-lead" role="status">Загружаем тарифы…</p>}
     {catalog.isError && <p className="mt-lead" role="alert">Не удалось загрузить цены. <button type="button" onClick={() => void catalog.refetch()}>Повторить</button></p>}
     {step === 'choose' && <div className="mt-step" key="choose">
@@ -71,32 +39,10 @@ export function TopupSheet({ onClose, authenticated }: { onClose: () => void; au
           return <button key={p.months} type="button" aria-pressed={months === p.months} className={months === p.months ? 'on' : ''} onClick={() => setMonths(p.months)} data-testid={`button-topup-period-${p.months}`}><strong>{p.label}</strong>{p.months > 1 && discount > 0 && <small>−{discount}%</small>}</button>;
         })}
       </div>
-      {tiers.length > 0 && <TopupCarousel picked={picked} onPick={setPicked} tiers={tiers} months={months} onProceed={id => { setPicked(id); setStep('review'); }} />}
-      {plan && quote && <div className="mt-actions"><button className="m-startup-action" onClick={() => setStep('review')} data-testid="button-topup-continue">Продолжить · {priceInRubles(quote.totalAmountMinor)} за {period.label}</button><button className="m-startup-guest" onClick={onClose} data-testid="button-topup-cancel">Отмена</button></div>}
+      {tiers.length > 0 && <TopupCarousel picked={picked} onPick={setPicked} tiers={tiers} months={months} onProceed={id => { setPicked(id); setStep('pay'); }} />}
+      {plan && quote && <div className="mt-actions"><button type="button" className="m-startup-action" onClick={() => setStep('pay')} data-testid="button-topup-continue">Продолжить · {priceInRubles(quote.totalAmountMinor)} за {period.label}</button><button type="button" className="m-startup-guest" onClick={onClose} data-testid="button-topup-cancel">Отмена</button></div>}
     </div>}
-    {step === 'review' && plan && quote && <div className="mt-step" key="review">
-      <dl className="mt-review" data-testid="text-topup-review">
-        <div><dt>Кредиты в месяц</dt><dd>{num(plan.credits)}</dd></div>
-        <div><dt>Срок</dt><dd>{period.label}</dd></div>
-        <div><dt>В пересчёте на месяц</dt><dd>{priceInRubles(quote.monthlyAmountMinor)}/мес.</dd></div>
-        <div><dt>Скидка</dt><dd>{quote.savingsMinor > 0 ? `−${discountPercent(plan.monthlyAmountMinor, months, quote.savingsMinor)}%` : 'Без скидки'}</dd></div>
-        <div><dt>Всего за срок</dt><dd>{priceInRubles(quote.totalAmountMinor)}</dd></div>
-        {quote.savingsMinor > 0 && <div><dt>Экономия за срок</dt><dd>{priceInRubles(quote.savingsMinor)}</dd></div>}
-        <div><dt>Оплата сейчас</dt><dd>{priceInRubles(quote.totalAmountMinor)} · одним платежом</dd></div>
-        <div><dt>Начисление</dt><dd>{num(plan.credits)} кредитов ежемесячно</dd></div>
-        <div><dt>Автопродление</dt><dd>Нет</dd></div>
-      </dl>
-      <p className="mt-lead">За срок оплата списывается один раз. Кредиты выдаются ежемесячно; автоматического продления нет.</p>
-      {!authenticated && <p className="mt-lead">Для оплаты сначала войди через Telegram.</p>}
-      {!catalog.data?.checkoutAvailable && <p className="mt-lead">Платёжный приём пока не настроен. Деньги не спишутся, баланс не изменится.</p>}
-      {checkoutError && <p className="mt-lead" role="alert">{checkoutError}</p>}
-      <div className="mt-actions">
-        {canCheckout
-          ? <button className="m-startup-action" onClick={startCheckout} disabled={createPayment.isPending} data-testid="button-topup-payment">{createPayment.isPending ? 'Создаём защищённую оплату…' : `Оплатить ${priceInRubles(quote.totalAmountMinor)}`}</button>
-          : <button className="m-startup-action" disabled data-testid="button-topup-payment">Оплата временно недоступна</button>}
-        <button className="m-startup-guest" onClick={() => setStep('choose')} data-testid="button-topup-change"><ArrowLeft size={14} />Изменить тариф</button>
-      </div>
-    </div>}
+    {step === 'pay' && plan && quote && <PaymentMethods key="pay" plan={plan} quote={quote} months={months} tierName={TIERS[planTierId(plan.id)]?.name ?? plan.name} onBack={() => setStep('choose')} />}
   </Sheet>;
 }
 
@@ -228,8 +174,11 @@ function TopupCarousel({ picked, onPick, onProceed, tiers, months }: { picked: s
          const li = Math.max(0, tier.levels.findIndex(level => level.id === p.id));
          const discount = discountPercent(p.monthlyAmountMinor, months, q.savingsMinor);
          const perCreditRub = (p.monthlyAmountMinor / 100 / p.credits).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-         return <article key={tier.id} className={`mtp-card mtp-${t.tone}${on ? ' on' : ''}`} data-testid={`card-topup-${tier.id}`}>
-           <button type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} ref={el => { radios.current[i] = el; }} className="mtp-card-head" onClick={() => select(i)} data-testid={`radio-topup-${tier.id}`} aria-label={`${t.name}: ${num(p.credits)} кредитов в месяц, ${priceInRubles(q.totalAmountMinor)} за ${term.label}`}>
+         return <article key={tier.id} className={`mtp-card mtp-${t.tone}${on ? ' on' : ''}`} data-testid={`card-topup-${tier.id}`} onClick={e => {
+           if ((e.target as HTMLElement).closest('.mtp-levels, .mtp-cta')) return;
+           window.clearTimeout(timer.current); onProceed(p.id);
+         }}>
+           <button type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} ref={el => { radios.current[i] = el; }} className="mtp-card-head" data-testid={`radio-topup-${tier.id}`} aria-label={`${t.name}: ${num(p.credits)} кредитов в месяц, ${priceInRubles(q.totalAmountMinor)} за ${term.label}`}>
             <span className="mtp-card-title"><strong>{t.name}</strong><span className="mtp-radio" aria-hidden="true"><Check size={11} strokeWidth={3} /></span></span>
             <small>{t.sub}</small>
           </button>
@@ -238,13 +187,13 @@ function TopupCarousel({ picked, onPick, onProceed, tiers, months }: { picked: s
             <YieldRows credits={p.credits} y={yields} />
              {tier.levels.length > 1 && <div className="mtp-levels" role="radiogroup" aria-label={`Количество кредитов в пакете ${t.name}`} style={{ ['--pos' as string]: tier.levels.length > 1 ? li / (tier.levels.length - 1) : 0 }}>
               <span className="mtp-levels-track" aria-hidden="true"><i /></span>
-               {tier.levels.map((level, k) => <button key={level.id} type="button" role="radio" aria-checked={k === li} className={k === li ? 'on' : ''} onClick={() => onPick(level.id)} data-testid={`button-topup-level-${tier.id}-${level.credits}`}><Zap size={10} fill="currentColor" />{num(level.credits)}</button>)}
+               {tier.levels.map((level, k) => <button key={level.id} type="button" role="radio" aria-checked={k === li} className={k === li ? 'on' : ''} onClick={e => { e.stopPropagation(); onPick(level.id); }} data-testid={`button-topup-level-${tier.id}-${level.credits}`}><Zap size={10} fill="currentColor" />{num(level.credits)}</button>)}
             </div>}
              <div className="mtp-inset-row mtp-inset-foot">{perCreditRub} ₽ за кредит</div>
           </div>
            <div className="mtp-price" data-testid={`text-topup-price-${tier.id}`}>{q.savingsMinor > 0 && <del>{priceInRubles(p.monthlyAmountMinor)}</del>}<b>{priceInRubles(q.monthlyAmountMinor)}</b><span>в месяц · RUB</span>{discount > 0 && <em>−{discount}%</em>}</div>
            <div className="mtp-billing" data-testid={`text-topup-total-${tier.id}`} aria-live="polite"><strong>Всего {priceInRubles(q.totalAmountMinor)} за {term.label}</strong><small>{q.savingsMinor > 0 ? `Экономия ${priceInRubles(q.savingsMinor)} за срок` : 'Без скидки за срок'}</small></div>
-           <button type="button" className="mtp-cta" onClick={() => { window.clearTimeout(timer.current); onProceed(p.id); }} data-testid={`button-topup-select-${tier.id}`}>Выбрать · {num(p.credits)} кр.</button>
+           <button type="button" className="mtp-cta" onClick={e => { e.stopPropagation(); window.clearTimeout(timer.current); onProceed(p.id); }} data-testid={`button-topup-select-${tier.id}`}>Выбрать · {num(p.credits)} кр.</button>
           <ul className="mtp-benefits">
              <li><Layers size={12} />{num(p.credits)} кредитов в месяц</li>
              <li><Repeat size={12} />Оплата за срок одним платежом</li>

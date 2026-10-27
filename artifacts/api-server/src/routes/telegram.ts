@@ -5,6 +5,7 @@ import { createTelegramCommandHandler, type TelegramUpdate } from '../lib/telegr
 import { resolveTelegramBotUsername } from '../lib/telegram-bot';
 import { TelegramWebhookBody } from '@workspace/api-zod';
 import { initializeTemplateAdmin } from '../lib/template-admin';
+import { recordBotContact } from '../lib/broadcasts';
 
 export const webhookSecretFor = (token: string) => createHmac('sha256', token).update('meduha/telegram-webhook/v1').digest('hex');
 const router = Router();
@@ -31,7 +32,7 @@ router.post('/webhook', async (req, res) => {
     task = (async () => {
       const username = await resolveTelegramBotUsername(token);
       if (!username) throw new Error('Telegram metadata unavailable');
-      await createTelegramCommandHandler(createTelegramApi(token), username, initializeTemplateAdmin)(update);
+      await createTelegramCommandHandler(createTelegramApi(token), username, initializeTemplateAdmin, recordBotContact)(update);
       completed.set(update.update_id, Date.now());
       if (completed.size > 2000) completed.delete(completed.keys().next().value!);
     })();

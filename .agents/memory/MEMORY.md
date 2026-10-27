@@ -26,3 +26,4 @@
 - [Ads Studio pricing](ads-studio-pricing.md) — user chose actual-token billing; verify per-request usage for settlement, not a fixed rate or mandatory provider hard cap.
 - [Legal and payment launch scope](legal-payment-launch-scope.md) — worldwide web/Telegram and native store plans; YooKassa is for web/Telegram; legal contact and refund terms remain draft.
 - [Payment provider adapters](payment-provider-adapters.md) — FreeKassa alongside YooKassa, not a substitute; shared orders/ledger with isolated provider verification.
+- [Broadcast safety](broadcast-safety.md) — explicit news opt-in; uncertain Telegram sends are not automatically repeated; temporary admin does not imply a test recipient.

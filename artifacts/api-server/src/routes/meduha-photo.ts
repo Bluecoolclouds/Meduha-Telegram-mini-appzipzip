@@ -1,4 +1,6 @@
 import { Router, type Response } from 'express';
+import { channelPhotoCatalog } from '../lib/channel-photo';
+import { createChannelPhotoRouter } from './meduha-channel-photo';
 import { catalogAvailabilityIssues } from '../lib/catalog-availability';
 import { randomUUID } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
@@ -56,6 +58,7 @@ export function createPhotoRouter(dependencies: {
   const router = Router();
   const providerReady = dependencies.providerConfigured ?? photoProviderConfigured;
   const storageReady = dependencies.storageConfigured ?? (() => !!process.env.PRIVATE_OBJECT_DIR);
+  router.use(createChannelPhotoRouter(storageReady));
   const checkReferences = dependencies.verifyReferences ?? verifyPhotoReferences;
   const estimate = dependencies.estimate ?? estimatePhotoRequest;
   const providerInput = dependencies.providerInput ?? photoProviderInput;
@@ -72,6 +75,7 @@ export function createPhotoRouter(dependencies: {
     return model;
   };
   router.get('/photo/catalog', async (_req, res) => {
+    const channelModels = await channelPhotoCatalog();
     const [settings, rows] = await Promise.all([
       getFinanceSettings(),
       db.select({
@@ -81,21 +85,22 @@ export function createPhotoRouter(dependencies: {
         .where(and(eq(meduhaAiModels.kind, 'photo'), eq(meduhaAiChannels.adapter, 'higgsfield'))),
     ]);
     res.set('Cache-Control', 'no-store').json({
-      spendingEnabled: settings.spendingEnabled, providerConfigured: providerReady(),
+      spendingEnabled: settings.spendingEnabled, providerConfigured: providerReady() || channelModels.some(model => model.available),
       storageConfigured: storageReady(),
-      models: photoModels.map(model => {
+      models: [...photoModels.map(model => {
         const candidates = rows.filter(row => row.upstreamId === model.endpoint);
         const configured = candidates.find(row => row.enabled && row.channelEnabled && row.price > 0) ?? candidates[0];
         const availabilityIssues = catalogAvailabilityIssues({
           modelId: configured?.id, enabled: configured?.enabled, channelEnabled: configured?.channelEnabled,
           priceReady: !!configured && configured.price > 0, pricingBlockedReason: photoPricingBlockedReason(model.endpoint),
         });
+        if (!providerReady()) availabilityIssues.push('Ключ Higgsfield не настроен');
         return {
           ...model, available: availabilityIssues.length === 0, availabilityIssues,
           pricingBlockedReason: photoPricingBlockedReason(model.endpoint),
           modelId: configured?.id ?? null, creditPrice: configured && configured.price > 0 ? configured.price : null,
         };
-      }),
+      }), ...channelModels],
     });
   });
 

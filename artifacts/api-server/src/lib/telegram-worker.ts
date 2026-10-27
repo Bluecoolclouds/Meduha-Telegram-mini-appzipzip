@@ -1,6 +1,7 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { createTelegramApi, TelegramApiError } from './telegram-api';
 import { createTelegramCommandHandler, pendingCommands, type TelegramUpdate } from './telegram-commands';
+import { recordBotContact } from './broadcasts';
 import { logger } from './logger';
 import { initializeTemplateAdmin } from './template-admin';
 
@@ -24,7 +25,7 @@ export function startTelegramWorker() {
         }
         const bot = await api('getMe', {}, controller.signal) as { username?: string };
         if (!bot.username) throw new TelegramApiError(401);
-        const handle = createTelegramCommandHandler(api, bot.username, initializeTemplateAdmin);
+        const handle = createTelegramCommandHandler(api, bot.username, initializeTemplateAdmin, recordBotContact);
         logger.info('Telegram bot: receiving messages via long polling');
         let offset: number | undefined;
         while (!controller.signal.aborted) {

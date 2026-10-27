@@ -1,15 +1,15 @@
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   getHiggsfieldCatalog, getListAdminChannelsQueryKey, getListAdminModelsQueryKey, getGetAdminChannelQueryKey,
-  useCreateAdminChannel, useCreateAdminModel, useDeleteAdminChannel, useDeleteAdminModel, useImportHiggsfieldCatalogModels, useListAdminChannels,
+  useCreateAdminChannel, useCreateAdminModel, useDeleteAdminChannel, useDeleteAdminModel, useImportHiggsfieldCatalogModels, useListAdminChannels, useDiscoverAdminAiChannel, useImportAdminAiChannelModels,
   useListAdminModels, useUpdateAdminChannel, useUpdateAdminModel,
 } from '@workspace/api-client-react';
-import type { AdminChannel, AdminModel, AdminModelInputKind, GenjutsuTariff, HiggsfieldCatalog, HiggsfieldCatalogEntry } from '@workspace/api-client-react';
+import type { DiscoverAdminAiChannel200, AdminChannel, AdminModel, AdminModelInputKind, GenjutsuTariff, HiggsfieldCatalog, HiggsfieldCatalogEntry } from '@workspace/api-client-react';
 import PricingTools from './PricingTools';
 import { videoPolicyProblem } from './videoTariffs';
-import { Confirm, Empty, ErrorBox, Feedback, Modal, PageHead, Panel, Skeleton, Switch, adminQueryRequest, adminRequest, asArray, fmtInt, useFlash } from './ui';
+import { Confirm, Empty, ErrorBox, Feedback, Modal, PageHead, Panel, Skeleton, Switch, adminQueryRequest, adminRequest, asArray, fmtDate, fmtInt, useFlash } from './ui';
 
 const req = { request: adminRequest };
 const kinds: Record<AdminModelInputKind, string> = { photo: 'Фото', video: 'Видео', audio: 'Аудио' };
@@ -25,21 +25,35 @@ function useInvalidateConfig() {
   };
 }
 
-type ChannelDraft = { name: string; baseUrl: string; adapter: string; enabled: boolean; priority: string; concurrencyLimit: string; dailyCreditLimit: string };
+const ADAPTERS: { id: string; label: string }[] = [
+  { id: 'apinet', label: 'APINet' },
+  { id: 'openai-compatible', label: 'OpenAI-совместимый' },
+  { id: 'higgsfield', label: 'Higgsfield' },
+];
+const SECRET_REF_RE = /^secret:\/\/[A-Za-z][A-Za-z0-9_.-]{0,127}$/;
+const channelSecretRef = (c: AdminChannel | null) => {
+  const v = (c as { secretRef?: unknown } | null)?.secretRef;
+  return typeof v === 'string' ? v : '';
+};
+const isDiscoveryAdapter = (a: string) => ['apinet', 'openai-compatible'].includes(a.trim().toLowerCase());
+
+type ChannelDraft = { secretRef: string; name: string; baseUrl: string; adapter: string; enabled: boolean; priority: string; concurrencyLimit: string; dailyCreditLimit: string };
 function ChannelDialog({ channel, onClose, onDone }: { channel: AdminChannel | null; onClose: () => void; onDone: (m: string) => void }) {
   const invalidate = useInvalidateConfig();
-  const [d, setD] = useState<ChannelDraft>(() => channel ? { name: channel.name, baseUrl: channel.baseUrl, adapter: channel.adapter, enabled: Boolean(channel.enabled), priority: String(channel.priority), concurrencyLimit: String(channel.concurrencyLimit), dailyCreditLimit: String(channel.dailyCreditLimit) } : { name: '', baseUrl: 'https://', adapter: '', enabled: false, priority: '100', concurrencyLimit: '1', dailyCreditLimit: '0' });
+  const initialSecret = channelSecretRef(channel);
+  const [d, setD] = useState<ChannelDraft>(() => channel ? { secretRef: initialSecret, name: channel.name, baseUrl: channel.baseUrl, adapter: channel.adapter, enabled: Boolean(channel.enabled), priority: String(channel.priority), concurrencyLimit: String(channel.concurrencyLimit), dailyCreditLimit: String(channel.dailyCreditLimit) } : { secretRef: 'secret://apinet_key', name: 'APINet', baseUrl: 'https://apinet.cloud/v1', adapter: 'apinet', enabled: false, priority: '100', concurrencyLimit: '1', dailyCreditLimit: '0' });
   const [touched, setTouched] = useState(false);
   const create = useCreateAdminChannel(req); const update = useUpdateAdminChannel(req);
   const m = channel ? update : create;
   const problems = [
     !d.name.trim() && 'Укажи название.', !/^https:\/\/\S+$/.test(d.baseUrl.trim()) && 'Адрес должен начинаться с https://.',
-    !d.adapter.trim() && 'Укажи адаптер.', !intOk(d.priority, 0, 100000) && 'Приоритет: целое 0–100000.',
+    !d.adapter.trim() && 'Укажи адаптер.', d.secretRef.trim() !== '' && !SECRET_REF_RE.test(d.secretRef.trim()) && 'Ссылка на секрет: secret://ИМЯ (латиница, цифры, _ . -). Сам ключ сюда не вводится.', !intOk(d.priority, 0, 100000) && 'Приоритет: целое 0–100000.',
     !intOk(d.concurrencyLimit, 1, 10000) && 'Параллельность: целое 1–10000.', !intOk(d.dailyCreditLimit, 0) && 'Дневной лимит: целое от 0.',
   ].filter(Boolean) as string[];
   const submit = (e: FormEvent) => {
     e.preventDefault(); setTouched(true); if (problems.length) return;
-    const body = { name: d.name.trim(), baseUrl: d.baseUrl.trim(), adapter: d.adapter.trim(), enabled: d.enabled, priority: Number(d.priority), concurrencyLimit: Number(d.concurrencyLimit), dailyCreditLimit: Number(d.dailyCreditLimit) };
+    const body = { name: d.name.trim(), baseUrl: d.baseUrl.trim(), adapter: d.adapter.trim(), enabled: d.enabled, priority: Number(d.priority), concurrencyLimit: Number(d.concurrencyLimit), dailyCreditLimit: Number(d.dailyCreditLimit),
+      ...(d.secretRef.trim() !== initialSecret ? { secretRef: d.secretRef.trim() || null } : {}) };
     const done = () => { invalidate(channel?.id); onDone(channel ? 'Канал сохранён' : 'Канал создан'); onClose(); };
     if (channel) update.mutate({ channelId: channel.id, data: body }, { onSuccess: done });
     else create.mutate({ data: body }, { onSuccess: done });
@@ -49,7 +63,9 @@ function ChannelDialog({ channel, onClose, onDone }: { channel: AdminChannel | n
     <form className="adm-form" onSubmit={submit} noValidate>
       <div className="adm-fields">
         <label className="adm-field"><span>Название</span><input value={d.name} onChange={set('name')} maxLength={100} data-testid="input-channel-name" /></label>
-        <label className="adm-field"><span>Адаптер</span><input value={d.adapter} onChange={set('adapter')} maxLength={80} placeholder="openai-compatible" data-testid="input-channel-adapter" /></label>
+        <label className="adm-field"><span>Адаптер</span><select value={d.adapter} onChange={set('adapter')} data-testid="input-channel-adapter">{!ADAPTERS.some(a => a.id === d.adapter) && <option value={d.adapter}>{d.adapter || 'Выбери адаптер'}</option>}{ADAPTERS.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}</select></label>
+        {!channel && <div className="adm-field full"><button type="button" className="adm-btn sm" onClick={() => setD(v => ({ ...v, name: 'APINet', baseUrl: 'https://apinet.cloud/v1', secretRef: 'secret://apinet_key', adapter: 'apinet' }))} data-testid="button-channel-preset-apinet">Заполнить для APINet</button></div>}
+        <label className="adm-field full"><span>Ссылка на секрет</span><input className="mono" value={d.secretRef} onChange={set('secretRef')} maxLength={137} autoComplete="off" spellCheck={false} placeholder="secret://apinet_key" data-testid="input-channel-secret-ref" /><small>Только имя секрета, не сам ключ. Значение хранится в Secrets сервера: для APINet это apinet_key, для других провайдеров — AI_PROVIDER_*. Хост, отличный от apinet.cloud, должен быть в MEDUHA_AI_ALLOWED_HOSTS.</small></label>
         <label className="adm-field full"><span>Базовый адрес</span><input value={d.baseUrl} onChange={set('baseUrl')} inputMode="url" data-testid="input-channel-url" /><small>Только https. Ключи и секреты здесь не хранятся.</small></label>
         <label className="adm-field"><span>Приоритет</span><input type="number" min={0} max={100000} value={d.priority} onChange={set('priority')} data-testid="input-channel-priority" /></label>
         <label className="adm-field"><span>Параллельных задач</span><input type="number" min={1} max={10000} value={d.concurrencyLimit} onChange={set('concurrencyLimit')} data-testid="input-channel-concurrency" /></label>
@@ -168,6 +184,64 @@ function ModelDialog({ model, channels, onClose, onDone }: { model: AdminModel |
       <div className="adm-actions" style={{ justifyContent: 'flex-end' }}><button type="button" className="adm-btn" onClick={onClose} disabled={m.isPending}>Отмена</button><button className="adm-btn primary" disabled={m.isPending} data-testid="button-model-save">{m.isPending ? 'Сохраняем…' : m.error ? 'Повторить' : 'Сохранить'}</button></div>
     </form>
   </Modal>;
+}
+
+function AiChannelDiscoveryPanel({ channel, models, onImported }: { channel: AdminChannel; models: AdminModel[]; onImported: (message: string) => void }) {
+  const discover = useDiscoverAdminAiChannel({ request: adminRequest });
+  const importModels = useImportAdminAiChannelModels({ request: adminRequest });
+  const [result, setResult] = useState<DiscoverAdminAiChannel200 | null>(null);
+  const [filter, setFilter] = useState('');
+  const [onlyImportable, setOnlyImportable] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const configured = useMemo(() => new Set(models.map(m => m.upstreamId)), [models]);
+  const MAX = 50;
+  const run = () => { importModels.reset(); discover.mutate({ channelId: channel.id }, { onSuccess: r => { setResult(r); setSelected([]); } }); };
+  const all = result?.models ?? [];
+  const importableCount = all.filter(m => m.importable).length;
+  const q = filter.trim().toLowerCase();
+  const shown = all.filter(m => (!onlyImportable || m.importable) && (!q || `${m.id} ${m.endpoints.join(' ')}`.toLowerCase().includes(q)));
+  const toggle = (id: string) => setSelected(v => v.includes(id) ? v.filter(x => x !== id) : v.length >= MAX ? v : [...v, id]);
+  const doImport = () => {
+    if (!selected.length) return;
+    importModels.mutate({ channelId: channel.id, data: { modelIds: selected.slice(0, MAX) } }, {
+      onSuccess: r => { setSelected([]); onImported(`Обработано моделей: ${r.imported}. Новые добавлены выключенными и без цены. У существующих обновлена схема; цены, лимиты и включение не менялись.`); },
+    });
+  };
+  return <Panel title="Модели провайдера" meta={result ? `${all.length} найдено · ${importableCount} можно импортировать` : 'обнаружение'}
+    actions={<button className="adm-btn sm" onClick={run} disabled={discover.isPending || importModels.isPending} data-testid="button-ai-discover">{discover.isPending ? 'Проверяем…' : result ? 'Проверить снова' : 'Проверить ключ и список'}</button>}>
+    <div className="adm-panel-body adm-catalog">
+      <p className="sub">Проверка обращается только к списку моделей провайдера: подтверждает, что ключ из ссылки на секрет принимается, и показывает каталог. Генерация не запускается, это не платный тест. Импортировать сейчас можно только модели, для которых провайдер явно заявляет генерацию изображений; они получают консервативную схему «текст в одно фото». Видео, чат и модели с неизвестными возможностями показаны, но не импортируются и не угадываются. Платный запуск генерации через этот канал ещё не проверен.</p>
+      {discover.error ? <ErrorBox error={discover.error} onRetry={run} /> : null}
+      <Feedback error={importModels.error} />
+      {discover.isPending && !result && <Skeleton rows={4} />}
+      {!result && !discover.isPending && !discover.error && <Empty title="Список ещё не запрошен">Нажми «Проверить ключ и список». Ничего не включается и не списывается.</Empty>}
+      {result && <>
+        <div className="adm-feedback ok" role="status">{result.notice} Проверено: {fmtDate(result.checkedAt)}.</div>
+        <div className="adm-catalog-toolbar">
+          <input aria-label="Поиск по моделям провайдера" placeholder="Найти модель или endpoint" value={filter} onChange={e => setFilter(e.target.value)} data-testid="input-ai-discover-search" />
+          <label className="adm-check" style={{ whiteSpace: 'nowrap' }}><input type="checkbox" checked={onlyImportable} onChange={e => setOnlyImportable(e.target.checked)} data-testid="checkbox-ai-discover-importable" />Только импортируемые</label>
+        </div>
+        <span className="sub">{shown.length} из {all.length}</span>
+        {shown.length === 0 ? <Empty title="Ничего не найдено">Измени поиск или сними фильтр.</Empty> :
+        <div className="adm-catalog-list">
+          {shown.map(m => {
+            const exists = configured.has(m.id);
+            const canPick = m.importable;
+            const full = !selected.includes(m.id) && selected.length >= MAX;
+            return <div className="adm-catalog-entry adm-ai-entry" key={m.id} data-testid={`ai-discover-entry-${m.id}`}>
+              {canPick ? <input type="checkbox" aria-label={`Выбрать ${m.id}`} checked={selected.includes(m.id)} disabled={importModels.isPending || full} onChange={() => toggle(m.id)} /> : <span aria-hidden="true" style={{ width: 13 }} />}
+              <span><strong className="mono">{m.id}</strong>{m.endpoints.length > 0 && <small className="mono">{m.endpoints.join(' · ')}</small>}</span>
+              <small>{exists && m.importable ? 'уже настроена · обновить проверку' : m.importable ? 'фото · можно импортировать' : (m.reason ?? 'возможности не заявлены — не импортируется')}</small>
+            </div>;
+          })}
+        </div>}
+        <div className="adm-actions adm-catalog-actions">
+          <span className="sub">{selected.length} из макс. {MAX} выбрано · новые модели будут выключены и без цены, существующие настройки сохранятся</span>
+          <button className="adm-btn primary sm" onClick={doImport} disabled={!selected.length || importModels.isPending} data-testid="button-ai-import">{importModels.isPending ? 'Импортируем…' : 'Импортировать выбранные'}</button>
+        </div>
+      </>}
+    </div>
+  </Panel>;
 }
 
 function HiggsfieldCatalogPanel({ channel, models, onImported }: { channel: AdminChannel; models: AdminModel[]; onImported: (message: string) => void }) {
@@ -303,6 +377,7 @@ export default function ConfigSection() {
           </div>)}
         {selectedChannel?.adapter === 'higgsfield' && <p className="sub">Секрет хранится только на сервере. Тариф и лимиты настраиваются отдельно. Успешная SDK-проба не включает модель для пользователей.</p>}
         </div>
+        {selectedChannel && isDiscoveryAdapter(selectedChannel.adapter) && <AiChannelDiscoveryPanel key={selectedChannel.id} channel={selectedChannel} models={channelModels} onImported={message => { invalidate(selectedChannel.id); flash(message); }} />}
         {selectedChannel?.adapter.toLowerCase() === 'higgsfield' && <HiggsfieldCatalogPanel channel={selectedChannel} models={channelModels} onImported={message => { invalidate(); flash(message); }} />}
       </Panel>
     </aside>

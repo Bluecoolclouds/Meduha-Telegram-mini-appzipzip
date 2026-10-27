@@ -11,6 +11,92 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /meduha/admin/broadcasts:
+    get:
+      operationId: listAdminBroadcasts
+      tags: [meduha]
+      responses:
+        "200":
+          description: Recent campaigns and current eligible audience
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BroadcastList"
+    post:
+      operationId: createAdminBroadcast
+      tags: [meduha]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BroadcastInput"
+      responses:
+        "201":
+          description: Immutable saved draft
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Broadcast"
+        "400":
+          description: Invalid post or media
+  /meduha/admin/broadcast-media:
+    post:
+      operationId: uploadAdminBroadcastMedia
+      tags: [meduha]
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        "201":
+          description: Private media stored in App Storage
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, kind]
+                properties:
+                  id: { type: string }
+                  kind: { type: string, enum: [photo, video] }
+        "400":
+          description: Invalid media
+        "413":
+          description: File too large
+  /meduha/admin/broadcasts/{id}/{action}:
+    post:
+      operationId: actionAdminBroadcast
+      tags: [meduha]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: action
+          required: true
+          schema: { type: string, enum: [test, send, cancel] }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BroadcastActionInput"
+      responses:
+        "200":
+          description: Action completed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Broadcast" }
+        "400":
+          description: Invalid request or Telegram rejected the test
+        "404":
+          description: Campaign not found
+        "409":
+          description: Invalid state or no successful test
+        "503":
+          description: Telegram unavailable
   /meduha/video/catalog:
     get:
       operationId: getVideoCatalog
@@ -836,6 +922,56 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/AdminChannel" }
+  /meduha/admin/channels/{channelId}/discover:
+    post:
+      operationId: discoverAdminAiChannel
+      parameters:
+        - { name: channelId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Non-generating authenticated model discovery, not a paid generation test
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [checkedAt, notice, models]
+                properties:
+                  checkedAt: { type: string }
+                  notice: { type: string }
+                  models:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, endpoints, importable, reason]
+                      properties:
+                        id: { type: string }
+                        endpoints: { type: array, items: { type: string } }
+                        importable: { type: boolean }
+                        reason: { type: [string, "null"] }
+  /meduha/admin/channels/{channelId}/import:
+    post:
+      operationId: importAdminAiChannelModels
+      parameters:
+        - { name: channelId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [modelIds]
+              properties:
+                modelIds: { type: array, minItems: 1, maxItems: 50, items: { type: string, maxLength: 200 } }
+      responses:
+        "201":
+          description: Selected supported models imported disabled and unpriced
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [imported]
+                properties:
+                  imported: { type: integer }
   /meduha/admin/channels/{channelId}:
     parameters:
       - { in: path, name: channelId, required: true, schema: { type: string, format: uuid } }
@@ -1229,6 +1365,65 @@ components:
       in: header
       name: X-Telegram-Bot-Api-Secret-Token
   schemas:
+    BroadcastActionInput:
+      type: object
+      properties:
+        chatId: { type: string, pattern: "^[1-9][0-9]{0,15}$" }
+        confirm: { type: string }
+    BroadcastInput:
+      type: object
+      required: [title, text, buttons]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 100 }
+        text: { type: string, minLength: 1, maxLength: 4096 }
+        mediaId: { type: string, nullable: true }
+        buttons:
+          type: array
+          maxItems: 6
+          items:
+            $ref: "#/components/schemas/BroadcastButton"
+    BroadcastButton:
+      type: object
+      required: [text, url, kind]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 64 }
+        url: { type: string, format: uri }
+        kind: { type: string, enum: [url, web_app] }
+    Broadcast:
+      type: object
+      required: [id, title, text, buttons, status, testedAt, createdAt, counts]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        text: { type: string }
+        mediaId: { type: string, nullable: true }
+        mediaKind: { type: string, nullable: true }
+        buttons:
+          type: array
+          items: { $ref: "#/components/schemas/BroadcastButton" }
+        status: { type: string, enum: [draft, queued, completed, canceled] }
+        testedAt: { type: string, nullable: true }
+        createdAt: { type: string }
+        counts:
+          type: object
+          required: [pending, sending, sent, failed, unknown, skipped, canceled]
+          properties:
+            pending: { type: integer }
+            sending: { type: integer }
+            sent: { type: integer }
+            failed: { type: integer }
+            unknown: { type: integer }
+            skipped: { type: integer }
+            canceled: { type: integer }
+    BroadcastList:
+      type: object
+      required: [items, eligible, botConfigured]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Broadcast" }
+        eligible: { type: integer }
+        botConfigured: { type: boolean }
     BillingCatalog:
       type: object
       required: [currency, referenceRate, checkoutAvailable, plans]

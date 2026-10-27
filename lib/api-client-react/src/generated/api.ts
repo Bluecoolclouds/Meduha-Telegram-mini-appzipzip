@@ -49,7 +49,12 @@ import type {
   AdminUserDetail,
   AdminUserPage,
   BillingCatalog,
+  Broadcast,
+  BroadcastActionInput,
+  BroadcastInput,
+  BroadcastList,
   CompleteTemplateUpload200,
+  DiscoverAdminAiChannel200,
   FinanceMutationResult,
   FinanceSettings,
   FinanceWallet,
@@ -70,6 +75,8 @@ import type {
   HiggsfieldCatalog,
   HiggsfieldCatalogImportInput,
   HiggsfieldCatalogImportResult,
+  ImportAdminAiChannelModels201,
+  ImportAdminAiChannelModelsBody,
   ListAdminAuditParams,
   ListAdminJobsParams,
   ListAdminLedgerParams,
@@ -111,6 +118,7 @@ import type {
   TemplateSaveInput,
   TemplateSaveState,
   TemplateUploadInput,
+  UploadAdminBroadcastMedia201,
   VideoCatalog,
   VideoGenerationInput,
   VideoPriceQuote,
@@ -145,6 +153,326 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getListAdminBroadcastsUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/broadcasts`
+}
+
+export const listAdminBroadcasts = async ( options?: Parameters<typeof customFetch>[1]): Promise<BroadcastList> => {
+
+  return customFetch<BroadcastList>(getListAdminBroadcastsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminBroadcastsQueryKey = () => {
+    return [
+    `/api/meduha/admin/broadcasts`
+    ] as const;
+    }
+
+
+export const getListAdminBroadcastsQueryOptions = <TData = Awaited<ReturnType<typeof listAdminBroadcasts>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminBroadcasts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminBroadcastsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminBroadcasts>>> = ({ signal }) => listAdminBroadcasts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminBroadcasts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminBroadcastsQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminBroadcasts>>>
+export type ListAdminBroadcastsQueryError = ErrorType<unknown>
+
+
+
+export function useListAdminBroadcasts<TData = Awaited<ReturnType<typeof listAdminBroadcasts>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminBroadcasts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminBroadcastsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAdminBroadcastUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/broadcasts`
+}
+
+export const createAdminBroadcast = async (broadcastInput: BroadcastInput, options?: Parameters<typeof customFetch>[1]): Promise<Broadcast> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Broadcast>(getCreateAdminBroadcastUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(broadcastInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAdminBroadcastMutationKey = () => ['createAdminBroadcast'] as const;
+
+export const getCreateAdminBroadcastMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminBroadcast>>, TError,CreateAdminBroadcastMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAdminBroadcast>>, TError,CreateAdminBroadcastMutationVariables, TContext> => {
+
+const mutationKey = getCreateAdminBroadcastMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAdminBroadcast>>, CreateAdminBroadcastMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAdminBroadcast(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAdminBroadcastMutationResult = NonNullable<Awaited<ReturnType<typeof createAdminBroadcast>>>
+    export type CreateAdminBroadcastMutationBody = BodyType<BroadcastInput>
+    export type CreateAdminBroadcastMutationError = ErrorType<void>
+    export type CreateAdminBroadcastMutationVariables = {data: BodyType<BroadcastInput>}
+
+    export const useCreateAdminBroadcast = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminBroadcast>>, TError,CreateAdminBroadcastMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAdminBroadcast>>,
+        TError,
+        CreateAdminBroadcastMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateAdminBroadcastMutationOptions(options));
+    }
+
+export const getUploadAdminBroadcastMediaUrl = () => {
+
+
+
+
+  return `/api/meduha/admin/broadcast-media`
+}
+
+export const uploadAdminBroadcastMedia = async (uploadAdminBroadcastMediaBody: Blob, options?: Parameters<typeof customFetch>[1]): Promise<UploadAdminBroadcastMedia201> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UploadAdminBroadcastMedia201>(getUploadAdminBroadcastMediaUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream', ...getHeaders(options?.headers) },
+    body: uploadAdminBroadcastMediaBody
+  }
+);}
+
+
+
+
+
+export const getUploadAdminBroadcastMediaMutationKey = () => ['uploadAdminBroadcastMedia'] as const;
+
+export const getUploadAdminBroadcastMediaMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAdminBroadcastMedia>>, TError,UploadAdminBroadcastMediaMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadAdminBroadcastMedia>>, TError,UploadAdminBroadcastMediaMutationVariables, TContext> => {
+
+const mutationKey = getUploadAdminBroadcastMediaMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadAdminBroadcastMedia>>, UploadAdminBroadcastMediaMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadAdminBroadcastMedia(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadAdminBroadcastMediaMutationResult = NonNullable<Awaited<ReturnType<typeof uploadAdminBroadcastMedia>>>
+    export type UploadAdminBroadcastMediaMutationBody = BodyType<Blob>
+    export type UploadAdminBroadcastMediaMutationError = ErrorType<void>
+    export type UploadAdminBroadcastMediaMutationVariables = {data: BodyType<Blob>}
+
+    export const useUploadAdminBroadcastMedia = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAdminBroadcastMedia>>, TError,UploadAdminBroadcastMediaMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadAdminBroadcastMedia>>,
+        TError,
+        UploadAdminBroadcastMediaMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUploadAdminBroadcastMediaMutationOptions(options));
+    }
+
+export const getActionAdminBroadcastUrl = (id: string,
+    action: 'test' | 'send' | 'cancel',) => {
+
+
+
+
+  return `/api/meduha/admin/broadcasts/${id}/${action}`
+}
+
+export const actionAdminBroadcast = async (id: string,
+    action: 'test' | 'send' | 'cancel',
+    broadcastActionInput: BroadcastActionInput, options?: Parameters<typeof customFetch>[1]): Promise<Broadcast> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Broadcast>(getActionAdminBroadcastUrl(id,action),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(broadcastActionInput)
+  }
+);}
+
+
+
+
+
+export const getActionAdminBroadcastMutationKey = () => ['actionAdminBroadcast'] as const;
+
+export const getActionAdminBroadcastMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof actionAdminBroadcast>>, TError,ActionAdminBroadcastMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof actionAdminBroadcast>>, TError,ActionAdminBroadcastMutationVariables, TContext> => {
+
+const mutationKey = getActionAdminBroadcastMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof actionAdminBroadcast>>, ActionAdminBroadcastMutationVariables> = (props) => {
+          const {id,action,data} = props ?? {};
+
+          return  actionAdminBroadcast(id,action,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ActionAdminBroadcastMutationResult = NonNullable<Awaited<ReturnType<typeof actionAdminBroadcast>>>
+    export type ActionAdminBroadcastMutationBody = BodyType<BroadcastActionInput>
+    export type ActionAdminBroadcastMutationError = ErrorType<void>
+    export type ActionAdminBroadcastMutationVariables = {id: string;action: 'test' | 'send' | 'cancel';data: BodyType<BroadcastActionInput>}
+
+    export const useActionAdminBroadcast = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof actionAdminBroadcast>>, TError,ActionAdminBroadcastMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof actionAdminBroadcast>>,
+        TError,
+        ActionAdminBroadcastMutationVariables,
+        TContext
+      > => {
+      return useMutation(getActionAdminBroadcastMutationOptions(options));
+    }
 
 export const getGetVideoCatalogUrl = () => {
 
@@ -4767,6 +5095,157 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getCreateAdminChannelMutationOptions(options));
+    }
+
+export const getDiscoverAdminAiChannelUrl = (channelId: string,) => {
+
+
+
+
+  return `/api/meduha/admin/channels/${channelId}/discover`
+}
+
+export const discoverAdminAiChannel = async (channelId: string, options?: Parameters<typeof customFetch>[1]): Promise<DiscoverAdminAiChannel200> => {
+
+  return customFetch<DiscoverAdminAiChannel200>(getDiscoverAdminAiChannelUrl(channelId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getDiscoverAdminAiChannelMutationKey = () => ['discoverAdminAiChannel'] as const;
+
+export const getDiscoverAdminAiChannelMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof discoverAdminAiChannel>>, TError,DiscoverAdminAiChannelMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof discoverAdminAiChannel>>, TError,DiscoverAdminAiChannelMutationVariables, TContext> => {
+
+const mutationKey = getDiscoverAdminAiChannelMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof discoverAdminAiChannel>>, DiscoverAdminAiChannelMutationVariables> = (props) => {
+          const {channelId} = props ?? {};
+
+          return  discoverAdminAiChannel(channelId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DiscoverAdminAiChannelMutationResult = NonNullable<Awaited<ReturnType<typeof discoverAdminAiChannel>>>
+
+    export type DiscoverAdminAiChannelMutationError = ErrorType<unknown>
+    export type DiscoverAdminAiChannelMutationVariables = {channelId: string}
+
+    export const useDiscoverAdminAiChannel = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof discoverAdminAiChannel>>, TError,DiscoverAdminAiChannelMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof discoverAdminAiChannel>>,
+        TError,
+        DiscoverAdminAiChannelMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDiscoverAdminAiChannelMutationOptions(options));
+    }
+
+export const getImportAdminAiChannelModelsUrl = (channelId: string,) => {
+
+
+
+
+  return `/api/meduha/admin/channels/${channelId}/import`
+}
+
+export const importAdminAiChannelModels = async (channelId: string,
+    importAdminAiChannelModelsBody: ImportAdminAiChannelModelsBody, options?: Parameters<typeof customFetch>[1]): Promise<ImportAdminAiChannelModels201> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<ImportAdminAiChannelModels201>(getImportAdminAiChannelModelsUrl(channelId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(importAdminAiChannelModelsBody)
+  }
+);}
+
+
+
+
+
+export const getImportAdminAiChannelModelsMutationKey = () => ['importAdminAiChannelModels'] as const;
+
+export const getImportAdminAiChannelModelsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAdminAiChannelModels>>, TError,ImportAdminAiChannelModelsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof importAdminAiChannelModels>>, TError,ImportAdminAiChannelModelsMutationVariables, TContext> => {
+
+const mutationKey = getImportAdminAiChannelModelsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof importAdminAiChannelModels>>, ImportAdminAiChannelModelsMutationVariables> = (props) => {
+          const {channelId,data} = props ?? {};
+
+          return  importAdminAiChannelModels(channelId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ImportAdminAiChannelModelsMutationResult = NonNullable<Awaited<ReturnType<typeof importAdminAiChannelModels>>>
+    export type ImportAdminAiChannelModelsMutationBody = BodyType<ImportAdminAiChannelModelsBody>
+    export type ImportAdminAiChannelModelsMutationError = ErrorType<unknown>
+    export type ImportAdminAiChannelModelsMutationVariables = {channelId: string;data: BodyType<ImportAdminAiChannelModelsBody>}
+
+    export const useImportAdminAiChannelModels = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importAdminAiChannelModels>>, TError,ImportAdminAiChannelModelsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof importAdminAiChannelModels>>,
+        TError,
+        ImportAdminAiChannelModelsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getImportAdminAiChannelModelsMutationOptions(options));
     }
 
 export const getGetAdminChannelUrl = (channelId: string,) => {

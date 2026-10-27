@@ -15,6 +15,7 @@ await build({
     { in: path.join(root,'src/routes/feed-media.test.ts'), out: 'feed-media-route.test' },
     path.join(root,'src/lib/telegram-init-data.test.ts'),
     path.join(root,'src/lib/telegram-commands.test.ts'),
+    path.join(root,'src/lib/broadcasts.test.ts'),
     path.join(root,'src/lib/template-files.test.ts'),
     path.join(root,'src/lib/higgsfield-catalog.test.ts'),
     path.join(root,'src/lib/higgsfield.test.ts'),
@@ -23,6 +24,7 @@ await build({
     path.join(root,'src/lib/storage-transport.test.ts'),
     path.join(root,'src/lib/video-pricing.test.ts'),
     path.join(root,'src/lib/photo-pricing.test.ts'),
+    path.join(root,'src/lib/ai-channels.test.ts'),
     path.join(root,'src/lib/billing-pricing.test.ts'),
     path.join(root,'src/lib/payment-providers.test.ts'),
     path.join(root,'src/lib/freekassa.test.ts'),
@@ -44,6 +46,14 @@ await build({
   bundle:true,platform:'node',format:'cjs',outdir:out,entryNames:'[name]',
   outExtension:{'.js':'.cjs'},external:['pg-native'],logLevel:'warning',
 });
+if (process.argv.includes('--ai-channels')) {
+  const result = spawnSync(process.execPath, ['--test', path.join(out,'ai-channels.test.cjs'), path.join(out,'photo-pricing.test.cjs')], { stdio:'inherit', cwd:path.join(root,'../..'), env:{...process.env,NODE_ENV:'development'} });
+  process.exit(result.status ?? 1);
+}
+if (process.argv.includes('--broadcasts')) {
+  const result = spawnSync(process.execPath, ['--test', path.join(out,'broadcasts.test.cjs'), path.join(out,'telegram-commands.test.cjs')], { stdio:'inherit', cwd:path.join(root,'../..'), env:{...process.env,NODE_ENV:'development'} });
+  process.exit(result.status ?? 1);
+}
 if (process.argv.includes('--finance-isolated')) {
   const financeResult = spawnSync(process.execPath, [
     '--test', path.join(out, 'finance-multiprocess.integration.test.cjs'),

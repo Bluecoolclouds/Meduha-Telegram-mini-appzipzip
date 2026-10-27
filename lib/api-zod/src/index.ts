@@ -4,3 +4,5 @@ export * from "./generated/types";
 // Preserve the existing validator export and expose the query type distinctly.
 export { GetFeedMediaParams } from "./generated/api";
 export type { GetFeedMediaParams as FeedMediaVersionQuery } from "./generated/types/getFeedMediaParams";
+export { ImportAdminAiChannelModelsBody } from "./generated/api";
+export type { ImportAdminAiChannelModelsBody as ImportAdminAiChannelModelsInput } from "./generated/types/importAdminAiChannelModelsBody";

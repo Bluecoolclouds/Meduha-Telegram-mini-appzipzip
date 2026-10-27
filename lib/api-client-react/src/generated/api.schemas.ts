@@ -5,6 +5,85 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface BroadcastActionInput {
+  /** @pattern ^[1-9][0-9]{0,15}$ */
+  chatId?: string;
+  confirm?: string;
+}
+
+export type BroadcastButtonKind = typeof BroadcastButtonKind[keyof typeof BroadcastButtonKind];
+
+
+export const BroadcastButtonKind = {
+  url: 'url',
+  web_app: 'web_app',
+} as const;
+
+export interface BroadcastButton {
+  /**
+     * @minLength 1
+     * @maxLength 64
+     */
+  text: string;
+  url: string;
+  kind: BroadcastButtonKind;
+}
+
+export interface BroadcastInput {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  title: string;
+  /**
+     * @minLength 1
+     * @maxLength 4096
+     */
+  text: string;
+  mediaId?: string | null;
+  /** @maxItems 6 */
+  buttons: BroadcastButton[];
+}
+
+export type BroadcastStatus = typeof BroadcastStatus[keyof typeof BroadcastStatus];
+
+
+export const BroadcastStatus = {
+  draft: 'draft',
+  queued: 'queued',
+  completed: 'completed',
+  canceled: 'canceled',
+} as const;
+
+export type BroadcastCounts = {
+  pending: number;
+  sending: number;
+  sent: number;
+  failed: number;
+  unknown: number;
+  skipped: number;
+  canceled: number;
+};
+
+export interface Broadcast {
+  id: string;
+  title: string;
+  text: string;
+  mediaId?: string | null;
+  mediaKind?: string | null;
+  buttons: BroadcastButton[];
+  status: BroadcastStatus;
+  testedAt: string | null;
+  createdAt: string;
+  counts: BroadcastCounts;
+}
+
+export interface BroadcastList {
+  items: Broadcast[];
+  eligible: number;
+  botConfigured: boolean;
+}
+
 export type BillingCatalogCurrency = typeof BillingCatalogCurrency[keyof typeof BillingCatalogCurrency];
 
 
@@ -1701,6 +1780,19 @@ export interface AdminLedgerPage {
   offset: number;
 }
 
+export type UploadAdminBroadcastMedia201Kind = typeof UploadAdminBroadcastMedia201Kind[keyof typeof UploadAdminBroadcastMedia201Kind];
+
+
+export const UploadAdminBroadcastMedia201Kind = {
+  photo: 'photo',
+  video: 'video',
+} as const;
+
+export type UploadAdminBroadcastMedia201 = {
+  id: string;
+  kind: UploadAdminBroadcastMedia201Kind;
+};
+
 export type ListTemplatesParams = {
 /**
  * @maxLength 100
@@ -1789,6 +1881,33 @@ export type ReceiveMeduhaFreeKassaNotification200 = typeof ReceiveMeduhaFreeKass
 export const ReceiveMeduhaFreeKassaNotification200 = {
   YES: 'YES',
 } as const;
+
+export type DiscoverAdminAiChannel200ModelsItem = {
+  id: string;
+  endpoints: string[];
+  importable: boolean;
+  /** @nullable */
+  reason: string | null;
+};
+
+export type DiscoverAdminAiChannel200 = {
+  checkedAt: string;
+  notice: string;
+  models: DiscoverAdminAiChannel200ModelsItem[];
+};
+
+export type ImportAdminAiChannelModelsBody = {
+  /**
+     * @minItems 1
+     * @maxItems 50
+     * @items.maxLength 200
+     */
+  modelIds: string[];
+};
+
+export type ImportAdminAiChannelModels201 = {
+  imported: number;
+};
 
 export type ListAdminUsersParams = {
 /**

@@ -8,6 +8,140 @@
 import * as zod from 'zod';
 
 
+export const listAdminBroadcastsResponseItemsItemButtonsItemTextMax = 64;
+
+
+
+export const ListAdminBroadcastsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "text": zod.string(),
+  "mediaId": zod.string().nullish(),
+  "mediaKind": zod.string().nullish(),
+  "buttons": zod.array(zod.object({
+  "text": zod.string().min(1).max(listAdminBroadcastsResponseItemsItemButtonsItemTextMax),
+  "url": zod.string().url(),
+  "kind": zod.enum(['url', 'web_app'])
+})),
+  "status": zod.enum(['draft', 'queued', 'completed', 'canceled']),
+  "testedAt": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "counts": zod.object({
+  "pending": zod.number().int(),
+  "sending": zod.number().int(),
+  "sent": zod.number().int(),
+  "failed": zod.number().int(),
+  "unknown": zod.number().int(),
+  "skipped": zod.number().int(),
+  "canceled": zod.number().int()
+})
+})),
+  "eligible": zod.number().int(),
+  "botConfigured": zod.boolean()
+})
+
+
+export const createAdminBroadcastBodyTitleMax = 100;
+
+export const createAdminBroadcastBodyTextMax = 4096;
+
+export const createAdminBroadcastBodyButtonsItemTextMax = 64;
+
+export const createAdminBroadcastBodyButtonsMax = 6;
+
+
+
+export const CreateAdminBroadcastBody = zod.object({
+  "title": zod.string().min(1).max(createAdminBroadcastBodyTitleMax),
+  "text": zod.string().min(1).max(createAdminBroadcastBodyTextMax),
+  "mediaId": zod.string().nullish(),
+  "buttons": zod.array(zod.object({
+  "text": zod.string().min(1).max(createAdminBroadcastBodyButtonsItemTextMax),
+  "url": zod.string().url(),
+  "kind": zod.enum(['url', 'web_app'])
+})).max(createAdminBroadcastBodyButtonsMax)
+})
+
+export const createAdminBroadcastResponseButtonsItemTextMax = 64;
+
+
+
+export const CreateAdminBroadcastResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "text": zod.string(),
+  "mediaId": zod.string().nullish(),
+  "mediaKind": zod.string().nullish(),
+  "buttons": zod.array(zod.object({
+  "text": zod.string().min(1).max(createAdminBroadcastResponseButtonsItemTextMax),
+  "url": zod.string().url(),
+  "kind": zod.enum(['url', 'web_app'])
+})),
+  "status": zod.enum(['draft', 'queued', 'completed', 'canceled']),
+  "testedAt": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "counts": zod.object({
+  "pending": zod.number().int(),
+  "sending": zod.number().int(),
+  "sent": zod.number().int(),
+  "failed": zod.number().int(),
+  "unknown": zod.number().int(),
+  "skipped": zod.number().int(),
+  "canceled": zod.number().int()
+})
+})
+
+
+export const UploadAdminBroadcastMediaResponse = zod.object({
+  "id": zod.string(),
+  "kind": zod.enum(['photo', 'video'])
+})
+
+
+export const ActionAdminBroadcastParams = zod.object({
+  "id": zod.coerce.string().uuid(),
+  "action": zod.enum(['test', 'send', 'cancel'])
+})
+
+export const actionAdminBroadcastBodyChatIdRegExp = new RegExp('^[1-9][0-9]{0,15}$');
+
+
+export const ActionAdminBroadcastBody = zod.object({
+  "chatId": zod.string().regex(actionAdminBroadcastBodyChatIdRegExp).optional(),
+  "confirm": zod.string().optional()
+})
+
+export const actionAdminBroadcastResponseButtonsItemTextMax = 64;
+
+
+
+export const ActionAdminBroadcastResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "text": zod.string(),
+  "mediaId": zod.string().nullish(),
+  "mediaKind": zod.string().nullish(),
+  "buttons": zod.array(zod.object({
+  "text": zod.string().min(1).max(actionAdminBroadcastResponseButtonsItemTextMax),
+  "url": zod.string().url(),
+  "kind": zod.enum(['url', 'web_app'])
+})),
+  "status": zod.enum(['draft', 'queued', 'completed', 'canceled']),
+  "testedAt": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "counts": zod.object({
+  "pending": zod.number().int(),
+  "sending": zod.number().int(),
+  "sent": zod.number().int(),
+  "failed": zod.number().int(),
+  "unknown": zod.number().int(),
+  "skipped": zod.number().int(),
+  "canceled": zod.number().int()
+})
+})
+
+
 export const GetVideoCatalogResponse = zod.object({
   "families": zod.array(zod.object({
   "id": zod.string(),
@@ -1900,6 +2034,41 @@ export const CreateAdminChannelResponse = zod.object({
 }).and(zod.object({
   "id": zod.string().uuid()
 }))
+
+
+export const DiscoverAdminAiChannelParams = zod.object({
+  "channelId": zod.coerce.string().uuid()
+})
+
+export const DiscoverAdminAiChannelResponse = zod.object({
+  "checkedAt": zod.string(),
+  "notice": zod.string(),
+  "models": zod.array(zod.object({
+  "id": zod.string(),
+  "endpoints": zod.array(zod.string()),
+  "importable": zod.boolean(),
+  "reason": zod.string().nullable()
+}))
+})
+
+
+export const ImportAdminAiChannelModelsParams = zod.object({
+  "channelId": zod.coerce.string().uuid()
+})
+
+export const importAdminAiChannelModelsBodyModelIdsItemMax = 200;
+
+export const importAdminAiChannelModelsBodyModelIdsMax = 50;
+
+
+
+export const ImportAdminAiChannelModelsBody = zod.object({
+  "modelIds": zod.array(zod.string().max(importAdminAiChannelModelsBodyModelIdsItemMax)).min(1).max(importAdminAiChannelModelsBodyModelIdsMax)
+})
+
+export const ImportAdminAiChannelModelsResponse = zod.object({
+  "imported": zod.number().int()
+})
 
 
 export const GetAdminChannelParams = zod.object({

@@ -79,3 +79,25 @@ export async function storeGenerationImages(id: string, urls: string[]) {
   }
   return paths;
 }
+
+export async function storeChannelImage(id: string, image: { url?: string; b64_json?: string }) {
+  if (!image.b64_json) {
+    if (!image.url) throw new PhotoResultValidationError('No image');
+    return storeGenerationImages(id, [image.url]);
+  }
+  const encoded = image.b64_json;
+  if (encoded.length > Math.ceil(MAX_PHOTO_BYTES / 3) * 4 || !/^[A-Za-z0-9+/]+={0,2}$/.test(encoded)) throw new PhotoResultValidationError('Invalid image payload');
+  const bytes = Buffer.from(encoded, 'base64');
+  if (bytes.length < 12 || bytes.length > MAX_PHOTO_BYTES) throw new PhotoResultValidationError('Invalid image size');
+  const type = bytes[0] === 0x89 ? 'image/png' : bytes[0] === 0xff ? 'image/jpeg' : 'image/webp';
+  checkPhotoHeader(type, bytes);
+  const final = generationImageFile(id, 0);
+  try {
+    await final.save(bytes, { resumable: false, preconditionOpts: { ifGenerationMatch: 0 }, metadata: { contentType: type, cacheControl: 'private, no-store' } });
+  } catch (error) {
+    if (![409, 412].includes((error as { code: number }).code)) throw error;
+  }
+  const [metadata] = await final.getMetadata();
+  if (!types.includes(metadata.contentType ?? '') || Number(metadata.size) < 12 || Number(metadata.size) > MAX_PHOTO_BYTES) throw new PhotoResultValidationError('Stored photo invalid');
+  return [`/api/meduha/generations/${id}/images/0`];
+}
